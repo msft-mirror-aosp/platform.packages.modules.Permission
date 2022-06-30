@@ -49,8 +49,10 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.Manifest;
 import android.app.AppOpsManager;
 import android.app.Application;
+import android.app.admin.DevicePolicyManager;
 import android.app.role.RoleManager;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -83,6 +85,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -99,6 +102,7 @@ import com.android.permissioncontroller.PermissionControllerApplication;
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.permission.model.AppPermissionGroup;
 import com.android.permissioncontroller.permission.model.livedatatypes.LightAppPermGroup;
+import com.android.permissioncontroller.permission.model.livedatatypes.LightPackageInfo;
 
 import java.lang.annotation.Retention;
 import java.time.ZonedDateTime;
@@ -176,11 +180,18 @@ public final class Utils {
     private static final String PROPERTY_LOCATION_ACCESS_CHECK_ENABLED =
             "location_access_check_enabled";
 
-    /** The time an app needs to be unused in order to be hibernated */
-    public static final String PROPERTY_PERMISSION_DECISIONS_CHECK_OLD_FREQUENCY_MILLIS =
-            "permission_decisions_check_old_frequency_millis";
+    /** How frequently to check permission event store to scrub old data */
+    public static final String PROPERTY_PERMISSION_EVENTS_CHECK_OLD_FREQUENCY_MILLIS =
+            "permission_events_check_old_frequency_millis";
 
-    /** The time an app needs to be unused in order to be hibernated */
+    /**
+     * Whether to store the exact time for permission changes. Only for use in tests and should
+     * not be modified in prod.
+     */
+    public static final String PROPERTY_PERMISSION_CHANGES_STORE_EXACT_TIME =
+            "permission_changes_store_exact_time";
+
+    /** The max amount of time permission data can stay in the storage before being scrubbed */
     public static final String PROPERTY_PERMISSION_DECISIONS_MAX_DATA_AGE_MILLIS =
             "permission_decisions_max_data_age_millis";
 
@@ -225,7 +236,6 @@ public final class Utils {
     private static final ArrayMap<String, Integer> PERM_GROUP_BACKGROUND_REQUEST_DETAIL_RES;
     private static final ArrayMap<String, Integer> PERM_GROUP_UPGRADE_REQUEST_RES;
     private static final ArrayMap<String, Integer> PERM_GROUP_UPGRADE_REQUEST_DETAIL_RES;
-    private static final ArrayMap<String, Integer> PERM_GROUP_CONTINUE_REQUEST_RES;
 
     /** Permission -> Sensor codes */
     private static final ArrayMap<String, Integer> PERM_SENSOR_CODES;
@@ -284,12 +294,15 @@ public final class Utils {
         // STORAGE_PERMISSIONS list in PermissionManagerService in frameworks/base
         PLATFORM_PERMISSIONS.put(Manifest.permission.READ_EXTERNAL_STORAGE, STORAGE);
         PLATFORM_PERMISSIONS.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, STORAGE);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.ACCESS_MEDIA_LOCATION, STORAGE);
+        if (!SdkLevel.isAtLeastT()) {
+            PLATFORM_PERMISSIONS.put(Manifest.permission.ACCESS_MEDIA_LOCATION, STORAGE);
+        }
 
         if (SdkLevel.isAtLeastT()) {
             PLATFORM_PERMISSIONS.put(Manifest.permission.READ_MEDIA_AUDIO, READ_MEDIA_AURAL);
-            PLATFORM_PERMISSIONS.put(Manifest.permission.READ_MEDIA_IMAGE, READ_MEDIA_VISUAL);
+            PLATFORM_PERMISSIONS.put(Manifest.permission.READ_MEDIA_IMAGES, READ_MEDIA_VISUAL);
             PLATFORM_PERMISSIONS.put(Manifest.permission.READ_MEDIA_VIDEO, READ_MEDIA_VISUAL);
+            PLATFORM_PERMISSIONS.put(Manifest.permission.ACCESS_MEDIA_LOCATION, READ_MEDIA_VISUAL);
         }
 
         PLATFORM_PERMISSIONS.put(Manifest.permission.ACCESS_FINE_LOCATION, LOCATION);
@@ -416,10 +429,6 @@ public final class Utils {
                 .put(CAMERA, R.string.permgroupupgraderequestdetail_camera);
         PERM_GROUP_UPGRADE_REQUEST_DETAIL_RES
                 .put(SENSORS,  R.string.permgroupupgraderequestdetail_sensors);
-
-        PERM_GROUP_CONTINUE_REQUEST_RES = new ArrayMap<>();
-        PERM_GROUP_CONTINUE_REQUEST_RES
-                .put(NOTIFICATIONS, R.string.permgrouprequestcontinue_notifications);
 
         PERM_SENSOR_CODES = new ArrayMap<>();
         if (SdkLevel.isAtLeastS()) {
@@ -843,6 +852,19 @@ public final class Utils {
         return applyTint(context, context.getDrawable(iconResId), attr);
     }
 
+    /**
+     * Get the color resource id based on the attribute
+     *
+     * @return Resource id for the color
+     */
+    @ColorRes
+    public static int getColorResId(Context context, int attr) {
+        Theme theme = context.getTheme();
+        TypedValue typedValue = new TypedValue();
+        theme.resolveAttribute(attr, typedValue, true);
+        return typedValue.resourceId;
+    }
+
     public static List<ApplicationInfo> getAllInstalledApplications(Context context) {
         return context.getPackageManager().getInstalledApplications(0);
     }
@@ -951,6 +973,38 @@ public final class Utils {
                 || (packageInfo.applicationInfo.targetSdkVersion < Build.VERSION_CODES.R
                 && manager.unsafeCheckOpNoThrow(OPSTR_LEGACY_STORAGE,
                 packageInfo.applicationInfo.uid, packageInfo.packageName) == MODE_ALLOWED);
+    }
+
+    /**
+     * Gets whether the STORAGE group should be hidden from the UI for this package. This is true
+     * when the platform is T+, and the package has legacy storage access (i.e., either the package
+     * has a targetSdk less than Q, or has a targetSdk equal to Q and has OPSTR_LEGACY_STORAGE).
+     *
+     * TODO jaysullivan: This is always calling AppOpsManager; not taking advantage of LiveData
+     *
+     * @param pkg The package to check
+     */
+    public static boolean shouldShowStorage(LightPackageInfo pkg) {
+        if (!SdkLevel.isAtLeastT()) {
+            return true;
+        }
+        int targetSdkVersion = pkg.getTargetSdkVersion();
+        PermissionControllerApplication app = PermissionControllerApplication.get();
+        Context context = null;
+        try {
+            context = Utils.getUserContext(app, UserHandle.getUserHandleForUid(pkg.getUid()));
+        } catch (NameNotFoundException e) {
+            return true;
+        }
+        AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);
+        if (appOpsManager == null) {
+            return true;
+        }
+
+        return targetSdkVersion < Build.VERSION_CODES.Q
+                || (targetSdkVersion == Build.VERSION_CODES.Q
+                && appOpsManager.unsafeCheckOpNoThrow(OPSTR_LEGACY_STORAGE, pkg.getUid(),
+                pkg.getPackageName()) == MODE_ALLOWED);
     }
 
     /**
@@ -1225,15 +1279,6 @@ public final class Utils {
     }
 
     /**
-     * The resource id for the "continue allowing" message for a permission group
-     * @param groupName Permission group name
-     * @return The id or 0 if the permission group doesn't exist or have a message
-     */
-    public static int getContinueRequest(String groupName) {
-        return PERM_GROUP_CONTINUE_REQUEST_RES.getOrDefault(groupName, 0);
-    }
-
-    /**
      * Checks whether a package has an active one-time permission according to the system server's
      * flags
      *
@@ -1385,7 +1430,6 @@ public final class Utils {
      */
     public static void navigateToNotificationSettings(@NonNull Context context) {
         Intent notificationIntent = new Intent(Settings.ACTION_ALL_APPS_NOTIFICATION_SETTINGS);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(notificationIntent);
     }
 
@@ -1400,7 +1444,6 @@ public final class Utils {
             @NonNull String packageName, @NonNull UserHandle user) {
         Intent notificationIntent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
         notificationIntent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivityAsUser(notificationIntent, user);
     }
 
@@ -1448,5 +1491,55 @@ public final class Utils {
         return group.getHasPermWithBackgroundMode()
                 || Manifest.permission_group.CAMERA.equals(groupName)
                 || Manifest.permission_group.MICROPHONE.equals(groupName);
+    }
+
+    /**
+     * Returns the appropriate enterprise string for the provided IDs
+     */
+    @NonNull
+    public static String getEnterpriseString(@NonNull Context context,
+            @NonNull String updatableStringId, int defaultStringId, @NonNull Object... formatArgs) {
+        return SdkLevel.isAtLeastT()
+                ? getUpdatableEnterpriseString(
+                        context, updatableStringId, defaultStringId, formatArgs)
+                : context.getString(defaultStringId, formatArgs);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @NonNull
+    private static String getUpdatableEnterpriseString(@NonNull Context context,
+            @NonNull String updatableStringId, int defaultStringId, @NonNull Object... formatArgs) {
+        DevicePolicyManager dpm = getSystemServiceSafe(context, DevicePolicyManager.class);
+        return  dpm.getResources().getString(updatableStringId, () -> context.getString(
+                defaultStringId, formatArgs), formatArgs);
+    }
+
+    /**
+     * Get {@link PackageInfo} for this ComponentName.
+     *
+     * @param context The current Context
+     * @param component component to get package info for
+     * @return The package info
+     *
+     * @throws PackageManager.NameNotFoundException if package does not exist
+     */
+    @NonNull
+    public static PackageInfo getPackageInfoForComponentName(@NonNull Context context,
+            @NonNull ComponentName component) throws PackageManager.NameNotFoundException {
+        return context.getPackageManager().getPackageInfo(component.getPackageName(), 0);
+    }
+
+    /**
+     * Return the label to use for this application.
+     *
+     * @param context The current Context
+     * @param applicationInfo The {@link ApplicationInfo} of the application to get the label of.
+     * @return Returns a {@link CharSequence} containing the label associated with this application,
+     * or its name the  item does not have a label.
+     */
+    @NonNull
+    public static CharSequence getApplicationLabel(@NonNull Context context,
+            @NonNull ApplicationInfo applicationInfo) {
+        return context.getPackageManager().getApplicationLabel(applicationInfo);
     }
 }

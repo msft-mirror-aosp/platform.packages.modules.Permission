@@ -16,31 +16,55 @@
 
 package com.android.permissioncontroller.safetycenter.ui;
 
+import static android.os.Build.VERSION_CODES.TIRAMISU;
+
 import android.content.Context;
 import android.safetycenter.SafetyCenterStaticEntry;
+import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.preference.Preference;
 
 /** A preference which displays a visual representation of a {@link SafetyCenterStaticEntry}. */
-public class StaticSafetyEntryPreference extends Preference {
+@RequiresApi(TIRAMISU)
+public class StaticSafetyEntryPreference extends Preference implements ComparablePreference {
 
     private static final String TAG = StaticSafetyEntryPreference.class.getSimpleName();
 
+    private final SafetyCenterStaticEntry mEntry;
+
     public StaticSafetyEntryPreference(Context context, SafetyCenterStaticEntry entry) {
         super(context);
+        mEntry = entry;
         setTitle(entry.getTitle());
         setSummary(entry.getSummary());
-        setOnPreferenceClickListener(unused -> {
-            try {
-                entry.getPendingIntent().send();
-            } catch (Exception ex) {
-                Log.e(TAG,
-                        String.format(
-                                "Failed to execute pending intent for static entry: %s", entry),
-                        ex);
-            }
-            return true;
-        });
+        if (entry.getPendingIntent() != null) {
+            setOnPreferenceClickListener(unused -> {
+                try {
+                    entry.getPendingIntent().send();
+                } catch (Exception ex) {
+                    Log.e(TAG,
+                            String.format(
+                                    "Failed to execute pending intent for static entry: %s", entry),
+                            ex);
+                }
+                return true;
+            });
+        }
+    }
+
+    @Override
+    public boolean isSameItem(@NonNull Preference preference) {
+        return preference instanceof StaticSafetyEntryPreference
+                && TextUtils.equals(mEntry.getTitle(),
+                ((StaticSafetyEntryPreference) preference).mEntry.getTitle());
+    }
+
+    @Override
+    public boolean hasSameContents(@NonNull Preference preference) {
+        return preference instanceof StaticSafetyEntryPreference
+                && mEntry.equals(((StaticSafetyEntryPreference) preference).mEntry);
     }
 }

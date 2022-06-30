@@ -139,6 +139,21 @@ data class LightAppPermGroup(
     val isGrantedByRole = foreground.isGrantedByRole || background.isGrantedByRole
 
     /**
+     * Whether any of the permission (foreground/background) is fixed by the system
+     */
+    val isSystemFixed = foreground.isSystemFixed || background.isSystemFixed
+
+    /**
+     * Whether any of the permission (foreground/background) in this group requires a review
+     */
+    val isReviewRequired = foreground.isReviewRequired || background.isReviewRequired
+
+    /**
+     * Whether any of the permission (foreground/background) is granted in this permission group
+     */
+    var isGranted = foreground.isGranted || background.isGranted
+
+    /**
      * Whether any permissions in this group are user sensitive
      */
     val isUserSensitive = permissions.any { it.value.isUserSensitive }
@@ -149,14 +164,7 @@ data class LightAppPermGroup(
     val isRevokeWhenRequested = permissions.any { it.value.isRevokeWhenRequested }
 
     /**
-     * Whether a runtime permission request dialog must be shown on behalf of the app, rather than
-     * the app requesting explicitly
-     */
-    val isRuntimePermReviewRequired = supportsRuntimePerms &&
-            permissions.any { it.value.isReviewRequired }
-
-    /**
-     * A subset of the AppPermssionGroup, representing either the background or foreground permissions
+     * A subset of the AppPermissionGroup, representing either the background or foreground permissions
      * of the full group.
      *
      * @param permissions The permissions contained within this subgroup, a subset of those contained
@@ -172,6 +180,17 @@ data class LightAppPermGroup(
          * Whether any of this App Permission SubGroup's permissions are granted
          */
         val isGranted = specialLocationGrant ?: permissions.any { it.value.isGrantedIncludingAppOp }
+
+        /**
+         * Whether this App Permission SubGroup should be treated as granted. This means either:
+         * 1) At least one permission was granted excluding auto-granted permissions (i.e., granted
+         * during install time with flag RevokeWhenRequested.) Or,
+         * 2) All permissions were auto-granted (all permissions are all granted and all
+         * RevokeWhenRequested.)
+         */
+        val isGrantedExcludingRWROrAllRWR = specialLocationGrant ?: (permissions
+            .any { it.value.isGrantedIncludingAppOp && !it.value.isRevokeWhenRequested } ||
+            permissions.all { it.value.isGrantedIncludingAppOp && it.value.isRevokeWhenRequested })
 
         /**
          * Whether any of this App Permission SubGroup's permissions are granted by default
@@ -204,6 +223,11 @@ data class LightAppPermGroup(
          * Whether any of this App Permission Subgroup's permissions are set by the user
          */
         val isUserSet = permissions.any { it.value.isUserSet }
+
+        /**
+         * whether review is required or not for the permission group
+         */
+        val isReviewRequired = permissions.any { it.value.isReviewRequired }
 
         /**
          * Whether any of this App Permission Subgroup's permissions are set by the role of this app

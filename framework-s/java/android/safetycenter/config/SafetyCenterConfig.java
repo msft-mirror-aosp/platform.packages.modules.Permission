@@ -18,6 +18,7 @@ package android.safetycenter.config;
 
 import static android.os.Build.VERSION_CODES.TIRAMISU;
 
+import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.NonNull;
@@ -28,28 +29,51 @@ import android.os.Parcelable;
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 /**
- * Data class used to represent the initial configuration of the Safety Center
+ * Data class used to represent the initial configuration of the Safety Center.
  *
  * @hide
  */
 @SystemApi
 @RequiresApi(TIRAMISU)
 public final class SafetyCenterConfig implements Parcelable {
+
     @NonNull
-    private final List<SafetySourcesGroup> mSafetySourcesGroups;
+    public static final Creator<SafetyCenterConfig> CREATOR =
+            new Creator<SafetyCenterConfig>() {
+                @Override
+                public SafetyCenterConfig createFromParcel(Parcel in) {
+                    List<SafetySourcesGroup> safetySourcesGroups =
+                            requireNonNull(in.createTypedArrayList(SafetySourcesGroup.CREATOR));
+                    Builder builder = new Builder();
+                    for (int i = 0; i < safetySourcesGroups.size(); i++) {
+                        builder.addSafetySourcesGroup(safetySourcesGroups.get(i));
+                    }
+                    return builder.build();
+                }
+
+                @Override
+                public SafetyCenterConfig[] newArray(int size) {
+                    return new SafetyCenterConfig[size];
+                }
+            };
+
+    @NonNull private final List<SafetySourcesGroup> mSafetySourcesGroups;
 
     private SafetyCenterConfig(@NonNull List<SafetySourcesGroup> safetySourcesGroups) {
         mSafetySourcesGroups = safetySourcesGroups;
     }
 
-    /** Returns the list of safety sources groups in the configuration. */
+    /**
+     * Returns the list of {@link SafetySourcesGroup}s in the Safety Center configuration.
+     *
+     * <p>A Safety Center configuration contains at least one {@link SafetySourcesGroup}.
+     */
     @NonNull
     public List<SafetySourcesGroup> getSafetySourcesGroups() {
         return mSafetySourcesGroups;
@@ -70,9 +94,7 @@ public final class SafetyCenterConfig implements Parcelable {
 
     @Override
     public String toString() {
-        return "SafetyCenterConfig{"
-                + "mSafetySourcesGroups=" + mSafetySourcesGroups
-                + '}';
+        return "SafetyCenterConfig{" + "mSafetySourcesGroups=" + mSafetySourcesGroups + '}';
     }
 
     @Override
@@ -82,58 +104,50 @@ public final class SafetyCenterConfig implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
-        dest.writeParcelableList(mSafetySourcesGroups, flags);
+        dest.writeTypedList(mSafetySourcesGroups);
     }
-
-    @NonNull
-    public static final Parcelable.Creator<SafetyCenterConfig> CREATOR =
-            new Parcelable.Creator<SafetyCenterConfig>() {
-                @Override
-                public SafetyCenterConfig createFromParcel(Parcel in) {
-                    List<SafetySourcesGroup> safetySourcesGroups = new ArrayList<>();
-                    in.readParcelableList(safetySourcesGroups,
-                            SafetySourcesGroup.class.getClassLoader());
-                    return new SafetyCenterConfig(
-                            Collections.unmodifiableList(safetySourcesGroups));
-                }
-
-                @Override
-                public SafetyCenterConfig[] newArray(int size) {
-                    return new SafetyCenterConfig[size];
-                }
-            };
 
     /** Builder class for {@link SafetyCenterConfig}. */
     public static final class Builder {
-        @NonNull
+
         private final List<SafetySourcesGroup> mSafetySourcesGroups = new ArrayList<>();
 
         /** Creates a {@link Builder} for a {@link SafetyCenterConfig}. */
-        public Builder() {
-        }
+        public Builder() {}
 
-        /** Adds a safety source group to the configuration. */
+        /**
+         * Adds a {@link SafetySourcesGroup} to the Safety Center configuration.
+         *
+         * <p>A Safety Center configuration must contain at least one {@link SafetySourcesGroup}.
+         */
         @NonNull
         public Builder addSafetySourcesGroup(@NonNull SafetySourcesGroup safetySourcesGroup) {
             mSafetySourcesGroups.add(requireNonNull(safetySourcesGroup));
             return this;
         }
 
-        /** Creates the {@link SafetyCenterConfig} defined by this {@link Builder}. */
+        /**
+         * Creates the {@link SafetyCenterConfig} defined by this {@link Builder}.
+         *
+         * <p>Throws an {@link IllegalStateException} if any constraint on the Safety Center
+         * configuration is violated.
+         */
         @NonNull
         public SafetyCenterConfig build() {
-            if (mSafetySourcesGroups.isEmpty()) {
+            List<SafetySourcesGroup> safetySourcesGroups =
+                    unmodifiableList(new ArrayList<>(mSafetySourcesGroups));
+            if (safetySourcesGroups.isEmpty()) {
                 throw new IllegalStateException("No safety sources groups present");
             }
             Set<String> safetySourceIds = new HashSet<>();
             Set<String> safetySourcesGroupsIds = new HashSet<>();
-            int safetySourcesGroupsSize = mSafetySourcesGroups.size();
+            int safetySourcesGroupsSize = safetySourcesGroups.size();
             for (int i = 0; i < safetySourcesGroupsSize; i++) {
-                SafetySourcesGroup safetySourcesGroup = mSafetySourcesGroups.get(i);
+                SafetySourcesGroup safetySourcesGroup = safetySourcesGroups.get(i);
                 String groupId = safetySourcesGroup.getId();
                 if (safetySourcesGroupsIds.contains(groupId)) {
                     throw new IllegalStateException(
-                            String.format("Duplicate id %s among safety sources groups", groupId));
+                            "Duplicate id " + groupId + " among safety sources groups");
                 }
                 safetySourcesGroupsIds.add(groupId);
                 List<SafetySource> safetySources = safetySourcesGroup.getSafetySources();
@@ -143,13 +157,12 @@ public final class SafetyCenterConfig implements Parcelable {
                     String sourceId = staticSafetySource.getId();
                     if (safetySourceIds.contains(sourceId)) {
                         throw new IllegalStateException(
-                                String.format("Duplicate id %s among safety sources", sourceId));
+                                "Duplicate id " + sourceId + " among safety sources");
                     }
                     safetySourceIds.add(sourceId);
                 }
             }
-            return new SafetyCenterConfig(Collections.unmodifiableList(mSafetySourcesGroups));
+            return new SafetyCenterConfig(safetySourcesGroups);
         }
     }
-
 }
