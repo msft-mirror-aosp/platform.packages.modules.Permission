@@ -17,7 +17,6 @@
 package android.safetycenter.cts.testing
 
 import android.content.Context
-import android.content.Intent.ACTION_SAFETY_CENTER
 import android.content.res.Resources
 import android.safetycenter.SafetySourceData
 import android.safetycenter.config.SafetyCenterConfig
@@ -37,6 +36,9 @@ object SafetyCenterCtsConfigs {
 
     /** ID of a source not used in any config. */
     const val SAMPLE_SOURCE_ID = "cts_sample_source_id"
+
+    /** Activity action: Launch the [TestActivity] used to check redirects in CTS tests. */
+    const val ACTION_TEST_ACTIVITY = "android.safetycenter.cts.testing.action.TEST_ACTIVITY"
 
     /**
      * ID of the only source provided in [SINGLE_SOURCE_CONFIG], [SEVERITY_ZERO_CONFIG] and
@@ -347,6 +349,20 @@ object SafetyCenterCtsConfigs {
             .addSafetySourcesGroup(DYNAMIC_SOURCE_GROUP_3)
             .build()
 
+    /**
+     * A simple [SafetyCenterConfig] for CTS tests with multiple sources with one source having an
+     * invalid default intent.
+     */
+    val MULTIPLE_SOURCES_CONFIG_WITH_SOURCE_WITH_INVALID_INTENT =
+        SafetyCenterConfig.Builder()
+            .addSafetySourcesGroup(
+                safetySourcesGroupBuilder(MULTIPLE_SOURCES_GROUP_ID_1)
+                    .addSafetySource(
+                        dynamicSafetySourceBuilder(SOURCE_ID_1).setIntentAction("stub").build())
+                    .addSafetySource(dynamicSafetySource(SOURCE_ID_2))
+                    .build())
+            .build()
+
     /** Source provided by [STATIC_SOURCES_CONFIG]. */
     val STATIC_SOURCE_1 =
         staticSafetySourceBuilder("cts_static_source_id_1")
@@ -620,7 +636,7 @@ object SafetyCenterCtsConfigs {
             .setPackageName(CTS_PACKAGE_NAME)
             .setTitleResId(android.R.string.ok)
             .setSummaryResId(android.R.string.ok)
-            .setIntentAction(ACTION_SAFETY_CENTER)
+            .setIntentAction(ACTION_TEST_ACTIVITY)
             .setProfile(SafetySource.PROFILE_PRIMARY)
             .setRefreshOnPageOpenAllowed(true)
 
@@ -636,7 +652,7 @@ object SafetyCenterCtsConfigs {
             .setId(id)
             .setTitleResId(android.R.string.ok)
             .setSummaryResId(android.R.string.ok)
-            .setIntentAction(ACTION_SAFETY_CENTER)
+            .setIntentAction(ACTION_TEST_ACTIVITY)
             .setProfile(SafetySource.PROFILE_PRIMARY)
 
     private fun staticAllProfileSafetySourceBuilder(id: String) =
