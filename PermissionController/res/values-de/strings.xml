@@ -32,6 +32,10 @@
     <string name="grant_dialog_button_no_upgrade" msgid="8344732743633736625">"„Wenn die App verwendet wird“ beibehalten"</string>
     <string name="grant_dialog_button_no_upgrade_one_time" msgid="5125892775684968694">"\"Nur dieses Mal\" aktiviert lassen"</string>
     <string name="grant_dialog_button_more_info" msgid="213350268561945193">"Weitere Infos"</string>
+    <string name="grant_dialog_button_allow_all_photos" msgid="3688746146785304900">"Zugriff auf alle Fotos erlauben"</string>
+    <string name="grant_dialog_button_allow_selected_photos" msgid="4098620850512492892">"Fotos auswählen"</string>
+    <string name="grant_dialog_button_allow_more_selected_photos" msgid="2003524111894640605">"Weitere Fotos auswählen"</string>
+    <string name="grant_dialog_button_dont_allow_more_selected_photos" msgid="6811842813929146242">"Keine weiteren Fotos auswählen"</string>
     <string name="grant_dialog_button_deny_anyway" msgid="7225905870668915151">"Trotzdem nicht zulassen"</string>
     <string name="grant_dialog_button_dismiss" msgid="1930399742250226393">"Schließen"</string>
     <string name="current_permission_template" msgid="7452035392573329375">"<xliff:g id="CURRENT_PERMISSION_INDEX">%1$s</xliff:g> von <xliff:g id="PERMISSION_COUNT">%2$s</xliff:g>"</string>
@@ -137,17 +141,15 @@
     <string name="auto_permission_usage_timeline_summary" msgid="2713135806453218703">"<xliff:g id="ACCESS_TIME">%1$s</xliff:g> • <xliff:g id="SUMMARY_TEXT">%2$s</xliff:g>"</string>
     <string name="history_preference_subtext_2" msgid="1521763591164293683">"<xliff:g id="APP_NAME">%1$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%2$s</xliff:g>"</string>
     <string name="history_preference_subtext_3" msgid="758761785983094351">"<xliff:g id="ATTRIBUTION_NAME">%1$s</xliff:g> • <xliff:g id="APP_NAME">%2$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%3$s</xliff:g>"</string>
-    <string name="duration_used_days" msgid="8293010131040301793">"{count,plural, =1{1 Tag}other{# Tage}}"</string>
-    <string name="duration_used_hours" msgid="1128716208752263576">"{count,plural, =1{1 Stunde}other{# Stunden}}"</string>
-    <string name="duration_used_minutes" msgid="5335824115042576567">"{count,plural, =1{1 min}other{# min}}"</string>
-    <string name="duration_used_seconds" msgid="6543746449171675028">"{count,plural, =1{1 s}other{# s}}"</string>
+    <string name="duration_used_days" msgid="8238355545812998877">"{count,plural, =1{# Tag}other{# Tage}}"</string>
+    <string name="duration_used_hours" msgid="4983814806123370332">"{count,plural, =1{# Stunde}other{# Stunden}}"</string>
+    <string name="duration_used_minutes" msgid="1701379522897227819">"{count,plural, =1{# min}other{# min}}"</string>
+    <string name="duration_used_seconds" msgid="4067390990568727715">"{count,plural, =1{# s}other{# s}}"</string>
     <string name="permission_usage_any_permission" msgid="6358023078298106997">"Alle Berechtigungen"</string>
     <string name="permission_usage_any_time" msgid="3802087027301631827">"Beliebiger Zeitraum"</string>
-    <string name="permission_usage_last_7_days" msgid="7386221251886130065">"Letzte 7 Tage"</string>
-    <string name="permission_usage_last_day" msgid="1512880889737305115">"Letzte 24 Stunden"</string>
-    <string name="permission_usage_last_hour" msgid="3866005205535400264">"Letzte Stunde"</string>
-    <string name="permission_usage_last_15_minutes" msgid="9077554653436200702">"Letzte 15 Minuten"</string>
-    <string name="permission_usage_last_minute" msgid="7297055967335176238">"Letzte Minute"</string>
+    <string name="permission_usage_last_n_days" msgid="7882626467375714145">"{count,plural, =1{Letzter Tag}other{Letzte # Tage}}"</string>
+    <string name="permission_usage_last_n_hours" msgid="8490466053680267858">"{count,plural, =1{Letzte Stunde}other{Letzte # Stunden}}"</string>
+    <string name="permission_usage_last_n_minutes" msgid="7817864229878281983">"{count,plural, =1{Letzte Minute}other{Letzte # Minuten}}"</string>
     <string name="no_permission_usages" msgid="9119517454177289331">"Keine Berechtigungen verwendet"</string>
     <string name="permission_usage_list_title_any_time" msgid="8718257027381592407">"Letzter Zugriff zu einem beliebigen Zeitpunkt"</string>
     <string name="permission_usage_list_title_last_7_days" msgid="9048542342670890615">"Letzter Zugriff in den letzten 7 Tagen"</string>
@@ -161,8 +163,8 @@
     <string name="permission_usage_bar_chart_title_last_hour" msgid="6571647509660009185">"Berechtigungsnutzungen (letzte Stunde)"</string>
     <string name="permission_usage_bar_chart_title_last_15_minutes" msgid="2743143675412824819">"Berechtigungsnutzungen (letzte 15 Minuten)"</string>
     <string name="permission_usage_bar_chart_title_last_minute" msgid="820450867183487607">"Berechtigungsnutzungen (letzte Minute)"</string>
-    <string name="permission_usage_preference_summary_not_used_24h" msgid="3087783232178611025">"In den letzten 24 Stunden nicht verwendet"</string>
-    <string name="permission_usage_preference_summary_not_used_7d" msgid="4592301300810120096">"In den letzten 7 Tagen nicht verwendet"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_days" msgid="4771868094611359651">"{count,plural, =1{Innerhalb des letzten Tages nicht verwendet}other{In den letzten # Tagen nicht verwendet}}"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_hours" msgid="3828973177433435742">"{count,plural, =1{Innerhalb der letzten Stunde nicht verwendet}other{In den letzten # Stunden nicht verwendet}}"</string>
     <string name="permission_usage_preference_label" msgid="8343167938128676378">"{count,plural, =1{Von 1 App verwendet}other{Von # Apps verwendet}}"</string>
     <string name="permission_usage_view_details" msgid="6675335735468752787">"Alle im Dashboard ansehen"</string>
     <string name="app_permission_usage_filter_label" msgid="7182861154638631550">"Gefiltert nach: <xliff:g id="PERM">%1$s</xliff:g>"</string>
@@ -188,6 +190,8 @@
     <string name="app_permission_button_allow_media_only" msgid="2834282724426046154">"Zugriff nur auf Mediendateien zulassen"</string>
     <string name="app_permission_button_allow_always" msgid="4573292371734011171">"Immer zulassen"</string>
     <string name="app_permission_button_allow_foreground" msgid="1991570451498943207">"Zugriff nur während der Nutzung der App zulassen"</string>
+    <string name="app_permission_button_allow_all_photos" msgid="914762549054270764">"Alle Fotos erlauben"</string>
+    <string name="app_permission_button_select_photos" msgid="1022930616634145364">"Ausgewählte Fotos erlauben"</string>
     <string name="app_permission_button_ask" msgid="3342950658789427">"Jedes Mal fragen"</string>
     <string name="app_permission_button_deny" msgid="6016454069832050300">"Nicht zulassen"</string>
     <string name="precise_image_description" msgid="6349638632303619872">"Auf genauen Standort zugreifen"</string>
@@ -219,8 +223,8 @@
     <string name="auto_revoked_app_summary_many" msgid="5930976230827378798">"Berechtigungen für <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> und <xliff:g id="NUMBER">%2$s</xliff:g> weitere entfernt"</string>
     <string name="unused_apps_page_title" msgid="6986983535677572559">"Nicht verwendete Apps"</string>
     <string name="unused_apps_page_summary" msgid="1867593913217272155">"Wenn du eine App seit einigen Monaten nicht mehr verwendet hast, geschieht Folgendes:\n\n• Zum Schutz deiner Daten werden die Berechtigungen entfernt.\n• Benachrichtigungen werden gestoppt, um den Akku zu schonen.\n• Temporäre Dateien werden gelöscht, um Speicherplatz freizugeben.\n\nÖffne die App, um Berechtigungen und Benachrichtigungen wieder zu aktivieren."</string>
-    <string name="unused_apps_page_tv_summary" msgid="3685907153054355671">"Wenn du eine App seit einigen Monaten nicht mehr verwendet hast, geschieht Folgendes:\n\n• Zum Schutz deiner Daten werden die Berechtigungen entfernt\n• Temporäre Dateien werden gelöscht, um Speicherplatz freizugeben\n\nWenn du Berechtigungen wieder aktivieren möchtest, öffne die App."</string>
-    <string name="last_opened_category_title" msgid="7871347400611202595">"Zuletzt geöffnet vor mehr als <xliff:g id="NUMBER">%s</xliff:g> Monaten"</string>
+    <string name="unused_apps_page_tv_summary" msgid="2624911608663778308">"Wenn du eine App seit einem Monat nicht mehr verwendet hast, geschieht Folgendes:\n\n• Zum Schutz deiner Daten werden die Berechtigungen entfernt\n• Temporäre Dateien werden gelöscht, um Speicherplatz freizugeben\n\nWenn du die Berechtigungen wieder erteilen möchtest, öffne die App."</string>
+    <string name="last_opened_category_title" msgid="8796557894614236128">"{count,plural, =1{Zuletzt vor mehr als # Monat geöffnet}other{Zuletzt vor mehr als # Monaten geöffnet}}"</string>
     <string name="last_opened_summary" msgid="5248984030024968808">"App wurde zuletzt geöffnet am <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="last_opened_summary_short" msgid="1646067226191176825">"Zuletzt geöffnet am <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="app_permission_footer_special_file_access" msgid="1884202176147657788">"Wenn du die Verwaltung aller Dateien erlaubst, kann diese App auf sämtliche Dateien im gemeinsamen Speicher sowie auf angeschlossenen Speichergeräten zugreifen und sie ändern und löschen. Die App greift dann möglicherweise auf Dateien zu, ohne dass du vorher gefragt wirst."</string>
@@ -253,9 +257,9 @@
     <string name="denied_header" msgid="903209608358177654">"Nicht zugelassen"</string>
     <string name="storage_footer_hyperlink_text" msgid="8873343987957834810">"Weitere Apps anzeigen, die auf alle Dateien zugreifen können"</string>
     <string name="days" msgid="609563020985571393">"{count,plural, =1{1 Tag}other{# Tage}}"</string>
-    <string name="hours" msgid="3447767892295843282">"{count,plural, =1{1 Stunde}other{# Stunden}}"</string>
-    <string name="minutes" msgid="4408293038068503157">"{count,plural, =1{1 Minute}other{# Minuten}}"</string>
-    <string name="seconds" msgid="5397771912131132690">"{count,plural, =1{1 Sekunde}other{# Sekunden}}"</string>
+    <string name="hours" msgid="7302866489666950038">"{count,plural, =1{# Stunde}other{# Stunden}}"</string>
+    <string name="minutes" msgid="4868414855445375753">"{count,plural, =1{# Minute}other{# Minuten}}"</string>
+    <string name="seconds" msgid="5893958182059842734">"{count,plural, =1{# Sekunde}other{# Sekunden}}"</string>
     <string name="permission_reminders" msgid="6528257957664832636">"Berechtigungserinnerungen"</string>
     <string name="auto_revoke_permission_reminder_notification_title_one" msgid="6690347469376854137">"1 nicht verwendete App"</string>
     <string name="auto_revoke_permission_reminder_notification_title_many" msgid="6062217713645069960">"<xliff:g id="NUMBER_OF_APPS">%s</xliff:g> nicht verwendete Apps"</string>
@@ -394,8 +398,14 @@
     <string name="role_automotive_navigation_request_title" msgid="7525693151489384300">"<xliff:g id="APP_NAME">%1$s</xliff:g> als standardmäßige Navigations-App festlegen?"</string>
     <string name="role_automotive_navigation_request_description" msgid="7073023813249245540">"Keine Berechtigungen erforderlich"</string>
     <string name="role_watch_description" msgid="267003778693177779">"<xliff:g id="APP_NAME">%1$s</xliff:g> darf mit deinen Benachrichtigungen interagieren und auf die Berechtigungen „Telefon“, „SMS“, „Kontakte“ und „Kalender“ zugreifen."</string>
+    <string name="role_companion_device_glasses_description" msgid="1775655849566169630">"<xliff:g id="APP_NAME">%1$s</xliff:g> darf mit deinen Benachrichtigungen interagieren und auf die Berechtigungen „Telefon“, „SMS“, „Kontakte“, „Mikrofon“ und „Geräte in der Nähe“ zugreifen."</string>
     <string name="role_app_streaming_description" msgid="7341638576226183992">"<xliff:g id="APP_NAME">%1$s</xliff:g> darf mit deinen Benachrichtigungen interagieren und Apps auf deinen verbundenen Geräten streamen."</string>
+    <string name="role_companion_device_nearby_device_streaming_description" msgid="1177524993193492570">"<xliff:g id="APP_NAME">%1$s</xliff:g> darf Inhalte auf Geräte in der Nähe streamen."</string>
     <string name="role_companion_device_computer_description" msgid="416099879217066377">"Dieser Dienst teilt die Fotos, Medien und Benachrichtigungen von deinem Smartphone mit anderen Geräten."</string>
+    <string name="role_notes_label" msgid="7451627001058089536">"Standard-Notizen-App"</string>
+    <string name="role_notes_short_label" msgid="8796604147546125285">"Notizen-App"</string>
+    <string name="role_notes_description" msgid="8496852798616883551">"Apps zum Erstellen von Notizen auf deinem Gerät"</string>
+    <string name="role_notes_search_keywords" msgid="7710756695666744631">"Notizen"</string>
     <string name="request_role_current_default" msgid="738722892438247184">"Aktueller Standard"</string>
     <string name="request_role_dont_ask_again" msgid="3556017886029520306">"Nicht mehr fragen"</string>
     <string name="request_role_set_as_default" msgid="4253949643984172880">"Als Standard festlegen"</string>
@@ -470,6 +480,7 @@
     <string name="permgrouprequest_storage_pre_q" msgid="168130651144569428">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; erlauben, auf &lt;b&gt;Foto-, Video-, Musik-, Audio- und andere Dateien&lt;/b&gt; auf diesem Gerät zuzugreifen?"</string>
     <string name="permgrouprequest_read_media_aural" msgid="2593365397347577812">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; erlauben, auf Musik- und Audiodateien auf diesem Gerät zuzugreifen?"</string>
     <string name="permgrouprequest_read_media_visual" msgid="5548780620779729975">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; erlauben, auf Fotos und Videos auf diesem Gerät zuzugreifen?"</string>
+    <string name="permgrouprequest_more_photos" msgid="4697813231897226261">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; Zugriff auf weitere Fotos erlauben?"</string>
     <string name="permgrouprequest_microphone" msgid="2825208549114811299">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; erlauben, Audioaufnahmen zu machen?"</string>
     <string name="permgrouprequestdetail_microphone" msgid="8510456971528228861">"Diese App kann nur Audioaufnahmen machen, solange du sie verwendest"</string>
     <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; erlauben, Audioaufnahmen zu machen?"</string>
@@ -580,4 +591,6 @@
     <string name="show_clip_access_notification_summary" msgid="3532020182782112687">"Eine Meldung wird angezeigt, wenn Apps auf Text, Bilder oder andere Inhalte zugreifen, die du kopiert hast"</string>
     <string name="show_password_title" msgid="2877269286984684659">"Passwörter anzeigen"</string>
     <string name="show_password_summary" msgid="1110166488865981610">"Zeichen während der Eingabe kurz anzeigen"</string>
+    <!-- no translation found for permission_rationale_message_location (2153841534298068414) -->
+    <skip />
 </resources>

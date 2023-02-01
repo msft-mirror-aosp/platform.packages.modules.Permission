@@ -90,8 +90,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 private val TAG = "NotificationListenerCheck"
-private const val DEBUG = false
-
+private const val DEBUG = true
 const val SC_NLS_SOURCE_ID = "AndroidNotificationListener"
 @VisibleForTesting const val SC_NLS_DISABLE_ACTION_ID = "disable_nls_component"
 
@@ -551,7 +550,7 @@ internal class NotificationListenerCheckInternal(
                 .setDeleteIntent(deletePendingIntent)
                 .setContentIntent(clickPendingIntent)
 
-        if (appLabel.isNotEmpty()) {
+        if (appLabel != null && appLabel.isNotEmpty()) {
             val appNameExtras = Bundle()
             appNameExtras.putString(Notification.EXTRA_SUBSTITUTE_APP_NAME, appLabel.toString())
             b.addExtras(appNameExtras)
@@ -846,7 +845,7 @@ class NotificationListenerCheckJobService : JobService() {
 
     override fun onCreate() {
         super.onCreate()
-
+        if (DEBUG) Log.d(TAG, "Nls privacy job created")
         if (!checkNotificationListenerCheckEnabled(this)) {
             // NotificationListenerCheck not enabled. End job.
             return
@@ -871,6 +870,7 @@ class NotificationListenerCheckJobService : JobService() {
      * @return `false` if another check is already running, or if SDK Check fails (below T)
      */
     override fun onStartJob(params: JobParameters): Boolean {
+        if (DEBUG) Log.d(TAG, "Nls privacy job started")
         if (!checkNotificationListenerCheckEnabled(this)) {
             // NotificationListenerCheck not enabled. End job.
             return false

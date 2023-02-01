@@ -32,6 +32,10 @@
     <string name="grant_dialog_button_no_upgrade" msgid="8344732743633736625">"Пакінуць \"У актыўным рэжыме праграмы\""</string>
     <string name="grant_dialog_button_no_upgrade_one_time" msgid="5125892775684968694">"Захаваць толькі на гэты раз"</string>
     <string name="grant_dialog_button_more_info" msgid="213350268561945193">"Падрабязней"</string>
+    <string name="grant_dialog_button_allow_all_photos" msgid="3688746146785304900">"Дазволіць доступ да ўсіх фота"</string>
+    <string name="grant_dialog_button_allow_selected_photos" msgid="4098620850512492892">"Выбраць фота"</string>
+    <string name="grant_dialog_button_allow_more_selected_photos" msgid="2003524111894640605">"Выбраць больш фота"</string>
+    <string name="grant_dialog_button_dont_allow_more_selected_photos" msgid="6811842813929146242">"Больш не выбіраць фота"</string>
     <string name="grant_dialog_button_deny_anyway" msgid="7225905870668915151">"Усё роўна не дазваляць"</string>
     <string name="grant_dialog_button_dismiss" msgid="1930399742250226393">"Адхіліць"</string>
     <string name="current_permission_template" msgid="7452035392573329375">"<xliff:g id="CURRENT_PERMISSION_INDEX">%1$s</xliff:g> з <xliff:g id="PERMISSION_COUNT">%2$s</xliff:g>"</string>
@@ -137,17 +141,15 @@
     <string name="auto_permission_usage_timeline_summary" msgid="2713135806453218703">"<xliff:g id="ACCESS_TIME">%1$s</xliff:g> • <xliff:g id="SUMMARY_TEXT">%2$s</xliff:g>"</string>
     <string name="history_preference_subtext_2" msgid="1521763591164293683">"<xliff:g id="APP_NAME">%1$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%2$s</xliff:g>"</string>
     <string name="history_preference_subtext_3" msgid="758761785983094351">"<xliff:g id="ATTRIBUTION_NAME">%1$s</xliff:g> • <xliff:g id="APP_NAME">%2$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%3$s</xliff:g>"</string>
-    <string name="duration_used_days" msgid="8293010131040301793">"{count,plural, =1{1 дзень}one{# дзень}few{# дні}many{# дзён}other{# дня}}"</string>
-    <string name="duration_used_hours" msgid="1128716208752263576">"{count,plural, =1{1 гадзіна}one{# гадзіна}few{# гадзіны}many{# гадзін}other{# гадзіны}}"</string>
-    <string name="duration_used_minutes" msgid="5335824115042576567">"{count,plural, =1{1 хв}one{# хв}few{# хв}many{# хв}other{# хв}}"</string>
-    <string name="duration_used_seconds" msgid="6543746449171675028">"{count,plural, =1{1 с}one{# с}few{# с}many{# с}other{# с}}"</string>
+    <string name="duration_used_days" msgid="8238355545812998877">"{count,plural, =1{# дзень}one{# дзень}few{# дні}many{# дзён}other{# дня}}"</string>
+    <string name="duration_used_hours" msgid="4983814806123370332">"{count,plural, =1{# гадзіна}one{# гадзіна}few{# гадзіны}many{# гадзін}other{# гадзіны}}"</string>
+    <string name="duration_used_minutes" msgid="1701379522897227819">"{count,plural, =1{# хв}one{# хв}few{# хв}many{# хв}other{# хв}}"</string>
+    <string name="duration_used_seconds" msgid="4067390990568727715">"{count,plural, =1{# с}one{# с}few{# с}many{# с}other{# с}}"</string>
     <string name="permission_usage_any_permission" msgid="6358023078298106997">"Любы дазвол"</string>
     <string name="permission_usage_any_time" msgid="3802087027301631827">"За любы час"</string>
-    <string name="permission_usage_last_7_days" msgid="7386221251886130065">"За апошнія 7 дзён"</string>
-    <string name="permission_usage_last_day" msgid="1512880889737305115">"За апошнія 24 гадзіны"</string>
-    <string name="permission_usage_last_hour" msgid="3866005205535400264">"За апошнюю гадзіну"</string>
-    <string name="permission_usage_last_15_minutes" msgid="9077554653436200702">"За апошнія 15 хвілін"</string>
-    <string name="permission_usage_last_minute" msgid="7297055967335176238">"За апошнюю хвіліну"</string>
+    <string name="permission_usage_last_n_days" msgid="7882626467375714145">"{count,plural, =1{За апошні # дзень}one{За апошні # дзень}few{За апошнія # дні}many{За апошнія # дзён}other{За апошнія # дня}}"</string>
+    <string name="permission_usage_last_n_hours" msgid="8490466053680267858">"{count,plural, =1{За апошнюю # гадзіну}one{За апошнюю # гадзіну}few{За апошнія # гадзіны}many{За апошнія # гадзін}other{За апошнія # гадзіны}}"</string>
+    <string name="permission_usage_last_n_minutes" msgid="7817864229878281983">"{count,plural, =1{За апошнюю # хвіліну}one{За апошнюю # хвіліну}few{За апошнія # хвіліны}many{За апошнія # хвілін}other{За апошнія # хвіліны}}"</string>
     <string name="no_permission_usages" msgid="9119517454177289331">"Без выкарыстання дазволаў"</string>
     <string name="permission_usage_list_title_any_time" msgid="8718257027381592407">"Доступы за ўвесь час"</string>
     <string name="permission_usage_list_title_last_7_days" msgid="9048542342670890615">"Доступы за апошнія 7 дзён"</string>
@@ -161,8 +163,8 @@
     <string name="permission_usage_bar_chart_title_last_hour" msgid="6571647509660009185">"Выкарыстанне дазволаў за апошнюю гадзіну"</string>
     <string name="permission_usage_bar_chart_title_last_15_minutes" msgid="2743143675412824819">"Выкарыстаннне дазволаў за апошнія 15 хвілін"</string>
     <string name="permission_usage_bar_chart_title_last_minute" msgid="820450867183487607">"Выкарыстанне дазволаў за апошнюю хвіліну"</string>
-    <string name="permission_usage_preference_summary_not_used_24h" msgid="3087783232178611025">"За апошнія 24 гадзіны доступ не выкарыстоўваўся"</string>
-    <string name="permission_usage_preference_summary_not_used_7d" msgid="4592301300810120096">"За апошнія 7 сутак доступ не выкарыстоўваўся"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_days" msgid="4771868094611359651">"{count,plural, =1{За апошнія # суткі дазвол не выкарыстоўваўся}one{За апошнія # суткі дазвол не выкарыстоўваўся}few{За апошнія # сутак дазвол не выкарыстоўваўся}many{За апошнія # сутак дазвол не выкарыстоўваўся}other{За апошнія # сутак дазвол не выкарыстоўваўся}}"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_hours" msgid="3828973177433435742">"{count,plural, =1{За апошнюю # гадзіну дазвол не выкарыстоўваўся}one{За апошнюю # гадзіну дазвол не выкарыстоўваўся}few{За апошнія # гадзіны дазвол не выкарыстоўваўся}many{За апошнія # гадзін дазвол не выкарыстоўваўся}other{За апошнія # гадзіны дазвол не выкарыстоўваўся}}"</string>
     <string name="permission_usage_preference_label" msgid="8343167938128676378">"{count,plural, =1{Выкарыстоўваецца 1 праграмай}one{Выкарыстоўваецца # праграмай}few{Выкарыстоўваецца # праграмамі}many{Выкарыстоўваецца # праграмамі}other{Выкарыстоўваецца # праграмы}}"</string>
     <string name="permission_usage_view_details" msgid="6675335735468752787">"Паказаць усе на панэлі кіравання"</string>
     <string name="app_permission_usage_filter_label" msgid="7182861154638631550">"Параметр фільтравання: <xliff:g id="PERM">%1$s</xliff:g>"</string>
@@ -188,6 +190,8 @@
     <string name="app_permission_button_allow_media_only" msgid="2834282724426046154">"Дазволіць доступ толькі да мультымедыя"</string>
     <string name="app_permission_button_allow_always" msgid="4573292371734011171">"Дазволіць заўсёды"</string>
     <string name="app_permission_button_allow_foreground" msgid="1991570451498943207">"Дазволіць толькі падчас карыстання праграмай"</string>
+    <string name="app_permission_button_allow_all_photos" msgid="914762549054270764">"Дазволіць усе фота"</string>
+    <string name="app_permission_button_select_photos" msgid="1022930616634145364">"Дазволіць выбраныя фота"</string>
     <string name="app_permission_button_ask" msgid="3342950658789427">"Заўсёды пытацца"</string>
     <string name="app_permission_button_deny" msgid="6016454069832050300">"Не дазваляць"</string>
     <string name="precise_image_description" msgid="6349638632303619872">"Дакладнае месцазнаходжанне"</string>
@@ -219,8 +223,8 @@
     <string name="auto_revoked_app_summary_many" msgid="5930976230827378798">"\"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>\" і іншыя дазволы (<xliff:g id="NUMBER">%2$s</xliff:g> шт.) выдалены"</string>
     <string name="unused_apps_page_title" msgid="6986983535677572559">"Праграмы, якія не выкарыстоўваюцца"</string>
     <string name="unused_apps_page_summary" msgid="1867593913217272155">"Калі праграма не выкарыстоўвалася некалькі месяцаў:\n\n• у мэтах абароны вашых даных выдаляюцца дазволы;\n• дзеля эканоміі зараду акумулятара спыняюцца апавяшчэнні;\n• для вызвалення месца выдаляюцца часовыя файлы.\n\nКаб зноў уключыць дазволы і апавяшчэнні, адкрыйце праграму."</string>
-    <string name="unused_apps_page_tv_summary" msgid="3685907153054355671">"Калі праграма не выкарыстоўвалася некалькі месяцаў:\n\n• у мэтах абароны вашых даных выдаляюцца дазволы;\n• для вызвалення месца выдаляюцца часовыя файлы.\n\nКаб зноў даць дазволы, адкрыйце праграму."</string>
-    <string name="last_opened_category_title" msgid="7871347400611202595">"Адкрывалася ў апошні раз больш за <xliff:g id="NUMBER">%s</xliff:g> мес. таму"</string>
+    <string name="unused_apps_page_tv_summary" msgid="2624911608663778308">"Калі праграма не выкарыстоўвалася на працягу месяца:\n\n• у мэтах абароны вашых даных выдаляюцца дазволы;\n• для вызвалення месца выдаляюцца часовыя файлы.\n\nКаб зноў даць дазволы, адкрыйце праграму."</string>
+    <string name="last_opened_category_title" msgid="8796557894614236128">"{count,plural, =1{Апошні раз адкрываліся больш чым # месяц таму}one{Апошні раз адкрываліся больш чым # месяц таму}few{Апошні раз адкрываліся больш чым # месяцы таму}many{Апошні раз адкрываліся больш чым # месяцаў таму}other{Апошні раз адкрываліся больш чым # месяца таму}}"</string>
     <string name="last_opened_summary" msgid="5248984030024968808">"Праграма адкрывалася ў апошні раз <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="last_opened_summary_short" msgid="1646067226191176825">"Адкрывалася ў апошні раз <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="app_permission_footer_special_file_access" msgid="1884202176147657788">"Калі вы дазволіце кіраванне ўсімі файламі, гэта праграма зможа атрымліваць доступ да ўсіх файлаў у агульным сховішчы на гэтай прыладзе ці ў сховішчах падключаных прылад, а таксама змяняць і выдаляць гэтыя файлы. Праграма зможа атрымліваць доступ да файлаў без вашага ведама."</string>
@@ -253,9 +257,9 @@
     <string name="denied_header" msgid="903209608358177654">"Забаронена"</string>
     <string name="storage_footer_hyperlink_text" msgid="8873343987957834810">"Праглядзець іншыя праграмы, якія маюць доступ да ўсіх файлаў"</string>
     <string name="days" msgid="609563020985571393">"{count,plural, =1{1 дзень}one{# дзень}few{# дні}many{# дзён}other{# дня}}"</string>
-    <string name="hours" msgid="3447767892295843282">"{count,plural, =1{1 гадзіна}one{# гадзіна}few{# гадзіны}many{# гадзін}other{# гадзіны}}"</string>
-    <string name="minutes" msgid="4408293038068503157">"{count,plural, =1{1 хвіліна}one{# хвіліна}few{# хвіліны}many{# хвілін}other{# хвіліны}}"</string>
-    <string name="seconds" msgid="5397771912131132690">"{count,plural, =1{1 секунда}one{# секунда}few{# секунды}many{# секунд}other{# секунды}}"</string>
+    <string name="hours" msgid="7302866489666950038">"{count,plural, =1{# гадзіна}one{# гадзіна}few{# гадзіны}many{# гадзін}other{# гадзіны}}"</string>
+    <string name="minutes" msgid="4868414855445375753">"{count,plural, =1{# хвіліна}one{# хвіліна}few{# хвіліны}many{# хвілін}other{# хвіліны}}"</string>
+    <string name="seconds" msgid="5893958182059842734">"{count,plural, =1{# секунда}one{# секунда}few{# секунды}many{# секунд}other{# секунды}}"</string>
     <string name="permission_reminders" msgid="6528257957664832636">"Напаміны пра дазволы"</string>
     <string name="auto_revoke_permission_reminder_notification_title_one" msgid="6690347469376854137">"1 праграма не выкарыстоўваецца"</string>
     <string name="auto_revoke_permission_reminder_notification_title_many" msgid="6062217713645069960">"Колькасць праграм не ў карыстанні: <xliff:g id="NUMBER_OF_APPS">%s</xliff:g>"</string>
@@ -394,8 +398,14 @@
     <string name="role_automotive_navigation_request_title" msgid="7525693151489384300">"Прызначыць праграму \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" стандартнай праграмай навігацыі?"</string>
     <string name="role_automotive_navigation_request_description" msgid="7073023813249245540">"Дазволы не патрэбныя"</string>
     <string name="role_watch_description" msgid="267003778693177779">"<xliff:g id="APP_NAME">%1$s</xliff:g> зможа ўзаемадзейнічаць з вашымі апавяшчэннямі і атрымае доступ да тэлефона, SMS, кантактаў і календара."</string>
+    <string name="role_companion_device_glasses_description" msgid="1775655849566169630">"<xliff:g id="APP_NAME">%1$s</xliff:g> зможа ўзаемадзейнічаць з вашымі апавяшчэннямі і атрымае доступ да тэлефона, SMS, кантактаў, мікрафона і прылад паблізу."</string>
     <string name="role_app_streaming_description" msgid="7341638576226183992">"<xliff:g id="APP_NAME">%1$s</xliff:g> зможа ўзаемадзейнічаць з вашымі апавяшчэннямі і перадаваць праграмы плынню на падключаную прыладу."</string>
+    <string name="role_companion_device_nearby_device_streaming_description" msgid="1177524993193492570">"<xliff:g id="APP_NAME">%1$s</xliff:g> зможа перадаваць змесціва плынню на прылады паблізу."</string>
     <string name="role_companion_device_computer_description" msgid="416099879217066377">"Гэты сэрвіс абагульвае з іншымі прыладамі фота, мультымедыя і апавяшчэнні, якія захоўваюцца на вашым тэлефоне."</string>
+    <string name="role_notes_label" msgid="7451627001058089536">"Стандартная праграма для нататак"</string>
+    <string name="role_notes_short_label" msgid="8796604147546125285">"Праграма для нататак"</string>
+    <string name="role_notes_description" msgid="8496852798616883551">"Праграмы, якія дазваляюць рабіць нататкі на прыладзе"</string>
+    <string name="role_notes_search_keywords" msgid="7710756695666744631">"нататкі"</string>
     <string name="request_role_current_default" msgid="738722892438247184">"Цяперашняя стандартная"</string>
     <string name="request_role_dont_ask_again" msgid="3556017886029520306">"Больш не пытацца"</string>
     <string name="request_role_set_as_default" msgid="4253949643984172880">"Зрабіць стандартнай"</string>
@@ -470,6 +480,7 @@
     <string name="permgrouprequest_storage_pre_q" msgid="168130651144569428">"Дазволіць праграме &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ да &lt;b&gt;фота, відэа, музыкі, аўдыя і файлаў&lt;/b&gt; на гэтай прыладзе?"</string>
     <string name="permgrouprequest_read_media_aural" msgid="2593365397347577812">"Дазволіць праграме &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ да музыкі і аўдыя на гэтай прыладзе?"</string>
     <string name="permgrouprequest_read_media_visual" msgid="5548780620779729975">"Дазволіць праграме &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ да фота і відэа на гэтай прыладзе?"</string>
+    <string name="permgrouprequest_more_photos" msgid="4697813231897226261">"Адкрыць праграме &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ да большай колькасці фота?"</string>
     <string name="permgrouprequest_microphone" msgid="2825208549114811299">"Дазволіць праграме &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; запісваць аўдыя?"</string>
     <string name="permgrouprequestdetail_microphone" msgid="8510456971528228861">"Гэта праграма зможа запісваць аўдыя толькі падчас яе выкарыстання"</string>
     <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"Дазволіць праграме &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; запісваць аўдыя?"</string>
@@ -580,4 +591,6 @@
     <string name="show_clip_access_notification_summary" msgid="3532020182782112687">"Паказваць паведамленне, калі праграмы атрымліваюць доступ да тэксту, відарысаў ці іншага змесціва, якое вы скапіравалі"</string>
     <string name="show_password_title" msgid="2877269286984684659">"Паказваць паролі"</string>
     <string name="show_password_summary" msgid="1110166488865981610">"Падчас уводу сімвалаў на кароткі час паказваць іх"</string>
+    <!-- no translation found for permission_rationale_message_location (2153841534298068414) -->
+    <skip />
 </resources>

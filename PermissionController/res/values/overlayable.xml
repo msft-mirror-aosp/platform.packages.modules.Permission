@@ -61,8 +61,35 @@
             <item type="style" name="PermissionGrantButtonAllowOneTime" />
             <item type="style" name="PermissionGrantButtonDeny" />
             <item type="style" name="PermissionGrantButtonNoUpgrade" />
+
+            <item type="style" name="PermissionGrantPermissionRationaleContent" />
+            <item type="style" name="PermissionGrantPermissionRationaleIcon" />
+            <item type="style" name="PermissionGrantPermissionRationaleMessage" />
+            <item type="style" name="PermissionGrantPermissionRationaleMoreInfoIcon" />
+
             <!-- END PERMISSION GRANT DIALOG -->
 
+            <!-- START PERMISSION RATIONALE DIALOG -->
+
+            <item type="style" name="PermissionRationaleScrollView" />
+            <item type="style" name="PermissionRationaleSingleton" />
+            <item type="style" name="PermissionRationaleDialog" />
+            <item type="style" name="PermissionRationaleContent" />
+
+            <item type="style" name="PermissionRationaleTitleContainer" />
+            <item type="style" name="PermissionRationaleTitleIcon" />
+            <item type="style" name="PermissionRationaleTitleMessage" />
+
+            <item type="style" name="PermissionRationaleSectionOuterContainer" />
+            <item type="style" name="PermissionRationaleSectionIcon" />
+            <item type="style" name="PermissionRationaleSectionInnerContainer" />
+            <item type="style" name="PermissionRationaleSectionTitle" />
+            <item type="style" name="PermissionRationaleSectionMessage" />
+
+            <item type="style" name="PermissionRationaleButtonContainer" />
+            <item type="style" name="PermissionRationaleBackButton" />
+
+            <!-- END PERMISSION RATIONALE DIALOG -->
 
             <!-- START PERMISSION REVIEW SCREEN -->
             <item type="style" name="PermissionReview" />
@@ -100,6 +127,13 @@
             <item type="style" name="LargeHeaderText" />
             <item type="style" name="LargeHeaderLink" />
             <item type="style" name="LargeHeaderDivider" />
+
+            <item type="style" name="AppPermissionRationaleContainer"/>
+            <item type="style" name="AppPermissionRationaleContent"/>
+            <item type="style" name="AppPermissionRationaleTextContent"/>
+            <item type="style" name="AppPermissionRationaleTitle"/>
+            <item type="style" name="AppPermissionRationaleSubtitle"/>
+            <item type="style" name="AppPermissionRationaleIcon"/>
 
             <item type="style" name="AppPermissionSelection" />
             <item type="style" name="AppPermissionMessage" />

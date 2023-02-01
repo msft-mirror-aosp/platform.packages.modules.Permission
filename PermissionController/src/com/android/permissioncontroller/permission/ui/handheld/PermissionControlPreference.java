@@ -16,6 +16,8 @@
 
 package com.android.permissioncontroller.permission.ui.handheld;
 
+import static android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP;
+
 import static com.android.permissioncontroller.Constants.EXTRA_SESSION_ID;
 import static com.android.permissioncontroller.permission.ui.ManagePermissionsActivity.EXTRA_CALLER_NAME;
 import static com.android.permissioncontroller.permission.ui.handheld.AppPermissionFragment.GRANT_CATEGORY;
@@ -219,6 +221,11 @@ public class PermissionControlPreference extends Preference {
             } else if (mHasNavGraph) {
                 if (mPermGroupName.equals(Manifest.permission_group.NOTIFICATIONS)) {
                     Utils.navigateToAppNotificationSettings(mContext, mPackageName, mUser);
+                    return true;
+                }
+                if (Utils.isHealthPermissionUiEnabled()
+                        && mPermGroupName.equals(HEALTH_PERMISSION_GROUP)) {
+                    Utils.navigateToAppHealthConnectSettings(mContext, mPackageName, mUser);
                     return true;
                 }
                 Bundle args = new Bundle();

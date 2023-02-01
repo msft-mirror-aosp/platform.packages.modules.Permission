@@ -25,8 +25,14 @@
     <string name="overall_severity_level_ok_review_summary" msgid="7743619617413076275">"सेटिंग की सूची देखें"</string>
     <string name="overall_severity_level_device_recommendation_title" msgid="5250040236433061827">"डिवाइस की सुरक्षा शायद खतरे में है"</string>
     <string name="overall_severity_level_critical_device_warning_title" msgid="5901771721834272596">"डिवाइस की सुरक्षा खतरे में है"</string>
-    <string name="overall_severity_level_safety_recommendation_title" msgid="6436208984463981167">"शायद आपकी सुरक्षा खतरे में है"</string>
-    <string name="overall_severity_level_critical_safety_warning_title" msgid="1039142045555227172">"आपकी सुरक्षा खतरे में है"</string>
+    <string name="overall_severity_level_data_recommendation_title" msgid="1424269714861655302">"डेटा की सुरक्षा खतरे में हो सकती है"</string>
+    <string name="overall_severity_level_critical_data_warning_title" msgid="1012704126634698604">"डेटा की सुरक्षा खतरे में है"</string>
+    <string name="overall_severity_level_passwords_recommendation_title" msgid="8625105570296877719">"पासवर्ड हैक हो गया (पुराना)"</string>
+    <string name="overall_severity_level_critical_passwords_warning_title" msgid="7859047988648851217">"पासवर्ड हैक हो गया (नया)"</string>
+    <string name="overall_severity_level_personal_recommendation_title" msgid="5493814377982623779">"शायद आपकी सुरक्षा खतरे में है"</string>
+    <string name="overall_severity_level_critical_personal_warning_title" msgid="5070434468955164734">"आपकी सुरक्षा खतरे में है"</string>
+    <string name="overall_severity_level_safety_recommendation_title" msgid="4291797434760242793">"संभावित खतरे का पता चला"</string>
+    <string name="overall_severity_level_critical_safety_warning_title" msgid="6666640109779586868">"खतरे का पता चला"</string>
     <string name="overall_severity_level_account_recommendation_title" msgid="2267542168734275090">"खाते की सुरक्षा खतरे में हो सकती है"</string>
     <string name="overall_severity_level_critical_account_warning_title" msgid="4402278408972158353">"खाते की सुरक्षा खतरे में है"</string>
     <string name="overall_severity_n_alerts_summary" msgid="1105615451561197136">"{count,plural, =1{# चेतावनी}one{# चेतावनी}other{# चेतावनियां}}"</string>
@@ -36,4 +42,8 @@
     <string name="refresh_error" msgid="656062128422446177">"{count,plural, =1{सेटिंग की जांच नहीं की जा सकी}one{सेटिंग की जांच नहीं की जा सकी}other{सेटिंग की जांच नहीं की जा सकी}}"</string>
     <string name="work_profile_paused" msgid="7037400224040869079">"वर्क प्रोफ़ाइल रोक दी गई है"</string>
     <string name="group_unknown_summary" msgid="6951386960814105641">"कोई जानकारी मौजूद नहीं है"</string>
+    <string name="notification_channel_group_name" msgid="7155072032524876859">"सुरक्षा और निजता"</string>
+    <string name="notification_channel_name_information" msgid="2966444432152990166">"सुझाव"</string>
+    <string name="notification_channel_name_recommendation" msgid="7847408286580217922">"चेतावनियां"</string>
+    <string name="notification_channel_name_critical_warning" msgid="5994320322108351769">"अहम चेतावनियां"</string>
 </resources>

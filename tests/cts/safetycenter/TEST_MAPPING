@@ -1,17 +1,17 @@
 {
   "presubmit": [
     {
-      "name": "CtsSafetyCenterTestCases",
-      "options": [
-        {
-          "exclude-annotation": "com.android.bedstead.harrier.annotations.Postsubmit"
-        }
-      ]
+      "name": "CtsSafetyCenterTestCases"
     }
   ],
-  "postsubmit": [
+  "mainline-presubmit": [
     {
-      "name": "CtsSafetyCenterTestCases"
+      "name": "CtsSafetyCenterTestCases[com.google.android.permission.apex]",
+      "options": [
+        {
+          "exclude-annotation": "android.platform.test.annotations.FlakyTest"
+        }
+      ]
     }
   ]
 }

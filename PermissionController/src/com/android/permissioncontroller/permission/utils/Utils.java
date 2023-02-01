@@ -34,12 +34,14 @@ import static android.Manifest.permission_group.STORAGE;
 import static android.app.AppOpsManager.MODE_ALLOWED;
 import static android.app.AppOpsManager.OPSTR_LEGACY_STORAGE;
 import static android.content.Context.MODE_PRIVATE;
+import static android.content.Intent.EXTRA_PACKAGE_NAME;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_RESTRICTION_INSTALLER_EXEMPT;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_RESTRICTION_SYSTEM_EXEMPT;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_RESTRICTION_UPGRADE_EXEMPT;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_USER_SENSITIVE_WHEN_DENIED;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED;
 import static android.content.pm.PackageManager.MATCH_SYSTEM_ONLY;
+import static android.health.connect.HealthConnectManager.ACTION_MANAGE_HEALTH_PERMISSIONS;
 import static android.os.UserHandle.myUserId;
 
 import static com.android.permissioncontroller.Constants.EXTRA_SESSION_ID;
@@ -87,6 +89,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.ColorRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -167,6 +170,11 @@ public final class Utils {
     /** Whether to show location access check notifications. */
     private static final String PROPERTY_LOCATION_ACCESS_CHECK_ENABLED =
             "location_access_check_enabled";
+
+    /** Whether to show health permission in various permission controller UIs. */
+    private static final String PROPERTY_HEALTH_PERMISSION_UI_ENABLED =
+            "health_permission_ui_enabled";
+
 
     /** How frequently to check permission event store to scrub old data */
     public static final String PROPERTY_PERMISSION_EVENTS_CHECK_OLD_FREQUENCY_MILLIS =
@@ -923,6 +931,16 @@ public final class Utils {
     }
 
     /**
+     * Whether we should show health permissions as platform permissions in the various
+     * permission controller UI.
+     */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
+    public static boolean isHealthPermissionUiEnabled() {
+        return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
+                PROPERTY_HEALTH_PERMISSION_UI_ENABLED, true);
+    }
+
+    /**
      * Get a device protected storage based shared preferences. Avoid storing sensitive data in it.
      *
      * @param context the context to get the shared preferences
@@ -1233,6 +1251,28 @@ public final class Utils {
         Intent notificationIntent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
         notificationIntent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName);
         context.startActivityAsUser(notificationIntent, user);
+    }
+
+    /**
+     * Navigate to health connect settings for all apps
+     * @param context The current Context
+     */
+    public static void navigateToHealthConnectSettings(@NonNull Context context) {
+        Intent healthConnectIntent = new Intent(ACTION_MANAGE_HEALTH_PERMISSIONS);
+        context.startActivity(healthConnectIntent);
+    }
+
+    /**
+     * Navigate to health connect settings for an app
+     * @param context The current Context
+     * @param packageName The package's health connect settings to navigate to
+     */
+    public static void navigateToAppHealthConnectSettings(@NonNull Context context,
+            @NonNull String packageName, @NonNull UserHandle user) {
+        Intent appHealthConnectIntent = new Intent(ACTION_MANAGE_HEALTH_PERMISSIONS);
+        appHealthConnectIntent.putExtra(EXTRA_PACKAGE_NAME, packageName);
+        appHealthConnectIntent.putExtra(Intent.EXTRA_USER, user);
+        context.startActivity(appHealthConnectIntent);
     }
 
     /**

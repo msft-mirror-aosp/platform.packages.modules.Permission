@@ -18,36 +18,39 @@ package com.android.permissioncontroller.permission.ui.auto.dashboard
 
 import android.content.Context
 import android.content.Intent
+import android.text.format.DateFormat
 import androidx.preference.Preference.OnPreferenceClickListener
 import com.android.car.ui.preference.CarUiPreference
 import com.android.permissioncontroller.R
-import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageDetailsViewModel
+import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageDetailsViewModelLegacy
 
-/**
- * Preference that displays a permission usage for an app.
- */
+/** Preference that displays a permission usage for an app. */
 class AutoPermissionHistoryPreference(
     context: Context,
-    historyPreferenceData: PermissionUsageDetailsViewModel.HistoryPreferenceData
+    historyPreferenceData: PermissionUsageDetailsViewModelLegacy.HistoryPreferenceData
 ) : CarUiPreference(context) {
 
     init {
         title = historyPreferenceData.preferenceTitle
-        summary = if (historyPreferenceData.summaryText != null) {
-            context.getString(R.string.auto_permission_usage_timeline_summary,
-                historyPreferenceData.accessTime, historyPreferenceData.summaryText)
-        } else {
-            historyPreferenceData.accessTime
-        }
+        summary =
+            if (historyPreferenceData.summaryText != null) {
+                context.getString(
+                    R.string.auto_permission_usage_timeline_summary,
+                    DateFormat.getTimeFormat(context).format(historyPreferenceData.accessEndTime),
+                    historyPreferenceData.summaryText)
+            } else {
+                DateFormat.getTimeFormat(context).format(historyPreferenceData.accessEndTime)
+            }
         if (historyPreferenceData.appIcon != null) {
             icon = historyPreferenceData.appIcon
         }
 
         onPreferenceClickListener = OnPreferenceClickListener {
-            val intent = Intent(Intent.ACTION_MANAGE_APP_PERMISSIONS).apply {
-                putExtra(Intent.EXTRA_USER, historyPreferenceData.userHandle)
-                putExtra(Intent.EXTRA_PACKAGE_NAME, historyPreferenceData.pkgName)
-            }
+            val intent =
+                Intent(Intent.ACTION_MANAGE_APP_PERMISSIONS).apply {
+                    putExtra(Intent.EXTRA_USER, historyPreferenceData.userHandle)
+                    putExtra(Intent.EXTRA_PACKAGE_NAME, historyPreferenceData.pkgName)
+                }
             context.startActivity(intent)
             true
         }

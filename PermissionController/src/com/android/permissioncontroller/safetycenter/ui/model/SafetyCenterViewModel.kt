@@ -17,12 +17,15 @@
 package com.android.permissioncontroller.safetycenter.ui.model
 
 import android.app.Application
+import android.content.Context
 import android.os.Build
+import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.safetycenter.SafetyCenterData
+import android.safetycenter.SafetyCenterEntryGroup
+import android.safetycenter.SafetyCenterEntryOrGroup
 import android.safetycenter.SafetyCenterErrorDetails
 import android.safetycenter.SafetyCenterIssue
 import androidx.annotation.RequiresApi
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.android.permissioncontroller.safetycenter.ui.InteractionLogger
@@ -31,6 +34,7 @@ import com.android.permissioncontroller.safetycenter.ui.NavigationSource
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 abstract class SafetyCenterViewModel(protected val app: Application) : AndroidViewModel(app) {
 
+    abstract val statusUiLiveData: LiveData<StatusUiData>
     abstract val safetyCenterUiLiveData: LiveData<SafetyCenterUiData>
     abstract val errorLiveData: LiveData<SafetyCenterErrorDetails>
     abstract val interactionLogger: InteractionLogger
@@ -56,11 +60,21 @@ abstract class SafetyCenterViewModel(protected val app: Application) : AndroidVi
     abstract fun clearError()
 
     abstract fun navigateToSafetyCenter(
-        fragment: Fragment,
+        context: Context,
         navigationSource: NavigationSource? = null
     )
 
     abstract fun pageOpen()
+
+    /**
+     * Refreshes a specific subset of safety sources on page-open.
+     *
+     * This is an overload of the [pageOpen] method and is used to request data from safety sources
+     * that are part of a subpage in the Safety Center UI.
+     *
+     * @param sourceGroupId represents ID of the corresponding safety sources group
+     */
+    @RequiresApi(UPSIDE_DOWN_CAKE) abstract fun pageOpen(sourceGroupId: String)
 
     abstract fun changingConfigurations()
 }
@@ -72,4 +86,10 @@ typealias ActionId = String
 data class SafetyCenterUiData(
     val safetyCenterData: SafetyCenterData,
     val resolvedIssues: Map<IssueId, ActionId> = emptyMap()
-)
+) {
+    fun getMatchingGroup(groupId: String): SafetyCenterEntryGroup? {
+        val entryOrGroups: List<SafetyCenterEntryOrGroup> = safetyCenterData.entriesOrGroups
+        val entryGroups = entryOrGroups.mapNotNull { it.entryGroup }
+        return entryGroups.find { it.id == groupId }
+    }
+}

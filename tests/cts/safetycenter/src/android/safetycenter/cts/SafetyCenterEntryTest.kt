@@ -211,8 +211,11 @@ class SafetyCenterEntryTest {
 
     @Test
     fun equalsHashCodeToString_usingEqualsHashCodeToStringTester() {
-        EqualsHashCodeToStringTester()
-            .addEqualityGroup(entry1, SafetyCenterEntry.Builder(entry1).build())
+        EqualsHashCodeToStringTester.ofParcelable(
+                parcelableCreator = SafetyCenterEntry.CREATOR,
+                createCopy = { SafetyCenterEntry.Builder(it).build() }
+            )
+            .addEqualityGroup(entry1)
             .addEqualityGroup(
                 SafetyCenterEntry.Builder("id", "a title")
                     .setSummary("a summary")
@@ -330,7 +333,9 @@ class SafetyCenterEntryTest {
 
     @Test
     fun iconAction_equalsHashCodeToString_usingEqualsHashCodeToStringTester() {
-        EqualsHashCodeToStringTester()
+        EqualsHashCodeToStringTester.ofParcelable(
+                parcelableCreator = SafetyCenterEntry.IconAction.CREATOR
+            )
             .addEqualityGroup(
                 iconAction1,
                 SafetyCenterEntry.IconAction(

@@ -129,6 +129,14 @@ public final class RoleManager {
     public static final String ROLE_CALL_SCREENING = "android.app.role.CALL_SCREENING";
 
     /**
+     * The name of the notes role.
+     *
+     * @see Intent#ACTION_CREATE_NOTE
+     * @see Intent#EXTRA_USE_STYLUS_MODE
+     */
+    public static final String ROLE_NOTES = "android.app.role.NOTES";
+
+    /**
      * The name of the system wellbeing role.
      *
      * @hide
@@ -161,6 +169,19 @@ public final class RoleManager {
     @SystemApi
     public static final String ROLE_DEVICE_POLICY_MANAGEMENT =
             "android.app.role.DEVICE_POLICY_MANAGEMENT";
+
+    /**
+     * The name of the financed device kiosk role.
+     *
+     * A financed device is a device purchased through a creditor and typically paid back under an
+     * installment plan.
+     * The creditor has the ability to lock a financed device in case of payment default.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String ROLE_FINANCED_DEVICE_KIOSK =
+            "android.app.role.FINANCED_DEVICE_KIOSK";
 
     /**
      * @hide

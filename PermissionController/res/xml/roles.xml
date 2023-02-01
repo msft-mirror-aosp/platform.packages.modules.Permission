@@ -68,8 +68,12 @@
     </permission-set>
 
     <permission-set name="sensors">
-        <permission name="android.permission.BODY_SENSORS" />
-        <permission name="android.permission.BODY_SENSORS_BACKGROUND" minSdkVersion="33" />
+        <permission name="android.permission.BODY_SENSORS"/>
+        <permission name="android.permission.BODY_SENSORS_BACKGROUND" minSdkVersion="33"/>
+        <permission name="android.permission.BODY_SENSORS_WRIST_TEMPERATURE"
+                    minSdkVersion="34"/>
+        <permission name="android.permission.BODY_SENSORS_WRIST_TEMPERATURE_BACKGROUND"
+                    minSdkVersion="34"/>
     </permission-set>
 
     <permission-set name="storage">
@@ -84,6 +88,7 @@
         <permission name="android.permission.BLUETOOTH_ADVERTISE" minSdkVersion="31" />
         <permission name="android.permission.BLUETOOTH_CONNECT" minSdkVersion="31" />
         <permission name="android.permission.BLUETOOTH_SCAN" minSdkVersion="31" />
+        <permission name="android.permission.NEARBY_WIFI_DEVICES" minSdkVersion="33" />
     </permission-set>
 
     <permission-set name="notifications">
@@ -101,7 +106,8 @@
         label="@string/role_assistant_label"
         overrideUserWhenGranting="true"
         requestable="false"
-        shortLabel="@string/role_assistant_short_label">
+        shortLabel="@string/role_assistant_short_label"
+        uiBehavior="AssistantRoleUiBehavior">
         <required-components>
             <!-- Qualified components are determined int AssistantRoleBehavior. This comment here is
                  ignored and represents just a rough description
@@ -136,6 +142,8 @@
                 minSdkVersion="33"/>
             <permission name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE"
                 minSdkVersion="33" />
+            <permission name="android.permission.EXECUTE_APP_ACTION"
+                minSdkVersion="34" />
         </permissions>
         <app-op-permissions>
             <app-op-permission name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -159,7 +167,8 @@
         overrideUserWhenGranting="true"
         requestDescription="@string/role_browser_request_description"
         requestTitle="@string/role_browser_request_title"
-        shortLabel="@string/role_browser_short_label">
+        shortLabel="@string/role_browser_short_label"
+        uiBehavior="BrowserRoleUiBehavior">
         <!--
           ~ Required components matching is handled in BrowserRoleBehavior because it needs the
           ~ PackageManager.MATCH_ALL flag and other manual filtering, which cannot fit in our
@@ -201,7 +210,8 @@
         requestDescription="@string/role_dialer_request_description"
         requestTitle="@string/role_dialer_request_title"
         searchKeywords="@string/role_dialer_search_keywords"
-        shortLabel="@string/role_dialer_short_label">
+        shortLabel="@string/role_dialer_short_label"
+        uiBehavior="DialerRoleUiBehavior">
         <required-components>
             <activity>
                 <intent-filter>
@@ -287,7 +297,8 @@
         requestDescription="@string/role_sms_request_description"
         requestTitle="@string/role_sms_request_title"
         searchKeywords="@string/role_sms_search_keywords"
-        shortLabel="@string/role_sms_short_label">
+        shortLabel="@string/role_sms_short_label"
+        uiBehavior="SmsRoleUiBehavior">
         <required-components>
             <receiver permission="android.permission.BROADCAST_SMS">
                 <intent-filter>
@@ -377,7 +388,8 @@
         requestTitle="@string/role_emergency_request_title"
         searchKeywords="@string/role_emergency_search_keywords"
         shortLabel="@string/role_emergency_short_label"
-        systemOnly="true">
+        systemOnly="true"
+        uiBehavior="EmergencyRoleUiBehavior">
         <required-components>
             <activity>
                 <intent-filter>
@@ -407,7 +419,8 @@
         requestDescription="@string/role_home_request_description"
         requestTitle="@string/role_home_request_title"
         searchKeywords="@string/role_home_search_keywords"
-        shortLabel="@string/role_home_short_label">
+        shortLabel="@string/role_home_short_label"
+        uiBehavior="HomeRoleUiBehavior">
         <!-- Also used by HomeRoleBehavior.getFallbackHolder(). -->
         <required-components>
             <activity>
@@ -565,6 +578,7 @@
             <permission name="android.permission.REQUEST_COMPANION_PROFILE_AUTOMOTIVE_PROJECTION" minSdkVersion="33" />
             <permission name="android.permission.SEND_SMS" />
             <permission name="android.permission.TOGGLE_AUTOMOTIVE_PROJECTION" minSdkVersion="33" />
+            <permission name="android.permission.ADD_TRUSTED_DISPLAY" minSdkVersion="34"/>
         </permissions>
     </role>
 
@@ -600,6 +614,7 @@
             <permission name="android.permission.ADD_ALWAYS_UNLOCKED_DISPLAY" minSdkVersion="33" />
             <permission name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE"
                 minSdkVersion="33" />
+            <permission name="android.permission.MANAGE_DEVICE_LOCK_STATE" minSdkVersion="34" />
         </permissions>
     </role>
 
@@ -1108,6 +1123,43 @@
        </permissions>
     </role>
 
+    <role
+        name="android.app.role.COMPANION_DEVICE_GLASSES"
+        behavior="CompanionDeviceGlassesRoleBehavior"
+        description="@string/role_companion_device_glasses_description"
+        exclusive="false"
+        minSdkVersion="34"
+        systemOnly="false"
+        visible="false">
+        <permissions>
+            <permission-set name="contacts" />
+            <permission-set name="microphone" />
+            <permission-set name="nearby_devices" />
+            <permission-set name="notifications" />
+            <permission-set name="phone" />
+            <permission-set name="sms" />
+       </permissions>
+       <app-op-permissions>
+           <app-op-permission name="android.permission.MANAGE_ONGOING_CALLS" />
+       </app-op-permissions>
+    </role>
+
+    <role
+        name="android.app.role.COMPANION_DEVICE_NEARBY_DEVICE_STREAMING"
+        allowBypassingQualification="true"
+        description="@string/role_companion_device_nearby_device_streaming_description"
+        exclusive="false"
+        minSdkVersion="34"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="nearby_devices" />
+            <permission name="android.permission.CREATE_VIRTUAL_DEVICE" />
+            <permission name="android.permission.ADD_TRUSTED_DISPLAY" />
+            <permission name="android.permission.ADD_ALWAYS_UNLOCKED_DISPLAY" />
+        </permissions>
+    </role>
+
      <role
         name="android.app.role.SYSTEM_SUPERVISION"
         defaultHolders="config_systemSupervision"
@@ -1118,6 +1170,7 @@
         visible="false" >
         <permissions>
             <permission name="android.permission.ACCESS_INSTANT_APPS"/>
+            <permission name="android.permission.KILL_UID" minSdkVersion="34"/>
             <permission name="android.permission.SUSPEND_APPS"/>
             <permission name="android.permission.SYSTEM_APPLICATION_OVERLAY"/>
         </permissions>
@@ -1187,6 +1240,7 @@
             <permission name="android.permission.UPDATE_DEVICE_MANAGEMENT_RESOURCES" />
             <permission name="android.permission.QUERY_ADMIN_POLICY" />
             <permission name="android.permission.TRIGGER_LOST_MODE" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_APP_EXEMPTIONS" />
         </permissions>
     </role>
 
@@ -1339,5 +1393,101 @@
             <permission name="android.permission.DEVICE_POWER" />
             <permission name="android.permission.NET_TUNNELING" />
         </permissions>
+    </role>
+
+    <!--
+     ~ A role assigned to the financing kiosk app
+    -->
+    <role
+        name="android.app.role.FINANCED_DEVICE_KIOSK"
+        exclusive="true"
+        minSdkVersion="34"
+        visible="false">
+        <permissions>
+            <permission name="android.permission.MANAGE_DEVICE_LOCK_STATE" />
+        </permissions>
+    </role>
+
+    <!--
+     ~ A role assigned to the device lock controller
+    -->
+    <role
+        name="android.app.role.SYSTEM_FINANCED_DEVICE_CONTROLLER"
+        defaultHolders="config_systemFinancedDeviceController"
+        exclusive="true"
+        minSdkVersion="34"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_APPS_CONTROL" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_CALLS" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_DEBUGGING_FEATURES" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCK_TASK" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_SAFE_BOOT" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_TIME" />
+            <permission name="android.permission.MASTER_CLEAR" />
+            <permission name="android.permission.INTERACT_ACROSS_USERS" />
+            <permission name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the wear health service that handles health/fitness tracking features.
+    -->
+    <role
+        name="android.app.role.SYSTEM_WEAR_HEALTH_SERVICE"
+        behavior="SystemWearHealthServiceRoleBehavior"
+        defaultHolders="config_systemWearHealthService"
+        exclusive="true"
+        minSdkVersion="33"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="sensors" />
+            <permission-set name="location" />
+            <permission name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+            <permission name="android.permission.ACTIVITY_RECOGNITION" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the package that responds to system notes actions.
+    -->
+    <role
+        name="android.app.role.NOTES"
+        behavior="NotesRoleBehavior"
+        defaultHolders="config_defaultNotes"
+        description="@string/role_notes_description"
+        exclusive="true"
+        label="@string/role_notes_label"
+        minSdkVersion="34"
+        overrideUserWhenGranting="true"
+        requestable="false"
+        searchKeywords="@string/role_notes_search_keywords"
+        shortLabel="@string/role_notes_short_label"
+        showNone="true">
+        <required-components>
+            <!-- Flag value is FLAG_SHOW_WHEN_LOCKED | FLAG_TURN_SCREEN_ON -->
+            <activity flags="0x1800000">
+                <intent-filter>
+                    <action name="android.intent.action.CREATE_NOTE" />
+                </intent-filter>
+            </activity>
+        </required-components>
+        <preferred-activities>
+            <preferred-activity>
+                <!-- Flag value is FLAG_SHOW_WHEN_LOCKED | FLAG_TURN_SCREEN_ON -->
+                <activity flags="0x1800000">
+                    <intent-filter>
+                        <action name="android.intent.action.CREATE_NOTE" />
+                    </intent-filter>
+                </activity>
+                <intent-filter>
+                    <action name="android.intent.action.CREATE_NOTE" />
+                </intent-filter>
+            </preferred-activity>
+        </preferred-activities>
     </role>
 </roles>

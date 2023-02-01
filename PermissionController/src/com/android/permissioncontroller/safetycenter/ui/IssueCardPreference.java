@@ -47,6 +47,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
+import com.android.modules.utils.build.SdkLevel;
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.safetycenter.ui.model.SafetyCenterViewModel;
 import com.android.safetycenter.internaldata.SafetyCenterIds;
@@ -103,9 +104,19 @@ public class IssueCardPreference extends Preference implements ComparablePrefere
         ((TextView) holder.findViewById(R.id.issue_card_title)).setText(mIssue.getTitle());
         ((TextView) holder.findViewById(R.id.issue_card_summary)).setText(mIssue.getSummary());
 
+        CharSequence attributionTitle = SdkLevel.isAtLeastU() ? mIssue.getAttributionTitle() : null;
+        TextView attributionTitleTextView =
+                (TextView) holder.findViewById(R.id.issue_card_attribution_title);
+        if (TextUtils.isEmpty(attributionTitle)) {
+            attributionTitleTextView.setVisibility(View.GONE);
+        } else {
+            attributionTitleTextView.setText(attributionTitle);
+            attributionTitleTextView.setVisibility(View.VISIBLE);
+        }
         CharSequence subtitle = mIssue.getSubtitle();
         TextView subtitleTextView = (TextView) holder.findViewById(R.id.issue_card_subtitle);
         CharSequence contentDescription;
+        // TODO(b/257972736): Add a11y support for attribution title.
         if (TextUtils.isEmpty(subtitle)) {
             subtitleTextView.setVisibility(View.GONE);
             contentDescription =
@@ -252,8 +263,7 @@ public class IssueCardPreference extends Preference implements ComparablePrefere
         @Override
         public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
             SafetyCenterViewModel safetyCenterViewModel =
-                    ((SafetyCenterDashboardFragment) requireParentFragment())
-                            .getSafetyCenterViewModel();
+                    ((SafetyCenterFragment) requireParentFragment()).getSafetyCenterViewModel();
             SafetyCenterIssue issue =
                     requireNonNull(
                             requireArguments().getParcelable(ISSUE_KEY, SafetyCenterIssue.class));

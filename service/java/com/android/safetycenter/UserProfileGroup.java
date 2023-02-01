@@ -42,9 +42,11 @@ import java.util.Objects;
 /**
  * A class that represent all the enabled profiles (profile parent and managed profile(s))
  * associated with a user id.
+ *
+ * @hide
  */
 @RequiresApi(TIRAMISU)
-final class UserProfileGroup {
+public final class UserProfileGroup {
 
     @UserIdInt private final int mProfileParentUserId;
     @NonNull private final int[] mManagedProfilesUserIds;
@@ -60,7 +62,7 @@ final class UserProfileGroup {
     }
 
     /** Returns all the alive {@link UserProfileGroup}s. */
-    static List<UserProfileGroup> getAllUserProfileGroups(@NonNull Context context) {
+    public static List<UserProfileGroup> getAllUserProfileGroups(@NonNull Context context) {
         List<UserProfileGroup> userProfileGroups = new ArrayList<>();
         List<UserHandle> userHandles = UserUtils.getUserHandles(context);
         for (int i = 0; i < userHandles.size(); i++) {
@@ -96,7 +98,7 @@ final class UserProfileGroup {
      * <p>The given {@code userId} could be related to the profile parent or any of its associated
      * managed profile(s).
      */
-    static UserProfileGroup from(@NonNull Context context, @UserIdInt int userId) {
+    public static UserProfileGroup from(@NonNull Context context, @UserIdInt int userId) {
         UserManager userManager = getUserManagerForUser(userId, context);
         List<UserHandle> userProfiles = getEnabledUserProfiles(userManager);
         UserHandle profileParent = getProfileParent(userManager, userId);
@@ -173,22 +175,40 @@ final class UserProfileGroup {
     }
 
     /** Returns the profile parent user id of the {@link UserProfileGroup}. */
-    int getProfileParentUserId() {
+    public int getProfileParentUserId() {
         return mProfileParentUserId;
     }
 
     /** Returns the managed profile user ids of the {@link UserProfileGroup}. */
-    int[] getManagedProfilesUserIds() {
+    public int[] getManagedProfilesUserIds() {
         return mManagedProfilesUserIds;
     }
 
     /** Returns the running managed profile user ids of the {@link UserProfileGroup}. */
-    int[] getManagedRunningProfilesUserIds() {
+    public int[] getManagedRunningProfilesUserIds() {
         return mManagedRunningProfilesUserIds;
     }
 
+    /**
+     * Convenience method that combines the results of {@link
+     * UserProfileGroup#getProfileParentUserId()} and {@link
+     * UserProfileGroup#getManagedRunningProfilesUserIds()}.
+     */
+    public int[] getProfileParentAndManagedRunningProfilesUserIds() {
+        int[] profileParentAndManagedRunningProfilesUserIds =
+                new int[mManagedRunningProfilesUserIds.length + 1];
+        profileParentAndManagedRunningProfilesUserIds[0] = mProfileParentUserId;
+        System.arraycopy(
+                mManagedRunningProfilesUserIds,
+                0,
+                profileParentAndManagedRunningProfilesUserIds,
+                1,
+                mManagedRunningProfilesUserIds.length);
+        return profileParentAndManagedRunningProfilesUserIds;
+    }
+
     /** Returns whether the {@link UserProfileGroup} contains the given {@code userId}. */
-    boolean contains(@UserIdInt int userId) {
+    public boolean contains(@UserIdInt int userId) {
         if (userId == mProfileParentUserId) {
             return true;
         }

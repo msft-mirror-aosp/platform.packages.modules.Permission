@@ -32,6 +32,10 @@
     <string name="grant_dialog_button_no_upgrade" msgid="8344732743633736625">"Оставить доступ только в активном режиме"</string>
     <string name="grant_dialog_button_no_upgrade_one_time" msgid="5125892775684968694">"Оставить \"Только в этот раз\""</string>
     <string name="grant_dialog_button_more_info" msgid="213350268561945193">"Подробнее"</string>
+    <string name="grant_dialog_button_allow_all_photos" msgid="3688746146785304900">"Разрешить доступ ко всем фото"</string>
+    <string name="grant_dialog_button_allow_selected_photos" msgid="4098620850512492892">"Выбрать фото"</string>
+    <string name="grant_dialog_button_allow_more_selected_photos" msgid="2003524111894640605">"Выбрать ещё фото"</string>
+    <string name="grant_dialog_button_dont_allow_more_selected_photos" msgid="6811842813929146242">"Больше не выбирать фото"</string>
     <string name="grant_dialog_button_deny_anyway" msgid="7225905870668915151">"Все равно запретить"</string>
     <string name="grant_dialog_button_dismiss" msgid="1930399742250226393">"Закрыть"</string>
     <string name="current_permission_template" msgid="7452035392573329375">"<xliff:g id="CURRENT_PERMISSION_INDEX">%1$s</xliff:g> из <xliff:g id="PERMISSION_COUNT">%2$s</xliff:g>"</string>
@@ -137,17 +141,15 @@
     <string name="auto_permission_usage_timeline_summary" msgid="2713135806453218703">"<xliff:g id="ACCESS_TIME">%1$s</xliff:g> • <xliff:g id="SUMMARY_TEXT">%2$s</xliff:g>"</string>
     <string name="history_preference_subtext_2" msgid="1521763591164293683">"<xliff:g id="APP_NAME">%1$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%2$s</xliff:g>"</string>
     <string name="history_preference_subtext_3" msgid="758761785983094351">"<xliff:g id="ATTRIBUTION_NAME">%1$s</xliff:g> • <xliff:g id="APP_NAME">%2$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%3$s</xliff:g>"</string>
-    <string name="duration_used_days" msgid="8293010131040301793">"{count,plural, =1{1 день}one{# день}few{# дня}many{# дней}other{# дня}}"</string>
-    <string name="duration_used_hours" msgid="1128716208752263576">"{count,plural, =1{1 час}one{# час}few{# часа}many{# часов}other{# часа}}"</string>
-    <string name="duration_used_minutes" msgid="5335824115042576567">"{count,plural, =1{1 минута}one{# минута}few{# минуты}many{# минут}other{# минуты}}"</string>
-    <string name="duration_used_seconds" msgid="6543746449171675028">"{count,plural, =1{1 секунда}one{# секунда}few{# секунды}many{# секунд}other{# секунды}}"</string>
+    <string name="duration_used_days" msgid="8238355545812998877">"{count,plural, =1{# день}one{# день}few{# дня}many{# дней}other{# дня}}"</string>
+    <string name="duration_used_hours" msgid="4983814806123370332">"{count,plural, =1{# час}one{# час}few{# часа}many{# часов}other{# часа}}"</string>
+    <string name="duration_used_minutes" msgid="1701379522897227819">"{count,plural, =1{# минута}one{# минута}few{# минуты}many{# минут}other{# минуты}}"</string>
+    <string name="duration_used_seconds" msgid="4067390990568727715">"{count,plural, =1{# секунда}one{# секунда}few{# секунды}many{# секунд}other{# секунды}}"</string>
     <string name="permission_usage_any_permission" msgid="6358023078298106997">"Все разрешения"</string>
     <string name="permission_usage_any_time" msgid="3802087027301631827">"Все время"</string>
-    <string name="permission_usage_last_7_days" msgid="7386221251886130065">"Последние 7 дней"</string>
-    <string name="permission_usage_last_day" msgid="1512880889737305115">"Последние 24 часа"</string>
-    <string name="permission_usage_last_hour" msgid="3866005205535400264">"Последний час"</string>
-    <string name="permission_usage_last_15_minutes" msgid="9077554653436200702">"Последние 15 минут"</string>
-    <string name="permission_usage_last_minute" msgid="7297055967335176238">"Последняя минута"</string>
+    <string name="permission_usage_last_n_days" msgid="7882626467375714145">"{count,plural, =1{За последний # день}one{За последний # день}few{За последние # дня}many{За последние # дней}other{За последние # дня}}"</string>
+    <string name="permission_usage_last_n_hours" msgid="8490466053680267858">"{count,plural, =1{За последний # час}one{За последний # час}few{За последние # часа}many{За последние # часов}other{За последние # часа}}"</string>
+    <string name="permission_usage_last_n_minutes" msgid="7817864229878281983">"{count,plural, =1{За последнюю # минуту}one{За последнюю # минуту}few{За последние # минуты}many{За последние # минут}other{За последние # минуты}}"</string>
     <string name="no_permission_usages" msgid="9119517454177289331">"Разрешения не использовались"</string>
     <string name="permission_usage_list_title_any_time" msgid="8718257027381592407">"Доступ к разрешениям за все время"</string>
     <string name="permission_usage_list_title_last_7_days" msgid="9048542342670890615">"Доступ за последние 7 дней"</string>
@@ -161,8 +163,8 @@
     <string name="permission_usage_bar_chart_title_last_hour" msgid="6571647509660009185">"Разрешения, использованные за последний час"</string>
     <string name="permission_usage_bar_chart_title_last_15_minutes" msgid="2743143675412824819">"Разрешения, использованные за последние 15 минут"</string>
     <string name="permission_usage_bar_chart_title_last_minute" msgid="820450867183487607">"Разрешения, использованные за последнюю минуту"</string>
-    <string name="permission_usage_preference_summary_not_used_24h" msgid="3087783232178611025">"Не использовалось последние 24 часа"</string>
-    <string name="permission_usage_preference_summary_not_used_7d" msgid="4592301300810120096">"Не использовалось последние 7 дней"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_days" msgid="4771868094611359651">"{count,plural, =1{С момента последнего использования прошел # день}one{С момента последнего использования прошел # день}few{С момента последнего использования прошло # дня}many{С момента последнего использования прошло # дней}other{С момента последнего использования прошло # дня}}"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_hours" msgid="3828973177433435742">"{count,plural, =1{С момента последнего использования прошел # час}one{С момента последнего использования прошел # час}few{С момента последнего использования прошло # часа}many{С момента последнего использования прошло # часов}other{С момента последнего использования прошло # часа}}"</string>
     <string name="permission_usage_preference_label" msgid="8343167938128676378">"{count,plural, =1{Использует 1 приложение}one{Использует # приложение}few{Используют # приложения}many{Используют # приложений}other{Используют # приложения}}"</string>
     <string name="permission_usage_view_details" msgid="6675335735468752787">"Показать все в панели управления"</string>
     <string name="app_permission_usage_filter_label" msgid="7182861154638631550">"Фильтр: <xliff:g id="PERM">%1$s</xliff:g>"</string>
@@ -188,6 +190,8 @@
     <string name="app_permission_button_allow_media_only" msgid="2834282724426046154">"Разрешить доступ только к медиафайлам"</string>
     <string name="app_permission_button_allow_always" msgid="4573292371734011171">"Разрешить в любом режиме"</string>
     <string name="app_permission_button_allow_foreground" msgid="1991570451498943207">"Разрешить только во время использования приложения"</string>
+    <string name="app_permission_button_allow_all_photos" msgid="914762549054270764">"Разрешить все фото"</string>
+    <string name="app_permission_button_select_photos" msgid="1022930616634145364">"Разрешить выбранные фото"</string>
     <string name="app_permission_button_ask" msgid="3342950658789427">"Спрашивать каждый раз"</string>
     <string name="app_permission_button_deny" msgid="6016454069832050300">"Запретить"</string>
     <string name="precise_image_description" msgid="6349638632303619872">"Точное местоположение"</string>
@@ -219,8 +223,8 @@
     <string name="auto_revoked_app_summary_many" msgid="5930976230827378798">"Отозвано разрешение \"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>\" и ещё <xliff:g id="NUMBER">%2$s</xliff:g>."</string>
     <string name="unused_apps_page_title" msgid="6986983535677572559">"Неиспользуемые приложения"</string>
     <string name="unused_apps_page_summary" msgid="1867593913217272155">"Если вы не пользовались приложением несколько месяцев:\n\n• разрешения будут отозваны для защиты ваших данных;\n• уведомления будут отключены для экономии заряда батареи;\n• временные файлы будут удалены, чтобы освободить место.\n\nЧтобы заново предоставить разрешения и включить уведомления, откройте приложение."</string>
-    <string name="unused_apps_page_tv_summary" msgid="3685907153054355671">"Если вы не пользовались приложением несколько месяцев:\n\n• разрешения будут отключены для защиты ваших данных;\n• временные файлы будут удалены, чтобы освободить место.\n\nЧтобы заново предоставить разрешения, откройте приложение."</string>
-    <string name="last_opened_category_title" msgid="7871347400611202595">"Использовались более <xliff:g id="NUMBER">%s</xliff:g> мес. назад"</string>
+    <string name="unused_apps_page_tv_summary" msgid="2624911608663778308">"Если вы не пользовались приложением в течение месяца:\n\n• разрешения будут отключены для защиты ваших данных;\n• временные файлы будут удалены, чтобы освободить место.\n\nЧтобы заново предоставить разрешения, откройте приложение."</string>
+    <string name="last_opened_category_title" msgid="8796557894614236128">"{count,plural, =1{Использовались более # месяца назад}one{Использовались более # месяца назад}few{Использовались более # месяцев назад}many{Использовались более # месяцев назад}other{Использовались более # месяца назад}}"</string>
     <string name="last_opened_summary" msgid="5248984030024968808">"Вы открывали это приложение <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="last_opened_summary_short" msgid="1646067226191176825">"Использовалось <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="app_permission_footer_special_file_access" msgid="1884202176147657788">"Если вы разрешите приложению управлять всеми файлами, оно сможет просматривать, изменять и удалять любые файлы в общем хранилище на этом устройстве, а также на подключенных запоминающих устройствах. При этом оно сможет получать доступ к файлам без вашего ведома."</string>
@@ -253,9 +257,9 @@
     <string name="denied_header" msgid="903209608358177654">"Доступ запрещен"</string>
     <string name="storage_footer_hyperlink_text" msgid="8873343987957834810">"Ещё приложения с доступом ко всем файлам"</string>
     <string name="days" msgid="609563020985571393">"{count,plural, =1{1 день}one{# день}few{# дня}many{# дней}other{# дня}}"</string>
-    <string name="hours" msgid="3447767892295843282">"{count,plural, =1{1 час}one{# час}few{# часа}many{# часов}other{# часа}}"</string>
-    <string name="minutes" msgid="4408293038068503157">"{count,plural, =1{1 минута}one{# минута}few{# минуты}many{# минут}other{# минуты}}"</string>
-    <string name="seconds" msgid="5397771912131132690">"{count,plural, =1{1 секунда}one{# секунда}few{# секунды}many{# секунд}other{# секунды}}"</string>
+    <string name="hours" msgid="7302866489666950038">"{count,plural, =1{# час}one{# час}few{# часа}many{# часов}other{# часа}}"</string>
+    <string name="minutes" msgid="4868414855445375753">"{count,plural, =1{# минута}one{# минута}few{# минуты}many{# минут}other{# минуты}}"</string>
+    <string name="seconds" msgid="5893958182059842734">"{count,plural, =1{# секунда}one{# секунда}few{# секунды}many{# секунд}other{# секунды}}"</string>
     <string name="permission_reminders" msgid="6528257957664832636">"Напоминания о разрешениях"</string>
     <string name="auto_revoke_permission_reminder_notification_title_one" msgid="6690347469376854137">"1 неиспользуемое приложение"</string>
     <string name="auto_revoke_permission_reminder_notification_title_many" msgid="6062217713645069960">"Неиспользуемые приложения (<xliff:g id="NUMBER_OF_APPS">%s</xliff:g>)"</string>
@@ -394,8 +398,14 @@
     <string name="role_automotive_navigation_request_title" msgid="7525693151489384300">"Сделать приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" навигатором по умолчанию?"</string>
     <string name="role_automotive_navigation_request_description" msgid="7073023813249245540">"Разрешения не требуются."</string>
     <string name="role_watch_description" msgid="267003778693177779">"Приложению \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" будет предоставлен доступ к уведомлениям, а также следующие разрешения: телефон, SMS, контакты и календарь."</string>
+    <string name="role_companion_device_glasses_description" msgid="1775655849566169630">"Приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" получит доступ к уведомлениям, а также разрешения \"Телефон\", SMS, \"Контакты\", \"Микрофон\" и \"Устройства поблизости\"."</string>
     <string name="role_app_streaming_description" msgid="7341638576226183992">"Приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" сможет взаимодействовать с уведомлениями и транслировать приложения на подключенное устройство."</string>
+    <string name="role_companion_device_nearby_device_streaming_description" msgid="1177524993193492570">"Приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" сможет транслировать контент на устройства поблизости."</string>
     <string name="role_companion_device_computer_description" msgid="416099879217066377">"Этот сервис открывает другим устройствам доступ к фотографиям, медиафайлам и уведомлениям на вашем телефоне."</string>
+    <string name="role_notes_label" msgid="7451627001058089536">"Для заметок по умолчанию"</string>
+    <string name="role_notes_short_label" msgid="8796604147546125285">"Приложение для заметок"</string>
+    <string name="role_notes_description" msgid="8496852798616883551">"Приложения для написания заметок на вашем устройстве"</string>
+    <string name="role_notes_search_keywords" msgid="7710756695666744631">"заметки"</string>
     <string name="request_role_current_default" msgid="738722892438247184">"Используется по умолчанию"</string>
     <string name="request_role_dont_ask_again" msgid="3556017886029520306">"Больше не спрашивать"</string>
     <string name="request_role_set_as_default" msgid="4253949643984172880">"По умолчанию"</string>
@@ -470,6 +480,7 @@
     <string name="permgrouprequest_storage_pre_q" msgid="168130651144569428">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к &lt;b&gt;фото, видео, аудио и другим файлам&lt;/b&gt; на устройстве?"</string>
     <string name="permgrouprequest_read_media_aural" msgid="2593365397347577812">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к музыке и аудио на устройстве?"</string>
     <string name="permgrouprequest_read_media_visual" msgid="5548780620779729975">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к фото и видео на устройстве?"</string>
+    <string name="permgrouprequest_more_photos" msgid="4697813231897226261">"Предоставить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к другим фотографиям?"</string>
     <string name="permgrouprequest_microphone" msgid="2825208549114811299">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; записывать аудио?"</string>
     <string name="permgrouprequestdetail_microphone" msgid="8510456971528228861">"Приложение будет записывать аудио, только когда вы им пользуетесь."</string>
     <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; записывать аудио?"</string>
@@ -580,4 +591,6 @@
     <string name="show_clip_access_notification_summary" msgid="3532020182782112687">"Показывать уведомления, когда приложения обращаются к скопированному тексту, изображениям или другому контенту"</string>
     <string name="show_password_title" msgid="2877269286984684659">"Показывать пароли"</string>
     <string name="show_password_summary" msgid="1110166488865981610">"Ненадолго показывать символы при вводе"</string>
+    <!-- no translation found for permission_rationale_message_location (2153841534298068414) -->
+    <skip />
 </resources>

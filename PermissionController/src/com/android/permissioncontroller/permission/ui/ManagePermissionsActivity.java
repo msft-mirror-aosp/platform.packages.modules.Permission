@@ -16,6 +16,7 @@
 
 package com.android.permissioncontroller.permission.ui;
 
+import static android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP;
 import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
 
 import static com.android.permissioncontroller.Constants.ACTION_MANAGE_AUTO_REVOKE;
@@ -70,7 +71,8 @@ import com.android.permissioncontroller.permission.ui.handheld.AppPermissionGrou
 import com.android.permissioncontroller.permission.ui.handheld.HandheldUnusedAppsWrapperFragment;
 import com.android.permissioncontroller.permission.ui.handheld.PermissionAppsFragment;
 import com.android.permissioncontroller.permission.ui.handheld.v31.PermissionDetailsWrapperFragment;
-import com.android.permissioncontroller.permission.ui.handheld.v31.PermissionUsageV2WrapperFragment;
+import com.android.permissioncontroller.permission.ui.handheld.v31.PermissionUsageWrapperFragment;
+import com.android.permissioncontroller.permission.ui.handheld.v34.AppDataSharingUpdatesFragment;
 import com.android.permissioncontroller.permission.ui.legacy.AppPermissionActivity;
 import com.android.permissioncontroller.permission.ui.television.TvUnusedAppsFragment;
 import com.android.permissioncontroller.permission.ui.wear.AppPermissionsFragmentWear;
@@ -190,7 +192,7 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                 if (DeviceUtils.isAuto(this)) {
                     androidXFragment = new AutoPermissionUsageFragment();
                 } else {
-                    androidXFragment = PermissionUsageV2WrapperFragment.newInstance(
+                    androidXFragment = PermissionUsageWrapperFragment.newInstance(
                             Long.MAX_VALUE, sessionId);
                 }
             } break;
@@ -364,6 +366,13 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                     return;
                 }
 
+                if (Utils.isHealthPermissionUiEnabled() && permissionGroupName
+                                .equals(HEALTH_PERMISSION_GROUP)) {
+                    Utils.navigateToHealthConnectSettings(this);
+                    finishAfterTransition();
+                    return;
+                }
+
                 if (DeviceUtils.isAuto(this)) {
                     androidXFragment =
                             AutoPermissionAppsFragment.newInstance(permissionGroupName, sessionId);
@@ -429,6 +438,23 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                 } else {
                     Log.e(LOG_TAG, "ACTION_REVIEW_PERMISSION_DECISIONS is not "
                             + "supported on this device type");
+                    finishAfterTransition();
+                    return;
+                }
+            } break;
+
+            case Intent.ACTION_REVIEW_APP_DATA_SHARING_UPDATES: {
+                if (KotlinUtils.INSTANCE.isSafetyLabelChangeNotificationsEnabled()) {
+                    if (DeviceUtils.isAuto(this) || DeviceUtils.isWear(this)
+                            || DeviceUtils.isTelevision(this)) {
+                        Log.e(LOG_TAG, "ACTION_REVIEW_APP_DATA_SHARING_UPDATES is not "
+                                + "supported on this device type");
+                        finishAfterTransition();
+                        return;
+                    }
+                    setNavGraph(AppDataSharingUpdatesFragment.Companion.createArgs(sessionId),
+                            R.id.app_data_sharing_updates);
+                } else {
                     finishAfterTransition();
                     return;
                 }

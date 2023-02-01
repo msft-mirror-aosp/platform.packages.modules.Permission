@@ -27,10 +27,14 @@ import static android.safetycenter.SafetyCenterManager.ACTION_SAFETY_CENTER_ENAB
 import static android.safetycenter.SafetyCenterManager.EXTRA_REFRESH_SAFETY_SOURCES_BROADCAST_ID;
 import static android.safetycenter.SafetyCenterManager.EXTRA_REFRESH_SAFETY_SOURCES_REQUEST_TYPE;
 import static android.safetycenter.SafetyCenterManager.EXTRA_REFRESH_SAFETY_SOURCE_IDS;
+import static android.safetycenter.SafetyCenterManager.REFRESH_REASON_PAGE_OPEN;
 import static android.safetycenter.SafetyCenterManager.REFRESH_REASON_SAFETY_CENTER_ENABLED;
+
+import static java.util.Collections.unmodifiableList;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.UserIdInt;
 import android.app.BroadcastOptions;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +43,8 @@ import android.os.UserHandle;
 import android.safetycenter.SafetyCenterManager;
 import android.safetycenter.SafetyCenterManager.RefreshReason;
 import android.safetycenter.SafetyCenterManager.RefreshRequestType;
+import android.safetycenter.SafetySourceData;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -46,6 +52,7 @@ import androidx.annotation.RequiresApi;
 
 import com.android.permission.util.PackageUtils;
 import com.android.safetycenter.SafetyCenterConfigReader.Broadcast;
+import com.android.safetycenter.data.SafetySourceDataRepository;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -68,14 +75,17 @@ final class SafetyCenterBroadcastDispatcher {
     @NonNull private final Context mContext;
     @NonNull private final SafetyCenterConfigReader mSafetyCenterConfigReader;
     @NonNull private final SafetyCenterRefreshTracker mSafetyCenterRefreshTracker;
+    @NonNull private final SafetySourceDataRepository mSafetySourceDataRepository;
 
     SafetyCenterBroadcastDispatcher(
             @NonNull Context context,
             @NonNull SafetyCenterConfigReader safetyCenterConfigReader,
-            @NonNull SafetyCenterRefreshTracker safetyCenterRefreshTracker) {
+            @NonNull SafetyCenterRefreshTracker safetyCenterRefreshTracker,
+            @NonNull SafetySourceDataRepository safetySourceDataRepository) {
         mContext = context;
         mSafetyCenterConfigReader = safetyCenterConfigReader;
         mSafetyCenterRefreshTracker = safetyCenterRefreshTracker;
+        mSafetySourceDataRepository = safetySourceDataRepository;
     }
 
     /**
@@ -83,10 +93,15 @@ final class SafetyCenterBroadcastDispatcher {
      * SafetyCenterManager#ACTION_REFRESH_SAFETY_SOURCES}, and returns the associated broadcast id.
      *
      * <p>Returns {@code null} if no broadcast was sent.
+     *
+     * @param safetySourceIds list of IDs to specify the safety sources to be refreshed or a {@code
+     *     null} value to refresh all safety sources.
      */
     @Nullable
     String sendRefreshSafetySources(
-            @RefreshReason int refreshReason, @NonNull UserProfileGroup userProfileGroup) {
+            @RefreshReason int refreshReason,
+            @NonNull UserProfileGroup userProfileGroup,
+            @Nullable List<String> safetySourceIds) {
         List<Broadcast> broadcasts = mSafetyCenterConfigReader.getBroadcasts();
         BroadcastOptions broadcastOptions = createBroadcastOptions();
 
@@ -104,7 +119,8 @@ final class SafetyCenterBroadcastDispatcher {
                             broadcastOptions,
                             refreshReason,
                             userProfileGroup,
-                            broadcastId);
+                            broadcastId,
+                            safetySourceIds);
         }
 
         if (!hasSentAtLeastOneBroadcast) {
@@ -120,7 +136,8 @@ final class SafetyCenterBroadcastDispatcher {
             @NonNull BroadcastOptions broadcastOptions,
             @RefreshReason int refreshReason,
             @NonNull UserProfileGroup userProfileGroup,
-            @NonNull String broadcastId) {
+            @NonNull String broadcastId,
+            @Nullable List<String> requiredSourceIds) {
         boolean hasSentAtLeastOneBroadcast = false;
         int requestType = RefreshReasons.toRefreshRequestType(refreshReason);
         String packageName = broadcast.getPackageName();
@@ -135,6 +152,11 @@ final class SafetyCenterBroadcastDispatcher {
             if (!deniedSourceIds.isEmpty()) {
                 sourceIds = new ArrayList<>(sourceIds);
                 sourceIds.removeAll(deniedSourceIds);
+            }
+
+            if (requiredSourceIds != null) {
+                sourceIds = new ArrayList<>(sourceIds);
+                sourceIds.retainAll(requiredSourceIds);
             }
 
             if (sourceIds.isEmpty()) {
@@ -317,26 +339,74 @@ final class SafetyCenterBroadcastDispatcher {
      *
      * <p>Every value present is a non-empty list, but the overall result may be empty.
      */
-    private static SparseArray<List<String>> getUserIdsToSourceIds(
+    @NonNull
+    private SparseArray<List<String>> getUserIdsToSourceIds(
             @NonNull Broadcast broadcast,
             @NonNull UserProfileGroup userProfileGroup,
             @RefreshReason int refreshReason) {
         int[] managedProfileIds = userProfileGroup.getManagedRunningProfilesUserIds();
         SparseArray<List<String>> result = new SparseArray<>(managedProfileIds.length + 1);
+        List<String> profileParentSources =
+                getSourceIdsForRefreshReason(
+                        refreshReason,
+                        broadcast.getSourceIdsForProfileParent(),
+                        broadcast.getSourceIdsForProfileParentOnPageOpen(),
+                        userProfileGroup.getProfileParentUserId());
 
-        List<String> profileParentSources = broadcast.getSourceIdsForProfileParent(refreshReason);
         if (!profileParentSources.isEmpty()) {
             result.put(userProfileGroup.getProfileParentUserId(), profileParentSources);
         }
 
-        List<String> managedProfileSources =
-                broadcast.getSourceIdsForManagedProfiles(refreshReason);
-        if (!managedProfileSources.isEmpty()) {
-            for (int i = 0; i < managedProfileIds.length; i++) {
+        for (int i = 0; i < managedProfileIds.length; i++) {
+            List<String> managedProfileSources =
+                    getSourceIdsForRefreshReason(
+                            refreshReason,
+                            broadcast.getSourceIdsForManagedProfiles(),
+                            broadcast.getSourceIdsForManagedProfilesOnPageOpen(),
+                            managedProfileIds[i]);
+
+            if (!managedProfileSources.isEmpty()) {
                 result.put(managedProfileIds[i], managedProfileSources);
             }
         }
 
         return result;
+    }
+
+    /**
+     * Returns the sources to refresh for the given {@code refreshReason}.
+     *
+     * <p>For {@link SafetyCenterManager#REFRESH_REASON_PAGE_OPEN}, returns a copy of {@code
+     * allSourceIds} filtered to contain only sources that have refreshOnPageOpenAllowed in the XML
+     * config, or are in the safety_center_override_refresh_on_page_open_sources flag, or don't have
+     * any {@link SafetySourceData} provided.
+     */
+    @NonNull
+    private List<String> getSourceIdsForRefreshReason(
+            @RefreshReason int refreshReason,
+            @NonNull List<String> allSourceIds,
+            @NonNull List<String> pageOpenSourceIds,
+            @UserIdInt int userId) {
+        if (refreshReason != REFRESH_REASON_PAGE_OPEN) {
+            return allSourceIds;
+        }
+
+        List<String> sourceIds = new ArrayList<>();
+
+        ArraySet<String> flagAllowListedSourceIds =
+                SafetyCenterFlags.getOverrideRefreshOnPageOpenSourceIds();
+
+        for (int i = 0; i < allSourceIds.size(); i++) {
+            String sourceId = allSourceIds.get(i);
+            if (pageOpenSourceIds.contains(sourceId)
+                    || flagAllowListedSourceIds.contains(sourceId)
+                    || mSafetySourceDataRepository.getSafetySourceDataInternal(
+                                    SafetySourceKey.of(sourceId, userId))
+                            == null) {
+                sourceIds.add(sourceId);
+            }
+        }
+
+        return unmodifiableList(sourceIds);
     }
 }

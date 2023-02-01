@@ -19,45 +19,51 @@ package com.android.permissioncontroller.permission.ui.model
 import android.Manifest
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
-import android.Manifest.permission_group.LOCATION
+import android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+import android.Manifest.permission_group.READ_MEDIA_VISUAL
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AppOpsManager
 import android.app.AppOpsManager.MODE_ALLOWED
 import android.app.AppOpsManager.MODE_ERRORED
 import android.app.AppOpsManager.OPSTR_MANAGE_EXTERNAL_STORAGE
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.UserHandle
+import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
+import androidx.core.util.Consumer
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.android.modules.utils.build.SdkLevel
+import com.android.permissioncontroller.Constants
 import com.android.permissioncontroller.PermissionControllerStatsLog
 import com.android.permissioncontroller.PermissionControllerStatsLog.APP_PERMISSION_FRAGMENT_ACTION_REPORTED
 import com.android.permissioncontroller.PermissionControllerStatsLog.APP_PERMISSION_FRAGMENT_VIEWED
 import com.android.permissioncontroller.R
-import com.android.permissioncontroller.permission.utils.PermissionMapping
 import com.android.permissioncontroller.permission.data.FullStoragePermissionAppsLiveData
 import com.android.permissioncontroller.permission.data.FullStoragePermissionAppsLiveData.FullStoragePackageState
 import com.android.permissioncontroller.permission.data.LightAppPermGroupLiveData
+import com.android.permissioncontroller.permission.data.SafetyLabelInfoLiveData
 import com.android.permissioncontroller.permission.data.SmartUpdateMediatorLiveData
 import com.android.permissioncontroller.permission.data.get
 import com.android.permissioncontroller.permission.model.livedatatypes.LightAppPermGroup
 import com.android.permissioncontroller.permission.model.livedatatypes.LightPermission
+import com.android.permissioncontroller.permission.model.livedatatypes.SafetyLabelInfo
 import com.android.permissioncontroller.permission.service.PermissionChangeStorageImpl
 import com.android.permissioncontroller.permission.service.v33.PermissionDecisionStorageImpl
 import com.android.permissioncontroller.permission.ui.AdvancedConfirmDialogArgs
-
-import com.android.permissioncontroller.permission.ui.handheld.v31.getDefaultPrecision
-import com.android.permissioncontroller.permission.ui.handheld.v31.isLocationAccuracyEnabled
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType.ALLOW
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType.ALLOW_ALWAYS
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType.ALLOW_FOREGROUND
@@ -66,8 +72,16 @@ import com.android.permissioncontroller.permission.ui.model.AppPermissionViewMod
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType.DENY
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType.DENY_FOREGROUND
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType.LOCATION_ACCURACY
+import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType.SELECT_PHOTOS
+import com.android.permissioncontroller.permission.ui.v34.PermissionRationaleActivity
+import com.android.permissioncontroller.permission.ui.v34.PermissionRationaleActivity.EXTRA_SHOULD_SHOW_SETTINGS_SECTION
 import com.android.permissioncontroller.permission.utils.KotlinUtils
+import com.android.permissioncontroller.permission.utils.KotlinUtils.getDefaultPrecision
+import com.android.permissioncontroller.permission.utils.KotlinUtils.isLocationAccuracyEnabled
+import com.android.permissioncontroller.permission.utils.KotlinUtils.isPermissionRationaleEnabled
 import com.android.permissioncontroller.permission.utils.LocationUtils
+import com.android.permissioncontroller.permission.utils.PermissionMapping
+import com.android.permissioncontroller.permission.utils.PermissionRationales
 import com.android.permissioncontroller.permission.utils.SafetyNetLogger
 import com.android.permissioncontroller.permission.utils.Utils
 import com.android.permissioncontroller.permission.utils.navigateSafe
@@ -96,9 +110,11 @@ class AppPermissionViewModel(
 
     companion object {
         private val LOG_TAG = AppPermissionViewModel::class.java.simpleName
-
         private const val DEVICE_PROFILE_ROLE_PREFIX = "android.app.role"
+        const val PHOTO_PICKER_REQUEST_CODE = 1
     }
+
+    val safetyLabelInfoLiveData = SafetyLabelInfoLiveData[packageName, user]
 
     interface ConfirmDialogShowingFragment {
         fun showConfirmDialog(
@@ -112,21 +128,22 @@ class AppPermissionViewModel(
     }
 
     enum class ChangeRequest(val value: Int) {
-        GRANT_FOREGROUND(1),
-        REVOKE_FOREGROUND(2),
-        GRANT_BACKGROUND(4),
-        REVOKE_BACKGROUND(8),
+        GRANT_FOREGROUND(1 shl 0),
+        REVOKE_FOREGROUND(1 shl 1),
+        GRANT_BACKGROUND(1 shl 2),
+        REVOKE_BACKGROUND(1 shl 3),
         GRANT_BOTH(GRANT_FOREGROUND.value or GRANT_BACKGROUND.value),
         REVOKE_BOTH(REVOKE_FOREGROUND.value or REVOKE_BACKGROUND.value),
         GRANT_FOREGROUND_ONLY(GRANT_FOREGROUND.value or REVOKE_BACKGROUND.value),
-        GRANT_All_FILE_ACCESS(16),
-        GRANT_FINE_LOCATION(32),
-        REVOKE_FINE_LOCATION(64),
-        GRANT_STORAGE_SUPERGROUP(128),
-        REVOKE_STORAGE_SUPERGROUP(256),
+        GRANT_All_FILE_ACCESS(1 shl 4),
+        GRANT_FINE_LOCATION(1 shl 5),
+        REVOKE_FINE_LOCATION(1 shl 6),
+        GRANT_STORAGE_SUPERGROUP(1 shl 7),
+        REVOKE_STORAGE_SUPERGROUP(1 shl 8),
         GRANT_STORAGE_SUPERGROUP_CONFIRMED(
                 GRANT_STORAGE_SUPERGROUP.value or GRANT_FOREGROUND.value),
-        REVOKE_STORAGE_SUPERGROUP_CONFIRMED(REVOKE_STORAGE_SUPERGROUP.value or REVOKE_BOTH.value);
+        REVOKE_STORAGE_SUPERGROUP_CONFIRMED(REVOKE_STORAGE_SUPERGROUP.value or REVOKE_BOTH.value),
+        PHOTOS_SELECTED( 1 shl 9);
 
         infix fun andValue(other: ChangeRequest): Int {
             return value and other.value
@@ -141,13 +158,16 @@ class AppPermissionViewModel(
         ASK(4),
         DENY(5),
         DENY_FOREGROUND(6),
-        LOCATION_ACCURACY(7);
+        LOCATION_ACCURACY(7),
+        SELECT_PHOTOS( 8);
     }
 
     private val isStorageAndLessThanT =
         permGroupName == Manifest.permission_group.STORAGE && !SdkLevel.isAtLeastT()
     private var hasConfirmedRevoke = false
     private var lightAppPermGroup: LightAppPermGroup? = null
+    private var photoPickerLauncher: ActivityResultLauncher<Unit>? = null
+    private var photoPickerResultConsumer: Consumer<Int>? = null
 
     private val mediaStorageSupergroupPermGroups = mutableMapOf<String, LightAppPermGroup>()
 
@@ -200,8 +220,8 @@ class AppPermissionViewModel(
     /**
      * A livedata which computes the state of the radio buttons
      */
-    val buttonStateLiveData = object
-        : SmartUpdateMediatorLiveData<@JvmSuppressWildcards Map<ButtonType, ButtonState>>() {
+    val buttonStateLiveData = object :
+        SmartUpdateMediatorLiveData<@JvmSuppressWildcards Map<ButtonType, ButtonState>>() {
 
         private val appPermGroupLiveData = LightAppPermGroupLiveData[packageName, permGroupName,
             user]
@@ -275,6 +295,7 @@ class AppPermissionViewModel(
             val askState = ButtonState()
             val deniedState = ButtonState()
             val deniedForegroundState = ButtonState()
+            val selectState = ButtonState()
 
             askOneTimeState.isShown = group.foreground.isGranted && group.isOneTime
             askState.isShown = PermissionMapping.supportsOneTimeGrant(permGroupName) &&
@@ -315,6 +336,19 @@ class AppPermissionViewModel(
                     val detailId = getIndividualPermissionDetailResId(group)
                     detailResIdLiveData.value = detailId.first to detailId.second
                 }
+            } else if (KotlinUtils.isPhotoPickerPromptEnabled() &&
+                group.permGroupName == READ_MEDIA_VISUAL &&
+                group.packageInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU) {
+                // Allow / Select Photos / Deny case
+                allowedState.isShown = true
+                deniedState.isShown = true
+                selectState.isShown = true
+
+                deniedState.isChecked = !group.isGranted
+                val onlyUserSelectedGranted = group.isGranted && group.permissions.values.all {
+                    it.name == READ_MEDIA_VISUAL_USER_SELECTED || !it.isGrantedIncludingAppOp }
+                selectState.isChecked = onlyUserSelectedGranted
+                allowedState.isChecked = group.isGranted && !onlyUserSelectedGranted
             } else {
                 // Allow / Deny case
                 allowedState.isShown = true
@@ -376,9 +410,8 @@ class AppPermissionViewModel(
             }
 
             if (shouldShowLocationAccuracy == null) {
-                shouldShowLocationAccuracy = group.permGroupName == LOCATION &&
-                        group.permissions.containsKey(ACCESS_FINE_LOCATION) &&
-                        isLocationAccuracyEnabled()
+                shouldShowLocationAccuracy = isLocationAccuracyEnabled() &&
+                        group.permissions.containsKey(ACCESS_FINE_LOCATION)
             }
             val locationAccuracyState = ButtonState(isFineLocationChecked(group),
                     true, false, null)
@@ -393,8 +426,34 @@ class AppPermissionViewModel(
                 ALLOW to allowedState, ALLOW_ALWAYS to allowedAlwaysState,
                 ALLOW_FOREGROUND to allowedForegroundState, ASK_ONCE to askOneTimeState,
                 ASK to askState, DENY to deniedState, DENY_FOREGROUND to deniedForegroundState,
-                LOCATION_ACCURACY to locationAccuracyState)
+                LOCATION_ACCURACY to locationAccuracyState, SELECT_PHOTOS to selectState)
         }
+    }
+
+    fun registerPhotoPickerResultIfNeeded(fragment: Fragment) {
+        if (permGroupName != READ_MEDIA_VISUAL) {
+            return
+        }
+        photoPickerLauncher = fragment.registerForActivityResult(
+            object : ActivityResultContract<Unit, Int>() {
+            override fun parseResult(resultCode: Int, intent: Intent?): Int {
+                return resultCode
+            }
+
+            override fun createIntent(context: Context, input: Unit): Intent {
+                return Intent(MediaStore.ACTION_USER_SELECT_IMAGES_FOR_APP)
+                    .putExtra(Intent.EXTRA_UID, lightAppPermGroup?.packageInfo?.uid)
+                    .setType(KotlinUtils.getMimeTypeForPermissions(
+                        lightAppPermGroup?.foregroundPermNames ?: emptyList()))
+            }
+        }) { result ->
+            photoPickerResultConsumer?.accept(result)
+        }
+    }
+
+    fun openPhotoPicker(onResult: Consumer<Int>) {
+        photoPickerResultConsumer = onResult
+        photoPickerLauncher?.launch(Unit)
     }
 
     private fun isFineLocationChecked(group: LightAppPermGroup): Boolean {
@@ -495,6 +554,34 @@ class AppPermissionViewModel(
         return true
     }
 
+    fun shouldShowPermissionRationale(
+        safetyLabelInfo: SafetyLabelInfo,
+        groupName: String
+    ): Boolean {
+        return PermissionRationales.shouldShowPermissionRationale(
+            safetyLabelInfo.safetyLabel, groupName)
+    }
+
+    /**
+     * Shows the Permission Rationale Dialog. For use with U+ only, otherwise no-op.
+     *
+     * @param activity The current activity
+     * @param groupName The name of the permission group whose fragment should be opened
+     */
+    fun showPermissionRationaleActivity(activity: Activity, groupName: String) {
+        if (!isPermissionRationaleEnabled()) {
+            return
+        }
+
+        val intent = Intent(activity, PermissionRationaleActivity::class.java).apply {
+            putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
+            putExtra(Intent.EXTRA_PERMISSION_GROUP_NAME, groupName)
+            putExtra(Constants.EXTRA_SESSION_ID, sessionId)
+            putExtra(EXTRA_SHOULD_SHOW_SETTINGS_SECTION, false)
+        }
+        activity.startActivity(intent)
+    }
+
     /**
      * Navigate to either the App Permission Groups screen, or the Permission Apps Screen.
      * @param fragment The current fragment
@@ -551,7 +638,8 @@ class AppPermissionViewModel(
 
         if (changeRequest == ChangeRequest.GRANT_FINE_LOCATION) {
             if (!group.isOneTime) {
-                KotlinUtils.grantForegroundRuntimePermissions(app, group)
+                val newGroup = KotlinUtils.grantForegroundRuntimePermissions(app, group)
+                logPermissionChanges(group, newGroup, buttonClicked)
             }
             KotlinUtils.setFlagsWhenLocationAccuracyChanged(app, group, true)
             return
@@ -559,10 +647,22 @@ class AppPermissionViewModel(
 
         if (changeRequest == ChangeRequest.REVOKE_FINE_LOCATION) {
             if (!group.isOneTime) {
-                KotlinUtils.revokeForegroundRuntimePermissions(app, group,
+                val newGroup = KotlinUtils.revokeForegroundRuntimePermissions(app, group,
                     filterPermissions = listOf(ACCESS_FINE_LOCATION))
+                logPermissionChanges(group, newGroup, buttonClicked)
             }
             KotlinUtils.setFlagsWhenLocationAccuracyChanged(app, group, false)
+            return
+        }
+
+        if (changeRequest == ChangeRequest.PHOTOS_SELECTED) {
+            val nonSelectedPerms = group.permissions.keys.filter {
+                it != READ_MEDIA_VISUAL_USER_SELECTED }
+            var newGroup = KotlinUtils.revokeForegroundRuntimePermissions(app, group,
+                filterPermissions = nonSelectedPerms)
+            newGroup = KotlinUtils.grantForegroundRuntimePermissions(app, newGroup,
+            filterPermissions = listOf(READ_MEDIA_VISUAL_USER_SELECTED))
+            logPermissionChanges(group, newGroup, buttonClicked)
             return
         }
 
@@ -667,11 +767,12 @@ class AppPermissionViewModel(
             }
 
             if (shouldGrantForeground) {
-                if (shouldShowLocationAccuracy == true && !isFineLocationChecked(newGroup)) {
-                    newGroup = KotlinUtils.grantForegroundRuntimePermissions(app, newGroup,
-                            filterPermissions = listOf(ACCESS_COARSE_LOCATION))
+                newGroup = if (shouldShowLocationAccuracy == true &&
+                    !isFineLocationChecked(newGroup)) {
+                    KotlinUtils.grantForegroundRuntimePermissions(app, newGroup,
+                        filterPermissions = listOf(ACCESS_COARSE_LOCATION))
                 } else {
-                    newGroup = KotlinUtils.grantForegroundRuntimePermissions(app, newGroup)
+                    KotlinUtils.grantForegroundRuntimePermissions(app, newGroup)
                 }
 
                 if (!wasForegroundGranted) {
