@@ -20,7 +20,6 @@ import static android.os.Build.VERSION_CODES.TIRAMISU;
 
 import static com.android.safetycenter.internaldata.SafetyCenterIds.toUserFriendlyString;
 
-import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.annotation.WorkerThread;
@@ -34,6 +33,7 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 
 import com.android.modules.utils.BackgroundThread;
+import com.android.safetycenter.ApiLock;
 import com.android.safetycenter.SafetyCenterConfigReader;
 import com.android.safetycenter.SafetyCenterFlags;
 import com.android.safetycenter.internaldata.SafetyCenterIds;
@@ -65,12 +65,10 @@ import javax.annotation.concurrent.NotThreadSafe;
  * stored in the file.
  *
  * <p>This class isn't thread safe. Thread safety must be handled by the caller.
- *
- * @hide
  */
 @RequiresApi(TIRAMISU)
 @NotThreadSafe
-public final class SafetyCenterIssueDismissalRepository {
+final class SafetyCenterIssueDismissalRepository {
 
     private static final String TAG = "SafetyCenterIssueDis";
 
@@ -85,15 +83,15 @@ public final class SafetyCenterIssueDismissalRepository {
 
     private final Handler mWriteHandler = BackgroundThread.getHandler();
 
-    @NonNull private final Object mApiLock;
+    private final ApiLock mApiLock;
 
-    @NonNull private final SafetyCenterConfigReader mSafetyCenterConfigReader;
+    private final SafetyCenterConfigReader mSafetyCenterConfigReader;
 
     private final ArrayMap<SafetyCenterIssueKey, IssueData> mIssues = new ArrayMap<>();
     private boolean mWriteStateToFileScheduled = false;
 
-    public SafetyCenterIssueDismissalRepository(
-            @NonNull Object apiLock, @NonNull SafetyCenterConfigReader safetyCenterConfigReader) {
+    SafetyCenterIssueDismissalRepository(
+            ApiLock apiLock, SafetyCenterConfigReader safetyCenterConfigReader) {
         mApiLock = apiLock;
         mSafetyCenterConfigReader = safetyCenterConfigReader;
     }
@@ -107,8 +105,8 @@ public final class SafetyCenterIssueDismissalRepository {
      *
      * <p>If the given issue key is not found in the repository this method returns {@code false}.
      */
-    public boolean isIssueDismissed(
-            @NonNull SafetyCenterIssueKey safetyCenterIssueKey,
+    boolean isIssueDismissed(
+            SafetyCenterIssueKey safetyCenterIssueKey,
             @SafetySourceData.SeverityLevel int safetySourceIssueSeverityLevel) {
         IssueData issueData = getOrWarn(safetyCenterIssueKey, "checking if dismissed");
         if (issueData == null) {
@@ -144,7 +142,7 @@ public final class SafetyCenterIssueDismissalRepository {
      *
      * <p>That issue's notification (if any) is also marked as dismissed.
      */
-    public void dismissIssue(@NonNull SafetyCenterIssueKey safetyCenterIssueKey) {
+    void dismissIssue(SafetyCenterIssueKey safetyCenterIssueKey) {
         IssueData issueData = getOrWarn(safetyCenterIssueKey, "dismissing");
         if (issueData == null) {
             return;
@@ -162,8 +160,7 @@ public final class SafetyCenterIssueDismissalRepository {
      * <p>This will align dismissal state of these issues, unless issues are of different
      * severities, in which case they can potentially differ in resurface times.
      */
-    public void copyDismissalData(
-            @NonNull SafetyCenterIssueKey keyFrom, @NonNull SafetyCenterIssueKey keyTo) {
+    void copyDismissalData(SafetyCenterIssueKey keyFrom, SafetyCenterIssueKey keyTo) {
         IssueData dataFrom = getOrWarn(keyFrom, "copying dismissed data");
         IssueData dataTo = getOrWarn(keyTo, "copying dismissed data");
         if (dataFrom == null || dataTo == null) {
@@ -181,7 +178,7 @@ public final class SafetyCenterIssueDismissalRepository {
      * <p>The issue itself is <strong>not</strong> marked as dismissed and its warning card can
      * still appear in the Safety Center UI.
      */
-    public void dismissNotification(@NonNull SafetyCenterIssueKey safetyCenterIssueKey) {
+    void dismissNotification(SafetyCenterIssueKey safetyCenterIssueKey) {
         IssueData issueData = getOrWarn(safetyCenterIssueKey, "dismissing notification");
         if (issueData == null) {
             return;
@@ -195,7 +192,7 @@ public final class SafetyCenterIssueDismissalRepository {
      * Center.
      */
     @Nullable
-    public Instant getIssueFirstSeenAt(@NonNull SafetyCenterIssueKey safetyCenterIssueKey) {
+    Instant getIssueFirstSeenAt(SafetyCenterIssueKey safetyCenterIssueKey) {
         IssueData issueData = getOrWarn(safetyCenterIssueKey, "getting first seen");
         if (issueData == null) {
             return null;
@@ -209,7 +206,7 @@ public final class SafetyCenterIssueDismissalRepository {
      */
     // TODO(b/261429824): Handle mNotificationDismissedAt w.r.t. issue deduplication
     @Nullable
-    public Instant getNotificationDismissedAt(@NonNull SafetyCenterIssueKey safetyCenterIssueKey) {
+    Instant getNotificationDismissedAt(SafetyCenterIssueKey safetyCenterIssueKey) {
         IssueData issueData = getOrWarn(safetyCenterIssueKey, "getting notification dismissed");
         if (issueData == null) {
             return null;
@@ -222,9 +219,7 @@ public final class SafetyCenterIssueDismissalRepository {
      * the supplied source and user.
      */
     void updateIssuesForSource(
-            @NonNull ArraySet<String> safetySourceIssueIds,
-            @NonNull String safetySourceId,
-            @UserIdInt int userId) {
+            ArraySet<String> safetySourceIssueIds, String safetySourceId, @UserIdInt int userId) {
         boolean someDataChanged = false;
 
         // Remove issues no longer reported by the source.
@@ -264,7 +259,6 @@ public final class SafetyCenterIssueDismissalRepository {
     }
 
     /** Takes a snapshot of the contents of the repository to be written to persistent storage. */
-    @NonNull
     private List<PersistedSafetyCenterIssue> snapshot() {
         List<PersistedSafetyCenterIssue> persistedIssues = new ArrayList<>();
         for (int i = 0; i < mIssues.size(); i++) {
@@ -278,7 +272,7 @@ public final class SafetyCenterIssueDismissalRepository {
     /**
      * Replaces the contents of the repository with the given issues read from persistent storage.
      */
-    private void load(@NonNull List<PersistedSafetyCenterIssue> persistedSafetyCenterIssues) {
+    private void load(List<PersistedSafetyCenterIssue> persistedSafetyCenterIssues) {
         boolean someDataChanged = false;
         mIssues.clear();
         for (int i = 0; i < persistedSafetyCenterIssues.size(); i++) {
@@ -308,7 +302,7 @@ public final class SafetyCenterIssueDismissalRepository {
     }
 
     /** Clears all the data in the repository for the given user. */
-    public void clearForUser(@UserIdInt int userId) {
+    void clearForUser(@UserIdInt int userId) {
         boolean someDataChanged = false;
         // Loop in reverse index order to be able to remove entries while iterating.
         for (int i = mIssues.size() - 1; i >= 0; i--) {
@@ -324,7 +318,7 @@ public final class SafetyCenterIssueDismissalRepository {
     }
 
     /** Dumps state for debugging purposes. */
-    public void dump(@NonNull FileDescriptor fd, @NonNull PrintWriter fout) {
+    void dump(FileDescriptor fd, PrintWriter fout) {
         int issueRepositoryCount = mIssues.size();
         fout.println(
                 "ISSUE DISMISSAL REPOSITORY ("
@@ -355,7 +349,7 @@ public final class SafetyCenterIssueDismissalRepository {
     }
 
     @Nullable
-    private IssueData getOrWarn(@NonNull SafetyCenterIssueKey issueKey, @NonNull String reason) {
+    private IssueData getOrWarn(SafetyCenterIssueKey issueKey, String reason) {
         IssueData issueData = mIssues.get(issueKey);
         if (issueData == null) {
             Log.w(
@@ -394,7 +388,7 @@ public final class SafetyCenterIssueDismissalRepository {
     }
 
     /** Read the contents of the file and load them into this class. */
-    public void loadStateFromFile() {
+    void loadStateFromFile() {
         List<PersistedSafetyCenterIssue> persistedSafetyCenterIssues = new ArrayList<>();
 
         try {
@@ -409,7 +403,6 @@ public final class SafetyCenterIssueDismissalRepository {
         scheduleWriteStateToFile();
     }
 
-    @NonNull
     private static File getIssueDismissalRepositoryFile() {
         ApexEnvironment apexEnvironment = ApexEnvironment.getApexEnvironment(APEX_MODULE_NAME);
         File dataDirectory = apexEnvironment.getDeviceProtectedDataDir();
@@ -423,9 +416,7 @@ public final class SafetyCenterIssueDismissalRepository {
      */
     private static final class IssueData {
 
-        @NonNull
-        private static IssueData fromPersistedIssue(
-                @NonNull PersistedSafetyCenterIssue persistedIssue) {
+        private static IssueData fromPersistedIssue(PersistedSafetyCenterIssue persistedIssue) {
             IssueData issueData = new IssueData(persistedIssue.getFirstSeenAt());
             issueData.setDismissedAt(persistedIssue.getDismissedAt());
             issueData.setDismissCount(persistedIssue.getDismissCount());
@@ -433,18 +424,17 @@ public final class SafetyCenterIssueDismissalRepository {
             return issueData;
         }
 
-        @NonNull private final Instant mFirstSeenAt;
+        private final Instant mFirstSeenAt;
 
         @Nullable private Instant mDismissedAt;
         private int mDismissCount;
 
         @Nullable private Instant mNotificationDismissedAt;
 
-        private IssueData(@NonNull Instant firstSeenAt) {
+        private IssueData(Instant firstSeenAt) {
             mFirstSeenAt = firstSeenAt;
         }
 
-        @NonNull
         private Instant getFirstSeenAt() {
             return mFirstSeenAt;
         }
@@ -475,7 +465,6 @@ public final class SafetyCenterIssueDismissalRepository {
             mNotificationDismissedAt = notificationDismissedAt;
         }
 
-        @NonNull
         private PersistedSafetyCenterIssue.Builder toPersistedIssueBuilder() {
             return new PersistedSafetyCenterIssue.Builder()
                     .setFirstSeenAt(mFirstSeenAt)

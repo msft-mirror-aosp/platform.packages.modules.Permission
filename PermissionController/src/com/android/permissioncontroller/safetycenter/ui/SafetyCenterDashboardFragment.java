@@ -21,6 +21,7 @@ import static android.os.Build.VERSION_CODES.TIRAMISU;
 import static com.android.permissioncontroller.Constants.EXTRA_SESSION_ID;
 import static com.android.permissioncontroller.safetycenter.SafetyCenterConstants.QUICK_SETTINGS_SAFETY_CENTER_FRAGMENT;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
 import android.content.Context;
@@ -38,7 +39,6 @@ import android.safetycenter.SafetyCenterStaticEntry;
 import android.safetycenter.SafetyCenterStaticEntryGroup;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.preference.PreferenceCategory;
@@ -160,7 +160,7 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mCollapsableGroupCardHelper.saveState(outState);
     }
@@ -212,6 +212,7 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
                         getChildFragmentManager(),
                         mIssuesGroup,
                         issues,
+                        emptyList(),
                         resolvedIssues,
                         getActivity().getTaskId());
     }

@@ -21,6 +21,7 @@ import android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES
 import android.content.pm.PackageManager.PackageInfoFlags
 import android.content.res.Resources
 import android.os.Build
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.safetycenter.SafetySourceData
 import android.safetycenter.config.SafetyCenterConfig
 import android.safetycenter.config.SafetySource
@@ -37,10 +38,12 @@ import java.security.MessageDigest
  * A class that provides [SafetyCenterConfig] objects and associated constants to facilitate setting
  * up safety sources for testing.
  */
+@RequiresApi(TIRAMISU)
 class SafetyCenterTestConfigs(private val context: Context) {
     /** The certificate hash signing the current package. */
     val packageCertHash =
-        MessageDigest.getInstance("SHA256")!!.digest(
+        MessageDigest.getInstance("SHA256")
+            .digest(
                 context.packageManager
                     .getPackageInfo(
                         context.packageName,
@@ -65,8 +68,8 @@ class SafetyCenterTestConfigs(private val context: Context) {
         )
 
     /**
-     * Same as [singleSourceConfig] but with an [intentAction] that will resolve implicitly; i.e.
-     * the source's [packageName] does not own the activity resolved by the [intentAction].
+     * Same as [singleSourceConfig] but with an `intentAction` that will resolve implicitly; i.e.
+     * the source's `packageName` does not own the activity resolved by the `intentAction`.
      */
     val implicitIntentSingleSourceConfig =
         singleSourceConfig(
@@ -180,6 +183,18 @@ class SafetyCenterTestConfigs(private val context: Context) {
                             .setRefreshOnPageOpenAllowed(false)
                             .build()
                     )
+                    .build()
+            )
+            .build()
+
+    /** A simple [SafetyCenterConfig] with multiple sources in a single [SafetySourcesGroup]. */
+    val multipleSourcesInSingleGroupConfig =
+        SafetyCenterConfig.Builder()
+            .addSafetySourcesGroup(
+                safetySourcesGroupBuilder(MULTIPLE_SOURCES_GROUP_ID_1)
+                    .addSafetySource(dynamicSafetySource(SOURCE_ID_1))
+                    .addSafetySource(dynamicSafetySource(SOURCE_ID_2))
+                    .addSafetySource(dynamicSafetySource(SOURCE_ID_3))
                     .build()
             )
             .build()
@@ -757,7 +772,7 @@ class SafetyCenterTestConfigs(private val context: Context) {
          * Activity action: Launches the [TestActivity] used to check redirects in tests, but with
          * an exported activity alias.
          */
-        private const val ACTION_TEST_ACTIVITY_EXPORTED =
+        const val ACTION_TEST_ACTIVITY_EXPORTED =
             "com.android.safetycenter.testing.action.TEST_ACTIVITY_EXPORTED"
 
         /**

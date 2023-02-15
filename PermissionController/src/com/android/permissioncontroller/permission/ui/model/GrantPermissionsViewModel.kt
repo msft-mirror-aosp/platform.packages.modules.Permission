@@ -85,7 +85,6 @@ import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_ALL_PHOTOS_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_FOREGROUND_BUTTON
-import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_MORE_SELECTED_PHOTOS_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_ONE_TIME_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_SELECTED_PHOTOS_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.COARSE_RADIO_BUTTON
@@ -94,7 +93,6 @@ import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.D
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DIALOG_WITH_BOTH_LOCATIONS
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DIALOG_WITH_COARSE_LOCATION_ONLY
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DIALOG_WITH_FINE_LOCATION_ONLY
-import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DONT_ALLOW_MORE_SELECTED_PHOTOS_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.FINE_RADIO_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.INTENT_PHOTOS_SELECTED
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.LINK_TO_SETTINGS
@@ -108,7 +106,6 @@ import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.N
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.CANCELED
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.DENIED
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.DENIED_DO_NOT_ASK_AGAIN
-import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.DENIED_MORE_PHOTOS
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_ALWAYS
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_FOREGROUND_ONLY
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_ONE_TIME
@@ -368,13 +365,7 @@ class GrantPermissionsViewModel(
                 // null ==
                 var detailMessage = RequestMessage.NO_MESSAGE
 
-                if (shouldShowMorePhotosMessage(groupState.group)) {
-                    buttonVisibilities[ALLOW_BUTTON] = false
-                    buttonVisibilities[DENY_BUTTON] = false
-                    buttonVisibilities[ALLOW_MORE_SELECTED_PHOTOS_BUTTON] = true
-                    buttonVisibilities[DONT_ALLOW_MORE_SELECTED_PHOTOS_BUTTON] = true
-                    message = RequestMessage.MORE_PHOTOS_MESSAGE
-                } else if (KotlinUtils.isPhotoPickerPromptEnabled() &&
+                if (KotlinUtils.isPhotoPickerPromptEnabled() &&
                     groupState.group.permGroupName == READ_MEDIA_VISUAL &&
                     groupState.group.packageInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU) {
                     // If the USER_SELECTED permission is user fixed and granted, or the app is only
@@ -786,6 +777,14 @@ class GrantPermissionsViewModel(
             packageInfo.targetSdkVersion <= Build.VERSION_CODES.S_V2 &&
             group.foreground.isUserSet) {
             return STATE_SKIPPED
+        } else if (perm == READ_MEDIA_VISUAL_USER_SELECTED) {
+            val otherRequestedPerms = unfilteredAffectedPermissions.filter { otherPerm ->
+                otherPerm in group.permissions && otherPerm != READ_MEDIA_VISUAL_USER_SELECTED
+            }
+            if (otherRequestedPerms.isEmpty()) {
+                // If the user only requested USER_SELECTED, skip the request
+                return STATE_SKIPPED
+            }
         }
 
         val isBackground = perm in group.backgroundPermNames
@@ -993,7 +992,7 @@ class GrantPermissionsViewModel(
                         doNotAskAgain = false)
                 }
             }
-            GRANTED_USER_SELECTED, DENIED_MORE_PHOTOS -> {
+            GRANTED_USER_SELECTED -> {
                 if (foregroundGroupState != null) {
                     grantUserSelectedVisualGroupPermissions(foregroundGroupState)
                 }
@@ -1028,9 +1027,9 @@ class GrantPermissionsViewModel(
     private fun grantUserSelectedVisualGroupPermissions(groupState: GroupState) {
         val userSelectedPerm =
             groupState.group.permissions[READ_MEDIA_VISUAL_USER_SELECTED] ?: return
-        val nonSelectedPerms = groupState.affectedPermissions
-            .filter { it != READ_MEDIA_VISUAL_USER_SELECTED }
         if (userSelectedPerm.isImplicit) {
+            val nonSelectedPerms = groupState.group.permissions.keys
+                .filter { it != READ_MEDIA_VISUAL_USER_SELECTED }
             // If the permission is implicit, grant USER_SELECTED as user set, and all other
             // permissions as one time, and without app ops.
             KotlinUtils.grantForegroundRuntimePermissions(app, groupState.group,
@@ -1044,6 +1043,8 @@ class GrantPermissionsViewModel(
             appPermGroup.setSelfRevoked()
             appPermGroup.persistChanges(false, null, nonSelectedPerms.toSet())
         } else {
+            val nonSelectedPerms = groupState.affectedPermissions
+                .filter { it != READ_MEDIA_VISUAL_USER_SELECTED }
             val setUserFixed = userSelectedPerm.isUserFixed || userSelectedPerm.isUserSet
             KotlinUtils.grantForegroundRuntimePermissions(app, groupState.group,
                 listOf(READ_MEDIA_VISUAL_USER_SELECTED), userFixed = setUserFixed)
@@ -1288,12 +1289,6 @@ class GrantPermissionsViewModel(
         }
     }
 
-    private fun shouldShowMorePhotosMessage(group: LightAppPermGroup): Boolean {
-        return isVisualUserSelectedOnlyGranted(group) &&
-                group.permissions[READ_MEDIA_VISUAL_USER_SELECTED]?.isImplicit == true &&
-                group.packageInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
-    }
-
     fun openPhotoPicker(activity: Activity, result: Int) {
         if (activityResultCallback != null) {
             return
@@ -1311,7 +1306,8 @@ class GrantPermissionsViewModel(
         }
         activity.startActivityForResult(Intent(MediaStore.ACTION_USER_SELECT_IMAGES_FOR_APP)
             .putExtra(Intent.EXTRA_UID, packageInfo.uid)
-            .setType(KotlinUtils.getMimeTypeForPermissions(permissions)), PHOTO_PICKER_REQUEST_CODE)
+            .setType(KotlinUtils.getMimeTypeForPermissions(unfilteredAffectedPermissions)),
+            PHOTO_PICKER_REQUEST_CODE)
     }
 
     /**
@@ -1516,7 +1512,6 @@ class GrantPermissionsViewModel(
             FG_COARSE_LOCATION_MESSAGE(5),
             STORAGE_SUPERGROUP_MESSAGE_Q_TO_S(6),
             STORAGE_SUPERGROUP_MESSAGE_PRE_Q(7),
-            MORE_PHOTOS_MESSAGE(8)
         }
 
         fun filterPermissionsIfNeededSync(

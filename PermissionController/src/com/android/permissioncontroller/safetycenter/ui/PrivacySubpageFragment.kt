@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
 import androidx.preference.PreferenceGroup
 import com.android.permissioncontroller.R
+import com.android.permissioncontroller.safetycenter.ui.SafetyBrandChipPreference.Companion.closeSubpage
 import com.android.permissioncontroller.safetycenter.ui.model.PrivacyControlsViewModel
 import com.android.permissioncontroller.safetycenter.ui.model.PrivacyControlsViewModel.Pref
 import com.android.permissioncontroller.safetycenter.ui.model.PrivacyControlsViewModel.PrefState
@@ -71,7 +72,7 @@ class PrivacySubpageFragment : SafetyCenterFragment() {
         val entryGroup = uiData?.getMatchingGroup(SOURCE_GROUP_ID)
         if (entryGroup == null) {
             Log.w(TAG, "$SOURCE_GROUP_ID doesn't match any of the existing SafetySourcesGroup IDs")
-            requireActivity().finish()
+            closeSubpage(requireActivity(), requireContext())
             return
         }
 
@@ -84,7 +85,9 @@ class PrivacySubpageFragment : SafetyCenterFragment() {
         subpageIssueGroup.removeAll()
         val subpageIssues =
             uiData?.safetyCenterData?.issues?.filter { it.groupId == SOURCE_GROUP_ID }
-        if (subpageIssues.isNullOrEmpty()) {
+        val subpageDismissedIssues =
+            uiData?.safetyCenterData?.dismissedIssues?.filter { it.groupId == SOURCE_GROUP_ID }
+        if (subpageIssues.isNullOrEmpty() && subpageDismissedIssues.isNullOrEmpty()) {
             Log.w(TAG, "$SOURCE_GROUP_ID doesn't have any matching SafetyCenterIssues")
             return
         }
@@ -95,6 +98,7 @@ class PrivacySubpageFragment : SafetyCenterFragment() {
             getChildFragmentManager(),
             subpageIssueGroup,
             subpageIssues,
+            subpageDismissedIssues,
             uiData.resolvedIssues,
             requireActivity().getTaskId()
         )
