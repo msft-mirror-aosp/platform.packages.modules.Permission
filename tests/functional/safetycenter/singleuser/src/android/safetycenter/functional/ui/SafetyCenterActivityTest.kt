@@ -55,6 +55,8 @@ import com.android.safetycenter.testing.SafetySourceTestData.Companion.CRITICAL_
 import com.android.safetycenter.testing.SafetySourceTestData.Companion.RECOMMENDATION_ISSUE_ID
 import com.android.safetycenter.testing.UiTestHelper.MORE_ISSUES_LABEL
 import com.android.safetycenter.testing.UiTestHelper.RESCAN_BUTTON_LABEL
+import com.android.safetycenter.testing.UiTestHelper.clickConfirmDismissal
+import com.android.safetycenter.testing.UiTestHelper.clickDismissIssueCard
 import com.android.safetycenter.testing.UiTestHelper.clickMoreIssuesCard
 import com.android.safetycenter.testing.UiTestHelper.resetRotation
 import com.android.safetycenter.testing.UiTestHelper.rotate
@@ -571,7 +573,7 @@ class SafetyCenterActivityTest {
         safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, safetySourceTestData.informationWithIssue)
 
         context.launchSafetyCenterActivity {
-            waitDisplayed(By.desc("Dismiss")) { it.click() }
+            clickDismissIssueCard()
 
             waitSourceIssueNotDisplayed(safetySourceTestData.informationIssue)
             waitSourceDataDisplayed(safetySourceTestData.information)
@@ -588,9 +590,9 @@ class SafetyCenterActivityTest {
         )
 
         context.launchSafetyCenterActivity {
-            waitDisplayed(By.desc("Dismiss")) { it.click() }
+            clickDismissIssueCard()
             waitAllTextDisplayed("Dismiss this alert?")
-            waitButtonDisplayed("Dismiss") { it.click() }
+            clickConfirmDismissal()
 
             waitSourceIssueNotDisplayed(safetySourceTestData.criticalResolvingGeneralIssue)
             waitButtonDisplayed(RESCAN_BUTTON_LABEL)
@@ -606,7 +608,7 @@ class SafetyCenterActivityTest {
         )
 
         context.launchSafetyCenterActivity {
-            waitDisplayed(By.desc("Dismiss")) { it.click() }
+            clickDismissIssueCard()
             waitAllTextDisplayed(
                 "Dismiss this alert?",
                 "Review your security and privacy settings any time to add more protection"
@@ -620,7 +622,7 @@ class SafetyCenterActivityTest {
                 "Dismiss this alert?",
                 "Review your security and privacy settings any time to add more protection"
             )
-            waitButtonDisplayed("Dismiss") { it.click() }
+            clickConfirmDismissal()
 
             waitSourceIssueNotDisplayed(safetySourceTestData.criticalResolvingGeneralIssue)
             waitButtonDisplayed(RESCAN_BUTTON_LABEL)
@@ -636,7 +638,7 @@ class SafetyCenterActivityTest {
         )
 
         context.launchSafetyCenterActivity {
-            waitDisplayed(By.desc("Dismiss")) { it.click() }
+            clickDismissIssueCard()
             waitAllTextDisplayed("Dismiss this alert?")
             waitButtonDisplayed("Cancel") { it.click() }
 
@@ -653,7 +655,7 @@ class SafetyCenterActivityTest {
         )
 
         context.launchSafetyCenterActivity {
-            waitDisplayed(By.desc("Dismiss")) { it.click() }
+            clickDismissIssueCard()
             waitAllTextDisplayed("Dismiss this alert?")
 
             getUiDevice().rotate()
@@ -724,6 +726,84 @@ class SafetyCenterActivityTest {
             waitSourceIssueNotDisplayed(
                 safetySourceTestData.criticalResolvingIssueWithSuccessMessage
             )
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    fun issueCard_resolveIssue_withDialogClickYes_resolves() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
+        safetyCenterTestHelper.setData(
+            SINGLE_SOURCE_ID,
+            safetySourceTestData.criticalWithResolvingGeneralIssueWithConfirmation
+        )
+
+        // Clear the data when action is triggered to simulate resolution.
+        SafetySourceReceiver.setResponse(
+            Request.ResolveAction(SINGLE_SOURCE_ID),
+            Response.ClearData
+        )
+
+        context.launchSafetyCenterActivity(withReceiverPermission = true) {
+            val action = safetySourceTestData.criticalResolvingActionWithConfirmation
+            waitButtonDisplayed(action.label) { it.click() }
+
+            waitAllTextDisplayed(SafetySourceTestData.CONFIRMATION_TITLE)
+            waitButtonDisplayed(SafetySourceTestData.CONFIRMATION_YES) { it.click() }
+
+            waitSourceIssueNotDisplayed(safetySourceTestData.criticalResolvingIssueWithConfirmation)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    fun issueCard_resolveIssue_withDialog_rotates_clickYes_resolves() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
+        safetyCenterTestHelper.setData(
+            SINGLE_SOURCE_ID,
+            safetySourceTestData.criticalWithResolvingGeneralIssueWithConfirmation
+        )
+
+        // Clear the data when action is triggered to simulate resolution.
+        SafetySourceReceiver.setResponse(
+            Request.ResolveAction(SINGLE_SOURCE_ID),
+            Response.ClearData
+        )
+
+        context.launchSafetyCenterActivity(withReceiverPermission = true) {
+            val action = safetySourceTestData.criticalResolvingActionWithConfirmation
+            waitButtonDisplayed(action.label) { it.click() }
+
+            waitAllTextDisplayed(SafetySourceTestData.CONFIRMATION_TITLE)
+
+            getUiDevice().rotate()
+            getUiDevice()
+                .waitForWindowUpdate(/* from any window*/ null, DIALOG_ROTATION_TIMEOUT.toMillis())
+
+            waitAllTextDisplayed(SafetySourceTestData.CONFIRMATION_TITLE)
+            waitButtonDisplayed(SafetySourceTestData.CONFIRMATION_YES) { it.click() }
+
+            waitSourceIssueNotDisplayed(safetySourceTestData.criticalResolvingIssueWithConfirmation)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    fun issueCard_resolveIssue_withDialogClicksNo_cancels() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
+        safetyCenterTestHelper.setData(
+            SINGLE_SOURCE_ID,
+            safetySourceTestData.criticalWithResolvingGeneralIssueWithConfirmation
+        )
+
+        context.launchSafetyCenterActivity(withReceiverPermission = true) {
+            val action = safetySourceTestData.criticalResolvingActionWithConfirmation
+            waitButtonDisplayed(action.label) { it.click() }
+
+            waitAllTextDisplayed(SafetySourceTestData.CONFIRMATION_TITLE)
+            waitButtonDisplayed(SafetySourceTestData.CONFIRMATION_NO) { it.click() }
+
+            waitSourceIssueDisplayed(safetySourceTestData.criticalResolvingIssueWithConfirmation)
         }
     }
 
@@ -847,6 +927,7 @@ class SafetyCenterActivityTest {
     fun issueCard_attributionNotSetBySourceOnTiramisu_doesNotDisplayAttributionTitle() {
         // TODO(b/258228790): Remove after U is no longer in pre-release
         assumeFalse(CODENAME == "UpsideDownCake")
+        assumeFalse(CODENAME == "VanillaIceCream")
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
 
         val data = safetySourceTestData.recommendationWithGeneralIssue
@@ -1332,6 +1413,7 @@ class SafetyCenterActivityTest {
     fun launchSafetyCenter_enableSubpagesFlagOnT_stillShowsExpandAndCollapseEntries() {
         // TODO(b/258228790): Remove after U is no longer in pre-release
         assumeFalse(CODENAME == "UpsideDownCake")
+        assumeFalse(CODENAME == "VanillaIceCream")
 
         SafetyCenterFlags.showSubpages = true
         val sourceTestData = safetySourceTestData.information

@@ -89,7 +89,7 @@ import java.util.Random;
 public class GrantPermissionsActivity extends SettingsActivity
         implements GrantPermissionsViewHandler.ResultListener {
 
-    private static final String LOG_TAG = "GrantPermissionsActivit";
+    private static final String LOG_TAG = "GrantPermissionsActivity";
 
     private static final String KEY_SESSION_ID = GrantPermissionsActivity.class.getName()
             + "_REQUEST_ID";
@@ -109,8 +109,6 @@ public class GrantPermissionsActivity extends SettingsActivity
     public static final int LINK_TO_SETTINGS = 10;
     public static final int ALLOW_ALL_PHOTOS_BUTTON = 11;
     public static final int ALLOW_SELECTED_PHOTOS_BUTTON = 12;
-    public static final int ALLOW_MORE_SELECTED_PHOTOS_BUTTON = 13;
-    public static final int DONT_ALLOW_MORE_SELECTED_PHOTOS_BUTTON = 14;
 
     public static final int NEXT_LOCATION_DIALOG = 6;
     public static final int LOCATION_ACCURACY_LAYOUT = 0;
@@ -439,9 +437,6 @@ public class GrantPermissionsActivity extends SettingsActivity
             case STORAGE_SUPERGROUP_MESSAGE_PRE_Q:
                 icon = Icon.createWithResource(getPackageName(), mStoragePermGroupIcon);
                 messageId = R.string.permgrouprequest_storage_pre_q;
-                break;
-            case MORE_PHOTOS_MESSAGE:
-                messageId = R.string.permgrouprequest_more_photos;
                 break;
         }
 

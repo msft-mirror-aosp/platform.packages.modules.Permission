@@ -31,6 +31,7 @@ import android.safetycenter.SafetyCenterEntry.ENTRY_SEVERITY_LEVEL_UNKNOWN
 import android.safetycenter.SafetyCenterEntry.ENTRY_SEVERITY_LEVEL_UNSPECIFIED
 import android.safetycenter.SafetyCenterEntry.IconAction.ICON_ACTION_TYPE_INFO
 import android.safetycenter.SafetyCenterEntry.SEVERITY_UNSPECIFIED_ICON_TYPE_NO_ICON
+import android.safetycenter.SafetyCenterEntry.SEVERITY_UNSPECIFIED_ICON_TYPE_NO_RECOMMENDATION
 import android.safetycenter.SafetyCenterEntry.SEVERITY_UNSPECIFIED_ICON_TYPE_PRIVACY
 import android.safetycenter.SafetyCenterEntryGroup
 import android.safetycenter.SafetyCenterEntryOrGroup
@@ -310,6 +311,7 @@ class SafetyCenterManagerTest {
                             .build()
                     )
                 )
+                .setSeverityUnspecifiedIconType(SEVERITY_UNSPECIFIED_ICON_TYPE_NO_RECOMMENDATION)
                 .build()
         )
 
@@ -947,6 +949,7 @@ class SafetyCenterManagerTest {
     fun getSafetyCenterData_attributionNotSetBySourceOnTiramisu_returnsNullAttributionTitle() {
         // TODO(b/258228790): Remove after U is no longer in pre-release
         assumeFalse(Build.VERSION.CODENAME == "UpsideDownCake")
+        assumeFalse(Build.VERSION.CODENAME == "VanillaIceCream")
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, safetySourceTestData.informationWithIssue)
 
@@ -1884,6 +1887,7 @@ class SafetyCenterManagerTest {
     @Test
     @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
     fun getSafetyCenterData_dupIssuesTopOneDismissedThenDisappears_bottomOneReemergesTimely() {
+        SafetyCenterFlags.tempHiddenIssueResurfaceDelay = Duration.ZERO
         SafetyCenterFlags.resurfaceIssueMaxCounts = mapOf(SEVERITY_LEVEL_CRITICAL_WARNING to 99L)
         SafetyCenterFlags.resurfaceIssueDelays =
             mapOf(SEVERITY_LEVEL_CRITICAL_WARNING to RESURFACE_DELAY)
@@ -1937,6 +1941,7 @@ class SafetyCenterManagerTest {
     @Test
     @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
     fun getSafetyCenterData_dupsOfDiffSeveritiesTopOneDismissedThenGone_bottomOneReemergesTimely() {
+        SafetyCenterFlags.tempHiddenIssueResurfaceDelay = Duration.ZERO
         SafetyCenterFlags.resurfaceIssueMaxCounts =
             mapOf(
                 SEVERITY_LEVEL_INFORMATION to 0L,
@@ -2114,6 +2119,50 @@ class SafetyCenterManagerTest {
                         safetyCenterTestData.safetyCenterIssueCritical(
                             SOURCE_ID_1,
                             groupId = MULTIPLE_SOURCES_GROUP_ID_1
+                        )
+                    )
+            hasResurfaced
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    fun getSafetyCenterData_dupIssuesTopOneResolved_bottomOneReemergesAfterTemporaryHiddenPeriod() {
+        SafetyCenterFlags.tempHiddenIssueResurfaceDelay = RESURFACE_DELAY
+        safetyCenterTestHelper.setConfig(
+            safetyCenterTestConfigs.multipleSourcesWithDeduplicationInfoConfig
+        )
+        // Belongs to DEDUPLICATION_GROUP_1
+        safetyCenterTestHelper.setData(
+            SOURCE_ID_1,
+            SafetySourceTestData.issuesOnly(
+                safetySourceTestData.criticalIssueWithDeduplicationId("same")
+            )
+        )
+        // Belongs to DEDUPLICATION_GROUP_1
+        safetyCenterTestHelper.setData(
+            SOURCE_ID_5,
+            SafetySourceTestData.issuesOnly(
+                safetySourceTestData.criticalIssueWithDeduplicationId("same")
+            )
+        )
+
+        val listener = safetyCenterTestHelper.addListener()
+        safetyCenterTestHelper.setData(SOURCE_ID_1, SafetySourceTestData.issuesOnly())
+
+        val apiSafetyCenterIssues = listener.receiveSafetyCenterData().issues
+
+        assertThat(apiSafetyCenterIssues).isEmpty()
+
+        waitForWithTimeout(timeout = RESURFACE_TIMEOUT, checkPeriod = RESURFACE_CHECK) {
+            val hasResurfaced =
+                safetyCenterManager
+                    .getSafetyCenterDataWithPermission()
+                    .issues
+                    .contains(
+                        safetyCenterTestData.safetyCenterIssueCritical(
+                            SOURCE_ID_5,
+                            groupId = MULTIPLE_SOURCES_GROUP_ID_2
                         )
                     )
             hasResurfaced

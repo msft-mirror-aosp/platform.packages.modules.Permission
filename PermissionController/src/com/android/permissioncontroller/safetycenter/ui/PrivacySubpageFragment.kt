@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
 import androidx.preference.PreferenceGroup
 import com.android.permissioncontroller.R
+import com.android.permissioncontroller.safetycenter.ui.SafetyBrandChipPreference.Companion.closeSubpage
 import com.android.permissioncontroller.safetycenter.ui.model.PrivacyControlsViewModel
 import com.android.permissioncontroller.safetycenter.ui.model.PrivacyControlsViewModel.Pref
 import com.android.permissioncontroller.safetycenter.ui.model.PrivacyControlsViewModel.PrefState
@@ -50,7 +51,7 @@ class PrivacySubpageFragment : SafetyCenterFragment() {
         subpageIssueGroup = getPreferenceScreen().findPreference(ISSUE_GROUP_KEY)!!
         subpageGenericEntryGroup = getPreferenceScreen().findPreference(GENERIC_ENTRY_GROUP_KEY)!!
         subpageDataEntryGroup = getPreferenceScreen().findPreference(DATA_ENTRY_GROUP_KEY)!!
-        subpageBrandChip.setupListener(requireActivity(), requireContext())
+        subpageBrandChip.setupListener(requireActivity())
 
         val factory = PrivacyControlsViewModelFactory(requireActivity().getApplication())
         privacyControlsViewModel =
@@ -71,7 +72,7 @@ class PrivacySubpageFragment : SafetyCenterFragment() {
         val entryGroup = uiData?.getMatchingGroup(SOURCE_GROUP_ID)
         if (entryGroup == null) {
             Log.w(TAG, "$SOURCE_GROUP_ID doesn't match any of the existing SafetySourcesGroup IDs")
-            requireActivity().finish()
+            closeSubpage(requireActivity(), requireContext())
             return
         }
 
@@ -127,7 +128,8 @@ class PrivacySubpageFragment : SafetyCenterFragment() {
                 "AndroidPermissionUsage",
                 "AndroidPermissionManager",
                 "AndroidAdsPrivacy",
-                "AndroidHealthConnect" -> {
+                "AndroidHealthConnect",
+                "AndroidPrivacyAppDataSharingUpdates" -> {
                     subpageGenericEntryGroup.addPreference(subpageEntry)
                 }
                 "AndroidPrivacyControls" -> {

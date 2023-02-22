@@ -18,10 +18,6 @@ package com.android.safetycenter.data;
 
 import static android.os.Build.VERSION_CODES.TIRAMISU;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.unmodifiableList;
-
-import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.content.Context;
@@ -61,25 +57,29 @@ final class SafetyCenterIssueRepository {
             SAFETY_SOURCE_ISSUES_INFO_BY_SEVERITY_DESCENDING =
                     new SafetySourceIssuesInfoBySeverityDescending();
 
-    @NonNull private final Context mContext;
-    @NonNull private final SafetySourceDataRepository mSafetySourceDataRepository;
-    @NonNull private final SafetyCenterConfigReader mSafetyCenterConfigReader;
+    private final Context mContext;
+    private final SafetySourceDataRepository mSafetySourceDataRepository;
+    private final SafetyCenterConfigReader mSafetyCenterConfigReader;
+    private final SafetyCenterIssueDismissalRepository mSafetyCenterIssueDismissalRepository;
 
     // Only available on Android U+.
     @Nullable private final SafetyCenterIssueDeduplicator mSafetyCenterIssueDeduplicator;
 
     // userId -> sorted and deduplicated list of issues
+    // can contain temporarily hidden issues
     private final SparseArray<List<SafetySourceIssueInfo>> mUserIdToIssuesInfo =
             new SparseArray<>();
 
     SafetyCenterIssueRepository(
-            @NonNull Context context,
-            @NonNull SafetySourceDataRepository safetySourceDataRepository,
-            @NonNull SafetyCenterConfigReader safetyCenterConfigReader,
+            Context context,
+            SafetySourceDataRepository safetySourceDataRepository,
+            SafetyCenterConfigReader safetyCenterConfigReader,
+            SafetyCenterIssueDismissalRepository safetyCenterIssueDismissalRepository,
             @Nullable SafetyCenterIssueDeduplicator safetyCenterIssueDeduplicator) {
         mContext = context;
         mSafetySourceDataRepository = safetySourceDataRepository;
         mSafetyCenterConfigReader = safetyCenterConfigReader;
+        mSafetyCenterIssueDismissalRepository = safetyCenterIssueDismissalRepository;
         mSafetyCenterIssueDeduplicator = safetyCenterIssueDeduplicator;
     }
 
@@ -87,7 +87,7 @@ final class SafetyCenterIssueRepository {
      * Updates the class as per the current state of issues. Should be called after any state update
      * that can affect issues.
      */
-    void updateIssues(@NonNull UserProfileGroup userProfileGroup) {
+    void updateIssues(UserProfileGroup userProfileGroup) {
         updateIssues(userProfileGroup.getProfileParentUserId(), /* isManagedProfile= */ false);
 
         int[] managedProfileUserIds = userProfileGroup.getManagedProfilesUserIds();
@@ -108,7 +108,7 @@ final class SafetyCenterIssueRepository {
         List<SafetySourceIssueInfo> issues =
                 getAllStoredIssuesFromRawSourceData(userId, isManagedProfile);
         processIssues(issues);
-        mUserIdToIssuesInfo.put(userId, unmodifiableList(issues));
+        mUserIdToIssuesInfo.put(userId, issues);
     }
 
     /**
@@ -120,9 +120,7 @@ final class SafetyCenterIssueRepository {
      * <p>Only includes issues related to active/running {@code userId}s in the given {@link
      * UserProfileGroup}.
      */
-    @NonNull
-    List<SafetySourceIssueInfo> getIssuesDedupedSortedDescFor(
-            @NonNull UserProfileGroup userProfileGroup) {
+    List<SafetySourceIssueInfo> getIssuesDedupedSortedDescFor(UserProfileGroup userProfileGroup) {
         List<SafetySourceIssueInfo> issuesInfo = getIssuesFor(userProfileGroup);
         issuesInfo.sort(SAFETY_SOURCE_ISSUES_INFO_BY_SEVERITY_DESCENDING);
         return issuesInfo;
@@ -135,7 +133,7 @@ final class SafetyCenterIssueRepository {
      * <p>Only includes issues related to active/running {@code userId}s in the given {@link
      * UserProfileGroup}.
      */
-    int countLoggableIssuesFor(@NonNull UserProfileGroup userProfileGroup) {
+    int countLoggableIssuesFor(UserProfileGroup userProfileGroup) {
         List<SafetySourceIssueInfo> relevantIssues = getIssuesFor(userProfileGroup);
         int issueCount = 0;
         for (int i = 0; i < relevantIssues.size(); i++) {
@@ -147,13 +145,24 @@ final class SafetyCenterIssueRepository {
         return issueCount;
     }
 
-    /** Gets an unmodifiable list of all issues for the given {@code userId}. */
-    @NonNull
+    /** Gets a list of all issues for the given {@code userId}. */
     List<SafetySourceIssueInfo> getIssuesForUser(@UserIdInt int userId) {
-        return mUserIdToIssuesInfo.get(userId, emptyList());
+        return filterOutHiddenIssues(mUserIdToIssuesInfo.get(userId, new ArrayList<>()));
     }
 
-    private void processIssues(@NonNull List<SafetySourceIssueInfo> issuesInfo) {
+    private List<SafetySourceIssueInfo> filterOutHiddenIssues(List<SafetySourceIssueInfo> issues) {
+        List<SafetySourceIssueInfo> result = new ArrayList<>();
+        for (int i = 0; i < issues.size(); i++) {
+            SafetySourceIssueInfo issueInfo = issues.get(i);
+            if (!mSafetyCenterIssueDismissalRepository.isIssueHidden(
+                    issueInfo.getSafetyCenterIssueKey())) {
+                result.add(issueInfo);
+            }
+        }
+        return result;
+    }
+
+    private void processIssues(List<SafetySourceIssueInfo> issuesInfo) {
         issuesInfo.sort(SAFETY_SOURCE_ISSUES_INFO_BY_SEVERITY_DESCENDING);
 
         if (SdkLevel.isAtLeastU() && mSafetyCenterIssueDeduplicator != null) {
@@ -161,7 +170,6 @@ final class SafetyCenterIssueRepository {
         }
     }
 
-    @NonNull
     private List<SafetySourceIssueInfo> getAllStoredIssuesFromRawSourceData(
             @UserIdInt int userId, boolean isManagedProfile) {
         List<SafetySourceIssueInfo> allIssuesInfo = new ArrayList<>();
@@ -177,8 +185,8 @@ final class SafetyCenterIssueRepository {
     }
 
     private void addSafetySourceIssuesInfo(
-            @NonNull List<SafetySourceIssueInfo> issuesInfo,
-            @NonNull SafetySourcesGroup safetySourcesGroup,
+            List<SafetySourceIssueInfo> issuesInfo,
+            SafetySourcesGroup safetySourcesGroup,
             @UserIdInt int userId,
             boolean isManagedProfile) {
         List<SafetySource> safetySources = safetySourcesGroup.getSafetySources();
@@ -197,9 +205,9 @@ final class SafetyCenterIssueRepository {
     }
 
     private void addSafetySourceIssuesInfo(
-            @NonNull List<SafetySourceIssueInfo> issuesInfo,
-            @NonNull SafetySource safetySource,
-            @NonNull SafetySourcesGroup safetySourcesGroup,
+            List<SafetySourceIssueInfo> issuesInfo,
+            SafetySource safetySource,
+            SafetySourcesGroup safetySourcesGroup,
             @UserIdInt int userId) {
         SafetySourceKey key = SafetySourceKey.of(safetySource.getId(), userId);
         SafetySourceData safetySourceData =
@@ -224,8 +232,7 @@ final class SafetyCenterIssueRepository {
      * Only includes issues related to active/running {@code userId}s in the given {@link
      * UserProfileGroup}.
      */
-    @NonNull
-    private List<SafetySourceIssueInfo> getIssuesFor(@NonNull UserProfileGroup userProfileGroup) {
+    private List<SafetySourceIssueInfo> getIssuesFor(UserProfileGroup userProfileGroup) {
         List<SafetySourceIssueInfo> issues =
                 new ArrayList<>(getIssuesForUser(userProfileGroup.getProfileParentUserId()));
 
@@ -244,8 +251,7 @@ final class SafetyCenterIssueRepository {
         private SafetySourceIssuesInfoBySeverityDescending() {}
 
         @Override
-        public int compare(
-                @NonNull SafetySourceIssueInfo left, @NonNull SafetySourceIssueInfo right) {
+        public int compare(SafetySourceIssueInfo left, SafetySourceIssueInfo right) {
             return Integer.compare(
                     right.getSafetySourceIssue().getSeverityLevel(),
                     left.getSafetySourceIssue().getSeverityLevel());
@@ -253,7 +259,7 @@ final class SafetyCenterIssueRepository {
     }
 
     /** Dumps state for debugging purposes. */
-    void dump(@NonNull PrintWriter fout) {
+    void dump(PrintWriter fout) {
         fout.println("ISSUE REPOSITORY");
         for (int i = 0; i < mUserIdToIssuesInfo.size(); i++) {
             List<SafetySourceIssueInfo> issues = mUserIdToIssuesInfo.valueAt(i);
