@@ -46,10 +46,8 @@ class LightPermInfoLiveData private constructor(
      * Callback from the PackageBroadcastReceiver.
      *
      * <p>Package updates might change permission properties
-     *
-     * Note: packageName is unused.
      */
-    override fun onPackageUpdate(packageName: String) {
+    override fun onPackageUpdate(ignored: String) {
         updateAsync()
     }
 

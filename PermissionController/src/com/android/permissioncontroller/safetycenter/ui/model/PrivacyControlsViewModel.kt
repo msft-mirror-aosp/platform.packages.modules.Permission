@@ -107,7 +107,6 @@ class PrivacyControlsViewModel(private val app: Application) : AndroidViewModel(
                 sensorPrivacyManager.removeSensorPrivacyListener(this)
             }
 
-            @Suppress("OVERRIDE_DEPRECATION")
             override fun onSensorPrivacyChanged(sensor: Int, enabled: Boolean) {
                 update()
             }

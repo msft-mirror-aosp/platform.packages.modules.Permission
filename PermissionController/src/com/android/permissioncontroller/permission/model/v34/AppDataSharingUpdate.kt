@@ -60,7 +60,7 @@ data class AppDataSharingUpdate(
             val categoryUpdateMap = mutableMapOf<String, DataSharingUpdateType>()
 
             for (category in categories) {
-                var categoryUpdateType: DataSharingUpdateType?
+                var categoryUpdateType: DataSharingUpdateType? = null
 
                 val beforeSharesData = safetyLabelBefore.sharesData(category)
                 val beforeSharesDataForAds = safetyLabelBefore.sharesDataForAdsPurpose(category)

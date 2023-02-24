@@ -68,9 +68,15 @@ fun PackageManager.updatePermissionFlags(
     vararg flags: Pair<Int, Boolean>
 ) {
     val mask = flags.fold(0, { mask, (flag, _) -> mask or flag })
-    val value = flags.fold(0,
-        { mask2, (flag, flagValue) -> if (flagValue) mask2 or flag else mask2 })
+    val value = flags.fold(0, { mask, (flag, flagValue) -> if (flagValue) mask or flag else mask })
     updatePermissionFlags(permissionName, packageName, mask, value, user)
+}
+
+/**
+ * @see UserHandle.getUid
+ */
+fun UserHandle.getUid(appId: Int): Int {
+    return identifier * 100000 + (appId % 100000)
 }
 
 /**

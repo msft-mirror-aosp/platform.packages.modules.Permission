@@ -148,7 +148,7 @@ object AppsSafetyLabelHistoryPersistence {
             val appInfoToOrderedSafetyLabels =
                 safetyLabelsToAdd
                     .groupBy { it.appInfo }
-                    .mapValues { (_, safetyLabels) ->
+                    .mapValues { (appInfo, safetyLabels) ->
                         safetyLabels.sortedBy { it.receivedAt }
                     }
             val currentAppHistories = currentAppsSafetyLabelHistory.appSafetyLabelHistories

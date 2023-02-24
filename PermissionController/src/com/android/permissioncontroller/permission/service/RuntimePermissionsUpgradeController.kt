@@ -76,7 +76,7 @@ internal object RuntimePermissionsUpgradeController {
             }
 
             if (currentVersion != upgradedVersion) {
-                permissionManager.runtimePermissionsVersion = LATEST_VERSION
+                permissionManager!!.runtimePermissionsVersion = LATEST_VERSION
             }
             onComplete.run()
         }
@@ -283,6 +283,7 @@ internal object RuntimePermissionsUpgradeController {
 
                     val bgGroups = mutableListOf<LightAppPermGroup>()
                     val storageGroups = mutableListOf<LightAppPermGroup>()
+                    val bgMicGroups = mutableListOf<LightAppPermGroup>()
 
                     for (group in permGroupProviders!!.mapNotNull { it.value }) {
                         when (group.permGroupName) {
@@ -297,6 +298,9 @@ internal object RuntimePermissionsUpgradeController {
                             }
                             permission_group.READ_MEDIA_VISUAL -> {
                                 storageGroups.add(group)
+                            }
+                            permission_group.MICROPHONE -> {
+                                bgMicGroups.add(group)
                             }
                         }
                     }
@@ -314,7 +318,7 @@ internal object RuntimePermissionsUpgradeController {
                     }
 
                     value = UpgradeData(preinstalledPkgInfoProvider.value!!, restrictedPermissions,
-                            pkgInfoProvider.value!!, bgGroups, storageGroups)
+                            pkgInfoProvider.value!!, bgGroups, storageGroups, bgMicGroups)
                 }
             }
         }
@@ -334,7 +338,7 @@ internal object RuntimePermissionsUpgradeController {
         val (newVersion, upgradeExemptions, grants) = onUpgradeLockedDataLoaded(currentVersion,
                 upgradeData.pkgs, upgradeData.restrictedPermissions,
                 upgradeData.bgGroups, upgradeData.storageGroups,
-                isDeviceUpgrading)
+                upgradeData.bgMicGroups, isDeviceUpgrading)
 
         // Do not run in parallel. Measurements have shown that this is slower than sequential
         for (exemption in (preinstalledAppExemptions union upgradeExemptions)) {
@@ -354,6 +358,7 @@ internal object RuntimePermissionsUpgradeController {
         restrictedPermissions: Set<String>,
         bgApps: List<LightAppPermGroup>,
         storageAndMediaAppPermGroups: List<LightAppPermGroup>,
+        bgMicApps: List<LightAppPermGroup>,
         isDeviceUpgrading: Boolean
     ): Triple<Int, List<RestrictionExemption>, List<Grant>> {
         val exemptions = mutableListOf<RestrictionExemption>()
@@ -560,6 +565,11 @@ internal object RuntimePermissionsUpgradeController {
          * Storage groups that need to be inspected by {@link #onUpgradeLockedDataLoaded}
          */
         val storageGroups: List<LightAppPermGroup>,
+        /**
+         * Background Microphone groups that need to be inspected by
+         * {@link #onUpgradeLockedDataLoaded}
+         */
+        val bgMicGroups: List<LightAppPermGroup>
     )
 
     /**

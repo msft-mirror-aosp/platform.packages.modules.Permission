@@ -61,6 +61,8 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
 
     private val sources = mutableListOf<SmartUpdateMediatorLiveData<*>>()
 
+    private val stacktraceExceptionMessage = "Caller of coroutine"
+
     @MainThread
     override fun setValue(newValue: T?) {
         ensureMainThread()
@@ -124,15 +126,17 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
     }
 
     override fun <S : Any?> addSource(source: LiveData<S>, onChanged: Observer<in S>) {
-        addSourceWithStackTraceAttribution(source, onChanged,
-            IllegalStateException().getStackTrace())
+        addSourceWithError(source, onChanged)
     }
 
-    private fun <S : Any?> addSourceWithStackTraceAttribution(
+    private fun <S : Any?> addSourceWithError(
         source: LiveData<S>,
         onChanged: Observer<in S>,
-        stackTrace: Array<StackTraceElement>
+        e: IllegalStateException? = null
     ) {
+        // Get the stacktrace of the call to addSource, so it isn't lost in any errors
+        val exception = e ?: IllegalStateException(stacktraceExceptionMessage)
+
         GlobalScope.launch(Main.immediate) {
             if (source is SmartUpdateMediatorLiveData) {
                 if (source in sources) {
@@ -143,8 +147,8 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
             try {
                 super.addSource(source, onChanged)
             } catch (ex: IllegalStateException) {
-                ex.setStackTrace(stackTrace)
-                throw ex
+                val other = ex as java.lang.Throwable
+                throw other.initCause(exception)
             }
         }
     }
@@ -185,7 +189,7 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
 
         val removed = toRemove.map { have.remove(it) }.toMutableList()
 
-        val stackTrace = IllegalStateException().getStackTrace()
+        val stackTraceException = java.lang.IllegalStateException(stacktraceExceptionMessage)
 
         GlobalScope.launch(Main.immediate) {
             // If any state got out of sorts before this coroutine ran, correct it
@@ -208,7 +212,7 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
                         update()
                     }
                 }
-                addSourceWithStackTraceAttribution(liveData, observer, stackTrace)
+                addSourceWithError(liveData, observer, stackTraceException)
             }
         }
         return toAdd to toRemove

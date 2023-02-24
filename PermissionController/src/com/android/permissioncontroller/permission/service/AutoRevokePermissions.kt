@@ -81,12 +81,9 @@ suspend fun revokeAppPermissions(
         val pkgPermChanges = PermissionChangeStorageImpl.getInstance().loadEvents()
             .associateBy { it.packageName }
         // For each autorevoke-eligible app...
-        userApps.forEachInParallel(Main) forEachInParallelOuter@ { pkg: LightPackageInfo ->
+        userApps.forEachInParallel(Main) { pkg: LightPackageInfo ->
             if (pkg.grantedPermissions.isEmpty()) {
-                if (DEBUG_AUTO_REVOKE) {
-                    DumpableLog.i(LOG_TAG, "${pkg.packageName}: no granted permissions")
-                }
-                return@forEachInParallelOuter
+                return@forEachInParallel
             }
             val packageName = pkg.packageName
             val pkgPermChange = pkgPermChanges[packageName]
@@ -96,23 +93,12 @@ suspend fun revokeAppPermissions(
                     DumpableLog.i(LOG_TAG, "Not revoking because permissions were changed " +
                         "recently for package $packageName")
                 }
-                return@forEachInParallelOuter
+                return@forEachInParallel
             }
             val targetSdk = pkg.targetSdkVersion
-            val pkgPermGroups: Map<String, List<String>>? =
+            val pkgPermGroups: Map<String, List<String>> =
                 PackagePermissionsLiveData[packageName, user]
-                    .getInitializedValue()
-
-            if (pkgPermGroups == null || pkgPermGroups.isEmpty()) {
-                if (DEBUG_AUTO_REVOKE) {
-                    DumpableLog.i(LOG_TAG, "$packageName: no permission groups found.")
-                }
-                return@forEachInParallelOuter
-            }
-
-            if (DEBUG_AUTO_REVOKE) {
-                DumpableLog.i(LOG_TAG, "$packageName: perm groups: ${pkgPermGroups.keys}.")
-            }
+                    .getInitializedValue() ?: return@forEachInParallel
 
             // Determine which permGroups are revocable
             val revocableGroups = mutableSetOf<String>()
@@ -139,10 +125,6 @@ suspend fun revokeAppPermissions(
                 }
             }
 
-            if (DEBUG_AUTO_REVOKE) {
-                DumpableLog.i(LOG_TAG, "$packageName: initial revocable groups: $revocableGroups")
-            }
-
             // Mark any groups that split from an install-time permission as unrevocable
             for (fromPerm in
             pkgPermGroups[PackagePermissionsLiveData.NON_RUNTIME_NORMAL_PERMS] ?: emptyList()) {
@@ -166,14 +148,12 @@ suspend fun revokeAppPermissions(
                 }
             }
 
-            if (DEBUG_AUTO_REVOKE) {
-                DumpableLog.i(LOG_TAG, "$packageName: final revocable groups: $revocableGroups")
-            }
             // For each revocable group, revoke all of its permissions
             val anyPermsRevoked = AtomicBoolean(false)
             pkgPermGroups.entries
                 .filter { revocableGroups.contains(it.key) }
-                .forEachInParallel(Main) forEachInParallelInner@ { (groupName, _) ->
+                .forEachInParallel(Main) { (groupName, _) ->
+
                 val group: LightAppPermGroup =
                     LightAppPermGroupLiveData[packageName, groupName, user]
                         .getInitializedValue()!!
@@ -181,10 +161,7 @@ suspend fun revokeAppPermissions(
                 val revocablePermissions = group.permissions.keys.toList()
 
                 if (revocablePermissions.isEmpty()) {
-                    if (DEBUG_AUTO_REVOKE) {
-                        DumpableLog.i(LOG_TAG, "$packageName: revocable permissions empty")
-                    }
-                    return@forEachInParallelInner
+                    return@forEachInParallel
                 }
 
                 if (DEBUG_AUTO_REVOKE) {

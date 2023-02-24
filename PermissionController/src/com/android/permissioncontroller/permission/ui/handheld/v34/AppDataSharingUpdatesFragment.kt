@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.android.permissioncontroller.permission.ui.handheld.v34
 
 import android.graphics.Color
@@ -133,6 +131,7 @@ class AppDataSharingUpdatesFragment : PermissionsFrameFragment() {
                 getString(R.string.shares_location_with_third_parties)
             DataSharingUpdateType.ADDS_SHARING_WITH_ADVERTISING_PURPOSE ->
                 getString(R.string.shares_location_with_third_parties_for_advertising)
+            else -> throw IllegalArgumentException("Invalid DataSharingUpdateType: $type")
         }
     }
 

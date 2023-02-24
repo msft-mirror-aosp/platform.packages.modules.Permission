@@ -110,7 +110,7 @@ public class ReportDetails {
     /**
      * Read images from the IncidentMinimal.
      *
-     * @throws ParseException if there was an error reading them.
+     * @throw ParseException if there was an error reading them.
      */
     private static void parseImages(ArrayList<Drawable> result, IncidentMinimal incident,
             Resources res) throws ParseException {

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
 
 package com.android.permissioncontroller.safetycenter.ui.model
 
@@ -128,9 +127,10 @@ class SafetyCenterQsViewModel(
                     UserHandle.getUserHandleForUid(usage.uid))]
                 ?: return
 
-        KotlinUtils.revokeForegroundRuntimePermissions(app, group)
-        KotlinUtils.revokeBackgroundRuntimePermissions(app, group)
-
+        if (group != null) {
+            KotlinUtils.revokeForegroundRuntimePermissions(app, group)
+            KotlinUtils.revokeBackgroundRuntimePermissions(app, group)
+        }
         revokedUsages.add(usage)
     }
 
@@ -186,7 +186,6 @@ class SafetyCenterQsViewModel(
                         LOCATION to SensorState(true, locationEnabled, locationEnforcedAdmin))
             }
 
-            @Suppress("OVERRIDE_DEPRECATION")
             override fun onSensorPrivacyChanged(sensor: Int, enabled: Boolean) {
                 update()
             }

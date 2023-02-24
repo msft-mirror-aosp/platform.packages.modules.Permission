@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
 
 package com.android.permissioncontroller.permission.ui.model
 
@@ -69,7 +68,7 @@ class UnusedAppsViewModel(private val app: Application, private val sessionId: L
 
         val months: Int = (duration.inWholeDays / 30).toInt()
 
-        fun isNewlyUnused(): Boolean {
+        inline fun isNewlyUnused(): Boolean {
             return (this == ONE_MONTH) || (this == THREE_MONTHS)
         }
 
