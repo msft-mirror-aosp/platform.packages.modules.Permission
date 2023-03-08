@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package com.android.permissioncontroller.permission.utils
 
@@ -265,7 +266,7 @@ object KotlinUtils {
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
     fun isPhotoPickerPromptEnabled(): Boolean {
         return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-            PROPERTY_PHOTO_PICKER_PROMPT_ENABLED, false)
+            PROPERTY_PHOTO_PICKER_PROMPT_ENABLED, true)
     }
 
     /*
@@ -291,15 +292,11 @@ object KotlinUtils {
 
     /**
      * Whether we should enable the safety label change notifications and data sharing updates UI.
-     *
-     * This feature has its own [DeviceConfig] flag, however, we also ensure it is only enabled
-     * when its preceding feature, Permission Rationale, is enabled.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
     fun isSafetyLabelChangeNotificationsEnabled(): Boolean {
         return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-                SAFETY_LABEL_CHANGE_NOTIFICATIONS_ENABLED, false) &&
-                isPermissionRationaleEnabled()
+                SAFETY_LABEL_CHANGE_NOTIFICATIONS_ENABLED, false)
     }
 
     /**
@@ -531,7 +528,6 @@ object KotlinUtils {
      *
      * @return The package's icon, or null, if the package does not exist
      */
-    @JvmOverloads
     fun getBadgedPackageIcon(
         app: Application,
         packageName: String,
@@ -778,10 +774,10 @@ object KotlinUtils {
         if (!newPerms.isEmpty()) {
             val user = UserHandle.getUserHandleForUid(group.packageInfo.uid)
             for (groupPerm in group.allPermissions.values) {
-                var permFlags = groupPerm!!.flags
+                var permFlags = groupPerm.flags
                 permFlags = permFlags.clearFlag(FLAG_PERMISSION_AUTO_REVOKED)
-                if (groupPerm!!.flags != permFlags) {
-                    app.packageManager.updatePermissionFlags(groupPerm!!.name,
+                if (groupPerm.flags != permFlags) {
+                    app.packageManager.updatePermissionFlags(groupPerm.name,
                         group.packageInfo.packageName, PERMISSION_CONTROLLER_CHANGED_FLAG_MASK,
                         permFlags, user)
                 }
@@ -846,6 +842,7 @@ object KotlinUtils {
         }
 
         var newFlags = perm.flags
+        var oldFlags = perm.flags
         var isGranted = perm.isGrantedIncludingAppOp
         var shouldKill = false
 
@@ -855,6 +852,14 @@ object KotlinUtils {
 
             // TODO 195016052: investigate adding split permission handling
             if (supportsRuntime) {
+                // If granting without app ops, explicitly disallow app op first, while setting the
+                // flag, so that the PermissionPolicyService doesn't reset the app op state
+                if (affectsAppOp && withoutAppOps) {
+                    oldFlags = oldFlags.setFlag(PackageManager.FLAG_PERMISSION_REVOKED_COMPAT)
+                    app.packageManager.updatePermissionFlags(perm.name, group.packageName,
+                        PERMISSION_CONTROLLER_CHANGED_FLAG_MASK, oldFlags, user)
+                    disallowAppOp(app, perm, group)
+                }
                 app.packageManager.grantRuntimePermission(group.packageName, perm.name, user)
                 isGranted = true
             } else if (affectsAppOp) {
@@ -865,7 +870,7 @@ object KotlinUtils {
                 shouldKill = true
                 isGranted = true
             }
-            newFlags = if (withoutAppOps) {
+            newFlags = if (affectsAppOp && withoutAppOps) {
                 newFlags.setFlag(PackageManager.FLAG_PERMISSION_REVOKED_COMPAT)
             } else {
                 newFlags.clearFlag(PackageManager.FLAG_PERMISSION_REVOKED_COMPAT)
@@ -917,7 +922,7 @@ object KotlinUtils {
             }
         }
 
-        if (perm.flags != newFlags) {
+        if (oldFlags != newFlags) {
             app.packageManager.updatePermissionFlags(perm.name, group.packageInfo.packageName,
                 PERMISSION_CONTROLLER_CHANGED_FLAG_MASK, newFlags, user)
         }
@@ -948,9 +953,11 @@ object KotlinUtils {
         group: LightAppPermGroup,
         userFixed: Boolean = false,
         oneTime: Boolean = false,
+        forceRemoveRevokedCompat: Boolean = false,
         filterPermissions: List<String> = group.permissions.keys.toList()
     ): LightAppPermGroup {
-        return revokeRuntimePermissions(app, group, false, userFixed, oneTime, filterPermissions)
+        return revokeRuntimePermissions(app, group, false, userFixed, oneTime,
+            forceRemoveRevokedCompat, filterPermissions)
     }
 
     /**
@@ -973,9 +980,11 @@ object KotlinUtils {
         group: LightAppPermGroup,
         userFixed: Boolean = false,
         oneTime: Boolean = false,
+        forceRemoveRevokedCompat: Boolean = false,
         filterPermissions: List<String> = group.permissions.keys.toList()
     ): LightAppPermGroup {
-        return revokeRuntimePermissions(app, group, true, userFixed, oneTime, filterPermissions)
+        return revokeRuntimePermissions(app, group, true, userFixed, oneTime,
+            forceRemoveRevokedCompat, filterPermissions)
     }
 
     private fun revokeRuntimePermissions(
@@ -984,6 +993,7 @@ object KotlinUtils {
         revokeBackground: Boolean,
         userFixed: Boolean,
         oneTime: Boolean,
+        forceRemoveRevokedCompat: Boolean = false,
         filterPermissions: List<String>
     ): LightAppPermGroup {
         val wasOneTime = group.isOneTime
@@ -994,7 +1004,8 @@ object KotlinUtils {
             val isBackgroundPerm = permName in group.backgroundPermNames
             if (isBackgroundPerm == revokeBackground) {
                 val (newPerm, shouldKill) =
-                    revokeRuntimePermission(app, perm, userFixed, oneTime, group)
+                    revokeRuntimePermission(app, perm, userFixed, oneTime, forceRemoveRevokedCompat,
+                        group)
                 newPerms[newPerm.name] = newPerm
                 shouldKillForAnyPermission = shouldKillForAnyPermission || shouldKill
             }
@@ -1093,6 +1104,7 @@ object KotlinUtils {
         perm: LightPermission,
         userFixed: Boolean,
         oneTime: Boolean,
+        forceRemoveRevokedCompat: Boolean,
         group: LightAppPermGroup
     ): Pair<LightPermission, Boolean> {
         // Do not touch permissions fixed by the system.
@@ -1108,13 +1120,16 @@ object KotlinUtils {
 
         val affectsAppOp = permissionToOp(perm.name) != null || perm.isBackgroundPermission
 
-        if (perm.isGrantedIncludingAppOp) {
+        if (perm.isGrantedIncludingAppOp || (perm.isCompatRevoked && forceRemoveRevokedCompat)) {
             if (supportsRuntime && !isPermissionSplitFromNonRuntime(app, perm.name,
                             group.packageInfo.targetSdkVersion)) {
                 // Revoke the permission if needed.
                 app.packageManager.revokeRuntimePermission(group.packageInfo.packageName,
                     perm.name, user)
                 isGranted = false
+                if (forceRemoveRevokedCompat) {
+                    newFlags = newFlags.clearFlag(PackageManager.FLAG_PERMISSION_REVOKED_COMPAT)
+                }
             } else if (affectsAppOp) {
                 // If the permission has no corresponding app op, then it is a
                 // third-party one and we do not offer toggling of such permissions.
@@ -1387,14 +1402,14 @@ object KotlinUtils {
         var resolveInfos = context.packageManager.queryIntentActivities(intentToResolve,
             MATCH_DIRECT_BOOT_AWARE or MATCH_DIRECT_BOOT_UNAWARE)
 
-        if (resolveInfos == null || resolveInfos.size <= 0) {
+        if (resolveInfos.size <= 0) {
             intentToResolve.removeCategory(CATEGORY_INFO)
             intentToResolve.addCategory(CATEGORY_LAUNCHER)
             intentToResolve.setPackage(packageName)
             resolveInfos = context.packageManager.queryIntentActivities(intentToResolve,
                 MATCH_DIRECT_BOOT_AWARE or MATCH_DIRECT_BOOT_UNAWARE)
         }
-        return resolveInfos != null && resolveInfos.size > 0
+        return resolveInfos.size > 0
     }
 
     /**
@@ -1493,7 +1508,7 @@ suspend fun <T, LD : LiveData<T>> LD.getInitializedValue(
     isInitialized: LD.() -> Boolean = { value != null }
 ): T {
     return if (isInitialized()) {
-        value as T
+        value!!
     } else {
         suspendCoroutine { continuation: Continuation<T> ->
             val observer = AtomicReference<Observer<T>>()

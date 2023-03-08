@@ -22,7 +22,7 @@
         android:key="subpage_brand_chip"
         app:selectable="false"/>
 
-    <com.android.settingslib.widget.IllustrationPreference
+    <com.android.permissioncontroller.safetycenter.ui.SafetyIllustrationPreference
         android:key="subpage_illustration"
         app:selectable="false"/>
 
@@ -34,4 +34,8 @@
     <com.android.permissioncontroller.safetycenter.ui.ComparablePreferenceCategory
         android:key="subpage_entry_group"
         app:selectable="false" />
+
+    <com.android.settingslib.widget.FooterPreference
+        android:key="subpage_footer"
+        app:selectable="false"/>
 </PreferenceScreen>

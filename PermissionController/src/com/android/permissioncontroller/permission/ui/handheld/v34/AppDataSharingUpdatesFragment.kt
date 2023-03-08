@@ -1,5 +1,10 @@
+@file:Suppress("DEPRECATION")
+
 package com.android.permissioncontroller.permission.ui.handheld.v34
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.UserHandle
@@ -17,17 +22,19 @@ import com.android.permissioncontroller.permission.ui.model.v34.AppDataSharingUp
 import com.android.permissioncontroller.permission.ui.model.v34.AppDataSharingUpdatesViewModel.AppLocationDataSharingUpdateUiInfo
 import com.android.permissioncontroller.permission.utils.KotlinUtils
 import com.android.permissioncontroller.permission.utils.StringUtils
-import java.lang.IllegalArgumentException
+import java.text.Collator
 
 /** Fragment to display data sharing updates for installed apps. */
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class AppDataSharingUpdatesFragment : PermissionsFrameFragment() {
-    lateinit var viewModel: AppDataSharingUpdatesViewModel
+    private lateinit var viewModel: AppDataSharingUpdatesViewModel
+    private lateinit var collator: Collator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requireActivity().title = getString(R.string.data_sharing_updates_title)
         setHasOptionsMenu(true)
+        collator = Collator.getInstance(requireContext().resources.configuration.locales[0])
 
         val ab = activity?.actionBar
         ab?.setDisplayHomeAsUpEnabled(true)
@@ -36,10 +43,14 @@ class AppDataSharingUpdatesFragment : PermissionsFrameFragment() {
 
         if (preferenceScreen == null) {
             addPreferencesFromResource(R.xml.app_data_sharing_updates)
-            showNoUpdatesPresentUi()
+            setLoading(/* loading= */ true, /* animate= */ false)
         }
 
         viewModel.appLocationDataSharingUpdateUiInfoLiveData.observe(this, this::updatePreferences)
+    }
+
+    override fun setDivider(divider: Drawable?) {
+        super.setDivider(ColorDrawable(Color.TRANSPARENT))
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -52,6 +63,8 @@ class AppDataSharingUpdatesFragment : PermissionsFrameFragment() {
     }
 
     private fun updatePreferences(updateUiInfos: List<AppLocationDataSharingUpdateUiInfo>) {
+        setLoading(/* loading= */ false, /* animate= */ true)
+
         if (updateUiInfos.isNotEmpty()) {
             showUpdatesPresentUi()
         } else {
@@ -67,12 +80,15 @@ class AppDataSharingUpdatesFragment : PermissionsFrameFragment() {
             preferenceScreen.findPreference<PreferenceCategory>(
                 LAST_PERIOD_UPDATES_PREFERENCE_CATEGORY_ID)
                 ?: return
+
+        val preferencesToRemove = mutableSetOf<Preference>()
         for (i in 0 until (updatesCategory.preferenceCount)) {
-            // Remove preferences that no longer need to be shown.
             if (!preferenceKeysToShow.contains(updatesCategory.getPreference(i).key)) {
-                updatesCategory.removePreference(updatesCategory.getPreference(i))
+                preferencesToRemove.add(updatesCategory.getPreference(i))
             }
         }
+        // Remove preferences that no longer need to be shown.
+        preferencesToRemove.forEach { updatesCategory.removePreference(it) }
 
         updateUiInfos.forEach { updateUiInfo ->
             val key =
@@ -98,14 +114,15 @@ class AppDataSharingUpdatesFragment : PermissionsFrameFragment() {
                         updateUiInfo.packageName,
                         updateUiInfo.userHandle)
                 summary = getSummaryForLocationUpdateType(updateUiInfo.dataSharingUpdateType)
-                settingsGearClick =
+                preferenceClick =
                     View.OnClickListener { _ ->
-                        viewModel.startAppPermissionsPage(
+                        viewModel.startAppLocationPermissionPage(
                             requireActivity(), updateUiInfo.packageName, updateUiInfo.userHandle)
                     }
                 updatesCategory.addPreference(this)
             }
         }
+        KotlinUtils.sortPreferenceGroup(updatesCategory, this::compareUpdatePreferences, false)
     }
 
     private fun getSummaryForLocationUpdateType(type: DataSharingUpdateType): String {
@@ -116,7 +133,6 @@ class AppDataSharingUpdatesFragment : PermissionsFrameFragment() {
                 getString(R.string.shares_location_with_third_parties)
             DataSharingUpdateType.ADDS_SHARING_WITH_ADVERTISING_PURPOSE ->
                 getString(R.string.shares_location_with_third_parties_for_advertising)
-            else -> throw IllegalArgumentException("Invalid DataSharingUpdateType: $type")
         }
     }
 
@@ -124,15 +140,17 @@ class AppDataSharingUpdatesFragment : PermissionsFrameFragment() {
         if (preferenceScreen == null) {
             return
         }
-        val subtitlePreference =
-            preferenceScreen?.findPreference<Preference>(SUBTITLE_PREFERENCE_ID)
+        val detailsPreference =
+            preferenceScreen?.findPreference<AppDataSharingDetailsPreference>(DETAILS_PREFERENCE_ID)
         val footerPreference =
-            preferenceScreen?.findPreference<FooterWithLinkPreference>(FOOTER_PREFERENCE_ID)
+            preferenceScreen?.findPreference<AppDataSharingUpdatesFooterPreference>(
+                FOOTER_PREFERENCE_ID)
         val dataSharingUpdatesCategory =
             preferenceScreen?.findPreference<PreferenceCategory>(
                 LAST_PERIOD_UPDATES_PREFERENCE_CATEGORY_ID)
-        subtitlePreference?.let {
-            it.summary = getString(R.string.data_sharing_updates_subtitle)
+
+        detailsPreference?.let {
+            it.showNoUpdates = false
             it.isVisible = true
         }
         dataSharingUpdatesCategory?.let {
@@ -155,23 +173,20 @@ class AppDataSharingUpdatesFragment : PermissionsFrameFragment() {
         if (preferenceScreen == null) {
             return
         }
-        val subtitlePreference =
-            preferenceScreen?.findPreference<Preference>(SUBTITLE_PREFERENCE_ID)
+        val detailsPreference =
+            preferenceScreen?.findPreference<AppDataSharingDetailsPreference>(DETAILS_PREFERENCE_ID)
         val footerPreference =
-            preferenceScreen?.findPreference<FooterWithLinkPreference>(FOOTER_PREFERENCE_ID)
+            preferenceScreen?.findPreference<AppDataSharingUpdatesFooterPreference>(
+                FOOTER_PREFERENCE_ID)
         val dataSharingUpdatesCategory =
             preferenceScreen?.findPreference<PreferenceCategory>(
                 LAST_PERIOD_UPDATES_PREFERENCE_CATEGORY_ID)
-        subtitlePreference?.let {
-            it.summary = getString(R.string.data_sharing_updates_subtitle)
+
+        detailsPreference?.let {
+            it.showNoUpdates = true
             it.isVisible = true
         }
-        dataSharingUpdatesCategory?.let {
-            // TODO(b/261666772): Refactor how the "no updates" message is shown to align with spec.
-            //  The same preference category may not be usable for UI with and without updates.
-            it.title = getString(R.string.no_updates_at_this_time)
-            it.isVisible = true
-        }
+        dataSharingUpdatesCategory?.let { it.isVisible = false }
         footerPreference?.let {
             it.footerMessage = getString(R.string.data_sharing_updates_footer_message)
             it.footerLink = getString(R.string.learn_about_data_sharing)
@@ -190,6 +205,14 @@ class AppDataSharingUpdatesFragment : PermissionsFrameFragment() {
         return "$packageName:${user.identifier}:${update.name}"
     }
 
+    private fun compareUpdatePreferences(lhs: Preference, rhs: Preference): Int {
+        var result = collator.compare(lhs.title.toString(), rhs.title.toString())
+        if (result == 0) {
+            result = lhs.key.compareTo(rhs.key)
+        }
+        return result
+    }
+
     /** Companion object for [AppDataSharingUpdatesFragment]. */
     companion object {
         /**
@@ -200,7 +223,7 @@ class AppDataSharingUpdatesFragment : PermissionsFrameFragment() {
          */
         fun createArgs(sessionId: Long) = Bundle().apply { putLong(EXTRA_SESSION_ID, sessionId) }
 
-        private const val SUBTITLE_PREFERENCE_ID = "subtitle"
+        private const val DETAILS_PREFERENCE_ID = "details"
         private const val FOOTER_PREFERENCE_ID = "info_footer"
         private const val LAST_PERIOD_UPDATES_PREFERENCE_CATEGORY_ID = "last_period_updates"
     }

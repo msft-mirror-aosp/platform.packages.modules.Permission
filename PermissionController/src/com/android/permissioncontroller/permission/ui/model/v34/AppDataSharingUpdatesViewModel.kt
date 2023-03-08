@@ -21,8 +21,9 @@ import android.app.Activity
 import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.Intent.ACTION_MANAGE_APP_PERMISSIONS
+import android.content.Intent.ACTION_MANAGE_APP_PERMISSION
 import android.content.Intent.EXTRA_PACKAGE_NAME
+import android.content.Intent.EXTRA_PERMISSION_GROUP_NAME
 import android.content.Intent.EXTRA_USER
 import android.net.Uri
 import android.os.Build
@@ -31,6 +32,7 @@ import android.os.UserHandle
 import android.provider.DeviceConfig
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.android.permission.safetylabel.DataCategoryConstants.CATEGORY_LOCATION
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.data.SinglePermGroupPackagesUiInfoLiveData
 import com.android.permissioncontroller.permission.data.SmartAsyncMediatorLiveData
@@ -38,7 +40,6 @@ import com.android.permissioncontroller.permission.data.v34.AppDataSharingUpdate
 import com.android.permissioncontroller.permission.model.livedatatypes.AppPermGroupUiInfo
 import com.android.permissioncontroller.permission.model.livedatatypes.AppPermGroupUiInfo.PermGrantState.PERMS_ALLOWED_ALWAYS
 import com.android.permissioncontroller.permission.model.livedatatypes.AppPermGroupUiInfo.PermGrantState.PERMS_ALLOWED_FOREGROUND_ONLY
-import com.android.permissioncontroller.permission.model.v34.AppDataSharingUpdate.Companion.LOCATION_CATEGORY
 import com.android.permissioncontroller.permission.model.v34.DataSharingUpdateType
 import com.android.settingslib.HelpUtils
 import kotlinx.coroutines.Job
@@ -67,10 +68,18 @@ class AppDataSharingUpdatesViewModel(app: Application) {
         }
     }
 
-    /** Start the App Permissions fragment for the provided packageName and userHandle. */
-    fun startAppPermissionsPage(activity: Activity, packageName: String, userHandle: UserHandle) {
+    /**
+     * Starts the App Permission fragment for location permission for the provided packageName and
+     * userHandle.
+     */
+    fun startAppLocationPermissionPage(
+        activity: Activity,
+        packageName: String,
+        userHandle: UserHandle
+    ) {
         activity.startActivity(
-            Intent(ACTION_MANAGE_APP_PERMISSIONS).apply {
+            Intent(ACTION_MANAGE_APP_PERMISSION).apply {
+                putExtra(EXTRA_PERMISSION_GROUP_NAME, Manifest.permission_group.LOCATION)
                 putExtra(EXTRA_PACKAGE_NAME, packageName)
                 putExtra(EXTRA_USER, userHandle)
             })
@@ -88,7 +97,7 @@ class AppDataSharingUpdatesViewModel(app: Application) {
         // TODO(b/264811607): This code serves to ensures that there is some UI to see when testing
         //  feature locally. Remove when app stores start providing safety labels.
         if (DeviceConfig.getBoolean(
-            DeviceConfig.NAMESPACE_PRIVACY, PLACEHOLDER_SAFETY_LABEL_UPDATES_FLAG, false)) {
+            DeviceConfig.NAMESPACE_PRIVACY, PLACEHOLDER_SAFETY_LABEL_UPDATES_ENABLED, false)) {
             updateUiInfoList.add(
                 AppLocationDataSharingUpdateUiInfo(
                     PLACEHOLDER_PACKAGE_NAME_1,
@@ -105,7 +114,7 @@ class AppDataSharingUpdatesViewModel(app: Application) {
             appDataSharingUpdatesLiveData.value
                 ?.map { appDataSharingUpdate ->
                     val locationDataSharingUpdate =
-                        appDataSharingUpdate.categorySharingUpdates[LOCATION_CATEGORY]
+                        appDataSharingUpdate.categorySharingUpdates[CATEGORY_LOCATION]
 
                     if (locationDataSharingUpdate == null) {
                         emptyList()
@@ -180,7 +189,7 @@ class AppDataSharingUpdatesViewModel(app: Application) {
 
         private const val PLACEHOLDER_PACKAGE_NAME_1 = "com.android.systemui"
         private const val PLACEHOLDER_PACKAGE_NAME_2 = "com.android.bluetooth"
-        private const val PLACEHOLDER_SAFETY_LABEL_UPDATES_FLAG =
-            "placeholder_safety_label_updates_flag"
+        private const val PLACEHOLDER_SAFETY_LABEL_UPDATES_ENABLED =
+            "placeholder_safety_label_updates_enabled"
     }
 }

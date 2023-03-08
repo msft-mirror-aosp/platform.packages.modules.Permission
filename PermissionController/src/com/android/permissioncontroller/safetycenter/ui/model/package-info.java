@@ -13,20 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@NonNullByDefault
+package com.android.permissioncontroller.safetycenter.ui.model;
 
-package android.safetycenter.functional.multiusers
-
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.Assume.assumeTrue
-import org.junit.Test
-import org.junit.runner.RunWith
-
-// TODO(b/264992293): Delete this stub when re-enable multi user tests
-/** Stub test. */
-@RunWith(AndroidJUnit4::class)
-class StubTest {
-    @Test
-    fun stub() {
-        assumeTrue(false)
-    }
-}
+import com.android.safetycenter.annotations.NonNullByDefault;

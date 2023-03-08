@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.safetycenter.cts.testing
+package android.safetycenter.functional.testing
 
 import android.app.NotificationChannel
 import android.content.ComponentName
@@ -70,6 +70,7 @@ class TestNotificationListener : NotificationListenerService() {
     override fun onListenerConnected() {
         Log.d(TAG, "onListenerConnected")
         super.onListenerConnected()
+        disconnected.close()
         instance = this
         connected.open()
     }
@@ -79,17 +80,22 @@ class TestNotificationListener : NotificationListenerService() {
         super.onListenerDisconnected()
         connected.close()
         instance = null
+        disconnected.open()
     }
 
     companion object {
         private const val TAG = "TestNotificationListene"
 
         private val id: String =
-            "android.safetycenter.cts/" + TestNotificationListener::class.java.name
+            "android.safetycenter.functional/" + TestNotificationListener::class.java.name
         private val componentName =
-            ComponentName("android.safetycenter.cts", TestNotificationListener::class.java.name)
+            ComponentName(
+                "android.safetycenter.functional",
+                TestNotificationListener::class.java.name
+            )
 
         private val connected = ConditionVariable(false)
+        private val disconnected = ConditionVariable(true)
         private var instance: TestNotificationListener? = null
 
         @Volatile
@@ -97,16 +103,18 @@ class TestNotificationListener : NotificationListenerService() {
             Channel<NotificationEvent>(capacity = Channel.UNLIMITED)
 
         /**
-         * Blocks until there are zero Safety Center notifications, or throw an [AssertionError] if
-         * that doesn't happen within [timeout].
+         * Blocks until there are zero Safety Center notifications and there remain zero for a short
+         * duration. Throws an [AssertionError] if a this condition is not met within [timeout], or
+         * if it is met and then violated.
          */
         fun waitForZeroNotifications(timeout: Duration = TIMEOUT_LONG) {
             waitForNotificationCount(0, timeout)
         }
 
         /**
-         * Blocks until there is exactly one Safety Center notification and then return it, or throw
-         * an [AssertionError] if that doesn't happen within [timeout].
+         * Blocks until there is exactly one Safety Center notification and ensures that remains
+         * true for a short duration. Returns that notification, or throws an [AssertionError] if a
+         * this condition is not met within [timeout], or if it is met and then violated.
          */
         fun waitForSingleNotification(
             timeout: Duration = TIMEOUT_LONG
@@ -115,8 +123,10 @@ class TestNotificationListener : NotificationListenerService() {
         }
 
         /**
-         * Blocks until there are exactly [count] Safety Center notifications and then return them,
-         * or throw an [AssertionError] if that doesn't happen within [timeout].
+         * Blocks until there are exactly [count] Safety Center notifications and ensures that
+         * remains true for a short duration. Returns those notifications, or throws an
+         * [AssertionError] if a this condition is not met within [timeout], or if it is met and
+         * then violated.
          */
         private fun waitForNotificationCount(
             count: Int,
@@ -128,9 +138,10 @@ class TestNotificationListener : NotificationListenerService() {
         }
 
         /**
-         * Blocks until there is a single Safety Center notification matching the given
-         * [characteristics] and then return it, or throw an [AssertionError] if that doesn't happen
-         * within [timeout].
+         * Blocks until there is a single Safety Center notification, which matches the given
+         * [characteristics] and ensures that remains true for a short duration. Returns that
+         * notification, or throws an [AssertionError] if a this condition is not met within
+         * [timeout], or if it is met and then violated.
          */
         fun waitForSingleNotificationMatching(
             characteristics: NotificationCharacteristics,
@@ -140,9 +151,10 @@ class TestNotificationListener : NotificationListenerService() {
         }
 
         /**
-         * Blocks until the set of Safety Center notifications matches the given [characteristics]
-         * and then return them, or throw an [AssertionError] if that doesn't happen within
-         * [timeout].
+         * Blocks until the Safety Center notifications match the given [characteristics] and
+         * ensures that remains true for a short duration. Returns those notifications, or throws an
+         * [AssertionError] if a this condition is not met within [timeout], or if it is met and
+         * then violated.
          */
         fun waitForNotificationsMatching(
             vararg characteristics: NotificationCharacteristics,
@@ -215,18 +227,50 @@ class TestNotificationListener : NotificationListenerService() {
         }
 
         private fun getSafetyCenterNotifications(): List<StatusBarNotificationWithChannel> {
-            return with(instance!!) {
-                fun getChannel(key: String): NotificationChannel {
-                    return Ranking().let { result ->
-                        // This API uses a result parameter:
-                        currentRanking.getRanking(key, result)
-                        result.channel
+            return with(getInstanceOrThrow()) {
+                val notificationsSnapshot =
+                    checkNotNull(getActiveNotifications()) {
+                        "getActiveNotifications() returned null"
+                    }
+                val rankingSnapshot =
+                    checkNotNull(getCurrentRanking()) { "getCurrentRanking() returned null" }
+
+                fun getChannel(key: String): NotificationChannel? {
+                    // This API uses a result parameter:
+                    val rankingOut = Ranking()
+                    val success = rankingSnapshot.getRanking(key, rankingOut)
+                    return if (success) {
+                        rankingOut.channel
+                    } else {
+                        null
                     }
                 }
-                activeNotifications
+
+                notificationsSnapshot
                     .filter { it.isSafetyCenterNotification() }
-                    .map { StatusBarNotificationWithChannel(it, getChannel(it.key)) }
+                    .mapNotNull { statusBarNotification ->
+                        val channel = getChannel(statusBarNotification.key)
+                        if (channel != null) {
+                            StatusBarNotificationWithChannel(statusBarNotification, channel)
+                        } else {
+                            null
+                        }
+                    }
             }
+        }
+
+        private fun getInstanceOrThrow(): TestNotificationListener {
+            // We want to check the current values of the connected and disconnected
+            // ConditionVariables, but importantly block(0) actually does not timeout immediately!
+            val isConnected = connected.block(1)
+            val isDisconnected = disconnected.block(1)
+            check(isConnected == !isDisconnected) {
+                "Notification listener condition variables are inconsistent"
+            }
+            check(isConnected && !isDisconnected) {
+                "Notification listener was unexpectedly disconnected"
+            }
+            return checkNotNull(instance) { "Notification listener was unexpectedly null" }
         }
 
         /**
@@ -235,7 +279,7 @@ class TestNotificationListener : NotificationListenerService() {
          * within [timeout].
          */
         fun cancelAndWait(key: String, timeout: Duration = TIMEOUT_LONG) {
-            instance!!.cancelNotification(key)
+            getInstanceOrThrow().cancelNotification(key)
             waitForNotificationsToSatisfy(
                 timeout,
                 description = "no notification with the key $key"
@@ -253,7 +297,7 @@ class TestNotificationListener : NotificationListenerService() {
             // and that race makes tests flaky because the dismissal status of the previous
             // notification is not well defined.
             fun dumpIssueDismissalsRepositoryState(): String =
-                SystemUtil.runShellCommand("dumpsys safety_center dismissals")
+                SystemUtil.runShellCommand("dumpsys safety_center data")
             try {
                 waitForWithTimeout {
                     dumpIssueDismissalsRepositoryState()
@@ -276,7 +320,13 @@ class TestNotificationListener : NotificationListenerService() {
             if (allowed) {
                 requestRebind(componentName)
                 if (!connected.block(TIMEOUT_LONG.toMillis())) {
-                    throw TimeoutException("Notification listener not connected")
+                    throw TimeoutException("Notification listener did not connect in $TIMEOUT_LONG")
+                }
+            } else {
+                if (!disconnected.block(TIMEOUT_LONG.toMillis())) {
+                    throw TimeoutException(
+                        "Notification listener did not disconnect in $TIMEOUT_LONG"
+                    )
                 }
             }
         }

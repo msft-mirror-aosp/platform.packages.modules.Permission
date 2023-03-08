@@ -13,14 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@NonNullByDefault
+package com.android.safetycenter;
 
-package android.safetycenter.cts.testing
-
-import android.app.NotificationChannel
-import android.service.notification.StatusBarNotification
-
-/** Tuple of [StatusBarNotification] and the [NotificationChannel] it was posted to. */
-data class StatusBarNotificationWithChannel(
-    val statusBarNotification: StatusBarNotification,
-    val channel: NotificationChannel
-)
+import com.android.safetycenter.annotations.NonNullByDefault;

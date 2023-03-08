@@ -18,10 +18,12 @@ package com.android.safetycenter.data;
 
 import static android.os.Build.VERSION_CODES.TIRAMISU;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.unmodifiableList;
+import static com.android.safetycenter.data.SafetyCenterIssueDeduplicator.AdditionalDeduplicationInfo;
 
-import android.annotation.NonNull;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
+
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.content.Context;
@@ -40,11 +42,14 @@ import com.android.safetycenter.SafetySourceIssueInfo;
 import com.android.safetycenter.SafetySourceKey;
 import com.android.safetycenter.SafetySources;
 import com.android.safetycenter.UserProfileGroup;
+import com.android.safetycenter.internaldata.SafetyCenterIssueKey;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -52,36 +57,47 @@ import javax.annotation.concurrent.NotThreadSafe;
  * Contains issue related data.
  *
  * <p>Responsible for generating lists of issues and deduplication of issues.
- *
- * @hide
  */
 @RequiresApi(TIRAMISU)
 @NotThreadSafe
-public final class SafetyCenterIssueRepository {
+final class SafetyCenterIssueRepository {
 
     private static final SafetySourceIssuesInfoBySeverityDescending
             SAFETY_SOURCE_ISSUES_INFO_BY_SEVERITY_DESCENDING =
                     new SafetySourceIssuesInfoBySeverityDescending();
 
-    @NonNull private final Context mContext;
-    @NonNull private final SafetySourceDataRepository mSafetySourceDataRepository;
-    @NonNull private final SafetyCenterConfigReader mSafetyCenterConfigReader;
+    private final Context mContext;
+    private final SafetySourceDataRepository mSafetySourceDataRepository;
+    private final SafetyCenterConfigReader mSafetyCenterConfigReader;
+    private final SafetyCenterIssueDismissalRepository mSafetyCenterIssueDismissalRepository;
 
     // Only available on Android U+.
     @Nullable private final SafetyCenterIssueDeduplicator mSafetyCenterIssueDeduplicator;
 
     // userId -> sorted and deduplicated list of issues
+    // can contain temporarily hidden issues
     private final SparseArray<List<SafetySourceIssueInfo>> mUserIdToIssuesInfo =
             new SparseArray<>();
 
-    public SafetyCenterIssueRepository(
-            @NonNull Context context,
-            @NonNull SafetySourceDataRepository safetySourceDataRepository,
-            @NonNull SafetyCenterConfigReader safetyCenterConfigReader,
+    // userId -> (issueKey -> source groups)
+    private final SparseArray<Map<SafetyCenterIssueKey, Set<String>>> mUserIdToIssueToSourceGroup =
+            new SparseArray<>();
+
+    // userId -> issues filtered out from the rest due to being duplicates of other issues, in the
+    // last relevant call to SafetyCenterIssueDeduplicator#deduplicateIssues
+    private final SparseArray<List<SafetySourceIssueInfo>> mUserIdToFilteredOutIssues =
+            new SparseArray<>();
+
+    SafetyCenterIssueRepository(
+            Context context,
+            SafetySourceDataRepository safetySourceDataRepository,
+            SafetyCenterConfigReader safetyCenterConfigReader,
+            SafetyCenterIssueDismissalRepository safetyCenterIssueDismissalRepository,
             @Nullable SafetyCenterIssueDeduplicator safetyCenterIssueDeduplicator) {
         mContext = context;
         mSafetySourceDataRepository = safetySourceDataRepository;
         mSafetyCenterConfigReader = safetyCenterConfigReader;
+        mSafetyCenterIssueDismissalRepository = safetyCenterIssueDismissalRepository;
         mSafetyCenterIssueDeduplicator = safetyCenterIssueDeduplicator;
     }
 
@@ -89,7 +105,7 @@ public final class SafetyCenterIssueRepository {
      * Updates the class as per the current state of issues. Should be called after any state update
      * that can affect issues.
      */
-    public void updateIssues(@NonNull UserProfileGroup userProfileGroup) {
+    void updateIssues(UserProfileGroup userProfileGroup) {
         updateIssues(userProfileGroup.getProfileParentUserId(), /* isManagedProfile= */ false);
 
         int[] managedProfileUserIds = userProfileGroup.getManagedProfilesUserIds();
@@ -102,15 +118,15 @@ public final class SafetyCenterIssueRepository {
      * Updates the class as per the current state of issues. Should be called after any state update
      * that can affect issues.
      */
-    public void updateIssues(@UserIdInt int userId) {
+    void updateIssues(@UserIdInt int userId) {
         updateIssues(userId, UserUtils.isManagedProfile(userId, mContext));
     }
 
     private void updateIssues(@UserIdInt int userId, boolean isManagedProfile) {
         List<SafetySourceIssueInfo> issues =
                 getAllStoredIssuesFromRawSourceData(userId, isManagedProfile);
-        processIssues(issues);
-        mUserIdToIssuesInfo.put(userId, unmodifiableList(issues));
+        processIssues(userId, issues);
+        mUserIdToIssuesInfo.put(userId, issues);
     }
 
     /**
@@ -122,9 +138,7 @@ public final class SafetyCenterIssueRepository {
      * <p>Only includes issues related to active/running {@code userId}s in the given {@link
      * UserProfileGroup}.
      */
-    @NonNull
-    public List<SafetySourceIssueInfo> getIssuesDedupedSortedDescFor(
-            @NonNull UserProfileGroup userProfileGroup) {
+    List<SafetySourceIssueInfo> getIssuesDedupedSortedDescFor(UserProfileGroup userProfileGroup) {
         List<SafetySourceIssueInfo> issuesInfo = getIssuesFor(userProfileGroup);
         issuesInfo.sort(SAFETY_SOURCE_ISSUES_INFO_BY_SEVERITY_DESCENDING);
         return issuesInfo;
@@ -137,7 +151,7 @@ public final class SafetyCenterIssueRepository {
      * <p>Only includes issues related to active/running {@code userId}s in the given {@link
      * UserProfileGroup}.
      */
-    public int countLoggableIssuesFor(@NonNull UserProfileGroup userProfileGroup) {
+    int countLoggableIssuesFor(UserProfileGroup userProfileGroup) {
         List<SafetySourceIssueInfo> relevantIssues = getIssuesFor(userProfileGroup);
         int issueCount = 0;
         for (int i = 0; i < relevantIssues.size(); i++) {
@@ -149,21 +163,56 @@ public final class SafetyCenterIssueRepository {
         return issueCount;
     }
 
-    /** Gets an unmodifiable list of all issues for the given {@code userId}. */
-    @NonNull
-    public List<SafetySourceIssueInfo> getIssuesForUser(@UserIdInt int userId) {
-        return mUserIdToIssuesInfo.get(userId, emptyList());
+    /** Gets a list of all issues for the given {@code userId}. */
+    List<SafetySourceIssueInfo> getIssuesForUser(@UserIdInt int userId) {
+        return filterOutHiddenIssues(mUserIdToIssuesInfo.get(userId, new ArrayList<>()));
     }
 
-    private void processIssues(@NonNull List<SafetySourceIssueInfo> issuesInfo) {
+    /**
+     * Returns a set of {@link SafetySourcesGroup} IDs that the given {@link SafetyCenterIssueKey}
+     * is mapped to.
+     */
+    Set<String> getGroupMappingFor(SafetyCenterIssueKey issueKey) {
+        return mUserIdToIssueToSourceGroup
+                .get(issueKey.getUserId(), emptyMap())
+                .getOrDefault(issueKey, emptySet());
+    }
+
+    /**
+     * Returns the list of issues for the given {@code userId} which were removed from the given
+     * list of issues in the most recent {@link SafetyCenterIssueDeduplicator#deduplicateIssues}
+     * call. These issues were removed because they were duplicates of other issues.
+     *
+     * <p>If this method is called before any calls to {@link
+     * SafetyCenterIssueDeduplicator#deduplicateIssues} then an empty list is returned.
+     */
+    List<SafetySourceIssueInfo> getMostRecentFilteredOutDuplicateIssues(@UserIdInt int userId) {
+        return mUserIdToFilteredOutIssues.get(userId, emptyList());
+    }
+
+    private List<SafetySourceIssueInfo> filterOutHiddenIssues(List<SafetySourceIssueInfo> issues) {
+        List<SafetySourceIssueInfo> result = new ArrayList<>();
+        for (int i = 0; i < issues.size(); i++) {
+            SafetySourceIssueInfo issueInfo = issues.get(i);
+            if (!mSafetyCenterIssueDismissalRepository.isIssueHidden(
+                    issueInfo.getSafetyCenterIssueKey())) {
+                result.add(issueInfo);
+            }
+        }
+        return result;
+    }
+
+    private void processIssues(@UserIdInt int userId, List<SafetySourceIssueInfo> issuesInfo) {
         issuesInfo.sort(SAFETY_SOURCE_ISSUES_INFO_BY_SEVERITY_DESCENDING);
 
         if (SdkLevel.isAtLeastU() && mSafetyCenterIssueDeduplicator != null) {
-            mSafetyCenterIssueDeduplicator.deduplicateIssues(issuesInfo);
+            AdditionalDeduplicationInfo dedupInfo =
+                    mSafetyCenterIssueDeduplicator.deduplicateIssues(issuesInfo);
+            mUserIdToFilteredOutIssues.put(userId, dedupInfo.getFilteredOutDuplicateIssues());
+            mUserIdToIssueToSourceGroup.put(userId, dedupInfo.getIssueToGroupMapping());
         }
     }
 
-    @NonNull
     private List<SafetySourceIssueInfo> getAllStoredIssuesFromRawSourceData(
             @UserIdInt int userId, boolean isManagedProfile) {
         List<SafetySourceIssueInfo> allIssuesInfo = new ArrayList<>();
@@ -179,8 +228,8 @@ public final class SafetyCenterIssueRepository {
     }
 
     private void addSafetySourceIssuesInfo(
-            @NonNull List<SafetySourceIssueInfo> issuesInfo,
-            @NonNull SafetySourcesGroup safetySourcesGroup,
+            List<SafetySourceIssueInfo> issuesInfo,
+            SafetySourcesGroup safetySourcesGroup,
             @UserIdInt int userId,
             boolean isManagedProfile) {
         List<SafetySource> safetySources = safetySourcesGroup.getSafetySources();
@@ -199,9 +248,9 @@ public final class SafetyCenterIssueRepository {
     }
 
     private void addSafetySourceIssuesInfo(
-            @NonNull List<SafetySourceIssueInfo> issuesInfo,
-            @NonNull SafetySource safetySource,
-            @NonNull SafetySourcesGroup safetySourcesGroup,
+            List<SafetySourceIssueInfo> issuesInfo,
+            SafetySource safetySource,
+            SafetySourcesGroup safetySourcesGroup,
             @UserIdInt int userId) {
         SafetySourceKey key = SafetySourceKey.of(safetySource.getId(), userId);
         SafetySourceData safetySourceData =
@@ -226,8 +275,7 @@ public final class SafetyCenterIssueRepository {
      * Only includes issues related to active/running {@code userId}s in the given {@link
      * UserProfileGroup}.
      */
-    @NonNull
-    private List<SafetySourceIssueInfo> getIssuesFor(@NonNull UserProfileGroup userProfileGroup) {
+    private List<SafetySourceIssueInfo> getIssuesFor(UserProfileGroup userProfileGroup) {
         List<SafetySourceIssueInfo> issues =
                 new ArrayList<>(getIssuesForUser(userProfileGroup.getProfileParentUserId()));
 
@@ -246,8 +294,7 @@ public final class SafetyCenterIssueRepository {
         private SafetySourceIssuesInfoBySeverityDescending() {}
 
         @Override
-        public int compare(
-                @NonNull SafetySourceIssueInfo left, @NonNull SafetySourceIssueInfo right) {
+        public int compare(SafetySourceIssueInfo left, SafetySourceIssueInfo right) {
             return Integer.compare(
                     right.getSafetySourceIssue().getSeverityLevel(),
                     left.getSafetySourceIssue().getSeverityLevel());
@@ -255,7 +302,7 @@ public final class SafetyCenterIssueRepository {
     }
 
     /** Dumps state for debugging purposes. */
-    public void dump(@NonNull PrintWriter fout) {
+    void dump(PrintWriter fout) {
         fout.println("ISSUE REPOSITORY");
         for (int i = 0; i < mUserIdToIssuesInfo.size(); i++) {
             List<SafetySourceIssueInfo> issues = mUserIdToIssuesInfo.valueAt(i);
@@ -268,7 +315,14 @@ public final class SafetyCenterIssueRepository {
     }
 
     /** Clears all the data from the repository. */
-    public void clear() {
+    void clear() {
         mUserIdToIssuesInfo.clear();
+        mUserIdToIssueToSourceGroup.clear();
+    }
+
+    /** Clears all data related to the given {@code userId}. */
+    void clearForUser(@UserIdInt int userId) {
+        mUserIdToIssuesInfo.delete(userId);
+        mUserIdToIssueToSourceGroup.delete(userId);
     }
 }

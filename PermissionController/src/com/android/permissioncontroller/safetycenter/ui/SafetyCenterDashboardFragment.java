@@ -21,6 +21,7 @@ import static android.os.Build.VERSION_CODES.TIRAMISU;
 import static com.android.permissioncontroller.Constants.EXTRA_SESSION_ID;
 import static com.android.permissioncontroller.safetycenter.SafetyCenterConstants.QUICK_SETTINGS_SAFETY_CENTER_FRAGMENT;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
 import android.content.Context;
@@ -38,7 +39,6 @@ import android.safetycenter.SafetyCenterStaticEntry;
 import android.safetycenter.SafetyCenterStaticEntryGroup;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.preference.PreferenceCategory;
@@ -73,6 +73,7 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
     private PreferenceGroup mEntriesGroup;
     private PreferenceGroup mStaticEntriesGroup;
     private boolean mIsQuickSettingsFragment;
+    private long mSessionId = Constants.INVALID_SESSION_ID;
 
     public SafetyCenterDashboardFragment() {}
 
@@ -99,6 +100,9 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
         setPreferencesFromResource(R.xml.safety_center_dashboard, rootKey);
 
         if (getArguments() != null) {
+            mSessionId =
+                    getArguments()
+                            .getLong(Constants.EXTRA_SESSION_ID, Constants.INVALID_SESSION_ID);
             mIsQuickSettingsFragment =
                     getArguments().getBoolean(QUICK_SETTINGS_SAFETY_CENTER_FRAGMENT, false);
         }
@@ -117,8 +121,9 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
             getPreferenceScreen().removePreference(mStaticEntriesGroup);
             mStaticEntriesGroup = null;
         }
-
         getSafetyCenterViewModel().getStatusUiLiveData().observe(this, this::updateStatus);
+
+        prerenderCurrentSafetyCenterData();
     }
 
     // Set the default divider line between preferences to be transparent
@@ -133,25 +138,15 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        configureInteractionLogger();
-        getSafetyCenterViewModel().getInteractionLogger().record(Action.SAFETY_CENTER_VIEWED);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         getSafetyCenterViewModel().pageOpen();
     }
 
-    private void configureInteractionLogger() {
+    @Override
+    public void configureInteractionLogger() {
         InteractionLogger logger = getSafetyCenterViewModel().getInteractionLogger();
-
-        logger.setSessionId(
-                requireArguments()
-                        .getLong(Constants.EXTRA_SESSION_ID, Constants.INVALID_SESSION_ID));
+        logger.setSessionId(mSessionId);
         logger.setViewType(mIsQuickSettingsFragment ? ViewType.QUICK_SETTINGS : ViewType.FULL);
 
         Intent intent = requireActivity().getIntent();
@@ -160,7 +155,7 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mCollapsableGroupCardHelper.saveState(outState);
     }
@@ -212,6 +207,7 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
                         getChildFragmentManager(),
                         mIssuesGroup,
                         issues,
+                        emptyList(),
                         resolvedIssues,
                         getActivity().getTaskId());
     }
@@ -230,7 +226,8 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
             boolean isLastElement = i == size - 1;
 
             if (SafetyCenterUiFlags.getShowSubpages() && group != null) {
-                mEntriesGroup.addPreference(new SafetyHomepageEntryPreference(context, group));
+                mEntriesGroup.addPreference(
+                        new SafetyHomepageEntryPreference(context, group, mSessionId));
             } else if (entry != null) {
                 addTopLevelEntry(context, entry, isFirstElement, isLastElement);
             } else if (group != null) {

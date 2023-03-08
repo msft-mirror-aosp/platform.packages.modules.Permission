@@ -14,7 +14,6 @@
   ~ limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="?attr/colorSurface" />
-    <corners android:radius="@dimen/sc_brand_chip_corner_radius"/>
-</shape>
+<resources>
+    <item type="id" name="preference_highlighted" />
+</resources>
