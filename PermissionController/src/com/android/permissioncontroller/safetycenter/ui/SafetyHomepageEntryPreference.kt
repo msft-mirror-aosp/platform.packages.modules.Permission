@@ -56,7 +56,6 @@ internal class SafetyHomepageEntryPreference(
         intent.putExtra(EXTRA_SESSION_ID, sessionId)
         NavigationSource.SAFETY_CENTER.addToIntent(intent)
         setIntent(intent)
-        setKey(entryGroup.id)
     }
 
     override fun isSameItem(preference: Preference): Boolean =

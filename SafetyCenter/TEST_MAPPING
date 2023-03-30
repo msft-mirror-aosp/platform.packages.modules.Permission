@@ -7,9 +7,6 @@
       "path": "packages/modules/Permission/tests/functional/safetycenter/multiusers/"
     },
     {
-      "path": "packages/modules/Permission/tests/functional/safetycenter/safetycenteractivity/"
-    },
-    {
       "path": "packages/modules/Permission/tests/functional/safetycenter/singleuser/"
     }
   ]

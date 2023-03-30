@@ -27,18 +27,15 @@ import android.safetycenter.config.SafetySourcesGroup
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import com.android.compatibility.common.util.DisableAnimationRule
 import com.android.compatibility.common.util.FreezeRotationRule
-import com.android.compatibility.common.util.RetryRule
 import com.android.compatibility.common.util.UiAutomatorUtils2
 import com.android.safetycenter.resources.SafetyCenterResourcesContext
 import com.android.safetycenter.testing.Coroutines.TIMEOUT_LONG
 import com.android.safetycenter.testing.Coroutines.TIMEOUT_SHORT
 import com.android.safetycenter.testing.SafetyCenterActivityLauncher.launchSafetyCenterActivity
 import com.android.safetycenter.testing.SafetyCenterActivityLauncher.openPageAndExit
-import com.android.safetycenter.testing.SafetyCenterActivityLauncher.openPageAndExitAllowingRetries
 import com.android.safetycenter.testing.SafetyCenterFlags
 import com.android.safetycenter.testing.SafetyCenterFlags.deviceSupportsSafetyCenter
 import com.android.safetycenter.testing.SafetyCenterTestConfigs
@@ -75,13 +72,11 @@ import com.android.safetycenter.testing.UiTestHelper.waitPageTitleDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitPageTitleNotDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueNotDisplayed
-import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 
 /** Functional tests for generic subpages in Safety Center. */
@@ -92,16 +87,6 @@ class SafetyCenterSubpagesTest {
     @get:Rule val disableAnimationRule = DisableAnimationRule()
 
     @get:Rule val freezeRotationRule = FreezeRotationRule()
-
-    // It is necessery to couple RetryRule and Timeout to ensure that all the retries together are
-    // restricted with the test timeout
-    @get:Rule val retryRule = RetryRule(/* retries= */ 3)
-    @get:Rule
-    val timeoutRule =
-        Timeout(
-            InstrumentationRegistry.getArguments().getString("timeout_msec", "60000").toLong(),
-            TimeUnit.MILLISECONDS
-        )
 
     private val context: Context = getApplicationContext()
     private val safetyCenterTestHelper = SafetyCenterTestHelper(context)
@@ -527,7 +512,7 @@ class SafetyCenterSubpagesTest {
         )
 
         context.launchSafetyCenterActivity(withReceiverPermission = true) {
-            openPageAndExitAllowingRetries(context.getString(sourcesGroup.titleResId)) {
+            openPageAndExit(context.getString(sourcesGroup.titleResId)) {
                 waitSourceIssueDisplayed(issue)
                 waitButtonDisplayed(action.label) { it.click() }
 
@@ -547,7 +532,7 @@ class SafetyCenterSubpagesTest {
         val issue = sourceData.issues[0]
 
         context.launchSafetyCenterActivity {
-            openPageAndExitAllowingRetries(context.getString(sourcesGroup.titleResId)) {
+            openPageAndExit(context.getString(sourcesGroup.titleResId)) {
                 waitSourceIssueDisplayed(issue)
                 clickDismissIssueCard()
 
@@ -568,7 +553,7 @@ class SafetyCenterSubpagesTest {
         val issue = sourceData.issues[0]
 
         context.launchSafetyCenterActivity {
-            openPageAndExitAllowingRetries(context.getString(sourcesGroup.titleResId)) {
+            openPageAndExit(context.getString(sourcesGroup.titleResId)) {
                 waitSourceIssueDisplayed(issue)
                 clickDismissIssueCard()
                 waitAllTextDisplayed("Dismiss this alert?")
@@ -611,7 +596,7 @@ class SafetyCenterSubpagesTest {
         val issue = sourceData.issues[0]
 
         context.launchSafetyCenterActivity {
-            openPageAndExitAllowingRetries(context.getString(sourcesGroup.titleResId)) {
+            openPageAndExit(context.getString(sourcesGroup.titleResId)) {
                 waitSourceIssueDisplayed(issue)
                 clickDismissIssueCard()
                 waitAllTextDisplayed("Dismiss this alert?")
@@ -635,7 +620,7 @@ class SafetyCenterSubpagesTest {
         val issue = sourceData.issues[0]
 
         context.launchSafetyCenterActivity {
-            openPageAndExitAllowingRetries(context.getString(sourcesGroup.titleResId)) {
+            openPageAndExit(context.getString(sourcesGroup.titleResId)) {
                 waitSourceIssueDisplayed(issue)
                 clickDismissIssueCard()
                 waitAllTextDisplayed("Dismiss this alert?")

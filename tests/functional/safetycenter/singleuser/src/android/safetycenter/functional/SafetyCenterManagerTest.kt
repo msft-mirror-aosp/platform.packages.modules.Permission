@@ -2638,7 +2638,7 @@ class SafetyCenterManagerTest {
     }
 
     @Test
-    fun getSafetyCenterData_withMultipleErrorEntries_usesSingularErrorSummaryForGroup() {
+    fun getSafetyCenterData_withErrorEntries_usesPluralErrorSummaryForGroup() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.summaryTestConfig)
         safetyCenterManager.reportSafetySourceErrorWithPermission(
             SOURCE_ID_1,
@@ -2677,12 +2677,12 @@ class SafetyCenterManagerTest {
         val group =
             safetyCenterManager.getSafetyCenterDataWithPermission().getGroup(SUMMARY_TEST_GROUP_ID)
 
-        assertThat(group.summary).isEqualTo(safetyCenterTestData.getRefreshErrorString(1))
+        assertThat(group.summary).isEqualTo(safetyCenterTestData.getRefreshErrorString(2))
         assertThat(group.severityLevel).isEqualTo(ENTRY_SEVERITY_LEVEL_UNKNOWN)
     }
 
     @Test
-    fun getSafetyCenterData_withSingleErrorEntry_usesSingularErrorSummaryForGroup() {
+    fun getSafetyCenterData_withErrorEntry_usesSingularErrorSummaryForGroup() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.summaryTestConfig)
         safetyCenterManager.reportSafetySourceErrorWithPermission(
             SOURCE_ID_1,

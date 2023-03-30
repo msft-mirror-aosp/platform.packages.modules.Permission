@@ -192,7 +192,7 @@ class PrivacySubpageTest {
                 "Microphone access",
                 "Show clipboard access",
                 "Show passwords",
-                "Location access"
+                "Location Settings"
             )
         }
     }
@@ -207,7 +207,7 @@ class PrivacySubpageTest {
         extras.putString(EXTRA_SAFETY_SOURCES_GROUP_ID, sourcesGroup.id)
 
         context.launchSafetyCenterActivity(extras) {
-            openPageAndExit("Location access") {
+            openPageAndExit("Location Settings") {
                 waitPageTitleDisplayed("Location")
                 waitAllTextDisplayed("Use location")
             }

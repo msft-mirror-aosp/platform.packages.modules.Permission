@@ -109,8 +109,6 @@ import com.android.permissioncontroller.permission.model.AppPermissionGroup;
 import com.android.permissioncontroller.permission.model.livedatatypes.LightAppPermGroup;
 import com.android.permissioncontroller.permission.model.livedatatypes.LightPackageInfo;
 
-import kotlin.Triple;
-
 import java.lang.annotation.Retention;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -121,6 +119,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
+
+import kotlin.Triple;
 
 public final class Utils {
 
@@ -360,8 +360,12 @@ public final class Utils {
      */
     public static @NonNull Context getUserContext(Context context, UserHandle user) {
         if (!sUserContexts.containsKey(user)) {
-            sUserContexts.put(user, context.getApplicationContext()
-                    .createContextAsUser(user, 0));
+            try {
+                sUserContexts.put(user, context.getApplicationContext()
+                        .createPackageContextAsUser(context.getPackageName(), 0, user));
+            } catch (PackageManager.NameNotFoundException neverHappens) {
+                throw new RuntimeException(neverHappens);
+            }
         }
         return Preconditions.checkNotNull(sUserContexts.get(user));
     }
@@ -1362,11 +1366,12 @@ public final class Utils {
      *
      * @param context The current Context
      * @param applicationInfo The {@link ApplicationInfo} of the application to get the label of.
-     * @return the label associated with this application, or its name if there is no label.
+     * @return Returns a {@link CharSequence} containing the label associated with this application,
+     * or its name the  item does not have a label.
      */
     @NonNull
-    public static String getApplicationLabel(@NonNull Context context,
+    public static CharSequence getApplicationLabel(@NonNull Context context,
             @NonNull ApplicationInfo applicationInfo) {
-        return context.getPackageManager().getApplicationLabel(applicationInfo).toString();
+        return context.getPackageManager().getApplicationLabel(applicationInfo);
     }
 }

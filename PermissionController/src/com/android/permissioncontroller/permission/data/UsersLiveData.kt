@@ -25,7 +25,6 @@ import android.os.UserHandle
 import android.os.UserManager
 
 import com.android.permissioncontroller.PermissionControllerApplication
-import com.android.permissioncontroller.permission.utils.Utils
 
 /**
  * Live data of the users of the current profile group.

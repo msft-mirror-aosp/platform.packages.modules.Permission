@@ -175,7 +175,6 @@ constructor(
         isClickable = true
         isEnabled = entry.pendingIntent != null
         changeEnabledState(
-            context,
             entry.isEnabled,
             isEnabled,
             commonEntryView?.titleView,
