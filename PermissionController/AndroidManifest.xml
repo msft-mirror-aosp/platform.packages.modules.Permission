@@ -201,10 +201,16 @@
         <receiver
             android:name="com.android.permissioncontroller.permission.service.v34.SafetyLabelChangesJobService$Receiver"
             android:enabled="@bool/is_at_least_u"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.android.permissioncontroller.action.SET_UP_SAFETY_LABEL_CHANGES_JOB" />
             </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.android.permissioncontroller.permission.service.v34.SafetyLabelChangesJobService$NotificationDeleteHandler"
+            android:enabled="@bool/is_at_least_u">
         </receiver>
 
         <receiver
@@ -261,6 +267,7 @@
                   android:excludeFromRecents="true"
                   android:exported="true"
                   android:theme="@style/GrantPermissions.FilterTouches"
+                  android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
                   android:visibleToInstantApps="true"
                   android:inheritShowWhenLocked="true"
                   android:hardwareAccelerated="false"
@@ -277,6 +284,7 @@
 
         <activity android:name="com.android.permissioncontroller.permission.ui.v34.PermissionRationaleActivity"
                   android:configChanges="keyboardHidden|screenSize"
+                  android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
                   android:excludeFromRecents="true"
                   android:exported="false"
                   android:theme="@style/GrantPermissions.FilterTouches"
@@ -336,7 +344,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.android.permissioncontroller.permission.ui.SafetyCenterQsActivity"
+        <activity android:name="com.android.permissioncontroller.safetycenter.ui.SafetyCenterQsActivity"
                   android:excludeFromRecents="true"
                   android:launchMode="singleInstance"
                   android:exported="true"
@@ -347,11 +355,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-        <activity android:name="com.android.permissioncontroller.permission.ui.OverlayWarningDialog"
-                android:excludeFromRecents="true"
-                android:exported="false"
-                android:theme="@style/Theme.DeviceDefault.Dialog.NoActionBar.DayNight" />
 
         <activity android:name="com.android.permissioncontroller.permission.ui.LocationProviderInterceptDialog"
                   android:excludeFromRecents="true"
@@ -374,7 +377,7 @@
                   android:excludeFromRecents="true"
                   android:exported="true"
                   android:theme="@style/PermissionDialog.FilterTouches"
-                  android:permission="android.permission.REVIEW_ACCESSIBILITY_SERVICES" >
+                  android:permission="android.permission.GRANT_RUNTIME_PERMISSIONS" >
             <intent-filter android:priority="1">
                 <action android:name="android.intent.action.REVIEW_ACCESSIBILITY_SERVICES" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -581,6 +584,7 @@
             android:theme="@style/Theme.SafetyCenter">
             <intent-filter android:priority="1">
                 <action android:name="android.intent.action.SAFETY_CENTER"/>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <!-- Higher priority than the settings version of controls, so this should handle it -->
@@ -590,6 +594,8 @@
             </intent-filter>
         </activity>
 
+        <!-- Unexported empty activity for in-process tests -->
+        <activity android:name="android.app.Activity" />
     </application>
 
 </manifest>

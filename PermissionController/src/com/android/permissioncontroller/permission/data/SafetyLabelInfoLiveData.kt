@@ -18,16 +18,13 @@ package com.android.permissioncontroller.permission.data
 
 import android.app.Application
 import android.content.pm.PackageManager
-import android.os.PersistableBundle
+import android.os.Process
 import android.os.UserHandle
 import android.util.Log
-import com.android.permission.safetylabel.DataCategoryConstants
-import com.android.permission.safetylabel.DataLabelConstants
-import com.android.permission.safetylabel.DataTypeConstants
+import com.android.modules.utils.build.SdkLevel
 import com.android.permission.safetylabel.SafetyLabel
 import com.android.permissioncontroller.PermissionControllerApplication
 import com.android.permissioncontroller.permission.model.livedatatypes.SafetyLabelInfo
-import com.android.permissioncontroller.permission.utils.KotlinUtils.isPlaceholderSafetyLabelDataEnabled
 import kotlinx.coroutines.Job
 
 /**
@@ -82,9 +79,14 @@ private constructor(
             return
         }
 
-        // TODO(b/261607291): Add support preinstall apps that provide SafetyLabel. Installing
+        if (!SdkLevel.isAtLeastU()) {
+            postValue(SafetyLabelInfo.UNAVAILABLE)
+            return
+        }
+
+        // TODO(b/261607291): Add support for preinstall apps that provide SafetyLabel. Initiating
         //  package is null until updated from an app store
-        val installSourcePackageName = lightInstallSourceInfoLiveData.value?.installingPackageName
+        val installSourcePackageName = lightInstallSourceInfoLiveData.value?.initiatingPackageName
         if (installSourcePackageName == null) {
             postValue(SafetyLabelInfo.UNAVAILABLE)
             return
@@ -92,9 +94,7 @@ private constructor(
 
         val safetyLabelInfo: SafetyLabelInfo =
             try {
-                val metadataBundle: PersistableBundle = getAppMetadata()
-                val safetyLabel: SafetyLabel? =
-                    SafetyLabel.getSafetyLabelFromMetadata(metadataBundle)
+                val safetyLabel: SafetyLabel? = getSafetyLabel(packageName, user)
                 if (safetyLabel != null) {
                     SafetyLabelInfo(safetyLabel, installSourcePackageName)
                 } else {
@@ -108,40 +108,18 @@ private constructor(
         postValue(safetyLabelInfo)
     }
 
-    private fun getAppMetadata(): PersistableBundle {
-        return if (isPlaceholderSafetyLabelDataEnabled()) {
-            placeholderMetadataBundle()
-        } else {
-            app.packageManager.getAppMetadata(packageName)
-        }
-    }
-
-    private fun placeholderMetadataBundle(): PersistableBundle {
-        val approximateLocationBundle =
-            PersistableBundle().apply { putIntArray("purposes", (1..7).toList().toIntArray()) }
-
-        val locationBundle =
-            PersistableBundle().apply {
-                putPersistableBundle(
-                    DataTypeConstants.LOCATION_APPROX_LOCATION, approximateLocationBundle)
+    /** Returns the [SafetyLabel] for the given package and user. */
+    @Throws(PackageManager.NameNotFoundException::class)
+    private fun getSafetyLabel(packageName: String, user: UserHandle): SafetyLabel? {
+        val userContext =
+            if (user == Process.myUserHandle()) {
+                app
+            } else {
+                app.createContextAsUser(user, /* flags= */ 0)
             }
 
-        val dataSharedBundle =
-            PersistableBundle().apply {
-                putPersistableBundle(DataCategoryConstants.CATEGORY_LOCATION, locationBundle)
-            }
-
-        val dataLabelBundle =
-            PersistableBundle().apply {
-                putPersistableBundle(DataLabelConstants.DATA_USAGE_SHARED, dataSharedBundle)
-            }
-
-        val safetyLabelBundle =
-            PersistableBundle().apply { putPersistableBundle("data_labels", dataLabelBundle) }
-
-        return PersistableBundle().apply {
-            putPersistableBundle("safety_labels", safetyLabelBundle)
-        }
+        return SafetyLabel.getSafetyLabelFromMetadata(
+            userContext.packageManager.getAppMetadata(packageName))
     }
 
     companion object :

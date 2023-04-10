@@ -29,6 +29,7 @@ import static com.android.permissioncontroller.PermissionControllerStatsLog.PERM
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.Manifest;
+import android.app.admin.DevicePolicyManager;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -58,14 +59,16 @@ import com.android.permissioncontroller.permission.model.Permission;
 import com.android.permissioncontroller.permission.model.livedatatypes.AppPermGroupUiInfo;
 import com.android.permissioncontroller.permission.model.livedatatypes.AppPermGroupUiInfo.PermGrantState;
 import com.android.permissioncontroller.permission.ui.AutoGrantPermissionsNotifier;
-import com.android.permissioncontroller.permission.utils.AdminRestrictedPermissionsUtils;
 import com.android.permissioncontroller.permission.utils.ArrayUtils;
 import com.android.permissioncontroller.permission.utils.KotlinUtils;
 import com.android.permissioncontroller.permission.utils.PermissionMapping;
 import com.android.permissioncontroller.permission.utils.UserSensitiveFlagsUtils;
 import com.android.permissioncontroller.permission.utils.Utils;
+import com.android.permissioncontroller.permission.utils.v31.AdminRestrictedPermissionsUtils;
 import com.android.role.controller.model.Role;
 import com.android.role.controller.model.Roles;
+
+import kotlin.Pair;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlSerializer;
@@ -88,7 +91,6 @@ import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
 
-import kotlin.Pair;
 import kotlinx.coroutines.BuildersKt;
 import kotlinx.coroutines.GlobalScope;
 
@@ -542,6 +544,8 @@ public final class PermissionControllerServiceImpl extends PermissionControllerL
                 new AutoGrantPermissionsNotifier(this, pkgInfo);
 
         final boolean isManagedProfile = getSystemService(UserManager.class).isManagedProfile();
+        DevicePolicyManager dpm = getSystemService(DevicePolicyManager.class);
+        final boolean isOrganizationOwnedDevice = dpm.isOrganizationOwnedDeviceWithManagedProfile();
 
         int numPerms = expandedPermissions.size();
         for (int i = 0; i < numPerms; i++) {
@@ -559,7 +563,8 @@ public final class PermissionControllerServiceImpl extends PermissionControllerL
             switch (grantState) {
                 case PERMISSION_GRANT_STATE_GRANTED:
                     if (AdminRestrictedPermissionsUtils.mayAdminGrantPermission(perm.getName(),
-                            canAdminGrantSensorsPermissions, isManagedProfile)) {
+                            canAdminGrantSensorsPermissions, isManagedProfile,
+                            isOrganizationOwnedDevice)) {
                         perm.setPolicyFixed(true);
                         group.grantRuntimePermissions(false, false, new String[]{permName});
                         autoGrantPermissionsNotifier.onPermissionAutoGranted(permName);
@@ -680,10 +685,16 @@ public final class PermissionControllerServiceImpl extends PermissionControllerL
                             oneTimeGrantedPermissions.toArray(new String[0]));
                 }
                 for (String permissionName : oneTimeGrantedPermissions) {
-                    // We only reset the USER_SET flag if the permission was granted.
+                    // We only reset the USER_SET and REVOKED_COMPAT flags if the permission was
+                    // granted.
                     Permission permission = group.getPermission(permissionName);
                     if (permission != null) {
                         permission.setUserSet(false);
+                        if (!permission.isGranted() && permission.isRevokedCompat()) {
+                            // If we revoked the permission, but the Revoked Compat flag is set,
+                            // reset it
+                            permission.setRevokedCompat(false);
+                        }
                     }
                 }
                 if (bgGroup != null) {
@@ -727,7 +738,8 @@ public final class PermissionControllerServiceImpl extends PermissionControllerL
 
                 PermissionControllerStatsLog.write(
                         PermissionControllerStatsLog.PERMISSION_GRANT_REQUEST_RESULT_REPORTED,
-                        requestId, uid, packageName, permName, false, r);
+                        requestId, uid, packageName, permName, false, r,
+                        /* permission_rationale_shown = */ false);
             }
         }
     }

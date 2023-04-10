@@ -32,10 +32,11 @@
     <string name="grant_dialog_button_no_upgrade" msgid="8344732743633736625">"“යෙදුම භාවිතයේ තිබෙන අතරතුර” තබා ගන්න"</string>
     <string name="grant_dialog_button_no_upgrade_one_time" msgid="5125892775684968694">"“මේ වතාවේ පමණක්” තබා ගන්න"</string>
     <string name="grant_dialog_button_more_info" msgid="213350268561945193">"තවත් තතු"</string>
-    <string name="grant_dialog_button_allow_all_photos" msgid="3688746146785304900">"සියලු ඡායාරූප වෙත ප්‍රවේශ වීමට ඉඩ දෙන්න"</string>
-    <string name="grant_dialog_button_allow_selected_photos" msgid="4098620850512492892">"ඡායාරූප තෝරන්න"</string>
-    <string name="grant_dialog_button_allow_more_selected_photos" msgid="2003524111894640605">"තවත් ඡායාරූප තෝරන්න"</string>
-    <string name="grant_dialog_button_dont_allow_more_selected_photos" msgid="6811842813929146242">"තවත් ඡායාරූප තෝරන්න එපා"</string>
+    <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"සියල්ලට ඉඩ දෙන්න"</string>
+    <string name="grant_dialog_button_always_allow_all" msgid="1719900027660252167">"සැම විටම සියල්ලට ඉඩ දෙන්න"</string>
+    <string name="grant_dialog_button_allow_selected_photos" msgid="5497042471576153842">"ඡායාරූප සහ වීඩියෝ තෝරන්න"</string>
+    <string name="grant_dialog_button_allow_more_selected_photos" msgid="5145657877588697709">"තවත් තෝරන්න"</string>
+    <string name="grant_dialog_button_dont_allow_more_selected_photos" msgid="7956647792328613790">"තවත් තෝරා නොගන්න"</string>
     <string name="grant_dialog_button_deny_anyway" msgid="7225905870668915151">"කෙසේ වෙතත් ඉඩ නොදෙන්න"</string>
     <string name="grant_dialog_button_dismiss" msgid="1930399742250226393">"ඉවත ලන්න"</string>
     <string name="current_permission_template" msgid="7452035392573329375">"<xliff:g id="CURRENT_PERMISSION_INDEX">%1$s</xliff:g>කින් <xliff:g id="PERMISSION_COUNT">%2$s</xliff:g>"</string>
@@ -190,8 +191,7 @@
     <string name="app_permission_button_allow_media_only" msgid="2834282724426046154">"මාධ්‍ය වෙත ප්‍රවේශය පමණක් ඉඩ දෙන්න"</string>
     <string name="app_permission_button_allow_always" msgid="4573292371734011171">"සැම විටම ඉඩ දෙන්න"</string>
     <string name="app_permission_button_allow_foreground" msgid="1991570451498943207">"යෙදුම භාවිතයේදී පමණක් ඉඩ දෙන්න"</string>
-    <string name="app_permission_button_allow_all_photos" msgid="914762549054270764">"ඡායාරූප සියල්ලට අවසර දෙන්න"</string>
-    <string name="app_permission_button_select_photos" msgid="1022930616634145364">"තෝරන ලද ඡායාරූපවලට අවසර දෙන්න"</string>
+    <string name="app_permission_button_always_allow_all" msgid="4905699259378428855">"සැම විටම සියල්ලට ඉඩ දෙන්න"</string>
     <string name="app_permission_button_ask" msgid="3342950658789427">"සෑම විටම ඉල්ලන්න"</string>
     <string name="app_permission_button_deny" msgid="6016454069832050300">"ඉඩ නොදෙන්න"</string>
     <string name="precise_image_description" msgid="6349638632303619872">"ඉතා නිවැරදි ස්ථානය"</string>
@@ -223,10 +223,8 @@
     <string name="auto_revoked_app_summary_many" msgid="5930976230827378798">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> සහ තවත් අවසර <xliff:g id="NUMBER">%2$s</xliff:g>ක් ඉවත් කර ඇත"</string>
     <string name="unused_apps_page_title" msgid="6986983535677572559">"භාවිත නොකළ යෙදුම්"</string>
     <string name="unused_apps_page_summary" msgid="1867593913217272155">"යෙදුමක් මාස කිහිපයක් භාවිත නොකළහොත්:\n\n• ඔබගේ දත්ත ආරක්ෂා කිරීමට අවසර ඉවත් කෙරේ\n• බැටරිය සුරැකීමට දැනුම්දීම් නවත්වනු ඇත\n• ඉඩ නිදහස් කිරීමට තාවකාලික ගොනු ඉවත් කෙරේ\n\nනැවත අවසර සහ දැනුම්දීම්වලට ඉඩ දීමට, යෙදුම විවෘත කරන්න."</string>
-    <!-- no translation found for unused_apps_page_tv_summary (2624911608663778308) -->
-    <skip />
-    <!-- no translation found for last_opened_category_title (8796557894614236128) -->
-    <skip />
+    <string name="unused_apps_page_tv_summary" msgid="2624911608663778308">"යෙදුමක් මාසයක් තිස්සේ භාවිතා නොකළහොත්:\n\n• ඔබේ දත්ත ආරක්ෂා කිරීමට අවසර ඉවත් කරනු ලැබේ\n• ඉඩ නිදහස් කිරීමට තාවකාලික ගොනු ඉවත් කරනු ලැබේ\n\nනැවත අවසරවලට ඉඩ දීම සඳහා, යෙදුම විවෘත කරන්න."</string>
+    <string name="last_opened_category_title" msgid="8796557894614236128">"{count,plural, =1{අවසන් වරට විවෘත කළේ මාස #කට පෙරයි}one{අවසන් වරට විවෘත කළේ මාස #කට පෙරයි}other{අවසන් වරට විවෘත කළේ මාස #කට පෙරයි}}"</string>
     <string name="last_opened_summary" msgid="5248984030024968808">"යෙදුම අවසන් වරට විවෘත කළේ <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="last_opened_summary_short" msgid="1646067226191176825">"අවසාන විවෘත කළේ <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="app_permission_footer_special_file_access" msgid="1884202176147657788">"ඔබ සියලු ගොනු කළමනාකරණය කිරීමට ඉඩ දෙන්නේ නම්, මෙම යෙදුමට මෙම උපාංගයේ හෝ සම්බන්ධිත ගබඩා උපාංගවල පොදු ගබඩාවේ ඇති ඕනෑම ගොනුවක් වෙත ප්‍රවේශ වීමට, වෙනස් කිරීමට සහ මැකීටම හැකිය. යෙදුම ඔබෙන් විමසීමෙන් තොරව ගොනු වෙත ප්‍රවේශ විය හැකිය."</string>
@@ -400,13 +398,11 @@
     <string name="role_automotive_navigation_request_title" msgid="7525693151489384300">"<xliff:g id="APP_NAME">%1$s</xliff:g> ඔබගේ පෙරනිමි සංචාලන යෙදුම ලෙස සකසන්නද?"</string>
     <string name="role_automotive_navigation_request_description" msgid="7073023813249245540">"අවසර අවශ්‍ය නැත"</string>
     <string name="role_watch_description" msgid="267003778693177779">"<xliff:g id="APP_NAME">%1$s</xliff:g> ඔබගේ දැනුම්දීම් සමඟ අන්තර්ක්‍රියා කිරීමට සහ ඔබගේ දුරකථනය, කෙටි පණිවුඩ, සම්බන්ධතා සහ දින දර්ශන අවසර වෙත ප්‍රවේශ වීමට ඉඩ දෙනු ඇත."</string>
-    <string name="role_companion_device_glasses_description" msgid="1775655849566169630">"<xliff:g id="APP_NAME">%1$s</xliff:g> හට ඔබේ දැනුම්දීම් සමග අන්තර් ක්‍රියා කිරීමට සහ ඔබේ දුරකථනය, SMS, සම්බන්ධතා, මයික්‍රෆෝනය සහ අවට උපාංග අවසර වෙත ප්‍රවේශ වීමට ඉඩ දෙනු ඇත."</string>
     <string name="role_app_streaming_description" msgid="7341638576226183992">"<xliff:g id="APP_NAME">%1$s</xliff:g> හට ඔබගේ දැනුම්දීම් සමඟ අන්තර්ක්‍රියා කිරීමට සහ ඔබගේ යෙදුම් සම්බන්ධිත උපාංගයට ප්‍රවාහ කිරීමට ඉඩ දෙනු ඇත."</string>
-    <string name="role_companion_device_nearby_device_streaming_description" msgid="1177524993193492570">"<xliff:g id="APP_NAME">%1$s</xliff:g> හට අවට උපාංග වෙත අන්තර්ගතය ප්‍රවාහ කිරීමට ඉඩ දෙනු ඇත."</string>
     <string name="role_companion_device_computer_description" msgid="416099879217066377">"මෙම සේවාව ඔබගේ ඡායාරූප, මාධ්‍ය සහ දැනුම්දීම් ඔබගේ දුරකථනයෙන් වෙනත් උපාංග වෙත බෙදා ගනී."</string>
-    <string name="role_notes_label" msgid="7694668779088299905">"පෙරනිමි සටහන් ගැනීමේ යෙදුම"</string>
-    <string name="role_notes_short_label" msgid="6617887820096092689">"සටහන් ගැනීමේ යෙදුම"</string>
-    <string name="role_notes_description" msgid="8486216423668803751">"ඔබට සටහන් ගැනීමට ඉඩ දෙන යෙදුම්"</string>
+    <string name="role_notes_label" msgid="7451627001058089536">"පෙරනිමි සටහන් යෙදුම"</string>
+    <string name="role_notes_short_label" msgid="8796604147546125285">"සටහන් යෙදුම"</string>
+    <string name="role_notes_description" msgid="8496852798616883551">"ඔබේ උපාංගයෙහි සටහන් ගැනීමට ඔබට ඉඩ දෙන යෙදුම්"</string>
     <string name="role_notes_search_keywords" msgid="7710756695666744631">"සටහන්"</string>
     <string name="request_role_current_default" msgid="738722892438247184">"වත්මන් පෙරනිමිය"</string>
     <string name="request_role_dont_ask_again" msgid="3556017886029520306">"නැවත නොඅසන්න"</string>
@@ -482,7 +478,7 @@
     <string name="permgrouprequest_storage_pre_q" msgid="168130651144569428">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;b&gt; හට මෙම උපාංගයේ &lt;b&gt;ඡායාරූප, වීඩියෝ, සංගීතය, ශ්‍රව්‍ය සහ වෙනත් ගොනු&lt;b&gt; වෙත ප්‍රවේශ වීමට ඉඩ දෙන්නද?"</string>
     <string name="permgrouprequest_read_media_aural" msgid="2593365397347577812">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;b&gt; හට මෙම උපාංගයේ සංගීතය සහ ශ්‍රව්‍ය වෙත ප්‍රවේශ වීමට ඉඩ දෙන්නද?"</string>
     <string name="permgrouprequest_read_media_visual" msgid="5548780620779729975">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;b&gt; හට මෙම උපාංගයේ ඇති ඡායාරූප සහ වීඩියෝ වෙත ප්‍රවේශ වීමට ඉඩ දෙන්නද?"</string>
-    <string name="permgrouprequest_more_photos" msgid="4697813231897226261">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; හට තවත් ඡායාරූප වෙත ප්‍රවේශය දෙන්නද?"</string>
+    <string name="permgrouprequest_more_photos" msgid="128933814654231321">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; හට මෙම උපාංගයෙහි ඇති තවත් ඡායාරූප සහ වීඩියෝ වෙත ප්‍රවේශ වීමට ඉඩ දෙන්න ද?"</string>
     <string name="permgrouprequest_microphone" msgid="2825208549114811299">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;b&gt; වෙත ශබ්දය පටි ගත කිරීමට ඉඩ දෙන්නද?"</string>
     <string name="permgrouprequestdetail_microphone" msgid="8510456971528228861">"යෙදුමට ඔබ යෙදුම භාවිත කරන අතරතුර ඕඩියෝ පටිගත කිරීමට පමණක් හැකි වනු ඇත"</string>
     <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; හට ඕඩියෝ පටිගත කිරීමට ඉඩ දෙන්නද?"</string>
@@ -593,5 +589,39 @@
     <string name="show_clip_access_notification_summary" msgid="3532020182782112687">"යෙදුම් ඔබ පිටපත් කර ඇති පාඨ, රූප හෝ වෙනත් අන්තර්ගතය වෙත ප්‍රවේශ වන විට පණිවුඩයක් පෙන්වන්න"</string>
     <string name="show_password_title" msgid="2877269286984684659">"මුරපද පෙන්වන්න"</string>
     <string name="show_password_summary" msgid="1110166488865981610">"ඔබ ටයිප් කරන විට අනුලකුණු කෙටියෙන් පෙන්වන්න"</string>
-    <string name="permission_rationale_message_template" msgid="4497650516269082051">"මෙම යෙදුම තෙවන පාර්ශව සමග <xliff:g id="PERMISSION_NAME">%s</xliff:g> දත්ත බෙදා ගත හැකි යැයි මෙය සඳහන් කළා"</string>
+    <string name="permission_rationale_message_location" msgid="2153841534298068414">"මෙම යෙදුම තෙවන පාර්ශ්වයන් සමග ස්ථාන දත්ත බෙදා ගත හැකි බව ප්‍රකාශ කර ඇත"</string>
+    <string name="permission_rationale_location_title" msgid="2404797182678793506">"දත්ත බෙදා ගැනීම සහ ස්ථානය"</string>
+    <string name="permission_rationale_data_sharing_source_title" msgid="6874604543125814316">"දත්ත බෙදා ගැනීමේ තතු පැමිණෙන තැන"</string>
+    <string name="permission_rationale_data_sharing_source_message" msgid="8330794595417986883">"මෙම යෙදුම දත්ත බෙදා ගන්නා ආකාරය පිළිබඳව සංවර්ධකයා "<annotation id="link"><annotation id="install_source" example="App Store">"%1$s"</annotation></annotation>" වෙත තතු සපයා ඇත. සංවර්ධකයා මෙම තතු කාලයත් සමග යාවත්කාලීන කළ හැක."</string>
+    <string name="permission_rationale_location_purpose_title" msgid="5115877143670012618">"මෙම යෙදුම මේ සඳහා ස්ථාන දත්ත බෙදා ගත හැක:"</string>
+    <string name="permission_rationale_permission_data_sharing_varies_title" msgid="9103718980919908316">"දත්ත බෙදා ගැනීම වෙනස් වේ"</string>
+    <string name="permission_rationale_data_sharing_varies_message" msgid="4224469559084489222">"දත්ත පිළිවෙත් ඔබේ යෙදුම් අනුවාදය, භාවිතය, කලාපය, සහ වයස මත පදනම්ව වෙනස් විය හැක. "<annotation id="link">"දත්ත බෙදා ගැනීම පිළිබඳව වැඩිදුර"</annotation></string>
+    <!-- no translation found for permission_rationale_data_sharing_varies_message_without_link (4912763761399025094) -->
+    <skip />
+    <string name="permission_rationale_location_settings_title" msgid="7204145004850190953">"ඔබේ ස්ථාන දත්ත"</string>
+    <string name="permission_rationale_permission_settings_message" msgid="631286040979660267"><annotation id="link">"පෞද්ගලිකත්ව සැකසීම්"</annotation>" තුළ මෙම යෙදුමේ ප්‍රවේශය වෙනස් කරන්න"</string>
+    <string name="permission_rationale_purpose_app_functionality" msgid="8397736681065841405">"යෙදුම් ක්‍රියාකාරීත්වය"</string>
+    <string name="permission_rationale_purpose_analytics" msgid="2070800501189620712">"විශ්ලේෂණ"</string>
+    <string name="permission_rationale_purpose_developer_communications" msgid="6453047018892062374">"සංවර්ධක සන්නිවේදන"</string>
+    <string name="permission_rationale_purpose_advertising" msgid="7156966429245180236">"වෙළඳ ප්‍රචාරණය හෝ අලෙවිකරණය"</string>
+    <string name="permission_rationale_purpose_fraud_prevention_security" msgid="4262104770357031902">"වංචා වැළැක්වීම, ආරක්ෂාව, සහ අනුකූලතාව"</string>
+    <string name="permission_rationale_purpose_personalization" msgid="1589973273682238708">"පෞද්ගලීකරණය"</string>
+    <string name="permission_rationale_purpose_account_management" msgid="2985772421946688879">"ගිණුම් කළමනාකරණය"</string>
+    <string name="app_permission_rationale_message" msgid="8511466916077100713">"දත්ත ආරක්ෂාව"</string>
+    <string name="app_location_permission_rationale_title" msgid="925420340572401350">"ස්ථාන දත්ත බෙදා ගත හැක"</string>
+    <string name="app_location_permission_rationale_subtitle" msgid="6986985722752868692">"මෙම යෙදුම තෙවන පාර්ශ්වයන් සමග ඔබේ ස්ථාන දත්ත බෙදා ගත හැකි බව ප්‍රකාශ කර ඇත"</string>
+    <string name="permission_rationale_data_sharing_link_error_title" msgid="4496607694785370249">"මෙම සබැඳිය විවෘත කළ නොහැක"</string>
+    <string name="permission_rationale_data_sharing_link_error_message" msgid="8118116480850030215"></string>
+    <string name="data_sharing_updates_title" msgid="7996933386875213859">"ස්ථානය සඳහා දත්ත බෙදා ගැනීමේ යාවත්කාලීන"</string>
+    <string name="data_sharing_updates_summary" msgid="764113985772233889">"ඒවා ඔබේ ස්ථාන දත්ත බෙදා ගත හැකි ආකාරය වෙනස් කළ යෙදුම් සමාලෝචනය කරන්න"</string>
+    <string name="data_sharing_updates_subtitle" msgid="6311537708950632329">"මෙම යෙදුම් ඔබේ ස්ථාන දත්ත බෙදා ගත හැකි ආකාරය වෙනස් කර ඇත. ඒවා එය කලින් බෙදා ගෙන නොතිබිය හැක, නැතහොත් දැන් එය වෙළඳ ප්‍රචාරණ හෝ අලෙවිකරණ අරමුණු සඳහා බෙදා ගත හැක."</string>
+    <string name="data_sharing_updates_footer_message" msgid="1582711655172892107">"මෙම යෙදුම්වල සංවර්ධකයින් යෙදුම් වෙළඳසැලකට ඔවුන්ගේ දත්ත බෙදා ගැනීමේ පිළිවෙත් පිළිබඳ තතු සපයන ලදි. ඔවුන් එය කාලයත් සමග යාවත්කාලීන කළ හැක.\n\nඔබේ යෙදුම් අනුවාදය, භාවිතය, කලාපය, සහ වයස මත පදනම්ව දත්ත බෙදා ගැනීමේ පිළිවෙත් වෙනස් විය හැක."</string>
+    <string name="learn_about_data_sharing" msgid="4200480587079488045">"දත්ත බෙදා ගැනීම පිළිබඳව තව දැන ගන්න"</string>
+    <string name="shares_location_with_third_parties" msgid="2278051743742057767">"ඔබේ ස්ථාන දත්ත දැන් තෙවන පාර්ශ්ව සමග බෙදා ගෙන ඇත"</string>
+    <string name="shares_location_with_third_parties_for_advertising" msgid="1918588064014480513">"ඔබේ ස්ථාන දත්ත දැන් වෙළඳ ප්‍රචාරණය හෝ අලෙවිකරණය සඳහා තෙවන පාර්ශ්ව සමග බෙදා ගෙන ඇත"</string>
+    <string name="updated_in_last_days" msgid="8371811947153042322">"{count,plural, =0{පසුගිය දින තුළ යාවත්කාලීන කරන ලදි}=1{පසුගිය දින තුළ යාවත්කාලීන කරන ලදි}one{දින #ක් තුළ යාවත්කාලීන කරන ලදි}other{දින #ක් තුළ යාවත්කාලීන කරන ලදි}}"</string>
+    <string name="no_updates_at_this_time" msgid="9031085635689982935">"මෙම අවස්ථාවේ දී යාවත්කාලීන නැත"</string>
+    <string name="safety_label_changes_notification_title" msgid="4479955083472203839">"දත්ත බෙදා ගැනීමේ යාවත්කාලීන"</string>
+    <string name="safety_label_changes_notification_desc" msgid="7808764283266234675">"සමහර යෙදුම් ඒවා ඔබේ ස්ථාන දත්ත බෙදා ගත හැකි ආකාරය වෙනස් කර ඇත"</string>
+    <string name="safety_label_changes_gear_description" msgid="2655887555599138509">"සැකසීම්"</string>
 </resources>

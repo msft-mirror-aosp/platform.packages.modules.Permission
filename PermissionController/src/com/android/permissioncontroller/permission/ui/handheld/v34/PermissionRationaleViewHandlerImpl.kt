@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
-import android.text.method.LinkMovementMethod
 import android.transition.ChangeBounds
 import android.transition.TransitionManager
 import android.view.Gravity
@@ -29,13 +28,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import com.android.permissioncontroller.R
+import com.android.permissioncontroller.permission.compat.LinkMovementMethodCompat
 import com.android.permissioncontroller.permission.ui.v34.PermissionRationaleViewHandler
 import com.android.permissioncontroller.permission.ui.v34.PermissionRationaleViewHandler.Result.Companion.CANCELLED
 
@@ -46,7 +45,8 @@ import com.android.permissioncontroller.permission.ui.v34.PermissionRationaleVie
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class PermissionRationaleViewHandlerImpl(
     private val mActivity: Activity,
-    private val resultListener: PermissionRationaleViewHandler.ResultListener
+    private val resultListener: PermissionRationaleViewHandler.ResultListener,
+    private val shouldShowSettingsSection: Boolean
 ) : PermissionRationaleViewHandler, OnClickListener {
 
     private var groupName: String? = null
@@ -128,36 +128,38 @@ class PermissionRationaleViewHandlerImpl(
     }
 
     override fun createView(): View {
-        // Make this activity be Non-IME target to prevent hiding keyboard flicker when it show up.
-        mActivity.window.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
-
         val rootView = LayoutInflater.from(mActivity)
             .inflate(R.layout.permission_rationale, null) as ViewGroup
 
         // Uses the vertical gravity of the PermissionGrantSingleton style to position the window
-        val gravity = rootView.requireViewById<LinearLayout>(R.id.grant_singleton).gravity
+        val gravity =
+            rootView.requireViewById<LinearLayout>(R.id.permission_rationale_singleton).gravity
         val verticalGravity = Gravity.VERTICAL_GRAVITY_MASK and gravity
         mActivity.window.setGravity(Gravity.CENTER_HORIZONTAL or verticalGravity)
 
         // Cancel dialog
-        rootView.findViewById<View>(R.id.grant_singleton)!!.setOnClickListener(this)
+        rootView.findViewById<View>(R.id.permission_rationale_singleton)!!.setOnClickListener(this)
         // Swallow click event
-        rootView.findViewById<View>(R.id.grant_dialog)!!.setOnClickListener(this)
+        rootView.findViewById<View>(R.id.permission_rationale_dialog)!!.setOnClickListener(this)
 
         titleView = rootView.findViewById(R.id.permission_rationale_title)
 
         dataSharingSourceMessageView = rootView.findViewById(R.id.data_sharing_source_message)
-        dataSharingSourceMessageView!!.movementMethod = LinkMovementMethod.getInstance()
+        dataSharingSourceMessageView!!.movementMethod = LinkMovementMethodCompat.getInstance()
 
         purposeTitleView = rootView.findViewById(R.id.purpose_title)
         purposeMessageView = rootView.findViewById(R.id.purpose_message)
 
         learnMoreMessageView = rootView.findViewById(R.id.learn_more_message)
-        learnMoreMessageView!!.movementMethod = LinkMovementMethod.getInstance()
+        learnMoreMessageView!!.movementMethod = LinkMovementMethodCompat.getInstance()
 
         settingsMessageView = rootView.findViewById(R.id.settings_message)
-        settingsMessageView!!.movementMethod = LinkMovementMethod.getInstance()
+        settingsMessageView!!.movementMethod = LinkMovementMethodCompat.getInstance()
 
+        if (!shouldShowSettingsSection) {
+            val settingsSectionView: ViewGroup? = rootView.findViewById(R.id.settings_section)
+            settingsSectionView?.visibility = View.GONE
+        }
         backButton = rootView.findViewById<Button>(R.id.back_button)!!.apply {
             setOnClickListener(this@PermissionRationaleViewHandlerImpl)
 
@@ -179,7 +181,7 @@ class PermissionRationaleViewHandlerImpl(
     override fun onClick(view: View) {
         val id = view.id
 
-        if (id == R.id.grant_singleton) {
+        if (id == R.id.permission_rationale_singleton) {
             onCancelled()
             return
         }

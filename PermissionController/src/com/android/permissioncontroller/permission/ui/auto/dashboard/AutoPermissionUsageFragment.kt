@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package com.android.permissioncontroller.permission.ui.auto.dashboard
 
@@ -39,9 +40,9 @@ import com.android.permissioncontroller.permission.model.v31.PermissionUsages
 import com.android.permissioncontroller.permission.model.v31.PermissionUsages.PermissionsUsagesChangeCallback
 import com.android.permissioncontroller.permission.ui.model.ManagePermissionsViewModel
 import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageControlPreferenceUtils
-import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageViewModel
-import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageViewModel.PermissionGroupWithUsageCount
-import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageViewModelFactory
+import com.android.permissioncontroller.permission.ui.legacy.PermissionUsageViewModelFactoryLegacy
+import com.android.permissioncontroller.permission.ui.legacy.PermissionUsageViewModelLegacy
+import com.android.permissioncontroller.permission.ui.legacy.PermissionUsageViewModelLegacy.PermissionGroupWithUsageCount
 import com.android.permissioncontroller.permission.utils.Utils
 
 @RequiresApi(Build.VERSION_CODES.S)
@@ -54,7 +55,7 @@ class AutoPermissionUsageFragment : AutoSettingsFrameFragment(), PermissionsUsag
     private val SESSION_ID_KEY = (AutoPermissionUsageFragment::class.java.name + KEY_SESSION_ID)
 
     private lateinit var permissionUsages: PermissionUsages
-    private lateinit var usageViewModel: PermissionUsageViewModel
+    private lateinit var usageViewModel: PermissionUsageViewModelLegacy
     private lateinit var managePermissionsViewModel: ManagePermissionsViewModel
 
     private var appPermissionUsages: List<AppPermissionUsage> = listOf()
@@ -88,9 +89,10 @@ class AutoPermissionUsageFragment : AutoSettingsFrameFragment(), PermissionsUsag
         managePermissionsViewModel =
             ViewModelProvider(this, managePermissionsViewModelFactory)[
                 ManagePermissionsViewModel::class.java]
-        val usageViewModelFactory = PermissionUsageViewModelFactory(roleManager)
+        val usageViewModelFactory = PermissionUsageViewModelFactoryLegacy(roleManager)
         usageViewModel =
-            ViewModelProvider(this, usageViewModelFactory)[PermissionUsageViewModel::class.java]
+            ViewModelProvider(this, usageViewModelFactory)[
+                PermissionUsageViewModelLegacy::class.java]
 
         managePermissionsViewModel.standardPermGroupsLiveData.observe(
             this, this::onPermissionGroupsChanged)
@@ -180,8 +182,7 @@ class AutoPermissionUsageFragment : AutoSettingsFrameFragment(), PermissionsUsag
 
     /** Use the usages and permApps that are previously constructed to add UI content to the page */
     private fun addUIContent(
-        permissionGroupWithUsageCounts:
-            List<PermissionGroupWithUsageCount>,
+        permissionGroupWithUsageCounts: List<PermissionGroupWithUsageCount>,
         permApps: java.util.ArrayList<PermissionApp>
     ) {
         AppDataLoader(context) {

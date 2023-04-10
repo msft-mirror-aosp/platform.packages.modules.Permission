@@ -91,7 +91,8 @@ private constructor(
                 ignoreHashCode,
                 ignoreToString,
                 parcelRoundTripEqualsEquivalence(parcelableCreator),
-                createCopy)
+                createCopy
+            )
 
         /**
          * Returns an [EqualsHashCodeToStringTester] that does not check the [Parcelable]
@@ -105,7 +106,11 @@ private constructor(
             createCopy: ((T) -> T)? = null
         ): EqualsHashCodeToStringTester<T> =
             EqualsHashCodeToStringTester(
-                ignoreHashCode, ignoreToString, parcelRoundTripEqualsEquivalence = null, createCopy)
+                ignoreHashCode,
+                ignoreToString,
+                parcelRoundTripEqualsEquivalence = null,
+                createCopy
+            )
 
         /**
          * An [Equivalence] that considers two instances of a class equivalent iff they are still

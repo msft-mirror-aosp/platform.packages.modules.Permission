@@ -18,8 +18,10 @@ package com.android.permissioncontroller.permission.ui.model.v34
 
 import android.app.Activity
 import android.app.Application
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Process
@@ -27,22 +29,25 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.android.permission.safetylabel.DataCategory
-import com.android.permission.safetylabel.DataType
-import com.android.permission.safetylabel.DataTypeConstants
-import com.android.permission.safetylabel.SafetyLabel
 import com.android.permissioncontroller.Constants
+import com.android.permissioncontroller.PermissionControllerStatsLog
+import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_RATIONALE_DIALOG_ACTION_REPORTED
+import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_RATIONALE_DIALOG_ACTION_REPORTED__BUTTON_PRESSED__INSTALL_SOURCE
+import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_RATIONALE_DIALOG_ACTION_REPORTED__BUTTON_PRESSED__HELP_CENTER
+import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_RATIONALE_DIALOG_ACTION_REPORTED__BUTTON_PRESSED__PERMISSION_SETTINGS
+import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_RATIONALE_DIALOG_VIEWED
+import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.data.SafetyLabelInfoLiveData
 import com.android.permissioncontroller.permission.data.SmartUpdateMediatorLiveData
 import com.android.permissioncontroller.permission.data.get
-import com.android.permissioncontroller.permission.model.livedatatypes.SafetyLabelInfo.Companion.UNAVAILABLE
 import com.android.permissioncontroller.permission.ui.ManagePermissionsActivity
 import com.android.permissioncontroller.permission.ui.ManagePermissionsActivity.EXTRA_RESULT_PERMISSION_INTERACTED
 import com.android.permissioncontroller.permission.ui.ManagePermissionsActivity.EXTRA_RESULT_PERMISSION_RESULT
 import com.android.permissioncontroller.permission.ui.v34.PermissionRationaleActivity
 import com.android.permissioncontroller.permission.utils.KotlinUtils
 import com.android.permissioncontroller.permission.utils.KotlinUtils.getAppStoreIntent
-import com.android.permissioncontroller.permission.utils.SafetyLabelPermissionMapping
+import com.android.permissioncontroller.permission.utils.PermissionMapping
+import com.android.settingslib.HelpUtils
 
 /**
  * [ViewModel] for the [PermissionRationaleActivity]. Gets all information required safety label and
@@ -59,7 +64,6 @@ class PermissionRationaleViewModel(
     private val app: Application,
     private val packageName: String,
     private val permissionGroupName: String,
-    // TODO(b/259961958): add PermissionRationale metrics
     private val sessionId: Long,
     private val storedState: Bundle?
 ) : ViewModel() {
@@ -86,7 +90,7 @@ class PermissionRationaleViewModel(
     data class PermissionRationaleInfo(
         val groupName: String,
         val installSourcePackageName: String?,
-        val installSourceLabel: CharSequence?,
+        val installSourceLabel: String?,
         val purposeSet: Set<Int>
     )
 
@@ -107,57 +111,30 @@ class PermissionRationaleViewModel(
                 }
 
                 val safetyLabelInfo = safetyLabelInfoLiveData.value
-                val safetyLabel = safetyLabelInfo?.safetyLabel
 
-                if (safetyLabelInfo == null ||
-                    safetyLabelInfo == UNAVAILABLE ||
-                    safetyLabel == null) {
+                if (safetyLabelInfo?.safetyLabel == null) {
                     Log.e(LOG_TAG, "Safety label for $packageName not found")
                     value = null
                     return
                 }
 
                 val installSourcePackageName = safetyLabelInfo.installSourcePackageName
-                val installSourceLabel: CharSequence? =
+                val installSourceLabel: String? =
                     installSourcePackageName?.let {
                         KotlinUtils.getPackageLabel(app, it, Process.myUserHandle())
                     }
 
+                val purposes = PermissionMapping.getSafetyLabelSharingPurposesForGroup(
+                        safetyLabelInfo.safetyLabel, permissionGroupName)
+                if (isStale) {
+                    logPermissionRationaleDialogViewed(purposes)
+                }
                 value =
                     PermissionRationaleInfo(
                         permissionGroupName,
                         installSourcePackageName,
                         installSourceLabel,
-                        getSafetyLabelSharingPurposesForGroup(safetyLabel, permissionGroupName))
-            }
-
-            private fun getSafetyLabelSharingPurposesForGroup(
-                safetyLabel: SafetyLabel,
-                groupName: String
-            ): Set<Int> {
-                val purposeSet = mutableSetOf<Int>()
-                val categoriesForPermission: List<String> =
-                    SafetyLabelPermissionMapping.getCategoriesForPermissionGroup(groupName)
-                categoriesForPermission.forEach categoryLoop@{ category ->
-                    val dataCategory: DataCategory? = safetyLabel.dataLabel.dataShared[category]
-                    if (dataCategory == null) {
-                        // Continue to next
-                        return@categoryLoop
-                    }
-                    val typesForCategory = DataTypeConstants.getValidDataTypesForCategory(category)
-                    typesForCategory.forEach typeLoop@{ type ->
-                        val dataType: DataType? = dataCategory.dataTypes[type]
-                        if (dataType == null) {
-                            // Continue to next
-                            return@typeLoop
-                        }
-                        if (dataType.purposeSet.isNotEmpty()) {
-                            purposeSet.addAll(dataType.purposeSet)
-                        }
-                    }
-                }
-
-                return purposeSet
+                        purposes)
             }
         }
 
@@ -166,6 +143,8 @@ class PermissionRationaleViewModel(
     }
 
     fun sendToAppStore(context: Context, installSourcePackageName: String) {
+        logPermissionRationaleDialogActionReported(
+            PERMISSION_RATIONALE_DIALOG_ACTION_REPORTED__BUTTON_PRESSED__INSTALL_SOURCE)
         val storeIntent = getAppStoreIntent(context, installSourcePackageName, packageName)
         context.startActivity(storeIntent)
     }
@@ -182,12 +161,18 @@ class PermissionRationaleViewModel(
         }
         activityResultCallback = object : ActivityResultCallback {
             override fun shouldFinishActivityForResult(data: Intent?): Boolean {
-                // TODO(b/259961958): metrics for settings return event
                 val returnGroupName = data?.getStringExtra(EXTRA_RESULT_PERMISSION_INTERACTED)
                 return (returnGroupName != null) && data.hasExtra(EXTRA_RESULT_PERMISSION_RESULT)
             }
         }
+        logPermissionRationaleDialogActionReported(
+            PERMISSION_RATIONALE_DIALOG_ACTION_REPORTED__BUTTON_PRESSED__PERMISSION_SETTINGS)
         startAppPermissionFragment(activity, groupName)
+    }
+
+    /** Returns whether UI can provide link to help center */
+    fun canLinkToHelpCenter(context: Context): Boolean {
+        return !getHelpCenterUrlString(context).isNullOrEmpty()
     }
 
     /**
@@ -196,8 +181,25 @@ class PermissionRationaleViewModel(
      * @param activity The current activity
      */
     fun sendToLearnMore(activity: Activity) {
-        // TODO(b/259963582): link to safety label help center article
-        Log.d(LOG_TAG, "Link to safety label help center not provided")
+        if (!canLinkToHelpCenter(activity)) {
+            Log.w(LOG_TAG, "Unable to open help center, no url provided.")
+            return
+        }
+
+        // Add in some extra locale query parameters
+        val fullUri =
+            HelpUtils.uriWithAddedParameters(activity, Uri.parse(getHelpCenterUrlString(activity)))
+        val intent = Intent(Intent.ACTION_VIEW, fullUri).apply {
+            setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+        }
+        logPermissionRationaleDialogActionReported(
+            PERMISSION_RATIONALE_DIALOG_ACTION_REPORTED__BUTTON_PRESSED__HELP_CENTER)
+        try {
+            activity.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            // TODO(b/266755891): show snackbar when help center intent unable to be opened
+            Log.w(LOG_TAG, "Unable to open help center URL.", e)
+        }
     }
 
     private fun startAppPermissionFragment(activity: Activity, groupName: String) {
@@ -210,6 +212,28 @@ class PermissionRationaleViewModel(
             .putExtra(Constants.EXTRA_SESSION_ID, sessionId)
             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
         activity.startActivityForResult(intent, APP_PERMISSION_REQUEST_CODE)
+    }
+
+    private fun logPermissionRationaleDialogViewed(purposes: Set<Int>) {
+        val uid = KotlinUtils.getPackageUid(app, packageName, user) ?: return
+        var purposesPresented = 0
+        // Create bitmask for purposes presented, bit numbers are in accordance with PURPOSE_
+        // constants in [DataPurposeConstants]
+        purposes.forEach { purposeInt ->
+            purposesPresented = purposesPresented or 1.shl(purposeInt)
+        }
+        PermissionControllerStatsLog.write(PERMISSION_RATIONALE_DIALOG_VIEWED, sessionId, uid,
+            permissionGroupName, purposesPresented)
+    }
+
+    fun logPermissionRationaleDialogActionReported(buttonPressed: Int) {
+        val uid = KotlinUtils.getPackageUid(app, packageName, user) ?: return
+        PermissionControllerStatsLog.write(PERMISSION_RATIONALE_DIALOG_ACTION_REPORTED, sessionId,
+            uid, permissionGroupName, buttonPressed)
+    }
+
+    private fun getHelpCenterUrlString(context: Context): String? {
+        return context.getString(R.string.data_sharing_help_center_link)
     }
 
     companion object {

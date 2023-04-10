@@ -16,7 +16,7 @@
 
 package com.android.permissioncontroller.permission.ui;
 
-import static android.healthconnect.HealthPermissions.HEALTH_PERMISSION_GROUP;
+import static android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP;
 import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
 
 import static com.android.permissioncontroller.Constants.ACTION_MANAGE_AUTO_REVOKE;
@@ -40,6 +40,7 @@ import android.os.Bundle;
 import android.os.Process;
 import android.os.UserHandle;
 import android.permission.PermissionManager;
+import android.provider.Settings;
 import android.safetycenter.SafetyCenterManager;
 import android.safetycenter.SafetyEvent;
 import android.safetycenter.SafetySourceData;
@@ -71,7 +72,7 @@ import com.android.permissioncontroller.permission.ui.handheld.AppPermissionGrou
 import com.android.permissioncontroller.permission.ui.handheld.HandheldUnusedAppsWrapperFragment;
 import com.android.permissioncontroller.permission.ui.handheld.PermissionAppsFragment;
 import com.android.permissioncontroller.permission.ui.handheld.v31.PermissionDetailsWrapperFragment;
-import com.android.permissioncontroller.permission.ui.handheld.v31.PermissionUsageV2WrapperFragment;
+import com.android.permissioncontroller.permission.ui.handheld.v31.PermissionUsageWrapperFragment;
 import com.android.permissioncontroller.permission.ui.handheld.v34.AppDataSharingUpdatesFragment;
 import com.android.permissioncontroller.permission.ui.legacy.AppPermissionActivity;
 import com.android.permissioncontroller.permission.ui.television.TvUnusedAppsFragment;
@@ -144,6 +145,15 @@ public final class ManagePermissionsActivity extends SettingsActivity {
             return;
         }
 
+        boolean provisioned = Settings.Global.getInt(
+                getContentResolver(), Settings.Global.DEVICE_PROVISIONED, 0) != 0;
+        boolean completed = Settings.Secure.getInt(
+                getContentResolver(), Settings.Secure.USER_SETUP_COMPLETE, 0) != 0;
+        if (!provisioned || !completed) {
+            finishAfterTransition();
+            return;
+        }
+
         android.app.Fragment fragment = null;
         Fragment androidXFragment = null;
         String action = getIntent().getAction();
@@ -192,7 +202,7 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                 if (DeviceUtils.isAuto(this)) {
                     androidXFragment = new AutoPermissionUsageFragment();
                 } else {
-                    androidXFragment = PermissionUsageV2WrapperFragment.newInstance(
+                    androidXFragment = PermissionUsageWrapperFragment.newInstance(
                             Long.MAX_VALUE, sessionId);
                 }
             } break;

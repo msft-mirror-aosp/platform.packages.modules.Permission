@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_PACKAGE_ADDED
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Process
 import android.os.UserHandle
@@ -29,8 +30,11 @@ import android.util.Log
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import com.android.permission.safetylabel.SafetyLabel as AppMetadataSafetyLabel
-import com.android.permissioncontroller.permission.data.PackagePermissionsLiveData
+import com.android.permissioncontroller.permission.data.LightInstallSourceInfoLiveData
+import com.android.permissioncontroller.permission.data.LightPackageInfoLiveData
+import com.android.permissioncontroller.permission.model.livedatatypes.LightPackageInfo
 import com.android.permissioncontroller.permission.utils.KotlinUtils
+import com.android.permissioncontroller.permission.utils.PermissionMapping
 import com.android.permissioncontroller.permission.utils.Utils
 import com.android.permissioncontroller.safetylabel.AppsSafetyLabelHistory.SafetyLabel as SafetyLabelForPersistence
 import java.time.Instant
@@ -80,7 +84,13 @@ class SafetyLabelChangedBroadcastReceiver : BroadcastReceiver() {
 
         val user: UserHandle =
             intent.getParcelableExtra(Intent.EXTRA_USER, UserHandle::class.java) ?: currentUser
-        GlobalScope.launch(Dispatchers.Main) { processPackageChange(context, packageName, user) }
+
+        val pendingResult: PendingResult = goAsync()
+
+        GlobalScope.launch(Dispatchers.Main) {
+            processPackageChange(context, packageName, user)
+            pendingResult.finish()
+        }
     }
 
     /** Processes the package change for the given package and user. */
@@ -89,10 +99,17 @@ class SafetyLabelChangedBroadcastReceiver : BroadcastReceiver() {
         packageName: String,
         user: UserHandle,
     ) {
-        if (!isAppRequestingLocationPermission(packageName, user)) {
+        val lightPackageInfo =
+            LightPackageInfoLiveData[Pair(packageName, user)].getInitializedValue() ?: return
+        if (!isAppRequestingLocationPermission(lightPackageInfo)) {
             return
         }
-        writeSafetyLabel(context, packageName)
+        // TODO(b/261607291): Enable safety label change notifications feature for
+        // preinstalled apps.
+        if (isPreinstalledPackage(Pair(packageName, user))) {
+            return
+        }
+        writeSafetyLabel(context, lightPackageInfo, user)
     }
 
     /**
@@ -101,14 +118,33 @@ class SafetyLabelChangedBroadcastReceiver : BroadcastReceiver() {
      * As I/O operations are invoked, we run this method on the main thread.
      */
     @MainThread
-    private fun writeSafetyLabel(context: Context, packageName: String) {
+    private fun writeSafetyLabel(
+        context: Context,
+        lightPackageInfo: LightPackageInfo,
+        user: UserHandle,
+    ) {
+        val packageName = lightPackageInfo.packageName
         if (DEBUG) {
             Log.i(
                 TAG,
                 "writeSafetyLabel called for packageName: $packageName, currentUser:" +
                     " ${Process.myUserHandle()}")
         }
-        val appMetadataBundle = context.packageManager.getAppMetadata(packageName)
+
+        // Get the context for the user in which the app is installed.
+        val userContext =
+            if (user == Process.myUserHandle()) {
+                context
+            } else {
+                context.createContextAsUser(user, 0)
+            }
+        val appMetadataBundle =
+            try {
+                userContext.packageManager.getAppMetadata(packageName)
+            } catch (e: PackageManager.NameNotFoundException) {
+                Log.w(TAG, "Package $packageName not found while retrieving app metadata")
+                return
+            }
 
         if (DEBUG) {
             Log.i(TAG, "appMetadataBundle $appMetadataBundle")
@@ -116,11 +152,11 @@ class SafetyLabelChangedBroadcastReceiver : BroadcastReceiver() {
         val safetyLabel: AppMetadataSafetyLabel =
             AppMetadataSafetyLabel.getSafetyLabelFromMetadata(appMetadataBundle) ?: return
 
-        // TODO(b/264884404): Use install time or last update time for an app for the time a safety
-        //  label is received instead of current time.
+        val receivedAtMs: Long = lightPackageInfo.lastUpdateTime
+
         val safetyLabelForPersistence: SafetyLabelForPersistence =
-            AppsSafetyLabelHistory.SafetyLabel.fromAppMetadataSafetyLabel(
-                packageName, receivedAt = Instant.now(), safetyLabel)
+            AppsSafetyLabelHistory.SafetyLabel.extractLocationSharingSafetyLabel(
+                packageName, Instant.ofEpochMilli(receivedAtMs), safetyLabel)
         val historyFile = AppsSafetyLabelHistoryPersistence.getSafetyLabelHistoryFile(context)
 
         AppsSafetyLabelHistoryPersistence.recordSafetyLabel(safetyLabelForPersistence, historyFile)
@@ -139,22 +175,22 @@ class SafetyLabelChangedBroadcastReceiver : BroadcastReceiver() {
         }
     }
 
-    private suspend fun isAppRequestingLocationPermission(
-        packageName: String,
-        user: UserHandle
-    ): Boolean {
-        val packagePermissions =
-            PackagePermissionsLiveData[Pair(packageName, user)].getInitializedValue()
-
-        return packagePermissions?.containsKey(Manifest.permission_group.LOCATION) == true
-    }
-
     /** Companion object for [SafetyLabelChangedBroadcastReceiver]. */
     companion object {
         private val TAG = SafetyLabelChangedBroadcastReceiver::class.simpleName
         private const val ACTION_PACKAGE_ADDED_PERMISSIONCONTROLLER_FORWARDED =
             "com.android.permissioncontroller.action.PACKAGE_ADDED_PERMISSIONCONTROLLER_FORWARDED"
         private const val DEBUG = true
+        private val LOCATION_PERMISSIONS =
+            PermissionMapping.getPlatformPermissionNamesOfGroup(Manifest.permission_group.LOCATION)
+
+        private fun isAppRequestingLocationPermission(lightPackageInfo: LightPackageInfo): Boolean {
+            return lightPackageInfo.requestedPermissions.any { LOCATION_PERMISSIONS.contains(it) }
+        }
+
+        private suspend fun isPreinstalledPackage(packageUser: Pair<String, UserHandle>): Boolean =
+            LightInstallSourceInfoLiveData[packageUser].getInitializedValue()
+                .initiatingPackageName == null
 
         private fun isPackageAddedBroadcast(intentAction: String?) =
             intentAction == ACTION_PACKAGE_ADDED ||

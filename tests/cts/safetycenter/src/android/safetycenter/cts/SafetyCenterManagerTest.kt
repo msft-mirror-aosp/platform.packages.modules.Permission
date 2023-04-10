@@ -266,6 +266,21 @@ class SafetyCenterManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    fun setSafetySourceData_wronglySignedPackageButAllowedByFlag_isAllowed() {
+        SafetyCenterFlags.allowedAdditionalPackageCerts =
+            mapOf(context.packageName to setOf(safetyCenterTestConfigs.packageCertHash))
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceWithFakeCert)
+
+        val dataToSet = safetySourceTestData.unspecified
+        safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, dataToSet)
+
+        val apiSafetySourceData =
+            safetyCenterManager.getSafetySourceDataWithPermission(SINGLE_SOURCE_ID)
+        assertThat(apiSafetySourceData).isEqualTo(dataToSet)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
     fun setSafetySourceData_invalidPackageCertificate_throwsIllegalArgumentException() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceWithInvalidCert)
 
@@ -1589,6 +1604,7 @@ class SafetyCenterManagerTest {
     fun refreshSafetySources_versionLessThanU_throwsUnsupportedOperationException() {
         // TODO(b/258228790): Remove after U is no longer in pre-release
         assumeFalse(Build.VERSION.CODENAME == "UpsideDownCake")
+        assumeFalse(Build.VERSION.CODENAME == "VanillaIceCream")
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.multipleSourcesConfig)
 
         val exception =

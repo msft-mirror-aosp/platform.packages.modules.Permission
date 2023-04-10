@@ -24,19 +24,25 @@ import android.content.Intent.ACTION_SAFETY_CENTER
 import android.content.Intent.ACTION_VIEW_SAFETY_CENTER_QS
 import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
+import androidx.annotation.RequiresApi
+import androidx.test.uiautomator.By
+import com.android.compatibility.common.util.RetryableException
 import com.android.compatibility.common.util.UiAutomatorUtils2.getUiDevice
 import com.android.safetycenter.testing.ShellPermissions.callWithShellPermissionIdentity
+import com.android.safetycenter.testing.UiTestHelper.waitDisplayed
 
 /** A class that provides a way to launch the SafetyCenter activity in tests. */
+@RequiresApi(TIRAMISU)
 object SafetyCenterActivityLauncher {
 
     /**
      * Launches the SafetyCenter activity and exits it once [block] completes.
      *
      * @param withReceiverPermission whether we should hold the [SEND_SAFETY_CENTER_UPDATE]
-     * permission while the activity is on the screen (e.g. to ensure the CTS package can have its
-     * receiver called during refresh/rescan)
+     *   permission while the activity is on the screen (e.g. to ensure the CTS package can have its
+     *   receiver called during refresh/rescan)
      */
     fun Context.launchSafetyCenterActivity(
         intentExtras: Bundle? = null,
@@ -60,6 +66,24 @@ object SafetyCenterActivityLauncher {
             callWithShellPermissionIdentity(REVOKE_RUNTIME_PERMISSIONS) {
                 startActivity(launchSafetyCenterQsIntent)
             }
+        }
+    }
+
+    /** Launches a page in Safety Center and exits it once [block] completes. */
+    fun openPageAndExit(entryPoint: String, block: () -> Unit) {
+        executeBlockAndExit(block) { waitDisplayed(By.text(entryPoint)) { it.click() } }
+    }
+
+    /**
+     * Launches a page in Safety Center and exits it once [block] completes, throwing a
+     * [RetryableException] for any [RuntimeException] thrown by [block] to allow [RetryRule] to
+     * retry the test invocation.
+     */
+    fun openPageAndExitAllowingRetries(entryPoint: String, block: () -> Unit) {
+        try {
+            openPageAndExit(entryPoint, block)
+        } catch (e: Throwable) {
+            throw RetryableException(e, "Exception occurred when checking a Safety Center page")
         }
     }
 

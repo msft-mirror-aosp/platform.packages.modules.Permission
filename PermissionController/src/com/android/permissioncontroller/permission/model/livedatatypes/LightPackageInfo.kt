@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package com.android.permissioncontroller.permission.model.livedatatypes
 
@@ -49,6 +50,7 @@ data class LightPackageInfo(
     val enabled: Boolean,
     val appFlags: Int,
     val firstInstallTime: Long,
+    val lastUpdateTime: Long,
     val areAttributionsUserVisible: Boolean,
     val attributionTagsToLabels: Map<String, Int>
 ) {
@@ -65,6 +67,7 @@ data class LightPackageInfo(
         pI.applicationInfo.enabled,
         pI.applicationInfo.flags,
         pI.firstInstallTime,
+        pI.lastUpdateTime,
         if (SdkLevel.isAtLeastS()) pI.applicationInfo.areAttributionsUserVisible() else false,
         if (SdkLevel.isAtLeastS()) buildAttributionTagsToLabelsMap(pI.attributions) else emptyMap())
 

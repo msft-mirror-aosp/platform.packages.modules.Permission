@@ -19,7 +19,6 @@ package com.android.safetycenter;
 import static android.os.Build.VERSION_CODES.TIRAMISU;
 import static android.safetycenter.SafetyCenterManager.RefreshReason;
 
-import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.os.Binder;
 import android.provider.DeviceConfig;
@@ -31,6 +30,7 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 
 import com.android.modules.utils.build.SdkLevel;
+import com.android.safetycenter.resources.SafetyCenterResourcesContext;
 
 import java.io.PrintWriter;
 import java.time.Duration;
@@ -53,6 +53,15 @@ public final class SafetyCenterFlags {
 
     private static final String PROPERTY_NOTIFICATIONS_ALLOWED_SOURCES =
             "safety_center_notifications_allowed_sources";
+
+    private static final String PROPERTY_NOTIFICATIONS_MIN_DELAY =
+            "safety_center_notifications_min_delay";
+
+    private static final String PROPERTY_NOTIFICATIONS_IMMEDIATE_BEHAVIOR_ISSUES =
+            "safety_center_notifications_immediate_behavior_issues";
+
+    private static final String PROPERTY_NOTIFICATION_RESURFACE_INTERVAL =
+            "safety_center_notification_resurface_interval";
 
     private static final String PROPERTY_SHOW_ERROR_ENTRIES_ON_TIMEOUT =
             "safety_center_show_error_entries_on_timeout";
@@ -83,31 +92,87 @@ public final class SafetyCenterFlags {
     private static final String PROPERTY_ISSUE_CATEGORY_ALLOWLISTS =
             "safety_center_issue_category_allowlists";
 
-    private static final String PROPERTY_ALLOW_STATSD_LOGGING_IN_TESTS =
-            "safety_center_allow_statsd_logging_in_tests";
+    private static final String PROPERTY_ALLOW_STATSD_LOGGING =
+            "safety_center_allow_statsd_logging";
 
     private static final String PROPERTY_SHOW_SUBPAGES = "safety_center_show_subpages";
 
     private static final String PROPERTY_OVERRIDE_REFRESH_ON_PAGE_OPEN_SOURCES =
             "safety_center_override_refresh_on_page_open_sources";
 
-    private static final Duration REFRESH_SOURCES_TIMEOUT_DEFAULT_DURATION = Duration.ofSeconds(15);
+    private static final String PROPERTY_ADDITIONAL_ALLOW_PACKAGE_CERTS =
+            "safety_center_additional_allow_package_certs";
+
+    private static final Duration FGS_ALLOWLIST_DEFAULT_DURATION = Duration.ofSeconds(20);
+
+    private static final String PROPERTY_TEMP_HIDDEN_ISSUE_RESURFACE_DELAY_MILLIS =
+            "safety_center_temp_hidden_issue_resurface_delay_millis";
 
     private static final Duration RESOLVING_ACTION_TIMEOUT_DEFAULT_DURATION =
             Duration.ofSeconds(10);
 
-    private static final Duration FGS_ALLOWLIST_DEFAULT_DURATION = Duration.ofSeconds(20);
+    private static final Duration NOTIFICATIONS_MIN_DELAY_DEFAULT_DURATION = Duration.ofDays(180);
 
-    private static final long RESURFACE_ISSUE_DEFAULT_MAX_COUNT = 0;
+    private static final String REFRESH_SOURCES_TIMEOUT_DEFAULT =
+            "100:15000,200:60000,300:30000,400:30000,500:30000,600:3600000";
+    private static final Duration REFRESH_SOURCES_TIMEOUT_DEFAULT_DURATION = Duration.ofSeconds(15);
 
-    private static final Duration RESURFACE_ISSUE_DEFAULT_DELAY = Duration.ofDays(180);
+    private static final String RESURFACE_ISSUE_MAX_COUNT_DEFAULT = "200:0,300:1,400:1";
+    private static final long RESURFACE_ISSUE_MAX_COUNT_DEFAULT_COUNT = 0;
+
+    private static final String RESURFACE_ISSUE_DELAYS_DEFAULT = "";
+    private static final Duration RESURFACE_ISSUE_DELAYS_DEFAULT_DURATION = Duration.ofDays(180);
+
+    private static volatile String sUntrackedSourcesDefault =
+            "AndroidAccessibility,AndroidBackgroundLocation,"
+                    + "AndroidNotificationListener,AndroidPermissionAutoRevoke";
+
+    private static volatile String sBackgroundRefreshDenyDefault = "";
+
+    private static volatile String sIssueCategoryAllowlistDefault = "";
+
+    private static volatile String sRefreshOnPageOpenSourcesDefault =
+            "AndroidBiometrics,AndroidLockScreen";
+
+    static void init(SafetyCenterResourcesContext resourceContext) {
+        String untrackedSourcesDefault =
+                resourceContext.getOptionalStringByName("config_defaultUntrackedSources");
+        if (untrackedSourcesDefault != null) {
+            sUntrackedSourcesDefault = untrackedSourcesDefault;
+        }
+        String backgroundRefreshDenyDefault =
+                resourceContext.getOptionalStringByName("config_defaultBackgroundRefreshDeny");
+        if (backgroundRefreshDenyDefault != null) {
+            sBackgroundRefreshDenyDefault = backgroundRefreshDenyDefault;
+        }
+        String issueCategoryAllowlistDefault =
+                resourceContext.getOptionalStringByName("config_defaultIssueCategoryAllowlist");
+        if (issueCategoryAllowlistDefault != null) {
+            sIssueCategoryAllowlistDefault = issueCategoryAllowlistDefault;
+        }
+        String refreshOnPageOpenSourcesDefault =
+                resourceContext.getOptionalStringByName("config_defaultRefreshOnPageOpenSources");
+        if (refreshOnPageOpenSourcesDefault != null) {
+            sRefreshOnPageOpenSourcesDefault = refreshOnPageOpenSourcesDefault;
+        }
+    }
+
+    private static final Duration TEMP_HIDDEN_ISSUE_RESURFACE_DELAY_DEFAULT_DURATION =
+            Duration.ofDays(2);
 
     /** Dumps state for debugging purposes. */
-    static void dump(@NonNull PrintWriter fout) {
+    static void dump(PrintWriter fout) {
         fout.println("FLAGS");
         printFlag(fout, PROPERTY_SAFETY_CENTER_ENABLED, getSafetyCenterEnabled());
         printFlag(fout, PROPERTY_NOTIFICATIONS_ENABLED, getNotificationsEnabled());
         printFlag(fout, PROPERTY_NOTIFICATIONS_ALLOWED_SOURCES, getNotificationsAllowedSourceIds());
+        printFlag(fout, PROPERTY_NOTIFICATIONS_MIN_DELAY, getNotificationsMinDelay());
+        printFlag(
+                fout,
+                PROPERTY_NOTIFICATIONS_IMMEDIATE_BEHAVIOR_ISSUES,
+                getImmediateNotificationBehaviorIssues());
+        printFlag(
+                fout, PROPERTY_NOTIFICATION_RESURFACE_INTERVAL, getNotificationResurfaceInterval());
         printFlag(fout, PROPERTY_SHOW_ERROR_ENTRIES_ON_TIMEOUT, getShowErrorEntriesOnTimeout());
         printFlag(fout, PROPERTY_REPLACE_LOCK_SCREEN_ICON_ACTION, getReplaceLockScreenIconAction());
         printFlag(fout, PROPERTY_RESOLVING_ACTION_TIMEOUT_MILLIS, getResolvingActionTimeout());
@@ -122,17 +187,25 @@ public final class SafetyCenterFlags {
         printFlag(
                 fout, PROPERTY_REFRESH_SOURCES_TIMEOUTS_MILLIS, getRefreshSourcesTimeoutsMillis());
         printFlag(fout, PROPERTY_ISSUE_CATEGORY_ALLOWLISTS, getIssueCategoryAllowlists());
-        printFlag(fout, PROPERTY_ALLOW_STATSD_LOGGING_IN_TESTS, getAllowStatsdLoggingInTests());
+        printFlag(fout, PROPERTY_ALLOW_STATSD_LOGGING, getAllowStatsdLogging());
         printFlag(fout, PROPERTY_SHOW_SUBPAGES, getShowSubpages());
         printFlag(
                 fout,
                 PROPERTY_OVERRIDE_REFRESH_ON_PAGE_OPEN_SOURCES,
                 getOverrideRefreshOnPageOpenSourceIds());
+        printFlag(
+                fout,
+                PROPERTY_ADDITIONAL_ALLOW_PACKAGE_CERTS,
+                getAdditionalAllowedPackageCertsString());
         fout.println();
     }
 
-    private static void printFlag(PrintWriter pw, String key, Duration duration) {
-        printFlag(pw, key, duration.toMillis() + " (" + duration + ")");
+    private static void printFlag(PrintWriter pw, String key, @Nullable Duration duration) {
+        if (duration == null) {
+            printFlag(pw, key, "null");
+        } else {
+            printFlag(pw, key, duration.toMillis() + " (" + duration + ")");
+        }
     }
 
     private static void printFlag(PrintWriter pw, String key, Object value) {
@@ -141,11 +214,11 @@ public final class SafetyCenterFlags {
 
     /** Returns whether Safety Center is enabled. */
     public static boolean getSafetyCenterEnabled() {
-        return getBoolean(PROPERTY_SAFETY_CENTER_ENABLED, false);
+        return getBoolean(PROPERTY_SAFETY_CENTER_ENABLED, SdkLevel.isAtLeastU());
     }
 
     /** Returns whether Safety Center notifications are enabled. */
-    static boolean getNotificationsEnabled() {
+    public static boolean getNotificationsEnabled() {
         return getBoolean(PROPERTY_NOTIFICATIONS_ENABLED, false);
     }
 
@@ -161,9 +234,53 @@ public final class SafetyCenterFlags {
      * <p>Note that the {@code areNotificationsAllowed} config attribute is only available on API U+
      * and therefore this is the only way to enable notifications for sources on Android T.
      */
-    @NonNull
-    static ArraySet<String> getNotificationsAllowedSourceIds() {
+    public static ArraySet<String> getNotificationsAllowedSourceIds() {
         return getCommaSeparatedStrings(PROPERTY_NOTIFICATIONS_ALLOWED_SOURCES);
+    }
+
+    /**
+     * Returns the minimum delay before Safety Center can send a notification for an issue with
+     * {@link SafetySourceIssue#NOTIFICATION_BEHAVIOR_DELAYED}.
+     *
+     * <p>The actual delay used may be longer.
+     */
+    public static Duration getNotificationsMinDelay() {
+        return getDuration(
+                PROPERTY_NOTIFICATIONS_MIN_DELAY, NOTIFICATIONS_MIN_DELAY_DEFAULT_DURATION);
+    }
+
+    /**
+     * Returns the issue type IDs for which, if otherwise undefined, Safety Center should use {@link
+     * SafetySourceIssue#NOTIFICATION_BEHAVIOR_IMMEDIATELY}.
+     *
+     * <p>If a safety source specifies the notification behavior of an issue explicitly this flag
+     * has no effect, even if the issue matches one of the entries in this flag.
+     *
+     * <p>Entries in this set should be strings of the form "safety_source_id/issue_type_id".
+     */
+    public static ArraySet<String> getImmediateNotificationBehaviorIssues() {
+        return getCommaSeparatedStrings(PROPERTY_NOTIFICATIONS_IMMEDIATE_BEHAVIOR_ISSUES);
+    }
+
+    /**
+     * Returns the minimum interval that must elapse before Safety Center can resurface a
+     * notification after it was dismissed, or {@code null} (the default) if dismissed notifications
+     * cannot resurface.
+     *
+     * <p>Returns {@code null} if the underlying device config flag is either unset or is set to a
+     * negative value.
+     *
+     * <p>There may be other conditions for resurfacing a notification and the actual delay may be
+     * longer than this.
+     */
+    @Nullable
+    public static Duration getNotificationResurfaceInterval() {
+        long millis = getLong(PROPERTY_NOTIFICATION_RESURFACE_INTERVAL, -1);
+        if (millis < 0) {
+            return null;
+        } else {
+            return Duration.ofMillis(millis);
+        }
     }
 
     /**
@@ -177,7 +294,7 @@ public final class SafetyCenterFlags {
      * Returns whether we should replace the lock screen source's {@link
      * android.safetycenter.SafetySourceStatus.IconAction}.
      */
-    static boolean getReplaceLockScreenIconAction() {
+    public static boolean getReplaceLockScreenIconAction() {
         return getBoolean(PROPERTY_REPLACE_LOCK_SCREEN_ICON_ACTION, true);
     }
 
@@ -204,18 +321,17 @@ public final class SafetyCenterFlags {
      * Returns the IDs of sources that should not be tracked, for example because they are
      * mid-rollout. Broadcasts are still sent to these sources.
      */
-    @NonNull
     static ArraySet<String> getUntrackedSourceIds() {
-        return getCommaSeparatedStrings(PROPERTY_UNTRACKED_SOURCES);
+        return getCommaSeparatedStrings(PROPERTY_UNTRACKED_SOURCES, sUntrackedSourcesDefault);
     }
 
     /**
      * Returns the IDs of sources that should only be refreshed when Safety Center is on screen. We
      * will refresh these sources only on page open and when the scan button is clicked.
      */
-    @NonNull
     static ArraySet<String> getBackgroundRefreshDeniedSourceIds() {
-        return getCommaSeparatedStrings(PROPERTY_BACKGROUND_REFRESH_DENIED_SOURCES);
+        return getCommaSeparatedStrings(
+                PROPERTY_BACKGROUND_REFRESH_DENIED_SOURCES, sBackgroundRefreshDenyDefault);
     }
 
     /**
@@ -237,9 +353,8 @@ public final class SafetyCenterFlags {
      * RefreshReason} and the right value is the refresh timeout applied for each source in case of
      * a refresh.
      */
-    @NonNull
     private static String getRefreshSourcesTimeoutsMillis() {
-        return getString(PROPERTY_REFRESH_SOURCES_TIMEOUTS_MILLIS, "");
+        return getString(PROPERTY_REFRESH_SOURCES_TIMEOUTS_MILLIS, REFRESH_SOURCES_TIMEOUT_DEFAULT);
     }
 
     /**
@@ -253,7 +368,7 @@ public final class SafetyCenterFlags {
         if (maxCount != null) {
             return maxCount;
         }
-        return RESURFACE_ISSUE_DEFAULT_MAX_COUNT;
+        return RESURFACE_ISSUE_MAX_COUNT_DEFAULT_COUNT;
     }
 
     /**
@@ -261,9 +376,8 @@ public final class SafetyCenterFlags {
      * {@link SafetySourceData.SeverityLevel} and the right value is the number of times an issue of
      * this {@link SafetySourceData.SeverityLevel} should be resurfaced.
      */
-    @NonNull
     private static String getResurfaceIssueMaxCounts() {
-        return getString(PROPERTY_RESURFACE_ISSUE_MAX_COUNTS, "");
+        return getString(PROPERTY_RESURFACE_ISSUE_MAX_COUNTS, RESURFACE_ISSUE_MAX_COUNT_DEFAULT);
     }
 
     /**
@@ -272,7 +386,6 @@ public final class SafetyCenterFlags {
      * which a dismissed issue of the given {@link SafetySourceData.SeverityLevel} should be
      * resurfaced.
      */
-    @NonNull
     public static Duration getResurfaceIssueDelay(
             @SafetySourceData.SeverityLevel int severityLevel) {
         String delaysConfigString = getResurfaceIssueDelaysMillis();
@@ -280,7 +393,7 @@ public final class SafetyCenterFlags {
         if (delayMillis != null) {
             return Duration.ofMillis(delayMillis);
         }
-        return RESURFACE_ISSUE_DEFAULT_DELAY;
+        return RESURFACE_ISSUE_DELAYS_DEFAULT_DURATION;
     }
 
     /**
@@ -290,18 +403,23 @@ public final class SafetyCenterFlags {
      * maximum count for which a dismissed issue of this {@link SafetySourceData.SeverityLevel}
      * should be resurfaced.
      */
-    @NonNull
     private static String getResurfaceIssueDelaysMillis() {
-        return getString(PROPERTY_RESURFACE_ISSUE_DELAYS_MILLIS, "");
+        return getString(PROPERTY_RESURFACE_ISSUE_DELAYS_MILLIS, RESURFACE_ISSUE_DELAYS_DEFAULT);
+    }
+
+    /** Returns a duration after which a temporarily hidden issue will resurface. */
+    public static Duration getTemporarilyHiddenIssueResurfaceDelay() {
+        return getDuration(
+                PROPERTY_TEMP_HIDDEN_ISSUE_RESURFACE_DELAY_MILLIS,
+                TEMP_HIDDEN_ISSUE_RESURFACE_DELAY_DEFAULT_DURATION);
     }
 
     /**
      * Returns whether a safety source is allowed to send issues for the given {@link
      * SafetySourceIssue.IssueCategory}.
      */
-    @NonNull
     public static boolean isIssueCategoryAllowedForSource(
-            @SafetySourceIssue.IssueCategory int issueCategory, @NonNull String safetySourceId) {
+            @SafetySourceIssue.IssueCategory int issueCategory, String safetySourceId) {
         String issueCategoryAllowlists = getIssueCategoryAllowlists();
         String allowlistString =
                 getStringValueFromStringMapping(issueCategoryAllowlists, issueCategory);
@@ -317,19 +435,32 @@ public final class SafetyCenterFlags {
         return false;
     }
 
+    /** Returns a set of package certificates allowlisted for the given package name. */
+    public static ArraySet<String> getAdditionalAllowedPackageCerts(String packageName) {
+        String property = getAdditionalAllowedPackageCertsString();
+        String allowlistedCertString = getStringValueFromStringMapping(property, packageName);
+        if (allowlistedCertString == null) {
+            return new ArraySet<>();
+        }
+        return new ArraySet<String>(allowlistedCertString.split("\\|"));
+    }
+
     /**
      * Returns a comma-delimited list of colon-delimited pairs where the left value is an issue
      * {@link SafetySourceIssue.IssueCategory} and the right value is a vertical-bar-delimited list
      * of IDs of safety sources that are allowed to send issues with this category.
      */
-    @NonNull
     private static String getIssueCategoryAllowlists() {
-        return getString(PROPERTY_ISSUE_CATEGORY_ALLOWLISTS, "");
+        return getString(PROPERTY_ISSUE_CATEGORY_ALLOWLISTS, sIssueCategoryAllowlistDefault);
     }
 
-    /** Returns whether we allow statsd logging in tests. */
-    static boolean getAllowStatsdLoggingInTests() {
-        return getBoolean(PROPERTY_ALLOW_STATSD_LOGGING_IN_TESTS, false);
+    private static String getAdditionalAllowedPackageCertsString() {
+        return getString(PROPERTY_ADDITIONAL_ALLOW_PACKAGE_CERTS, "");
+    }
+
+    /** Returns whether we allow statsd logging. */
+    public static boolean getAllowStatsdLogging() {
+        return getBoolean(PROPERTY_ALLOW_STATSD_LOGGING, true);
     }
 
     /**
@@ -337,7 +468,6 @@ public final class SafetyCenterFlags {
      * expand-and-collapse list implementation.
      */
     static boolean getShowSubpages() {
-        // TODO(b/260822348): Add CTS test to verify that the flag is disabled when turned on for T
         return SdkLevel.isAtLeastU() && getBoolean(PROPERTY_SHOW_SUBPAGES, true);
     }
 
@@ -346,15 +476,15 @@ public final class SafetyCenterFlags {
      * refreshOnPageOpenAllowed is false (the default) in the XML config.
      */
     static ArraySet<String> getOverrideRefreshOnPageOpenSourceIds() {
-        return getCommaSeparatedStrings(PROPERTY_OVERRIDE_REFRESH_ON_PAGE_OPEN_SOURCES);
+        return getCommaSeparatedStrings(
+                PROPERTY_OVERRIDE_REFRESH_ON_PAGE_OPEN_SOURCES, sRefreshOnPageOpenSourcesDefault);
     }
 
-    @NonNull
-    private static Duration getDuration(@NonNull String property, @NonNull Duration defaultValue) {
+    private static Duration getDuration(String property, Duration defaultValue) {
         return Duration.ofMillis(getLong(property, defaultValue.toMillis()));
     }
 
-    private static boolean getBoolean(@NonNull String property, boolean defaultValue) {
+    private static boolean getBoolean(String property, boolean defaultValue) {
         // This call requires the READ_DEVICE_CONFIG permission.
         final long callingId = Binder.clearCallingIdentity();
         try {
@@ -364,7 +494,7 @@ public final class SafetyCenterFlags {
         }
     }
 
-    private static long getLong(@NonNull String property, long defaultValue) {
+    private static long getLong(String property, long defaultValue) {
         // This call requires the READ_DEVICE_CONFIG permission.
         final long callingId = Binder.clearCallingIdentity();
         try {
@@ -374,13 +504,15 @@ public final class SafetyCenterFlags {
         }
     }
 
-    @NonNull
-    private static ArraySet<String> getCommaSeparatedStrings(@NonNull String property) {
-        return new ArraySet<>(getString(property, "").split(","));
+    private static ArraySet<String> getCommaSeparatedStrings(String property) {
+        return getCommaSeparatedStrings(property, "");
     }
 
-    @NonNull
-    private static String getString(@NonNull String property, @NonNull String defaultValue) {
+    private static ArraySet<String> getCommaSeparatedStrings(String property, String defaultValue) {
+        return new ArraySet<>(getString(property, defaultValue).split(","));
+    }
+
+    private static String getString(String property, String defaultValue) {
         // This call requires the READ_DEVICE_CONFIG permission.
         final long callingId = Binder.clearCallingIdentity();
         try {
@@ -395,7 +527,7 @@ public final class SafetyCenterFlags {
      * pairs of integers and longs.
      */
     @Nullable
-    private static Long getLongValueFromStringMapping(@NonNull String config, int key) {
+    private static Long getLongValueFromStringMapping(String config, int key) {
         String valueString = getStringValueFromStringMapping(config, key);
         if (valueString == null) {
             return null;
@@ -413,7 +545,7 @@ public final class SafetyCenterFlags {
      * of integers and strings.
      */
     @Nullable
-    private static String getStringValueFromStringMapping(@NonNull String config, int key) {
+    private static String getStringValueFromStringMapping(String config, int key) {
         return getStringValueFromStringMapping(config, Integer.toString(key));
     }
 
@@ -422,8 +554,7 @@ public final class SafetyCenterFlags {
      * string pairs.
      */
     @Nullable
-    private static String getStringValueFromStringMapping(
-            @NonNull String config, @NonNull String key) {
+    private static String getStringValueFromStringMapping(String config, String key) {
         if (config.isEmpty()) {
             return null;
         }

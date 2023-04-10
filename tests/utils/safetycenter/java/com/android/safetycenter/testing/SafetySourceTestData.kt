@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_RECEIVER_FOREGROUND
 import android.content.pm.PackageManager.ResolveInfoFlags
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.safetycenter.SafetyEvent
 import android.safetycenter.SafetySourceData
@@ -30,11 +31,13 @@ import android.safetycenter.SafetySourceData.SEVERITY_LEVEL_RECOMMENDATION
 import android.safetycenter.SafetySourceData.SEVERITY_LEVEL_UNSPECIFIED
 import android.safetycenter.SafetySourceIssue
 import android.safetycenter.SafetySourceIssue.Action
+import android.safetycenter.SafetySourceIssue.Action.ConfirmationDialogDetails
 import android.safetycenter.SafetySourceStatus
 import android.safetycenter.SafetySourceStatus.IconAction
 import android.safetycenter.SafetySourceStatus.IconAction.ICON_TYPE_GEAR
 import android.safetycenter.SafetySourceStatus.IconAction.ICON_TYPE_INFO
 import androidx.annotation.RequiresApi
+import com.android.modules.utils.build.SdkLevel
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.ACTION_TEST_ACTIVITY
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SINGLE_SOURCE_ID
 import com.android.safetycenter.testing.SafetySourceIntentHandler.Companion.ACTION_DISMISS_ISSUE
@@ -49,6 +52,7 @@ import kotlin.math.max
  * A class that provides [SafetySourceData] objects and associated constants to facilitate setting
  * up specific states in SafetyCenter for testing.
  */
+@RequiresApi(TIRAMISU)
 class SafetySourceTestData(private val context: Context) {
 
     /** A [PendingIntent] that redirects to the [TestActivity] page. */
@@ -100,14 +104,12 @@ class SafetySourceTestData(private val context: Context) {
     /**
      * A [SafetySourceIssue.Builder] with a [SEVERITY_LEVEL_INFORMATION] and a redirecting [Action].
      */
-    private fun defaultInformationIssueBuilder() =
-        SafetySourceIssue.Builder(
-                INFORMATION_ISSUE_ID,
-                "Information issue title",
-                "Information issue summary",
-                SEVERITY_LEVEL_INFORMATION,
-                ISSUE_TYPE_ID
-            )
+    fun defaultInformationIssueBuilder(
+        id: String = INFORMATION_ISSUE_ID,
+        title: String = "Information issue title",
+        summary: String = "Information issue summary"
+    ) =
+        SafetySourceIssue.Builder(id, title, summary, SEVERITY_LEVEL_INFORMATION, ISSUE_TYPE_ID)
             .addAction(
                 Action.Builder(
                         INFORMATION_ISSUE_ACTION_ID,
@@ -299,7 +301,8 @@ class SafetySourceTestData(private val context: Context) {
      */
     fun defaultRecommendationIssueBuilder(
         title: String = "Recommendation issue title",
-        summary: String = "Recommendation issue summary"
+        summary: String = "Recommendation issue summary",
+        confirmationDialog: Boolean = false
     ) =
         SafetySourceIssue.Builder(
                 RECOMMENDATION_ISSUE_ID,
@@ -314,6 +317,11 @@ class SafetySourceTestData(private val context: Context) {
                         "See issue",
                         testActivityRedirectPendingIntent
                     )
+                    .apply {
+                        if (confirmationDialog && SdkLevel.isAtLeastU()) {
+                            setConfirmationDialogDetails(CONFIRMATION_DETAILS)
+                        }
+                    }
                     .build()
             )
 
@@ -330,6 +338,10 @@ class SafetySourceTestData(private val context: Context) {
     @RequiresApi(UPSIDE_DOWN_CAKE)
     fun recommendationIssueWithDeduplicationId(deduplicationId: String) =
         defaultRecommendationIssueBuilder().setDeduplicationId(deduplicationId).build()
+
+    val recommendationIssueWithActionConfirmation: SafetySourceIssue
+        @RequiresApi(UPSIDE_DOWN_CAKE)
+        get() = defaultRecommendationIssueBuilder(confirmationDialog = true).build()
 
     /**
      * A [SafetySourceIssue] with a [SEVERITY_LEVEL_RECOMMENDATION], account category and a
@@ -382,6 +394,13 @@ class SafetySourceTestData(private val context: Context) {
     val recommendationWithGeneralIssue =
         defaultRecommendationDataBuilder().addIssue(recommendationGeneralIssue).build()
 
+    val recommendationWithIssueWithActionConfirmation: SafetySourceData
+        @RequiresApi(UPSIDE_DOWN_CAKE)
+        get() =
+            defaultRecommendationDataBuilder()
+                .addIssue(recommendationIssueWithActionConfirmation)
+                .build()
+
     /**
      * A [SafetySourceData] with a [SEVERITY_LEVEL_RECOMMENDATION] redirecting [SafetySourceIssue]
      * and [SafetySourceStatus], only containing an account issue.
@@ -419,6 +438,19 @@ class SafetySourceTestData(private val context: Context) {
         Action.Builder(CRITICAL_ISSUE_ACTION_ID, "Solve issue", criticalIssueActionPendingIntent)
             .setWillResolve(true)
             .build()
+
+    /** A resolving Critical [Action] with confirmation */
+    val criticalResolvingActionWithConfirmation: SafetySourceIssue.Action
+        @RequiresApi(UPSIDE_DOWN_CAKE)
+        get() =
+            Action.Builder(
+                    CRITICAL_ISSUE_ACTION_ID,
+                    "Solve issue",
+                    criticalIssueActionPendingIntent
+                )
+                .setWillResolve(true)
+                .setConfirmationDialogDetails(CONFIRMATION_DETAILS)
+                .build()
 
     /** An action that redirects to [TestActivity] */
     val testActivityRedirectAction =
@@ -475,6 +507,14 @@ class SafetySourceTestData(private val context: Context) {
             .clearActions()
             .addAction(testActivityRedirectAction)
             .build()
+
+    val criticalResolvingIssueWithConfirmation: SafetySourceIssue
+        @RequiresApi(UPSIDE_DOWN_CAKE)
+        get() =
+            defaultCriticalResolvingIssueBuilder()
+                .clearActions()
+                .addAction(criticalResolvingActionWithConfirmation)
+                .build()
 
     /**
      * [SafetySourceIssue.Builder] with a [SEVERITY_LEVEL_CRITICAL_WARNING] and a resolving [Action]
@@ -553,11 +593,54 @@ class SafetySourceTestData(private val context: Context) {
                 .build()
 
     /**
+     * A [SafetySourceData] with a [SEVERITY_LEVEL_CRITICAL_WARNING] having a redirecting
+     * [SafetySourceIssue] with a [SafetySourceIssue.attributionTitle] and confirmation.
+     */
+    val criticalWithIssueWithConfirmationWithAttributionTitle: SafetySourceData
+        @RequiresApi(UPSIDE_DOWN_CAKE)
+        get() =
+            defaultCriticalDataBuilder()
+                .addIssue(
+                    defaultCriticalResolvingIssueBuilder()
+                        .setAttributionTitle("Attribution Title")
+                        .clearActions()
+                        .addAction(criticalResolvingActionWithConfirmation)
+                        .build()
+                )
+                .build()
+
+    /**
+     * A [SafetySourceData] with a [SEVERITY_LEVEL_CRITICAL_WARNING] having a redirecting
+     * [SafetySourceIssue] with a [SafetySourceIssue.attributionTitle].
+     */
+    val criticalWithTestActivityRedirectWithAttributionTitle: SafetySourceData
+        @RequiresApi(UPSIDE_DOWN_CAKE)
+        get() =
+            defaultCriticalDataBuilder()
+                .addIssue(
+                    defaultCriticalResolvingIssueBuilder()
+                        .setAttributionTitle("Attribution Title")
+                        .clearActions()
+                        .addAction(testActivityRedirectAction)
+                        .build()
+                )
+                .build()
+
+    /**
      * A [SafetySourceData] with a [SEVERITY_LEVEL_CRITICAL_WARNING] resolving general
      * [SafetySourceIssue] and [SafetySourceStatus].
      */
     val criticalWithResolvingGeneralIssue =
         defaultCriticalDataBuilder().addIssue(criticalResolvingGeneralIssue).build()
+
+    /**
+     * A [SafetySourceData] with a [SEVERITY_LEVEL_CRITICAL_WARNING] resolving general
+     * [SafetySourceIssue] and [SafetySourceStatus], with confirmation dialog.
+     */
+    val criticalWithResolvingGeneralIssueWithConfirmation: SafetySourceData
+        @RequiresApi(UPSIDE_DOWN_CAKE)
+        get() =
+            defaultCriticalDataBuilder().addIssue(criticalResolvingIssueWithConfirmation).build()
 
     /**
      * A [SafetySourceData] with a [SEVERITY_LEVEL_CRITICAL_WARNING] with a [SafetySourceIssue] that
@@ -702,6 +785,20 @@ class SafetySourceTestData(private val context: Context) {
 
         /** Issue type ID for all the issues in this file */
         const val ISSUE_TYPE_ID = "issue_type_id"
+
+        const val CONFIRMATION_TITLE = "Confirmation title"
+        const val CONFIRMATION_TEXT = "Confirmation text"
+        const val CONFIRMATION_YES = "Confirmation yes"
+        const val CONFIRMATION_NO = "Confirmation no"
+        val CONFIRMATION_DETAILS: ConfirmationDialogDetails
+            @RequiresApi(UPSIDE_DOWN_CAKE)
+            get() =
+                ConfirmationDialogDetails(
+                    CONFIRMATION_TITLE,
+                    CONFIRMATION_TEXT,
+                    CONFIRMATION_YES,
+                    CONFIRMATION_NO
+                )
 
         /** A [SafetyEvent] to push arbitrary changes to Safety Center. */
         val EVENT_SOURCE_STATE_CHANGED =

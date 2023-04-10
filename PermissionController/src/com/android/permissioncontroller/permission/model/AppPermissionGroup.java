@@ -24,7 +24,7 @@ import static android.app.AppOpsManager.MODE_FOREGROUND;
 import static android.app.AppOpsManager.MODE_IGNORED;
 import static android.app.AppOpsManager.OPSTR_LEGACY_STORAGE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static android.healthconnect.HealthPermissions.HEALTH_PERMISSION_GROUP;
+import static android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP;
 
 import static com.android.permissioncontroller.permission.utils.Utils.isHealthPermissionUiEnabled;
 
@@ -1594,12 +1594,13 @@ public final class AppPermissionGroup implements Comparable<AppPermissionGroup> 
                     // Enabling/Disabling an app op may put the app in a situation in which it has
                     // a handle to state it shouldn't have, so we have to kill the app. This matches
                     // the revoke runtime permission behavior.
+                    boolean wasChanged;
                     if (permission.isAppOpAllowed()) {
-                        boolean wasChanged = allowAppOp(permission, uid);
-                        shouldKillApp |= wasChanged && !mAppSupportsRuntimePermissions;
+                        wasChanged = allowAppOp(permission, uid);
                     } else {
-                        shouldKillApp |= disallowAppOp(permission, uid);
+                        wasChanged = disallowAppOp(permission, uid);
                     }
+                    shouldKillApp |= wasChanged && !mAppSupportsRuntimePermissions;
                 }
             }
         }
