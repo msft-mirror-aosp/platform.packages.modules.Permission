@@ -55,7 +55,7 @@ import com.android.permissioncontroller.permission.ui.handheld.v31.shouldShowSub
 import com.android.permissioncontroller.permission.utils.KotlinUtils
 import com.android.permissioncontroller.permission.utils.KotlinUtils.getPackageLabel
 import com.android.permissioncontroller.permission.utils.PermissionMapping
-import com.android.permissioncontroller.permission.utils.SubattributionUtils
+import com.android.permissioncontroller.permission.utils.v31.SubattributionUtils
 import com.android.permissioncontroller.permission.utils.Utils
 import java.time.Instant
 import java.util.Objects
@@ -348,7 +348,7 @@ class PermissionUsageDetailsViewModel(
         discreteAccess.accessTimeMs / ONE_HOUR_MS ==
             clusteredAccesses.first().accessTimeMs / ONE_HOUR_MS &&
             clusteredAccesses.last().accessTimeMs / ONE_MINUTE_MS -
-                discreteAccess.accessTimeMs / ONE_MINUTE_MS > CLUSTER_SPACING_MINUTES
+                discreteAccess.accessTimeMs / ONE_MINUTE_MS <= CLUSTER_SPACING_MINUTES
 
     /**
      * Composes all UI information from a [AppPermissionDiscreteAccessCluster] into a
