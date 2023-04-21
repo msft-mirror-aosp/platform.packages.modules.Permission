@@ -21,17 +21,24 @@ import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.os.Bundle
 import android.safetycenter.SafetyCenterManager.EXTRA_SAFETY_SOURCES_GROUP_ID
 import android.safetycenter.SafetySourceData
+import android.safetycenter.SafetySourceIssue
 import android.safetycenter.config.SafetySource
+import android.safetycenter.config.SafetySourcesGroup
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import com.android.compatibility.common.util.DisableAnimationRule
 import com.android.compatibility.common.util.FreezeRotationRule
+import com.android.compatibility.common.util.RetryRule
 import com.android.compatibility.common.util.UiAutomatorUtils2
 import com.android.safetycenter.resources.SafetyCenterResourcesContext
+import com.android.safetycenter.testing.Coroutines.TIMEOUT_LONG
+import com.android.safetycenter.testing.Coroutines.TIMEOUT_SHORT
 import com.android.safetycenter.testing.SafetyCenterActivityLauncher.launchSafetyCenterActivity
 import com.android.safetycenter.testing.SafetyCenterActivityLauncher.openPageAndExit
+import com.android.safetycenter.testing.SafetyCenterActivityLauncher.openPageAndExitAllowingRetries
 import com.android.safetycenter.testing.SafetyCenterFlags
 import com.android.safetycenter.testing.SafetyCenterFlags.deviceSupportsSafetyCenter
 import com.android.safetycenter.testing.SafetyCenterTestConfigs
@@ -42,6 +49,7 @@ import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SOURCE
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SOURCE_ID_3
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SOURCE_ID_4
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SOURCE_ID_5
+import com.android.safetycenter.testing.SafetyCenterTestData
 import com.android.safetycenter.testing.SafetyCenterTestHelper
 import com.android.safetycenter.testing.SafetySourceIntentHandler.Request
 import com.android.safetycenter.testing.SafetySourceIntentHandler.Response
@@ -55,20 +63,25 @@ import com.android.safetycenter.testing.UiTestHelper.clickOpenSubpage
 import com.android.safetycenter.testing.UiTestHelper.clickSubpageBrandChip
 import com.android.safetycenter.testing.UiTestHelper.resetRotation
 import com.android.safetycenter.testing.UiTestHelper.rotate
+import com.android.safetycenter.testing.UiTestHelper.setAnimationsEnabled
 import com.android.safetycenter.testing.UiTestHelper.waitAllTextDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitAllTextNotDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitButtonDisplayed
+import com.android.safetycenter.testing.UiTestHelper.waitCollapsedIssuesDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitDisplayed
+import com.android.safetycenter.testing.UiTestHelper.waitExpandedIssuesDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitGroupShownOnHomepage
 import com.android.safetycenter.testing.UiTestHelper.waitPageTitleDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitPageTitleNotDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueNotDisplayed
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 
 /** Functional tests for generic subpages in Safety Center. */
@@ -79,6 +92,16 @@ class SafetyCenterSubpagesTest {
     @get:Rule val disableAnimationRule = DisableAnimationRule()
 
     @get:Rule val freezeRotationRule = FreezeRotationRule()
+
+    // It is necessery to couple RetryRule and Timeout to ensure that all the retries together are
+    // restricted with the test timeout
+    @get:Rule val retryRule = RetryRule(/* retries= */ 3)
+    @get:Rule
+    val timeoutRule =
+        Timeout(
+            InstrumentationRegistry.getArguments().getString("timeout_msec", "60000").toLong(),
+            TimeUnit.MILLISECONDS
+        )
 
     private val context: Context = getApplicationContext()
     private val safetyCenterTestHelper = SafetyCenterTestHelper(context)
@@ -504,7 +527,7 @@ class SafetyCenterSubpagesTest {
         )
 
         context.launchSafetyCenterActivity(withReceiverPermission = true) {
-            openPageAndExit(context.getString(sourcesGroup.titleResId)) {
+            openPageAndExitAllowingRetries(context.getString(sourcesGroup.titleResId)) {
                 waitSourceIssueDisplayed(issue)
                 waitButtonDisplayed(action.label) { it.click() }
 
@@ -524,7 +547,7 @@ class SafetyCenterSubpagesTest {
         val issue = sourceData.issues[0]
 
         context.launchSafetyCenterActivity {
-            openPageAndExit(context.getString(sourcesGroup.titleResId)) {
+            openPageAndExitAllowingRetries(context.getString(sourcesGroup.titleResId)) {
                 waitSourceIssueDisplayed(issue)
                 clickDismissIssueCard()
 
@@ -545,7 +568,7 @@ class SafetyCenterSubpagesTest {
         val issue = sourceData.issues[0]
 
         context.launchSafetyCenterActivity {
-            openPageAndExit(context.getString(sourcesGroup.titleResId)) {
+            openPageAndExitAllowingRetries(context.getString(sourcesGroup.titleResId)) {
                 waitSourceIssueDisplayed(issue)
                 clickDismissIssueCard()
                 waitAllTextDisplayed("Dismiss this alert?")
@@ -570,15 +593,11 @@ class SafetyCenterSubpagesTest {
 
         context.launchSafetyCenterActivity {
             openPageAndExit(context.getString(sourcesGroup.titleResId)) {
-                waitSourceIssueDisplayed(firstSourceData.issues[0])
-                waitAllTextDisplayed(MORE_ISSUES_LABEL)
-                waitSourceIssueNotDisplayed(secondSourceData.issues[0])
+                waitCollapsedIssuesDisplayed(firstSourceData.issues[0], secondSourceData.issues[0])
 
                 clickMoreIssuesCard()
 
-                waitSourceIssueDisplayed(firstSourceData.issues[0])
-                waitAllTextDisplayed(MORE_ISSUES_LABEL)
-                waitSourceIssueDisplayed(secondSourceData.issues[0])
+                waitExpandedIssuesDisplayed(firstSourceData.issues[0], secondSourceData.issues[0])
             }
         }
     }
@@ -592,7 +611,7 @@ class SafetyCenterSubpagesTest {
         val issue = sourceData.issues[0]
 
         context.launchSafetyCenterActivity {
-            openPageAndExit(context.getString(sourcesGroup.titleResId)) {
+            openPageAndExitAllowingRetries(context.getString(sourcesGroup.titleResId)) {
                 waitSourceIssueDisplayed(issue)
                 clickDismissIssueCard()
                 waitAllTextDisplayed("Dismiss this alert?")
@@ -616,7 +635,7 @@ class SafetyCenterSubpagesTest {
         val issue = sourceData.issues[0]
 
         context.launchSafetyCenterActivity {
-            openPageAndExit(context.getString(sourcesGroup.titleResId)) {
+            openPageAndExitAllowingRetries(context.getString(sourcesGroup.titleResId)) {
                 waitSourceIssueDisplayed(issue)
                 clickDismissIssueCard()
                 waitAllTextDisplayed("Dismiss this alert?")
@@ -629,6 +648,176 @@ class SafetyCenterSubpagesTest {
                 waitDisplayed(By.text("Dismissed alerts")) { it.click() }
                 waitSourceIssueNotDisplayed(issue)
             }
+        }
+    }
+
+    @Test
+    fun dismissedIssuesCard_resolveIssue_successConfirmationShown() {
+        SafetyCenterFlags.hideResolvedIssueUiTransitionDelay = TIMEOUT_LONG
+        val (sourcesGroup, issue) =
+            prepareSingleSourceGroupWithIssue(
+                safetySourceTestData.criticalWithIssueWithAttributionTitle
+            )
+        prepareActionResponse(Response.ClearData)
+
+        checkOnDismissedIssue(sourcesGroup, issue) {
+            val action = issue.actions[0]
+            waitButtonDisplayed(action.label) {
+                // Re-enable animations for this test as this is needed to show the success message.
+                setAnimationsEnabled(true)
+                it.click()
+            }
+
+            // Success message should show up if issue marked as resolved
+            val successMessage = action.successMessage
+            waitAllTextDisplayed(successMessage)
+        }
+    }
+
+    @Test
+    fun dismissedIssuesCard_resolveIssue_issueDismisses() {
+        val (sourcesGroup, issue) =
+            prepareSingleSourceGroupWithIssue(
+                safetySourceTestData.criticalWithIssueWithAttributionTitle
+            )
+        prepareActionResponse(Response.ClearData)
+
+        checkOnDismissedIssue(sourcesGroup, issue) {
+            val action = issue.actions[0]
+            waitButtonDisplayed(action.label) { it.click() }
+
+            // Wait for success message to go away, verify issue no longer displayed
+            val successMessage = action.successMessage
+            waitAllTextNotDisplayed(successMessage)
+            waitSourceIssueNotDisplayed(issue)
+        }
+    }
+
+    @Test
+    fun dismissedIssuesCard_resolveIssue_withDialogClickYes_resolves() {
+        val (sourcesGroup, issue) =
+            prepareSingleSourceGroupWithIssue(
+                safetySourceTestData.criticalWithIssueWithConfirmationWithAttributionTitle
+            )
+        prepareActionResponse(Response.ClearData)
+
+        checkOnDismissedIssue(sourcesGroup, issue) {
+            val action = issue.actions[0]
+            waitButtonDisplayed(action.label) { it.click() }
+
+            waitAllTextDisplayed(SafetySourceTestData.CONFIRMATION_TITLE)
+            waitButtonDisplayed(SafetySourceTestData.CONFIRMATION_YES) { it.click() }
+
+            waitSourceIssueNotDisplayed(issue)
+        }
+    }
+
+    @Test
+    fun dismissedIssuesCard_resolveIssue_withDialog_rotates_clickYes_resolves() {
+        val (sourcesGroup, issue) =
+            prepareSingleSourceGroupWithIssue(
+                safetySourceTestData.criticalWithIssueWithConfirmationWithAttributionTitle
+            )
+        prepareActionResponse(Response.ClearData)
+
+        checkOnDismissedIssue(sourcesGroup, issue) {
+            val action = issue.actions[0]
+            waitButtonDisplayed(action.label) { it.click() }
+
+            waitAllTextDisplayed(SafetySourceTestData.CONFIRMATION_TITLE)
+
+            UiAutomatorUtils2.getUiDevice().rotate()
+
+            waitAllTextDisplayed(SafetySourceTestData.CONFIRMATION_TITLE)
+            waitButtonDisplayed(SafetySourceTestData.CONFIRMATION_YES) { it.click() }
+
+            waitSourceIssueNotDisplayed(issue)
+        }
+    }
+
+    @Test
+    fun dismissedIssuesCard_resolveIssue_withDialogClicksNo_cancels() {
+        val (sourcesGroup, issue) =
+            prepareSingleSourceGroupWithIssue(
+                safetySourceTestData.criticalWithIssueWithConfirmationWithAttributionTitle
+            )
+
+        checkOnDismissedIssue(sourcesGroup, issue) {
+            val action = issue.actions[0]
+            waitButtonDisplayed(action.label) { it.click() }
+
+            waitAllTextDisplayed(SafetySourceTestData.CONFIRMATION_TITLE)
+            waitButtonDisplayed(SafetySourceTestData.CONFIRMATION_NO) { it.click() }
+
+            waitSourceIssueDisplayed(issue)
+        }
+    }
+
+    @Test
+    fun dismissedIssuesCard_resolveIssue_noSuccessMessage_noResolutionUiShown_issueDismisses() {
+        SafetyCenterFlags.hideResolvedIssueUiTransitionDelay = TIMEOUT_LONG
+        val (sourcesGroup, issue) =
+            prepareSingleSourceGroupWithIssue(
+                safetySourceTestData.criticalWithIssueWithAttributionTitle
+            )
+        prepareActionResponse(Response.ClearData)
+
+        checkOnDismissedIssue(sourcesGroup, issue) {
+            val action = issue.actions[0]
+            waitButtonDisplayed(action.label) {
+                // Re-enable animations for this test as this is needed to show the success message.
+                setAnimationsEnabled(true)
+                it.click()
+            }
+
+            waitSourceIssueNotDisplayed(issue)
+        }
+    }
+
+    @Test
+    fun dismissedIssuesCard_resolvingInflightIssueFailed_issueRemains() {
+        val (sourcesGroup, issue) =
+            prepareSingleSourceGroupWithIssue(
+                safetySourceTestData.criticalWithIssueWithAttributionTitle
+            )
+        prepareActionResponse(Response.Error)
+
+        checkOnDismissedIssue(sourcesGroup, issue) {
+            val action = issue.actions[0]
+            waitButtonDisplayed(action.label) { it.click() }
+
+            waitSourceIssueDisplayed(issue)
+        }
+    }
+
+    @Test
+    fun dismissedIssuesCard_resolvingInFlightIssueTimesOut_issueRemains() {
+        SafetyCenterFlags.resolveActionTimeout = TIMEOUT_SHORT
+        val (sourcesGroup, issue) =
+            prepareSingleSourceGroupWithIssue(
+                safetySourceTestData.criticalWithIssueWithAttributionTitle
+            )
+
+        checkOnDismissedIssue(sourcesGroup, issue) {
+            val action = issue.actions[0]
+            waitButtonDisplayed(action.label) { it.click() }
+
+            waitSourceIssueDisplayed(issue)
+        }
+    }
+
+    @Test
+    fun dismissedIssuesCard_clickingNonResolvingActionButton_redirectsToDifferentScreen() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
+        val (sourcesGroup, issue) =
+            prepareSingleSourceGroupWithIssue(
+                safetySourceTestData.criticalWithTestActivityRedirectWithAttributionTitle
+            )
+
+        checkOnDismissedIssue(sourcesGroup, issue) {
+            val action = issue.actions[0]
+            waitButtonDisplayed(action.label) { it.click() }
+            waitButtonDisplayed("Exit test activity") { it.click() }
         }
     }
 
@@ -783,6 +972,38 @@ class SafetyCenterSubpagesTest {
                         "test_single_source_group_id_footer"
                     )
                 )
+            }
+        }
+    }
+
+    private fun prepareSingleSourceGroupWithIssue(
+        sourceData: SafetySourceData
+    ): Pair<SafetySourcesGroup, SafetySourceIssue> {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
+        safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, sourceData)
+        val sourcesGroup = safetyCenterTestConfigs.singleSourceConfig.safetySourcesGroups.first()
+        val issue = sourceData.issues[0]
+        return sourcesGroup to issue
+    }
+
+    private fun prepareActionResponse(actionResponse: Response) {
+        SafetySourceReceiver.setResponse(Request.ResolveAction(SINGLE_SOURCE_ID), actionResponse)
+    }
+
+    private fun checkOnDismissedIssue(
+        sourcesGroup: SafetySourcesGroup,
+        issue: SafetySourceIssue,
+        block: () -> Unit
+    ) {
+        val safetyCenterIssueId = SafetyCenterTestData.issueId(SINGLE_SOURCE_ID, issue.id)
+        safetyCenterTestHelper.dismissSafetyCenterIssue(safetyCenterIssueId)
+
+        context.launchSafetyCenterActivity(withReceiverPermission = true) {
+            openPageAndExit(context.getString(sourcesGroup.titleResId)) {
+                waitDisplayed(By.text("Dismissed alerts")) { it.click() }
+                waitSourceIssueDisplayed(issue)
+
+                block()
             }
         }
     }

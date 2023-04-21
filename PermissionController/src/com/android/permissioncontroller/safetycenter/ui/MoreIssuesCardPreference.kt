@@ -29,7 +29,7 @@ import com.android.permissioncontroller.safetycenter.ui.view.MoreIssuesHeaderVie
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal class MoreIssuesCardPreference(
     context: Context,
-    @DrawableRes val preferenceWidgetIconResourceId: Int,
+    @DrawableRes val overrideChevronIconResId: Int?,
     private var previousMoreIssuesCardData: MoreIssuesCardData?,
     private var newMoreIssuesCardData: MoreIssuesCardData,
     private val dismissedOnly: Boolean,
@@ -47,7 +47,8 @@ internal class MoreIssuesCardPreference(
         val issueHeaderView = holder.itemView as MoreIssuesHeaderView
         if (isStaticHeader) {
             issueHeaderView.showStaticHeader(
-                context.getString(R.string.safety_center_dismissed_issues_card_title)
+                context.getString(R.string.safety_center_dismissed_issues_card_title),
+                newMoreIssuesCardData.severityLevel
             )
         } else {
             issueHeaderView.showExpandableHeader(
@@ -60,6 +61,7 @@ internal class MoreIssuesCardPreference(
                         R.string.safety_center_more_issues_card_title
                     }
                 ),
+                overrideChevronIconResId,
                 onClickListener
             )
         }
@@ -80,7 +82,7 @@ internal class MoreIssuesCardPreference(
             isStaticHeader == preference.isStaticHeader &&
             previousMoreIssuesCardData == preference.previousMoreIssuesCardData &&
             newMoreIssuesCardData == preference.newMoreIssuesCardData &&
-            preferenceWidgetIconResourceId == preference.preferenceWidgetIconResourceId &&
+            overrideChevronIconResId == preference.overrideChevronIconResId &&
             dismissedOnly == preference.dismissedOnly
     }
 

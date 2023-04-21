@@ -35,7 +35,6 @@ import androidx.annotation.RequiresApi;
 import com.android.safetycenter.resources.SafetyCenterResourcesContext;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Helps build or retrieve {@link PendingIntent} instances.
@@ -111,13 +110,10 @@ public final class PendingIntentFactory {
             // In particular, the AOSP Settings app uses this to ensure that two-pane mode works
             // correctly.
             intent.putExtra(IS_SETTINGS_HOMEPAGE, true);
-        }
-
-        // queryIntentActivities does not return any activity when the work profile is in quiet
-        // mode, even though it opens the quiet mode dialog. So, we assume that the intent will
-        // resolve to this dialog.
-        if (isQuietModeEnabled) {
-            return intent;
+            // Given we've added an extra to this intent, set an ID on it to ensure that it is not
+            // considered equal to the same intent without the extra. PendingIntents are cached
+            // using Intent equality as the key, and we want to make sure the extra is propagated.
+            intent.setIdentifier("with_settings_homepage_extra");
         }
 
         // If the intent resolves for the package provided, then we make the assumption that it is
@@ -134,6 +130,15 @@ public final class PendingIntentFactory {
             return intent;
         }
 
+        // resolveActivity does not return any activity when the work profile is in quiet mode, even
+        // though it opens the quiet mode dialog and/or the original intent would otherwise resolve
+        // when quiet mode is turned off. So, we assume that the explicit intent will always resolve
+        // to this dialog. This heuristic is preferable on U+ as it has a higher chance of resolving
+        // once the work profile is enabled considering the implicit internal intent restriction.
+        if (isQuietModeEnabled) {
+            return explicitIntent;
+        }
+
         return null;
     }
 
@@ -146,16 +151,17 @@ public final class PendingIntentFactory {
     }
 
     private static boolean intentResolves(Context packageContext, Intent intent) {
-        return !queryIntentActivities(packageContext, intent).isEmpty();
+        return resolveActivity(packageContext, intent) != null;
     }
 
-    private static List<ResolveInfo> queryIntentActivities(Context packageContext, Intent intent) {
+    @Nullable
+    private static ResolveInfo resolveActivity(Context packageContext, Intent intent) {
         PackageManager packageManager = packageContext.getPackageManager();
         // This call requires the INTERACT_ACROSS_USERS permission as the `packageContext` could
         // belong to another user.
         final long callingId = Binder.clearCallingIdentity();
         try {
-            return packageManager.queryIntentActivities(intent, ResolveInfoFlags.of(0));
+            return packageManager.resolveActivity(intent, ResolveInfoFlags.of(0));
         } finally {
             Binder.restoreCallingIdentity(callingId);
         }
@@ -188,7 +194,7 @@ public final class PendingIntentFactory {
      * <p>{@code flags} must include {@link PendingIntent#FLAG_IMMUTABLE}
      */
     @Nullable
-    static PendingIntent getNonProtectedSystemOnlyBroadcastPendingIntent(
+    public static PendingIntent getNonProtectedSystemOnlyBroadcastPendingIntent(
             Context context, int requestCode, Intent intent, int flags) {
         if ((flags & PendingIntent.FLAG_IMMUTABLE) == 0) {
             throw new IllegalArgumentException("flags must include FLAG_IMMUTABLE");

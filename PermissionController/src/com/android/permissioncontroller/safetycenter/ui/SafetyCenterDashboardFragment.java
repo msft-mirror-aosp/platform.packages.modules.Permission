@@ -44,7 +44,6 @@ import androidx.annotation.RequiresApi;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceGroup;
 
-import com.android.permissioncontroller.Constants;
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.safetycenter.ui.model.SafetyCenterUiData;
 import com.android.permissioncontroller.safetycenter.ui.model.StatusUiData;
@@ -117,8 +116,9 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
             getPreferenceScreen().removePreference(mStaticEntriesGroup);
             mStaticEntriesGroup = null;
         }
-
         getSafetyCenterViewModel().getStatusUiLiveData().observe(this, this::updateStatus);
+
+        prerenderCurrentSafetyCenterData();
     }
 
     // Set the default divider line between preferences to be transparent
@@ -133,25 +133,15 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        configureInteractionLogger();
-        getSafetyCenterViewModel().getInteractionLogger().record(Action.SAFETY_CENTER_VIEWED);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         getSafetyCenterViewModel().pageOpen();
     }
 
-    private void configureInteractionLogger() {
+    @Override
+    public void configureInteractionLogger() {
         InteractionLogger logger = getSafetyCenterViewModel().getInteractionLogger();
-
-        logger.setSessionId(
-                requireArguments()
-                        .getLong(Constants.EXTRA_SESSION_ID, Constants.INVALID_SESSION_ID));
+        logger.setSessionId(getSafetyCenterSessionId());
         logger.setViewType(mIsQuickSettingsFragment ? ViewType.QUICK_SETTINGS : ViewType.FULL);
 
         Intent intent = requireActivity().getIntent();
@@ -231,7 +221,9 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
             boolean isLastElement = i == size - 1;
 
             if (SafetyCenterUiFlags.getShowSubpages() && group != null) {
-                mEntriesGroup.addPreference(new SafetyHomepageEntryPreference(context, group));
+                mEntriesGroup.addPreference(
+                        new SafetyHomepageEntryPreference(
+                                context, group, getSafetyCenterSessionId()));
             } else if (entry != null) {
                 addTopLevelEntry(context, entry, isFirstElement, isLastElement);
             } else if (group != null) {

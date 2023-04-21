@@ -18,6 +18,7 @@ package com.android.permissioncontroller.safetycenter.ui
 
 import android.content.Context
 import android.os.Build
+import android.os.UserManager
 import android.safetycenter.SafetyCenterEntry
 import android.safetycenter.SafetyCenterEntry.IconAction.ICON_ACTION_TYPE_GEAR
 import android.text.TextUtils
@@ -28,7 +29,12 @@ import androidx.annotation.RequiresApi
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import com.android.permissioncontroller.R
+import com.android.permissioncontroller.safetycenter.SafetyCenterConstants.PERSONAL_PROFILE_SUFFIX
+import com.android.permissioncontroller.safetycenter.SafetyCenterConstants.WORK_PROFILE_SUFFIX
+import com.android.permissioncontroller.safetycenter.ui.model.SafetyCenterViewModel
 import com.android.permissioncontroller.safetycenter.ui.view.SafetyEntryCommonViewsManager.Companion.changeEnabledState
+import com.android.safetycenter.internaldata.SafetyCenterEntryId
+import com.android.safetycenter.internaldata.SafetyCenterIds
 import com.android.settingslib.widget.TwoTargetPreference
 
 /**
@@ -39,7 +45,8 @@ import com.android.settingslib.widget.TwoTargetPreference
 class SafetySubpageEntryPreference(
     context: Context,
     private val launchTaskId: Int?,
-    private val entry: SafetyCenterEntry
+    private val entry: SafetyCenterEntry,
+    private val viewModel: SafetyCenterViewModel
 ) : TwoTargetPreference(context), ComparablePreference {
 
     init {
@@ -48,6 +55,7 @@ class SafetySubpageEntryPreference(
         setTitle(entry.title)
         setSummary(entry.summary)
         setSelectable(true)
+        setupPreferenceKey()
     }
 
     private fun setupIconActionButton() {
@@ -69,6 +77,7 @@ class SafetySubpageEntryPreference(
             setOnPreferenceClickListener {
                 try {
                     PendingIntentSender.send(pendingIntent, launchTaskId)
+                    viewModel.interactionLogger.recordForEntry(Action.ENTRY_CLICKED, entry)
                     true
                 } catch (ex: Exception) {
                     Log.e(TAG, "Failed to execute pending intent for $entry", ex)
@@ -82,6 +91,14 @@ class SafetySubpageEntryPreference(
         }
     }
 
+    private fun setupPreferenceKey() {
+        val entryId: SafetyCenterEntryId = SafetyCenterIds.entryIdFromString(entry.id)
+        val isWorkProfile =
+            context.getSystemService(UserManager::class.java).isManagedProfile(entryId.userId)
+        val keySuffix = if (isWorkProfile) WORK_PROFILE_SUFFIX else PERSONAL_PROFILE_SUFFIX
+        setKey("${entryId.safetySourceId}_$keySuffix")
+    }
+
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
         val iconAction = entry.iconAction
@@ -92,6 +109,10 @@ class SafetySubpageEntryPreference(
             iconActionButton?.setOnClickListener {
                 try {
                     PendingIntentSender.send(iconAction.pendingIntent, launchTaskId)
+                    viewModel.interactionLogger.recordForEntry(
+                        Action.ENTRY_ICON_ACTION_CLICKED,
+                        entry
+                    )
                 } catch (ex: Exception) {
                     Log.e(TAG, "Failed to execute icon action intent for $entry", ex)
                 }
@@ -100,7 +121,7 @@ class SafetySubpageEntryPreference(
 
         val titleView = holder.findViewById(android.R.id.title) as? TextView?
         val summaryView = holder.findViewById(android.R.id.summary) as? TextView?
-        changeEnabledState(entry.isEnabled, titleView, summaryView)
+        changeEnabledState(context, entry.isEnabled, isEnabled(), titleView, summaryView)
     }
 
     override fun shouldHideSecondTarget(): Boolean = entry.iconAction == null

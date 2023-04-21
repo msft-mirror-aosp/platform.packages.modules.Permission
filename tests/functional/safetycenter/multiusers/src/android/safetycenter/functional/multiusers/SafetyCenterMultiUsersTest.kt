@@ -73,6 +73,7 @@ import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.STATIC
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.STATIC_BAREBONE_ID
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.STATIC_GROUP_ID
 import com.android.safetycenter.testing.SafetyCenterTestData
+import com.android.safetycenter.testing.SafetyCenterTestData.Companion.withoutExtras
 import com.android.safetycenter.testing.SafetyCenterTestHelper
 import com.android.safetycenter.testing.SafetySourceTestData
 import com.android.safetycenter.testing.SafetySourceTestData.Companion.EVENT_SOURCE_STATE_CHANGED
@@ -95,8 +96,6 @@ import org.junit.runner.RunWith
  * Functional tests for our APIs and UI on a device with multiple users. e.g. with a managed or
  * secondary user(s).
  */
-// TODO(b/264992293): Re-enable these tests and assess flakyness now that they are independent
-@Ignore
 @RunWith(BedsteadJUnit4::class)
 class SafetyCenterMultiUsersTest {
 
@@ -524,7 +523,7 @@ class SafetyCenterMultiUsersTest {
                 ),
                 listOf(SafetyCenterStaticEntryGroup("OK", listOf(staticEntry, staticEntry)))
             )
-        assertThat(apiSafetyCenterData).isEqualTo(safetyCenterDataFromComplexConfig)
+        assertThat(apiSafetyCenterData.withoutExtras()).isEqualTo(safetyCenterDataFromComplexConfig)
     }
 
     @Test
@@ -575,7 +574,7 @@ class SafetyCenterMultiUsersTest {
                     )
                 )
             )
-        assertThat(apiSafetyCenterData).isEqualTo(safetyCenterDataFromComplexConfig)
+        assertThat(apiSafetyCenterData.withoutExtras()).isEqualTo(safetyCenterDataFromComplexConfig)
     }
 
     @Test
@@ -629,7 +628,7 @@ class SafetyCenterMultiUsersTest {
                     )
                 )
             )
-        assertThat(apiSafetyCenterData).isEqualTo(safetyCenterDataFromComplexConfig)
+        assertThat(apiSafetyCenterData.withoutExtras()).isEqualTo(safetyCenterDataFromComplexConfig)
     }
 
     @Test
@@ -666,6 +665,14 @@ class SafetyCenterMultiUsersTest {
                         groupId = ISSUE_ONLY_GROUP_ID
                     ),
                     safetyCenterTestData.safetyCenterIssueInformation(
+                        DYNAMIC_IN_STATELESS_ID,
+                        groupId = MIXED_STATELESS_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        ISSUE_ONLY_IN_STATELESS_ID,
+                        groupId = MIXED_STATELESS_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
                         DYNAMIC_DISABLED_ID,
                         managedUserId,
                         groupId = DYNAMIC_GROUP_ID
@@ -683,15 +690,7 @@ class SafetyCenterMultiUsersTest {
                     ),
                     safetyCenterTestData.safetyCenterIssueInformation(
                         DYNAMIC_IN_STATELESS_ID,
-                        groupId = MIXED_STATELESS_GROUP_ID
-                    ),
-                    safetyCenterTestData.safetyCenterIssueInformation(
-                        DYNAMIC_IN_STATELESS_ID,
                         managedUserId,
-                        groupId = MIXED_STATELESS_GROUP_ID
-                    ),
-                    safetyCenterTestData.safetyCenterIssueInformation(
-                        ISSUE_ONLY_IN_STATELESS_ID,
                         groupId = MIXED_STATELESS_GROUP_ID
                     ),
                     safetyCenterTestData.safetyCenterIssueInformation(
@@ -739,7 +738,7 @@ class SafetyCenterMultiUsersTest {
                     )
                 )
             )
-        assertThat(apiSafetyCenterData).isEqualTo(safetyCenterDataFromComplexConfig)
+        assertThat(apiSafetyCenterData.withoutExtras()).isEqualTo(safetyCenterDataFromComplexConfig)
     }
 
     @Test
@@ -801,7 +800,7 @@ class SafetyCenterMultiUsersTest {
                     )
                 )
             )
-        assertThat(apiSafetyCenterData).isEqualTo(safetyCenterDataFromComplexConfig)
+        assertThat(apiSafetyCenterData.withoutExtras()).isEqualTo(safetyCenterDataFromComplexConfig)
     }
 
     @Test

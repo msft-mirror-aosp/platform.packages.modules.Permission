@@ -19,18 +19,20 @@ package com.android.safetycenter.data;
 import static android.os.Build.VERSION_CODES.TIRAMISU;
 
 import android.annotation.Nullable;
+import android.annotation.UptimeMillisLong;
 import android.annotation.UserIdInt;
 import android.content.Context;
+import android.os.SystemClock;
 import android.safetycenter.SafetyCenterData;
 import android.safetycenter.SafetyEvent;
 import android.safetycenter.SafetySourceData;
 import android.safetycenter.SafetySourceErrorDetails;
 import android.safetycenter.SafetySourceIssue;
 import android.safetycenter.config.SafetyCenterConfig;
+import android.safetycenter.config.SafetySourcesGroup;
 
 import androidx.annotation.RequiresApi;
 
-import com.android.modules.utils.build.SdkLevel;
 import com.android.safetycenter.ApiLock;
 import com.android.safetycenter.SafetyCenterConfigReader;
 import com.android.safetycenter.SafetyCenterRefreshTracker;
@@ -45,6 +47,7 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -71,10 +74,9 @@ public final class SafetyCenterDataManager {
             Context context,
             SafetyCenterConfigReader safetyCenterConfigReader,
             SafetyCenterRefreshTracker safetyCenterRefreshTracker,
-            SafetyCenterStatsdLogger safetyCenterStatsdLogger,
             ApiLock apiLock) {
         mSafetyCenterInFlightIssueActionRepository =
-                new SafetyCenterInFlightIssueActionRepository(safetyCenterStatsdLogger);
+                new SafetyCenterInFlightIssueActionRepository(context);
         mSafetyCenterIssueDismissalRepository =
                 new SafetyCenterIssueDismissalRepository(apiLock, safetyCenterConfigReader);
         mSafetySourceDataRepository =
@@ -90,10 +92,7 @@ public final class SafetyCenterDataManager {
                         mSafetySourceDataRepository,
                         safetyCenterConfigReader,
                         mSafetyCenterIssueDismissalRepository,
-                        SdkLevel.isAtLeastU()
-                                ? new SafetyCenterIssueDeduplicator(
-                                        mSafetyCenterIssueDismissalRepository)
-                                : null);
+                        new SafetyCenterIssueDeduplicator(mSafetyCenterIssueDismissalRepository));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -102,8 +101,8 @@ public final class SafetyCenterDataManager {
 
     /**
      * Sets the latest {@link SafetySourceData} for the given {@code safetySourceId}, {@link
-     * SafetyEvent}, {@code packageName} and {@code userId}, and returns whether there was a change
-     * to the underlying {@link SafetyCenterData}.
+     * SafetyEvent}, {@code packageName} and {@code userId}, and returns {@code true} if this caused
+     * any changes which would alter {@link SafetyCenterData}.
      *
      * <p>Throws if the request is invalid based on the {@link SafetyCenterConfig}: the given {@code
      * safetySourceId}, {@code packageName} and/or {@code userId} are unexpected; or the {@link
@@ -176,16 +175,14 @@ public final class SafetyCenterDataManager {
     }
 
     /**
-     * Marks the given {@link SafetySourceKey} as having errored-out and returns whether there was a
-     * change to the underlying {@link SafetyCenterData}.
+     * Marks the given {@link SafetySourceKey} as being in an error state due to a refresh timeout.
      */
-    public boolean setSafetySourceError(SafetySourceKey safetySourceKey) {
-        boolean dataUpdated = mSafetySourceDataRepository.setSafetySourceError(safetySourceKey);
+    public void markSafetySourceRefreshTimedOut(SafetySourceKey safetySourceKey) {
+        boolean dataUpdated =
+                mSafetySourceDataRepository.markSafetySourceRefreshTimedOut(safetySourceKey);
         if (dataUpdated) {
             mSafetyCenterIssueRepository.updateIssues(safetySourceKey.getUserId());
         }
-
-        return dataUpdated;
     }
 
     /**
@@ -207,9 +204,10 @@ public final class SafetyCenterDataManager {
     }
 
     /**
-     * Unmarks the given {@link SafetyCenterIssueActionId} as in-flight, logs that event to statsd
-     * with the given {@code result} value, and returns {@code true} if the underlying {@link
-     * SafetyCenterData} changed.
+     * Unmarks the given {@link SafetyCenterIssueActionId} as in-flight and returns {@code true} if
+     * this caused any changes which would alter {@link SafetyCenterData}.
+     *
+     * <p>Also logs an event to statsd with the given {@code result} value.
      */
     public boolean unmarkSafetyCenterIssueActionInFlight(
             SafetyCenterIssueActionId safetyCenterIssueActionId,
@@ -222,7 +220,6 @@ public final class SafetyCenterDataManager {
             mSafetyCenterIssueRepository.updateIssues(
                     safetyCenterIssueActionId.getSafetyCenterIssueKey().getUserId());
         }
-
         return dataUpdated;
     }
 
@@ -322,6 +319,30 @@ public final class SafetyCenterDataManager {
         return mSafetyCenterIssueRepository.getIssuesForUser(userId);
     }
 
+    /**
+     * Returns the list of issues for the given {@code userId} which were removed from the given
+     * list of issues in the most recent {@link SafetyCenterIssueDeduplicator#deduplicateIssues}
+     * call. These issues were removed because they were duplicates of other issues (see {@link
+     * SafetySourceIssue#getDeduplicationId()} for more info).
+     *
+     * <p>If this method is called before any calls to {@link
+     * SafetyCenterIssueDeduplicator#deduplicateIssues} then an empty list is returned.
+     */
+    public List<SafetySourceIssueInfo> getMostRecentFilteredOutDuplicateIssues(
+            @UserIdInt int userId) {
+        return mSafetyCenterIssueRepository.getMostRecentFilteredOutDuplicateIssues(userId);
+    }
+
+    /**
+     * Returns a set of {@link SafetySourcesGroup} IDs that the given {@link SafetyCenterIssueKey}
+     * is mapped to, or an empty list of no such mapping is configured.
+     *
+     * <p>Issue being mapped to a group means that this issue is relevant to that group.
+     */
+    public Set<String> getGroupMappingFor(SafetyCenterIssueKey issueKey) {
+        return mSafetyCenterIssueRepository.getGroupMappingFor(issueKey);
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////   SafetyCenterInFlightIssueActionRepository ////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -395,6 +416,26 @@ public final class SafetyCenterDataManager {
     public SafetySourceIssue.Action getSafetySourceIssueAction(
             SafetyCenterIssueActionId safetyCenterIssueActionId) {
         return mSafetySourceDataRepository.getSafetySourceIssueAction(safetyCenterIssueActionId);
+    }
+
+    /**
+     * Returns the elapsed realtime millis of when the data of the given {@link SafetySourceKey} was
+     * last updated, or {@code 0L} if no update has occurred.
+     *
+     * @see SystemClock#elapsedRealtime()
+     */
+    @UptimeMillisLong
+    public long getSafetySourceLastUpdated(SafetySourceKey safetySourceKey) {
+        return mSafetySourceDataRepository.getSafetySourceLastUpdated(safetySourceKey);
+    }
+
+    /**
+     * Returns the current {@link SafetyCenterStatsdLogger.SourceState} of the given {@link
+     * SafetySourceKey}.
+     */
+    @SafetyCenterStatsdLogger.SourceState
+    public int getSourceState(SafetySourceKey safetySourceKey) {
+        return mSafetySourceDataRepository.getSourceState(safetySourceKey);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package com.android.permissioncontroller.permission.utils
 
@@ -71,6 +72,8 @@ import androidx.navigation.NavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceGroup
 import com.android.modules.utils.build.SdkLevel
+import com.android.permissioncontroller.DeviceUtils
+import com.android.permissioncontroller.PermissionControllerApplication
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.data.LightAppPermGroupLiveData
 import com.android.permissioncontroller.permission.data.LightPackageInfoLiveData
@@ -140,10 +143,6 @@ object KotlinUtils {
     /** Whether to show 7-day toggle in privacy hub.  */
     private const val PRIVACY_DASHBOARD_7_DAY_TOGGLE = "privacy_dashboard_7_day_toggle"
 
-    /** Whether to placeholder safety label data in permission settings and grant dialog.  */
-    private const val PRIVACY_PLACEHOLDER_SAFETY_LABEL_DATA_ENABLED =
-        "privacy_placeholder_safety_label_data_enabled"
-
     /** Default location precision */
     private const val PROPERTY_LOCATION_PRECISION = "location_precision"
 
@@ -164,6 +163,10 @@ object KotlinUtils {
     /** Whether the safety label changes job should only be run when the device is idle. */
     private const val PROPERTY_SAFETY_LABEL_CHANGES_JOB_RUN_WHEN_IDLE =
         "safety_label_changes_job_run_when_idle"
+
+    /** Whether the kill switch is set for [SafetyLabelChangesJobService]. */
+    private const val PROPERTY_SAFETY_LABEL_CHANGES_JOB_SERVICE_KILL_SWITCH =
+        "safety_label_changes_job_service_kill_switch"
 
     /**
      * Whether the Permissions Hub 2 flag is enabled
@@ -264,8 +267,11 @@ object KotlinUtils {
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
     fun isPhotoPickerPromptEnabled(): Boolean {
-        return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-            PROPERTY_PHOTO_PICKER_PROMPT_ENABLED, true)
+        val app = PermissionControllerApplication.get()
+        return SdkLevel.isAtLeastU() && !DeviceUtils.isAuto(app) &&
+                !DeviceUtils.isTelevision(app) && !DeviceUtils.isWear(app) &&
+                DeviceConfig.getBoolean(
+                        DeviceConfig.NAMESPACE_PRIVACY, PROPERTY_PHOTO_PICKER_PROMPT_ENABLED, true)
     }
 
     /*
@@ -276,38 +282,29 @@ object KotlinUtils {
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
     fun isPermissionRationaleEnabled(): Boolean {
         return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-            PERMISSION_RATIONALE_ENABLED, false)
-    }
-
-    /**
-     * Whether we should use placeholder safety label data
-     *
-     * @return whether the flag is enabled
-     */
-    fun isPlaceholderSafetyLabelDataEnabled(): Boolean {
-        return DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-            PRIVACY_PLACEHOLDER_SAFETY_LABEL_DATA_ENABLED, false)
+            PERMISSION_RATIONALE_ENABLED, true)
     }
 
     /**
      * Whether we should enable the safety label change notifications and data sharing updates UI.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
-    fun isSafetyLabelChangeNotificationsEnabled(): Boolean {
+    fun isSafetyLabelChangeNotificationsEnabled(context: Context): Boolean {
         return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-                SAFETY_LABEL_CHANGE_NOTIFICATIONS_ENABLED, false)
+                SAFETY_LABEL_CHANGE_NOTIFICATIONS_ENABLED, true) &&
+            !DeviceUtils.isAuto(context) &&
+            !DeviceUtils.isTelevision(context) &&
+            !DeviceUtils.isWear(context)
     }
 
     /**
-     * The minimum amount of time to wait, after scheduling the safety label changes job, before
-     * the job actually runs for the first time.
+     * Whether the kill switch is set for [SafetyLabelChangesJobService]. If {@code true}, the
+     * service is effectively disabled and will not run or schedule any jobs.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
-    fun getSafetyLabelChangesJobDelayMillis(): Long {
-        return DeviceConfig.getLong(
-            DeviceConfig.NAMESPACE_PRIVACY,
-            PROPERTY_SAFETY_LABEL_CHANGES_JOB_DELAY_MILLIS,
-            Duration.ofMinutes(30).toMillis())
+    fun safetyLabelChangesJobServiceKillSwitch(): Boolean {
+        return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
+            PROPERTY_SAFETY_LABEL_CHANGES_JOB_SERVICE_KILL_SWITCH, false)
     }
 
     /** How often the safety label changes job will run. */
@@ -527,7 +524,6 @@ object KotlinUtils {
      *
      * @return The package's icon, or null, if the package does not exist
      */
-    @JvmOverloads
     fun getBadgedPackageIcon(
         app: Application,
         packageName: String,
@@ -774,10 +770,10 @@ object KotlinUtils {
         if (!newPerms.isEmpty()) {
             val user = UserHandle.getUserHandleForUid(group.packageInfo.uid)
             for (groupPerm in group.allPermissions.values) {
-                var permFlags = groupPerm!!.flags
+                var permFlags = groupPerm.flags
                 permFlags = permFlags.clearFlag(FLAG_PERMISSION_AUTO_REVOKED)
-                if (groupPerm!!.flags != permFlags) {
-                    app.packageManager.updatePermissionFlags(groupPerm!!.name,
+                if (groupPerm.flags != permFlags) {
+                    app.packageManager.updatePermissionFlags(groupPerm.name,
                         group.packageInfo.packageName, PERMISSION_CONTROLLER_CHANGED_FLAG_MASK,
                         permFlags, user)
                 }
@@ -842,6 +838,7 @@ object KotlinUtils {
         }
 
         var newFlags = perm.flags
+        var oldFlags = perm.flags
         var isGranted = perm.isGrantedIncludingAppOp
         var shouldKill = false
 
@@ -851,6 +848,14 @@ object KotlinUtils {
 
             // TODO 195016052: investigate adding split permission handling
             if (supportsRuntime) {
+                // If granting without app ops, explicitly disallow app op first, while setting the
+                // flag, so that the PermissionPolicyService doesn't reset the app op state
+                if (affectsAppOp && withoutAppOps) {
+                    oldFlags = oldFlags.setFlag(PackageManager.FLAG_PERMISSION_REVOKED_COMPAT)
+                    app.packageManager.updatePermissionFlags(perm.name, group.packageName,
+                        PERMISSION_CONTROLLER_CHANGED_FLAG_MASK, oldFlags, user)
+                    disallowAppOp(app, perm, group)
+                }
                 app.packageManager.grantRuntimePermission(group.packageName, perm.name, user)
                 isGranted = true
             } else if (affectsAppOp) {
@@ -861,7 +866,7 @@ object KotlinUtils {
                 shouldKill = true
                 isGranted = true
             }
-            newFlags = if (withoutAppOps) {
+            newFlags = if (affectsAppOp && withoutAppOps) {
                 newFlags.setFlag(PackageManager.FLAG_PERMISSION_REVOKED_COMPAT)
             } else {
                 newFlags.clearFlag(PackageManager.FLAG_PERMISSION_REVOKED_COMPAT)
@@ -913,7 +918,7 @@ object KotlinUtils {
             }
         }
 
-        if (perm.flags != newFlags) {
+        if (oldFlags != newFlags) {
             app.packageManager.updatePermissionFlags(perm.name, group.packageInfo.packageName,
                 PERMISSION_CONTROLLER_CHANGED_FLAG_MASK, newFlags, user)
         }
@@ -944,9 +949,11 @@ object KotlinUtils {
         group: LightAppPermGroup,
         userFixed: Boolean = false,
         oneTime: Boolean = false,
+        forceRemoveRevokedCompat: Boolean = false,
         filterPermissions: List<String> = group.permissions.keys.toList()
     ): LightAppPermGroup {
-        return revokeRuntimePermissions(app, group, false, userFixed, oneTime, filterPermissions)
+        return revokeRuntimePermissions(app, group, false, userFixed, oneTime,
+            forceRemoveRevokedCompat, filterPermissions)
     }
 
     /**
@@ -969,9 +976,11 @@ object KotlinUtils {
         group: LightAppPermGroup,
         userFixed: Boolean = false,
         oneTime: Boolean = false,
+        forceRemoveRevokedCompat: Boolean = false,
         filterPermissions: List<String> = group.permissions.keys.toList()
     ): LightAppPermGroup {
-        return revokeRuntimePermissions(app, group, true, userFixed, oneTime, filterPermissions)
+        return revokeRuntimePermissions(app, group, true, userFixed, oneTime,
+            forceRemoveRevokedCompat, filterPermissions)
     }
 
     private fun revokeRuntimePermissions(
@@ -980,6 +989,7 @@ object KotlinUtils {
         revokeBackground: Boolean,
         userFixed: Boolean,
         oneTime: Boolean,
+        forceRemoveRevokedCompat: Boolean = false,
         filterPermissions: List<String>
     ): LightAppPermGroup {
         val wasOneTime = group.isOneTime
@@ -990,7 +1000,8 @@ object KotlinUtils {
             val isBackgroundPerm = permName in group.backgroundPermNames
             if (isBackgroundPerm == revokeBackground) {
                 val (newPerm, shouldKill) =
-                    revokeRuntimePermission(app, perm, userFixed, oneTime, group)
+                    revokeRuntimePermission(app, perm, userFixed, oneTime, forceRemoveRevokedCompat,
+                        group)
                 newPerms[newPerm.name] = newPerm
                 shouldKillForAnyPermission = shouldKillForAnyPermission || shouldKill
             }
@@ -1089,6 +1100,7 @@ object KotlinUtils {
         perm: LightPermission,
         userFixed: Boolean,
         oneTime: Boolean,
+        forceRemoveRevokedCompat: Boolean,
         group: LightAppPermGroup
     ): Pair<LightPermission, Boolean> {
         // Do not touch permissions fixed by the system.
@@ -1104,13 +1116,16 @@ object KotlinUtils {
 
         val affectsAppOp = permissionToOp(perm.name) != null || perm.isBackgroundPermission
 
-        if (perm.isGrantedIncludingAppOp) {
+        if (perm.isGrantedIncludingAppOp || (perm.isCompatRevoked && forceRemoveRevokedCompat)) {
             if (supportsRuntime && !isPermissionSplitFromNonRuntime(app, perm.name,
                             group.packageInfo.targetSdkVersion)) {
                 // Revoke the permission if needed.
                 app.packageManager.revokeRuntimePermission(group.packageInfo.packageName,
                     perm.name, user)
                 isGranted = false
+                if (forceRemoveRevokedCompat) {
+                    newFlags = newFlags.clearFlag(PackageManager.FLAG_PERMISSION_REVOKED_COMPAT)
+                }
             } else if (affectsAppOp) {
                 // If the permission has no corresponding app op, then it is a
                 // third-party one and we do not offer toggling of such permissions.
@@ -1221,8 +1236,8 @@ object KotlinUtils {
                 val appOpName = permissionToOp(foregroundPermName) ?: continue
 
                 if (fgPerm != null && fgPerm.isGrantedIncludingAppOp) {
-                    wasChanged = wasChanged || setOpMode(appOpName, uid, packageName, MODE_ALLOWED,
-                        appOpsManager)
+                    wasChanged = setOpMode(appOpName, uid, packageName, MODE_ALLOWED,
+                        appOpsManager) || wasChanged
                 }
             }
         } else {
@@ -1383,14 +1398,14 @@ object KotlinUtils {
         var resolveInfos = context.packageManager.queryIntentActivities(intentToResolve,
             MATCH_DIRECT_BOOT_AWARE or MATCH_DIRECT_BOOT_UNAWARE)
 
-        if (resolveInfos == null || resolveInfos.size <= 0) {
+        if (resolveInfos.size <= 0) {
             intentToResolve.removeCategory(CATEGORY_INFO)
             intentToResolve.addCategory(CATEGORY_LAUNCHER)
             intentToResolve.setPackage(packageName)
             resolveInfos = context.packageManager.queryIntentActivities(intentToResolve,
                 MATCH_DIRECT_BOOT_AWARE or MATCH_DIRECT_BOOT_UNAWARE)
         }
-        return resolveInfos != null && resolveInfos.size > 0
+        return resolveInfos.size > 0
     }
 
     /**
@@ -1432,14 +1447,20 @@ object KotlinUtils {
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.TIRAMISU)
     fun shouldShowSafetyProtectionResources(context: Context): Boolean {
-        return SdkLevel.isAtLeastT() &&
-            DeviceConfig.getBoolean(
-                DeviceConfig.NAMESPACE_PRIVACY, SAFETY_PROTECTION_RESOURCES_ENABLED, false) &&
-            context.getResources().getBoolean(
-                Resources.getSystem()
-                    .getIdentifier("config_safetyProtectionEnabled", "bool", "android")) &&
-            context.getDrawable(android.R.drawable.ic_safety_protection) != null &&
-            !context.getString(android.R.string.safety_protection_display_text).isNullOrEmpty()
+        return try {
+            SdkLevel.isAtLeastT() &&
+                DeviceConfig.getBoolean(
+                    DeviceConfig.NAMESPACE_PRIVACY, SAFETY_PROTECTION_RESOURCES_ENABLED, false) &&
+                context.getResources().getBoolean(
+                    Resources.getSystem()
+                        .getIdentifier("config_safetyProtectionEnabled", "bool", "android")) &&
+                context.getDrawable(android.R.drawable.ic_safety_protection) != null &&
+                !context.getString(android.R.string.safety_protection_display_text).isNullOrEmpty()
+        } catch (e: Resources.NotFoundException) {
+            // We should expect the resources to not exist for non-pixel devices
+            // (except for the OEMs that opt-in)
+            false
+        }
     }
 
     fun addHealthPermissions(context: Context) {
@@ -1489,7 +1510,7 @@ suspend fun <T, LD : LiveData<T>> LD.getInitializedValue(
     isInitialized: LD.() -> Boolean = { value != null }
 ): T {
     return if (isInitialized()) {
-        value as T
+        value!!
     } else {
         suspendCoroutine { continuation: Continuation<T> ->
             val observer = AtomicReference<Observer<T>>()

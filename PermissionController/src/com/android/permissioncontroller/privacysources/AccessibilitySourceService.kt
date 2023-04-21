@@ -416,6 +416,11 @@ class AccessibilitySourceService(
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         intent.putExtra(Constants.EXTRA_SESSION_ID, sessionId)
         intent.putExtra(Intent.EXTRA_UID, uid)
+
+        // Start this Settings activity using the same UX that settings slices uses. This allows
+        // settings to correctly support 2-pane layout with as-best-as-possible transition
+        // animation.
+        intent.putExtra(Constants.EXTRA_IS_FROM_SLICE, true)
         return PendingIntent.getActivity(
             context,
             0,

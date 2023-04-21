@@ -26,6 +26,7 @@ import static android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 import static android.safetycenter.SafetyCenterManager.REFRESH_REASON_OTHER;
 import static android.safetycenter.SafetyCenterManager.RefreshReason;
 import static android.safetycenter.SafetyEvent.SAFETY_EVENT_TYPE_RESOLVING_ACTION_FAILED;
+import static android.safetycenter.SafetyEvent.SAFETY_EVENT_TYPE_RESOLVING_ACTION_SUCCEEDED;
 
 import static com.android.permission.PermissionStatsLog.SAFETY_CENTER_SYSTEM_EVENT_REPORTED__RESULT__TIMEOUT;
 import static com.android.permission.PermissionStatsLog.SAFETY_STATE;
@@ -80,7 +81,9 @@ import com.android.safetycenter.internaldata.SafetyCenterIssueActionId;
 import com.android.safetycenter.internaldata.SafetyCenterIssueId;
 import com.android.safetycenter.internaldata.SafetyCenterIssueKey;
 import com.android.safetycenter.logging.SafetyCenterPullAtomCallback;
-import com.android.safetycenter.logging.SafetyCenterStatsdLogger;
+import com.android.safetycenter.notifications.SafetyCenterNotificationChannels;
+import com.android.safetycenter.notifications.SafetyCenterNotificationReceiver;
+import com.android.safetycenter.notifications.SafetyCenterNotificationSender;
 import com.android.safetycenter.pendingintents.PendingIntentSender;
 import com.android.safetycenter.resources.SafetyCenterResourcesContext;
 import com.android.server.SystemService;
@@ -110,6 +113,8 @@ public final class SafetyCenterService extends SystemService {
     private final SafetyCenterTimeouts mSafetyCenterTimeouts = new SafetyCenterTimeouts();
 
     private final SafetyCenterResourcesContext mSafetyCenterResourcesContext;
+
+    private final SafetyCenterNotificationChannels mNotificationChannels;
 
     @GuardedBy("mApiLock")
     private final SafetyCenterConfigReader mSafetyCenterConfigReader;
@@ -145,31 +150,25 @@ public final class SafetyCenterService extends SystemService {
         super(context);
         mSafetyCenterResourcesContext = new SafetyCenterResourcesContext(context);
         mSafetyCenterConfigReader = new SafetyCenterConfigReader(mSafetyCenterResourcesContext);
-        SafetyCenterStatsdLogger safetyCenterStatsdLogger =
-                new SafetyCenterStatsdLogger(context, mSafetyCenterConfigReader);
-        mSafetyCenterRefreshTracker = new SafetyCenterRefreshTracker(safetyCenterStatsdLogger);
+        mSafetyCenterRefreshTracker = new SafetyCenterRefreshTracker(context);
         mSafetyCenterDataManager =
                 new SafetyCenterDataManager(
-                        context,
-                        mSafetyCenterConfigReader,
-                        mSafetyCenterRefreshTracker,
-                        safetyCenterStatsdLogger,
-                        mApiLock);
+                        context, mSafetyCenterConfigReader, mSafetyCenterRefreshTracker, mApiLock);
         mSafetyCenterDataFactory =
                 new SafetyCenterDataFactory(
+                        context,
                         mSafetyCenterResourcesContext,
                         mSafetyCenterConfigReader,
                         mSafetyCenterRefreshTracker,
                         new PendingIntentFactory(context, mSafetyCenterResourcesContext),
                         mSafetyCenterDataManager);
         mSafetyCenterListeners = new SafetyCenterListeners(mSafetyCenterDataFactory);
+        mNotificationChannels = new SafetyCenterNotificationChannels(mSafetyCenterResourcesContext);
         mNotificationSender =
-                new SafetyCenterNotificationSender(
+                SafetyCenterNotificationSender.newInstance(
                         context,
-                        new SafetyCenterNotificationFactory(
-                                context,
-                                new SafetyCenterNotificationChannels(
-                                        mSafetyCenterResourcesContext)),
+                        mSafetyCenterResourcesContext,
+                        mNotificationChannels,
                         mSafetyCenterDataManager);
         mSafetyCenterBroadcastDispatcher =
                 new SafetyCenterBroadcastDispatcher(
@@ -181,7 +180,6 @@ public final class SafetyCenterService extends SystemService {
                 new SafetyCenterPullAtomCallback(
                         context,
                         mApiLock,
-                        safetyCenterStatsdLogger,
                         mSafetyCenterConfigReader,
                         mSafetyCenterDataFactory,
                         mSafetyCenterDataManager);
@@ -194,7 +192,7 @@ public final class SafetyCenterService extends SystemService {
                                         .getIdentifier(
                                                 "config_enableSafetyCenter", "bool", "android"));
         if (!mDeviceSupportsSafetyCenter) {
-            Log.v(TAG, "Device does not support safety center, safety center will be disabled.");
+            Log.i(TAG, "Device does not support safety center, safety center will be disabled.");
         }
     }
 
@@ -203,6 +201,7 @@ public final class SafetyCenterService extends SystemService {
         publishBinderService(Context.SAFETY_CENTER_SERVICE, new Stub());
         if (mDeviceSupportsSafetyCenter) {
             synchronized (mApiLock) {
+                SafetyCenterFlags.init(mSafetyCenterResourcesContext);
                 mConfigAvailable = mSafetyCenterConfigReader.loadConfig();
                 if (mConfigAvailable) {
                     mSafetyCenterDataManager.loadPersistableDataStateFromFile();
@@ -213,6 +212,7 @@ public final class SafetyCenterService extends SystemService {
                                     mSafetyCenterDataChangeNotifier,
                                     mApiLock)
                             .register(getContext());
+                    new LocaleBroadcastReceiver().register(getContext());
                 }
             }
         }
@@ -223,6 +223,7 @@ public final class SafetyCenterService extends SystemService {
         if (phase == SystemService.PHASE_BOOT_COMPLETED && canUseSafetyCenter()) {
             registerSafetyCenterEnabledListener();
             registerSafetyCenterPullAtomCallback();
+            mNotificationChannels.createAllChannelsForAllUsers(getContext());
         }
     }
 
@@ -277,6 +278,14 @@ public final class SafetyCenterService extends SystemService {
                         mSafetyCenterDataManager.setSafetySourceData(
                                 safetySourceData, safetySourceId, safetyEvent, packageName, userId);
                 if (hasUpdate) {
+                    // When an action is successfully resolved, call notifyActionSuccess before
+                    // updateDataConsumers: Calling the former first will turn any notification for
+                    // the resolved issue into a success notification, whereas calling the latter
+                    // will simply clear any issue notification and no success message will show.
+                    if (safetyEvent.getType() == SAFETY_EVENT_TYPE_RESOLVING_ACTION_SUCCEEDED) {
+                        mNotificationSender.notifyActionSuccess(
+                                safetySourceId, safetyEvent, userId);
+                    }
                     mSafetyCenterDataChangeNotifier.updateDataConsumers(userProfileGroup, userId);
                 }
             }
@@ -798,11 +807,11 @@ public final class SafetyCenterService extends SystemService {
 
         private void setInitialState() {
             mSafetyCenterEnabled = SafetyCenterFlags.getSafetyCenterEnabled();
-            Log.v(TAG, "SafetyCenter is " + (mSafetyCenterEnabled ? "enabled." : "disabled."));
+            Log.w(TAG, "SafetyCenter is " + (mSafetyCenterEnabled ? "enabled." : "disabled."));
         }
 
         private void onSafetyCenterEnabledChanged(boolean safetyCenterEnabled) {
-            Log.v(TAG, "SafetyCenter is now " + (safetyCenterEnabled ? "enabled." : "disabled."));
+            Log.w(TAG, "SafetyCenter is now " + (safetyCenterEnabled ? "enabled." : "disabled."));
 
             if (safetyCenterEnabled) {
                 onApiEnabled();
@@ -851,7 +860,8 @@ public final class SafetyCenterService extends SystemService {
                         SafetyCenterFlags.getShowErrorEntriesOnTimeout();
                 if (showErrorEntriesOnTimeout) {
                     for (int i = 0; i < stillInFlight.size(); i++) {
-                        mSafetyCenterDataManager.setSafetySourceError(stillInFlight.valueAt(i));
+                        mSafetyCenterDataManager.markSafetySourceRefreshTimedOut(
+                                stillInFlight.valueAt(i));
                     }
                 }
                 mSafetyCenterDataChangeNotifier.updateDataConsumers(mUserProfileGroup);
@@ -933,6 +943,24 @@ public final class SafetyCenterService extends SystemService {
         return mDeviceSupportsSafetyCenter && mConfigAvailable;
     }
 
+    /** {@link BroadcastReceiver} which handles Locale changes. */
+    private final class LocaleBroadcastReceiver extends BroadcastReceiver {
+
+        private static final String TAG = "LocaleBroadcastReceiver";
+
+        void register(Context context) {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Intent.ACTION_LOCALE_CHANGED);
+            context.registerReceiverForAllUsers(this, filter, null, null);
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "Locale changed broadcast received");
+            mNotificationChannels.createAllChannelsForAllUsers(getContext());
+        }
+    }
+
     /**
      * {@link BroadcastReceiver} which handles user and work profile related broadcasts that Safety
      * Center is interested including quiet mode turning on/off and accounts being added/removed.
@@ -981,6 +1009,7 @@ public final class SafetyCenterService extends SystemService {
                 case Intent.ACTION_MANAGED_PROFILE_ADDED:
                 case Intent.ACTION_MANAGED_PROFILE_AVAILABLE:
                     startRefreshingSafetySources(REFRESH_REASON_OTHER, userId);
+                    mNotificationChannels.createAllChannelsForUser(getContext(), userHandle);
                     break;
             }
         }
@@ -1036,7 +1065,7 @@ public final class SafetyCenterService extends SystemService {
      *
      * <p>No validation is performed on the contents of the given ID.
      */
-    void executeIssueActionInternal(SafetyCenterIssueActionId safetyCenterIssueActionId) {
+    public void executeIssueActionInternal(SafetyCenterIssueActionId safetyCenterIssueActionId) {
         SafetyCenterIssueKey safetyCenterIssueKey =
                 safetyCenterIssueActionId.getSafetyCenterIssueKey();
         UserProfileGroup userProfileGroup =

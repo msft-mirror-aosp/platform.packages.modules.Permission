@@ -33,98 +33,152 @@ class SafetyCenterResourcesContextTest {
 
     @Test
     fun validDataWithValidInputs() {
-        val safetyCenterResourcesContext =
+        val resourcesContext =
             SafetyCenterResourcesContext(context, RESOURCES_APK_ACTION, null, CONFIG_NAME, 0, false)
-        assertThat(safetyCenterResourcesContext.resourcesApkPkgName)
-            .isEqualTo(RESOURCES_APK_PKG_NAME)
+
+        assertThat(resourcesContext.resourcesApkPkgName).isEqualTo(RESOURCES_APK_PKG_NAME)
+
         val configContent =
-            safetyCenterResourcesContext.safetyCenterConfig?.bufferedReader().use { it?.readText() }
+            resourcesContext.safetyCenterConfig?.bufferedReader().use { it?.readText() }
+
         assertThat(configContent).isEqualTo(CONFIG_CONTENT)
-        assertThat(safetyCenterResourcesContext.assets).isNotNull()
-        assertThat(safetyCenterResourcesContext.resources).isNotNull()
-        assertThat(safetyCenterResourcesContext.theme).isNotNull()
+        assertThat(resourcesContext.assets).isNotNull()
+        assertThat(resourcesContext.resources).isNotNull()
+        assertThat(resourcesContext.theme).isNotNull()
     }
 
     @Test
     fun nullDataWithWrongAction() {
-        val safetyCenterResourcesContext = createNewResourcesContext(resourcesApkAction = "wrong")
-        assertThat(safetyCenterResourcesContext.resourcesApkPkgName).isNull()
-        assertThat(safetyCenterResourcesContext.safetyCenterConfig).isNull()
-        assertThat(safetyCenterResourcesContext.assets).isNull()
-        assertThat(safetyCenterResourcesContext.resources).isNull()
-        assertThat(safetyCenterResourcesContext.theme).isNull()
+        val resourcesContext = createNewResourcesContext(resourcesApkAction = "wrong")
+
+        assertThat(resourcesContext.resourcesApkPkgName).isNull()
+        assertThat(resourcesContext.safetyCenterConfig).isNull()
+        assertThat(resourcesContext.assets).isNull()
+        assertThat(resourcesContext.resources).isNull()
+        assertThat(resourcesContext.theme).isNull()
     }
 
     @Test
     fun nullDataWithWrongPath() {
-        val safetyCenterResourcesContext =
+        val resourcesContext =
             createNewResourcesContext(resourcesApkPath = "/apex/com.android.permission")
-        assertThat(safetyCenterResourcesContext.resourcesApkPkgName).isNull()
-        assertThat(safetyCenterResourcesContext.safetyCenterConfig).isNull()
-        assertThat(safetyCenterResourcesContext.assets).isNull()
-        assertThat(safetyCenterResourcesContext.resources).isNull()
-        assertThat(safetyCenterResourcesContext.theme).isNull()
+
+        assertThat(resourcesContext.resourcesApkPkgName).isNull()
+        assertThat(resourcesContext.safetyCenterConfig).isNull()
+        assertThat(resourcesContext.assets).isNull()
+        assertThat(resourcesContext.resources).isNull()
+        assertThat(resourcesContext.theme).isNull()
     }
 
     @Test
     fun nullDataWithWrongFlag() {
-        val safetyCenterResourcesContext =
-            createNewResourcesContext(flags = PackageManager.MATCH_SYSTEM_ONLY)
-        assertThat(safetyCenterResourcesContext.resourcesApkPkgName).isNull()
-        assertThat(safetyCenterResourcesContext.safetyCenterConfig).isNull()
-        assertThat(safetyCenterResourcesContext.assets).isNull()
-        assertThat(safetyCenterResourcesContext.resources).isNull()
-        assertThat(safetyCenterResourcesContext.theme).isNull()
+        val resourcesContext = createNewResourcesContext(flags = PackageManager.MATCH_SYSTEM_ONLY)
+
+        assertThat(resourcesContext.resourcesApkPkgName).isNull()
+        assertThat(resourcesContext.safetyCenterConfig).isNull()
+        assertThat(resourcesContext.assets).isNull()
+        assertThat(resourcesContext.resources).isNull()
+        assertThat(resourcesContext.theme).isNull()
     }
 
     @Test
     fun nullConfigWithWrongConfigName() {
-        val safetyCenterResourcesContext = createNewResourcesContext(configName = "wrong")
-        assertThat(safetyCenterResourcesContext.resourcesApkPkgName).isNotNull()
-        assertThat(safetyCenterResourcesContext.safetyCenterConfig).isNull()
-        assertThat(safetyCenterResourcesContext.assets).isNotNull()
-        assertThat(safetyCenterResourcesContext.resources).isNotNull()
-        assertThat(safetyCenterResourcesContext.theme).isNotNull()
+        val resourcesContext = createNewResourcesContext(configName = "wrong")
+
+        assertThat(resourcesContext.resourcesApkPkgName).isNotNull()
+        assertThat(resourcesContext.safetyCenterConfig).isNull()
+        assertThat(resourcesContext.assets).isNotNull()
+        assertThat(resourcesContext.resources).isNotNull()
+        assertThat(resourcesContext.theme).isNotNull()
     }
 
     @Test
-    fun getStringByName_withFallback_emptyStringForInvalidId() {
-        val safetyCenterResourcesContext =
-            createNewResourcesContext(fallbackIfResourceNotFound = true)
-        assertThat(safetyCenterResourcesContext.getStringByName("valid_string"))
-            .isEqualTo("I exist!")
-        assertThat(safetyCenterResourcesContext.getStringByName("invalid_string")).isEqualTo("")
+    fun getStringByName_validString_returnsString() {
+        val resourcesContext = createNewResourcesContext()
+
+        assertThat(resourcesContext.getStringByName("valid_string")).isEqualTo("I exist!")
     }
 
     @Test
-    fun getStringByName_withoutFallback_crashesForInvalidId() {
-        val safetyCenterResourcesContext =
-            createNewResourcesContext(fallbackIfResourceNotFound = false)
-        assertThat(safetyCenterResourcesContext.getStringByName("valid_string"))
-            .isEqualTo("I exist!")
+    fun getStringByName_invalidStringWithFallback_returnsEmptyString() {
+        val resourcesContext = createNewResourcesContext(fallback = true)
+
+        assertThat(resourcesContext.getStringByName("invalid_string")).isEqualTo("")
+    }
+
+    @Test
+    fun getStringByName_invalidStringWithoutFallback_throws() {
+        val resourcesContext = createNewResourcesContext(fallback = false)
+
         assertFailsWith(Resources.NotFoundException::class) {
-            safetyCenterResourcesContext.getStringByName("invalid_string")
+            resourcesContext.getStringByName("invalid_string")
         }
     }
 
     @Test
-    fun getDrawableByName_withFallback_nullResourceForInvalidId() {
-        val safetyCenterResourcesContext =
-            createNewResourcesContext(fallbackIfResourceNotFound = true)
-        assertThat(safetyCenterResourcesContext.getDrawableByName("valid_drawable", theme))
-            .isNotNull()
-        assertThat(safetyCenterResourcesContext.getDrawableByName("invalid_drawable", theme))
-            .isNull()
+    fun getOptionalStringByName_validString_returnsString() {
+        val resourcesContext = createNewResourcesContext()
+
+        assertThat(resourcesContext.getOptionalStringByName("valid_string")).isEqualTo("I exist!")
     }
 
     @Test
-    fun getDrawableByName_withoutFallback_crashesForInvalidId() {
-        val safetyCenterResourcesContext =
-            createNewResourcesContext(fallbackIfResourceNotFound = false)
-        assertThat(safetyCenterResourcesContext.getDrawableByName("valid_drawable", theme))
-            .isNotNull()
+    fun getOptionalStringByName_invalidStringWithFallback_returnsNull() {
+        val resourcesContext = createNewResourcesContext(fallback = true)
+
+        assertThat(resourcesContext.getOptionalStringByName("invalid_string")).isNull()
+    }
+
+    @Test
+    fun getOptionalStringByName_invalidStringWithoutFallback_returnsNull() {
+        val resourcesContext = createNewResourcesContext(fallback = false)
+
+        assertThat(resourcesContext.getOptionalStringByName("invalid_string")).isNull()
+    }
+
+    @Test
+    fun getDrawableByName_validDrawable_returnsDrawable() {
+        val resourcesContext = createNewResourcesContext()
+
+        assertThat(resourcesContext.getDrawableByName("valid_drawable", theme)).isNotNull()
+    }
+
+    @Test
+    fun getDrawableByName_invalidDrawableWithFallback_returnsNull() {
+        val resourcesContext = createNewResourcesContext(fallback = true)
+
+        assertThat(resourcesContext.getDrawableByName("invalid_drawable", theme)).isNull()
+    }
+
+    @Test
+    fun getDrawableByName_invalidDrawableWithoutFallback_throws() {
+        val resourcesContext = createNewResourcesContext(fallback = false)
+
         assertFailsWith(Resources.NotFoundException::class) {
-            safetyCenterResourcesContext.getDrawableByName("invalid_drawable", theme)
+            resourcesContext.getDrawableByName("invalid_drawable", theme)
+        }
+    }
+
+    @Test
+    fun getIconByDrawableName_validDrawable_returnsIcon() {
+        val resourcesContext = createNewResourcesContext()
+
+        assertThat(resourcesContext.getIconByDrawableName("valid_drawable")).isNotNull()
+    }
+
+    @Test
+    fun getIconByDrawableName_invalidDrawableWithFallback_returnsNull() {
+        val resourcesContext = createNewResourcesContext(fallback = true)
+
+        assertThat(resourcesContext.getIconByDrawableName("invalid_drawable")).isNull()
+    }
+
+    @Test
+    fun getIconByDrawableName_invalidDrawableWithoutFallback_throws() {
+        val resourcesContext = createNewResourcesContext(fallback = false)
+
+        assertFailsWith(Resources.NotFoundException::class) {
+            resourcesContext.getIconByDrawableName("invalid_drawable")
         }
     }
 
@@ -133,7 +187,7 @@ class SafetyCenterResourcesContextTest {
         resourcesApkPath: String? = null,
         configName: String = CONFIG_NAME,
         flags: Int = 0,
-        fallbackIfResourceNotFound: Boolean = false
+        fallback: Boolean = false
     ) =
         SafetyCenterResourcesContext(
             context,
@@ -141,7 +195,7 @@ class SafetyCenterResourcesContextTest {
             resourcesApkPath,
             configName,
             flags,
-            fallbackIfResourceNotFound
+            fallback
         )
 
     companion object {
