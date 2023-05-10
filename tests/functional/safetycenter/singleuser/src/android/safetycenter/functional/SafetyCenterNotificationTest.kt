@@ -40,7 +40,6 @@ import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.cle
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.dismissSafetyCenterIssueWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.reportSafetySourceErrorWithPermission
 import com.android.safetycenter.testing.SafetyCenterFlags
-import com.android.safetycenter.testing.SafetyCenterFlags.deviceSupportsSafetyCenter
 import com.android.safetycenter.testing.SafetyCenterTestConfigs
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SINGLE_SOURCE_ID
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SOURCE_ID_1
@@ -54,14 +53,15 @@ import com.android.safetycenter.testing.SafetySourceReceiver
 import com.android.safetycenter.testing.SafetySourceTestData
 import com.android.safetycenter.testing.SafetySourceTestData.Companion.ISSUE_TYPE_ID
 import com.android.safetycenter.testing.ShellPermissions.callWithShellPermissionIdentity
+import com.android.safetycenter.testing.SupportsSafetyCenterRule
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueDisplayed
 import com.google.common.truth.Truth.assertThat
 import java.time.Duration
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.TimeoutCancellationException
 import org.junit.After
-import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -77,20 +77,10 @@ class SafetyCenterNotificationTest {
             "Could not get system service"
         }
 
-    // JUnit's Assume is not supported in @BeforeClass by the CTS tests runner, so this is used to
-    // manually skip the setup and teardown methods.
-    private val shouldRunTests = context.deviceSupportsSafetyCenter()
-
-    @Before
-    fun assumeDeviceSupportsSafetyCenterToRunTests() {
-        assumeTrue(shouldRunTests)
-    }
+    @get:Rule val supportsSafetyCenterRule = SupportsSafetyCenterRule(context)
 
     @Before
     fun setUp() {
-        if (!shouldRunTests) {
-            return
-        }
         safetyCenterTestHelper.setup()
         TestNotificationListener.setup()
         SafetyCenterFlags.notificationsEnabled = true
@@ -100,9 +90,6 @@ class SafetyCenterNotificationTest {
 
     @After
     fun tearDown() {
-        if (!shouldRunTests) {
-            return
-        }
         // It is important to reset the notification listener last because it waits/ensures that
         // all notifications have been removed before returning.
         safetyCenterTestHelper.reset()
@@ -836,9 +823,7 @@ class SafetyCenterNotificationTest {
     }
 
     @Test
-    fun sendActionPendingIntent_successful_updatesListenerRemovesNotification() {
-        // Here we cause a notification with an action to be posted and prepare the fake receiver
-        // to resolve that action successfully.
+    fun sendActionPendingIntent_successful_updatesListener() {
         safetyCenterTestHelper.setData(
             SINGLE_SOURCE_ID,
             safetySourceTestData.criticalWithResolvingGeneralIssue
@@ -861,7 +846,52 @@ class SafetyCenterNotificationTest {
         assertThat(listenerData2.issues).isEmpty()
         assertThat(listenerData2.status.severityLevel)
             .isEqualTo(SafetyCenterStatus.OVERALL_SEVERITY_LEVEL_OK)
+    }
+
+    @Test
+    fun sendActionPendingIntent_successfulNoSuccessMessage_removesNotification() {
+        safetyCenterTestHelper.setData(
+            SINGLE_SOURCE_ID,
+            safetySourceTestData.criticalWithResolvingGeneralIssue
+        )
+        val notificationWithChannel = TestNotificationListener.waitForSingleNotification()
+        val action =
+            notificationWithChannel.statusBarNotification.notification.actions.firstOrNull()
+        checkNotNull(action) { "Notification action unexpectedly null" }
+        SafetySourceReceiver.setResponse(
+            Request.ResolveAction(SINGLE_SOURCE_ID),
+            Response.SetData(safetySourceTestData.information)
+        )
+
+        sendActionPendingIntentAndWaitWithPermission(action)
+
         TestNotificationListener.waitForZeroNotifications()
+    }
+
+    @Test
+    fun sendActionPendingIntent_successfulWithSuccessMessage_successNotification() {
+        safetyCenterTestHelper.setData(
+            SINGLE_SOURCE_ID,
+            safetySourceTestData.criticalWithResolvingIssueWithSuccessMessage
+        )
+        val notificationWithChannel = TestNotificationListener.waitForSingleNotification()
+        val action =
+            notificationWithChannel.statusBarNotification.notification.actions.firstOrNull()
+        checkNotNull(action) { "Notification action unexpectedly null" }
+        SafetySourceReceiver.setResponse(
+            Request.ResolveAction(SINGLE_SOURCE_ID),
+            Response.SetData(safetySourceTestData.information)
+        )
+
+        sendActionPendingIntentAndWaitWithPermission(action)
+
+        TestNotificationListener.waitForSingleNotificationMatching(
+            NotificationCharacteristics(
+                "Issue solved",
+                "",
+                actions = emptyList(),
+            )
+        )
     }
 
     @Test

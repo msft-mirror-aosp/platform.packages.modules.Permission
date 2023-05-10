@@ -22,6 +22,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+import android.os.UserHandle
 import android.safetycenter.SafetyCenterData
 import android.safetycenter.SafetyCenterEntry
 import android.safetycenter.SafetyCenterEntry.ENTRY_SEVERITY_LEVEL_CRITICAL_WARNING
@@ -62,7 +63,11 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import com.android.compatibility.common.preconditions.ScreenLockHelper
+import com.android.compatibility.common.util.SystemUtil
 import com.android.modules.utils.build.SdkLevel
+import com.android.safetycenter.internaldata.SafetyCenterBundles
+import com.android.safetycenter.internaldata.SafetyCenterBundles.ISSUES_TO_GROUPS_BUNDLE_KEY
+import com.android.safetycenter.internaldata.SafetyCenterEntryId
 import com.android.safetycenter.internaldata.SafetyCenterIds
 import com.android.safetycenter.resources.SafetyCenterResourcesContext
 import com.android.safetycenter.testing.Coroutines.TIMEOUT_LONG
@@ -74,7 +79,6 @@ import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.get
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.refreshSafetySourcesWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.reportSafetySourceErrorWithPermission
 import com.android.safetycenter.testing.SafetyCenterFlags
-import com.android.safetycenter.testing.SafetyCenterFlags.deviceSupportsSafetyCenter
 import com.android.safetycenter.testing.SafetyCenterTestConfigs
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.ACTION_TEST_ACTIVITY_EXPORTED
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.ANDROID_LOCK_SCREEN_SOURCES_GROUP_ID
@@ -108,6 +112,7 @@ import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SUMMAR
 import com.android.safetycenter.testing.SafetyCenterTestData
 import com.android.safetycenter.testing.SafetyCenterTestData.Companion.withAttributionTitleInIssuesIfAtLeastU
 import com.android.safetycenter.testing.SafetyCenterTestData.Companion.withDismissedIssuesIfAtLeastU
+import com.android.safetycenter.testing.SafetyCenterTestData.Companion.withoutExtras
 import com.android.safetycenter.testing.SafetyCenterTestHelper
 import com.android.safetycenter.testing.SafetySourceIntentHandler.Request
 import com.android.safetycenter.testing.SafetySourceIntentHandler.Response
@@ -123,6 +128,7 @@ import com.android.safetycenter.testing.SafetySourceTestData.Companion.INFORMATI
 import com.android.safetycenter.testing.SafetySourceTestData.Companion.RECOMMENDATION_ISSUE_ID
 import com.android.safetycenter.testing.SettingsPackage.getSettingsPackageName
 import com.android.safetycenter.testing.ShellPermissions.callWithShellPermissionIdentity
+import com.android.safetycenter.testing.SupportsSafetyCenterRule
 import com.google.common.base.Preconditions.checkState
 import com.google.common.truth.Truth.assertThat
 import java.time.Duration
@@ -132,6 +138,7 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -686,28 +693,15 @@ class SafetyCenterManagerTest {
             )
         )
 
-    // JUnit's Assume is not supported in @BeforeClass by the CTS tests runner, so this is used to
-    // manually skip the setup and teardown methods.
-    private val shouldRunTests = context.deviceSupportsSafetyCenter()
-
-    @Before
-    fun assumeDeviceSupportsSafetyCenterToRunTests() {
-        assumeTrue(shouldRunTests)
-    }
+    @get:Rule val supportsSafetyCenterRule = SupportsSafetyCenterRule(context)
 
     @Before
     fun enableSafetyCenterBeforeTest() {
-        if (!shouldRunTests) {
-            return
-        }
         safetyCenterTestHelper.setup()
     }
 
     @After
     fun clearDataAfterTest() {
-        if (!shouldRunTests) {
-            return
-        }
         safetyCenterTestHelper.reset()
     }
 
@@ -868,7 +862,7 @@ class SafetyCenterManagerTest {
 
         val apiSafetyCenterData = safetyCenterManager.getSafetyCenterDataWithPermission()
 
-        assertThat(apiSafetyCenterData).isEqualTo(safetyCenterDataFromComplexConfig)
+        assertThat(apiSafetyCenterData.withoutExtras()).isEqualTo(safetyCenterDataFromComplexConfig)
     }
 
     @Test
@@ -1447,6 +1441,39 @@ class SafetyCenterManagerTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    fun getSafetyCenterData_withStaticEntryGroups_hasStaticEntriesToIdsMapping() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.staticSourcesConfig)
+
+        val apiSafetyCenterData = safetyCenterManager.getSafetyCenterDataWithPermission()
+
+        assertThat(
+                SafetyCenterBundles.getStaticEntryId(
+                    apiSafetyCenterData,
+                    apiSafetyCenterData.staticEntryGroups[0].staticEntries[0]
+                )
+            )
+            .isEqualTo(
+                SafetyCenterEntryId.newBuilder()
+                    .setSafetySourceId("test_static_source_id_1")
+                    .setUserId(UserHandle.myUserId())
+                    .build()
+            )
+        assertThat(
+                SafetyCenterBundles.getStaticEntryId(
+                    apiSafetyCenterData,
+                    apiSafetyCenterData.staticEntryGroups[1].staticEntries[0]
+                )
+            )
+            .isEqualTo(
+                SafetyCenterEntryId.newBuilder()
+                    .setSafetySourceId("test_static_source_id_2")
+                    .setUserId(UserHandle.myUserId())
+                    .build()
+            )
+    }
+
+    @Test
     fun getSafetyCenterData_singleSourceIssues_returnsOverallStatusBasedOnHigherSeverityIssue() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(
@@ -1587,7 +1614,7 @@ class SafetyCenterManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
-    fun getSafetyCenterData_noDuplicateIssues_issuesRelevantForTheirGroups() {
+    fun getSafetyCenterData_noDuplicateIssues_noGroupBelongingSpecified() {
         safetyCenterTestHelper.setConfig(
             safetyCenterTestConfigs.multipleSourcesWithDeduplicationInfoConfig
         )
@@ -1607,15 +1634,10 @@ class SafetyCenterManagerTest {
         )
 
         val apiSafetyCenterData = safetyCenterManager.getSafetyCenterDataWithPermission()
-        val issueIdFirst = apiSafetyCenterData.issues[0].id
-        val issueIdSecond = apiSafetyCenterData.issues[1].id
         val issueToGroupBelonging =
             apiSafetyCenterData.extras.getBundle(ISSUES_TO_GROUPS_BUNDLE_KEY)
 
-        assertThat(issueToGroupBelonging!!.getStringArrayList(issueIdFirst))
-            .containsExactly(MULTIPLE_SOURCES_GROUP_ID_1)
-        assertThat(issueToGroupBelonging.getStringArrayList(issueIdSecond))
-            .containsExactly(MULTIPLE_SOURCES_GROUP_ID_2)
+        assertThat(issueToGroupBelonging).isNull()
     }
 
     @Test
@@ -2341,7 +2363,8 @@ class SafetyCenterManagerTest {
 
         val apiSafetyCenterData = safetyCenterManager.getSafetyCenterDataWithPermission()
 
-        assertThat(apiSafetyCenterData).isEqualTo(safetyCenterDataFromComplexConfigUpdated)
+        assertThat(apiSafetyCenterData.withoutExtras())
+            .isEqualTo(safetyCenterDataFromComplexConfigUpdated)
     }
 
     @Test
@@ -2643,7 +2666,7 @@ class SafetyCenterManagerTest {
     }
 
     @Test
-    fun getSafetyCenterData_withErrorEntries_usesPluralErrorSummaryForGroup() {
+    fun getSafetyCenterData_withMultipleErrorEntries_usesSingularErrorSummaryForGroup() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.summaryTestConfig)
         safetyCenterManager.reportSafetySourceErrorWithPermission(
             SOURCE_ID_1,
@@ -2682,12 +2705,12 @@ class SafetyCenterManagerTest {
         val group =
             safetyCenterManager.getSafetyCenterDataWithPermission().getGroup(SUMMARY_TEST_GROUP_ID)
 
-        assertThat(group.summary).isEqualTo(safetyCenterTestData.getRefreshErrorString(2))
+        assertThat(group.summary).isEqualTo(safetyCenterTestData.getRefreshErrorString(1))
         assertThat(group.severityLevel).isEqualTo(ENTRY_SEVERITY_LEVEL_UNKNOWN)
     }
 
     @Test
-    fun getSafetyCenterData_withErrorEntry_usesSingularErrorSummaryForGroup() {
+    fun getSafetyCenterData_withSingleErrorEntry_usesSingularErrorSummaryForGroup() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.summaryTestConfig)
         safetyCenterManager.reportSafetySourceErrorWithPermission(
             SOURCE_ID_1,
@@ -3515,6 +3538,70 @@ class SafetyCenterManagerTest {
         assertThat(iconActionPendingIntent).isNotEqualTo(entryPendingIntent)
     }
 
+    @Test
+    fun beforeAnyDataSet_noLastUpdatedTimestamps() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
+
+        val lastUpdated = dumpLastUpdated()
+        assertThat(lastUpdated).isEmpty()
+    }
+
+    @Test
+    fun setSafetySourceData_setsLastUpdatedTimestamp() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
+
+        safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, safetySourceTestData.unspecified)
+
+        val lastUpdated = dumpLastUpdated()
+        val key = lastUpdated.keys.find { it.contains(SINGLE_SOURCE_ID) }
+        assertThat(key).isNotNull()
+        assertThat(lastUpdated[key]).isNotNull()
+    }
+
+    @Test
+    fun setSafetySourceData_twice_updatesLastUpdatedTimestamp() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
+
+        safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, safetySourceTestData.unspecified)
+
+        val initialEntry = dumpLastUpdated().entries.find { it.key.contains(SINGLE_SOURCE_ID) }
+        assertThat(initialEntry).isNotNull()
+
+        Thread.sleep(1) // Ensure uptime millis will actually be different
+        safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, safetySourceTestData.information)
+
+        val updatedValue = dumpLastUpdated()[initialEntry!!.key]
+        assertThat(updatedValue).isNotNull()
+        assertThat(updatedValue).isNotEqualTo(initialEntry.value)
+    }
+
+    @Test
+    fun setSafetySourceError_setsLastUpdatedTimestamp() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
+
+        safetyCenterManager.reportSafetySourceErrorWithPermission(
+            SINGLE_SOURCE_ID,
+            SafetySourceErrorDetails(EVENT_SOURCE_STATE_CHANGED)
+        )
+
+        val lastUpdated = dumpLastUpdated()
+        val key = lastUpdated.keys.find { it.contains(SINGLE_SOURCE_ID) }
+        assertThat(key).isNotNull()
+        assertThat(lastUpdated[key]).isNotNull()
+    }
+
+    private fun dumpLastUpdated(): Map<String, String> {
+        val dump = SystemUtil.runShellCommand("dumpsys safety_center data")
+        return dump
+            .linesAfter { it.contains("LAST UPDATED") }
+            .map { line -> Regex("""\[\d+] (.+) -> (\d+)""").matchEntire(line.trim()) }
+            .takeWhile { it != null }
+            .associate { matchResult -> matchResult!!.groupValues[1] to matchResult.groupValues[2] }
+    }
+
+    private fun String.linesAfter(predicate: (String) -> Boolean): List<String> =
+        split('\n').dropWhile { !predicate(it) }.drop(1)
+
     private fun SafetyCenterData.getGroup(groupId: String): SafetyCenterEntryGroup =
         entriesOrGroups.first { it.entryGroup?.id == groupId }.entryGroup!!
 
@@ -3539,7 +3626,5 @@ class SafetyCenterManagerTest {
         // has not resurfaced. Use a different check logic (focused at the expected resurface time)
         // if we increase the delay considerably.
         private val RESURFACE_CHECK = RESURFACE_DELAY.dividedBy(4)
-
-        private val ISSUES_TO_GROUPS_BUNDLE_KEY = "IssuesToGroupsKey"
     }
 }

@@ -18,6 +18,8 @@ package com.android.safetycenter;
 
 import static android.os.Build.VERSION_CODES.TIRAMISU;
 
+import static java.util.Objects.requireNonNull;
+
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.PendingIntent;
@@ -35,7 +37,6 @@ import androidx.annotation.RequiresApi;
 import com.android.safetycenter.resources.SafetyCenterResourcesContext;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Helps build or retrieve {@link PendingIntent} instances.
@@ -111,13 +112,10 @@ public final class PendingIntentFactory {
             // In particular, the AOSP Settings app uses this to ensure that two-pane mode works
             // correctly.
             intent.putExtra(IS_SETTINGS_HOMEPAGE, true);
-        }
-
-        // queryIntentActivities does not return any activity when the work profile is in quiet
-        // mode, even though it opens the quiet mode dialog. So, we assume that the intent will
-        // resolve to this dialog.
-        if (isQuietModeEnabled) {
-            return intent;
+            // Given we've added an extra to this intent, set an ID on it to ensure that it is not
+            // considered equal to the same intent without the extra. PendingIntents are cached
+            // using Intent equality as the key, and we want to make sure the extra is propagated.
+            intent.setIdentifier("with_settings_homepage_extra");
         }
 
         // If the intent resolves for the package provided, then we make the assumption that it is
@@ -134,6 +132,15 @@ public final class PendingIntentFactory {
             return intent;
         }
 
+        // resolveActivity does not return any activity when the work profile is in quiet mode, even
+        // though it opens the quiet mode dialog and/or the original intent would otherwise resolve
+        // when quiet mode is turned off. So, we assume that the explicit intent will always resolve
+        // to this dialog. This heuristic is preferable on U+ as it has a higher chance of resolving
+        // once the work profile is enabled considering the implicit internal intent restriction.
+        if (isQuietModeEnabled) {
+            return explicitIntent;
+        }
+
         return null;
     }
 
@@ -146,16 +153,17 @@ public final class PendingIntentFactory {
     }
 
     private static boolean intentResolves(Context packageContext, Intent intent) {
-        return !queryIntentActivities(packageContext, intent).isEmpty();
+        return resolveActivity(packageContext, intent) != null;
     }
 
-    private static List<ResolveInfo> queryIntentActivities(Context packageContext, Intent intent) {
+    @Nullable
+    private static ResolveInfo resolveActivity(Context packageContext, Intent intent) {
         PackageManager packageManager = packageContext.getPackageManager();
         // This call requires the INTERACT_ACROSS_USERS permission as the `packageContext` could
         // belong to another user.
         final long callingId = Binder.clearCallingIdentity();
         try {
-            return packageManager.queryIntentActivities(intent, ResolveInfoFlags.of(0));
+            return packageManager.resolveActivity(intent, ResolveInfoFlags.of(0));
         } finally {
             Binder.restoreCallingIdentity(callingId);
         }
@@ -168,7 +176,7 @@ public final class PendingIntentFactory {
      * flag is passed in.
      */
     @Nullable
-    public static PendingIntent getActivityPendingIntent(
+    public static PendingIntent getNullableActivityPendingIntent(
             Context packageContext, int requestCode, Intent intent, int flags) {
         // This call requires Binder identity to be cleared for getIntentSender() to be allowed to
         // send as another package.
@@ -181,17 +189,34 @@ public final class PendingIntentFactory {
     }
 
     /**
+     * Creates a {@link PendingIntent} to start an Activity from the given {@code packageContext}.
+     *
+     * <p>{@code flags} must not include {@link PendingIntent#FLAG_NO_CREATE}
+     */
+    public static PendingIntent getActivityPendingIntent(
+            Context packageContext, int requestCode, Intent intent, int flags) {
+        if ((flags & PendingIntent.FLAG_NO_CREATE) != 0) {
+            throw new IllegalArgumentException("flags must not include FLAG_NO_CREATE");
+        }
+        return requireNonNull(
+                getNullableActivityPendingIntent(packageContext, requestCode, intent, flags));
+    }
+
+    /**
      * Creates a non-protected broadcast {@link PendingIntent} which can only be received by the
      * system. Use this method to create PendingIntents to be received by Context-registered
      * receivers, for example for notification-related callbacks.
      *
-     * <p>{@code flags} must include {@link PendingIntent#FLAG_IMMUTABLE}
+     * <p>{@code flags} must include {@link PendingIntent#FLAG_IMMUTABLE} and must not include
+     * {@link PendingIntent#FLAG_NO_CREATE}
      */
-    @Nullable
-    static PendingIntent getNonProtectedSystemOnlyBroadcastPendingIntent(
+    public static PendingIntent getNonProtectedSystemOnlyBroadcastPendingIntent(
             Context context, int requestCode, Intent intent, int flags) {
         if ((flags & PendingIntent.FLAG_IMMUTABLE) == 0) {
             throw new IllegalArgumentException("flags must include FLAG_IMMUTABLE");
+        }
+        if ((flags & PendingIntent.FLAG_NO_CREATE) != 0) {
+            throw new IllegalArgumentException("flags must not include FLAG_NO_CREATE");
         }
         intent.setPackage("android");
         // This call is needed to be allowed to send the broadcast as the "android" package.
@@ -210,7 +235,8 @@ public final class PendingIntentFactory {
         // This call requires the INTERACT_ACROSS_USERS permission.
         final long callingId = Binder.clearCallingIdentity();
         try {
-            return context.createPackageContextAsUser(packageName, 0, UserHandle.of(userId));
+            return context.createPackageContextAsUser(
+                    packageName, /* flags= */ 0, UserHandle.of(userId));
         } catch (PackageManager.NameNotFoundException e) {
             Log.w(TAG, "Package name " + packageName + " not found", e);
             return null;

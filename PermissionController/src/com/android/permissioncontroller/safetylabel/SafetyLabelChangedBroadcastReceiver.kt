@@ -31,6 +31,7 @@ import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import com.android.permission.safetylabel.SafetyLabel as AppMetadataSafetyLabel
 import com.android.permissioncontroller.permission.data.LightPackageInfoLiveData
+import com.android.permissioncontroller.permission.data.v34.LightInstallSourceInfoLiveData
 import com.android.permissioncontroller.permission.model.livedatatypes.LightPackageInfo
 import com.android.permissioncontroller.permission.utils.KotlinUtils
 import com.android.permissioncontroller.permission.utils.PermissionMapping
@@ -50,7 +51,7 @@ import kotlinx.coroutines.launch
 class SafetyLabelChangedBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (!KotlinUtils.isSafetyLabelChangeNotificationsEnabled()) {
+        if (!KotlinUtils.isSafetyLabelChangeNotificationsEnabled(context)) {
             return
         }
 
@@ -101,6 +102,10 @@ class SafetyLabelChangedBroadcastReceiver : BroadcastReceiver() {
         val lightPackageInfo =
             LightPackageInfoLiveData[Pair(packageName, user)].getInitializedValue() ?: return
         if (!isAppRequestingLocationPermission(lightPackageInfo)) {
+            return
+        }
+
+        if (!isSafetyLabelSupported(Pair(packageName, user))) {
             return
         }
         writeSafetyLabel(context, lightPackageInfo, user)
@@ -180,6 +185,12 @@ class SafetyLabelChangedBroadcastReceiver : BroadcastReceiver() {
 
         private fun isAppRequestingLocationPermission(lightPackageInfo: LightPackageInfo): Boolean {
             return lightPackageInfo.requestedPermissions.any { LOCATION_PERMISSIONS.contains(it) }
+        }
+
+        private suspend fun isSafetyLabelSupported(packageUser: Pair<String, UserHandle>): Boolean {
+            val lightInstallSourceInfo =
+                LightInstallSourceInfoLiveData[packageUser].getInitializedValue()
+            return lightInstallSourceInfo.supportsSafetyLabel
         }
 
         private fun isPackageAddedBroadcast(intentAction: String?) =

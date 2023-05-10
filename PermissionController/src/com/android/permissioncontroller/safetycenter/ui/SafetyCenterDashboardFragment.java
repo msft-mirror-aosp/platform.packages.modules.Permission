@@ -44,10 +44,10 @@ import androidx.annotation.RequiresApi;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceGroup;
 
-import com.android.permissioncontroller.Constants;
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.safetycenter.ui.model.SafetyCenterUiData;
 import com.android.permissioncontroller.safetycenter.ui.model.StatusUiData;
+import com.android.safetycenter.internaldata.SafetyCenterBundles;
 import com.android.safetycenter.resources.SafetyCenterResourcesContext;
 
 import kotlin.Unit;
@@ -73,7 +73,6 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
     private PreferenceGroup mEntriesGroup;
     private PreferenceGroup mStaticEntriesGroup;
     private boolean mIsQuickSettingsFragment;
-    private long mSessionId = Constants.INVALID_SESSION_ID;
 
     public SafetyCenterDashboardFragment() {}
 
@@ -100,9 +99,6 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
         setPreferencesFromResource(R.xml.safety_center_dashboard, rootKey);
 
         if (getArguments() != null) {
-            mSessionId =
-                    getArguments()
-                            .getLong(Constants.EXTRA_SESSION_ID, Constants.INVALID_SESSION_ID);
             mIsQuickSettingsFragment =
                     getArguments().getBoolean(QUICK_SETTINGS_SAFETY_CENTER_FRAGMENT, false);
         }
@@ -146,7 +142,7 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
     @Override
     public void configureInteractionLogger() {
         InteractionLogger logger = getSafetyCenterViewModel().getInteractionLogger();
-        logger.setSessionId(mSessionId);
+        logger.setSessionId(getSafetyCenterSessionId());
         logger.setViewType(mIsQuickSettingsFragment ? ViewType.QUICK_SETTINGS : ViewType.FULL);
 
         Intent intent = requireActivity().getIntent();
@@ -193,7 +189,7 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
 
         if (!mIsQuickSettingsFragment) {
             updateSafetyEntries(context, data.getEntriesOrGroups());
-            updateStaticSafetyEntries(context, data.getStaticEntryGroups());
+            updateStaticSafetyEntries(context, data);
         }
     }
 
@@ -227,7 +223,8 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
 
             if (SafetyCenterUiFlags.getShowSubpages() && group != null) {
                 mEntriesGroup.addPreference(
-                        new SafetyHomepageEntryPreference(context, group, mSessionId));
+                        new SafetyHomepageEntryPreference(
+                                context, group, getSafetyCenterSessionId()));
             } else if (entry != null) {
                 addTopLevelEntry(context, entry, isFirstElement, isLastElement);
             } else if (group != null) {
@@ -277,11 +274,10 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
                         }));
     }
 
-    private void updateStaticSafetyEntries(
-            Context context, List<SafetyCenterStaticEntryGroup> staticEntryGroups) {
+    private void updateStaticSafetyEntries(Context context, SafetyCenterData data) {
         mStaticEntriesGroup.removeAll();
 
-        for (SafetyCenterStaticEntryGroup group : staticEntryGroups) {
+        for (SafetyCenterStaticEntryGroup group : data.getStaticEntryGroups()) {
             PreferenceCategory category = new ComparablePreferenceCategory(context);
             category.setTitle(group.getTitle());
             mStaticEntriesGroup.addPreference(category);
@@ -292,6 +288,7 @@ public final class SafetyCenterDashboardFragment extends SafetyCenterFragment {
                                 context,
                                 requireActivity().getTaskId(),
                                 entry,
+                                SafetyCenterBundles.getStaticEntryId(data, entry),
                                 getSafetyCenterViewModel()));
             }
         }

@@ -73,9 +73,9 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.SensorPrivacyManager;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Parcelable;
-import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.DeviceConfig;
@@ -360,12 +360,8 @@ public final class Utils {
      */
     public static @NonNull Context getUserContext(Context context, UserHandle user) {
         if (!sUserContexts.containsKey(user)) {
-            try {
-                sUserContexts.put(user, context.getApplicationContext()
-                        .createPackageContextAsUser(context.getPackageName(), 0, user));
-            } catch (PackageManager.NameNotFoundException neverHappens) {
-                throw new RuntimeException(neverHappens);
-            }
+            sUserContexts.put(user, context.getApplicationContext()
+                    .createContextAsUser(user, 0));
         }
         return Preconditions.checkNotNull(sUserContexts.get(user));
     }
@@ -657,10 +653,6 @@ public final class Utils {
         return typedValue.resourceId;
     }
 
-    public static List<ApplicationInfo> getAllInstalledApplications(Context context) {
-        return context.getPackageManager().getInstalledApplications(0);
-    }
-
     /**
      * Is the group or background group user sensitive?
      *
@@ -940,8 +932,14 @@ public final class Utils {
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
     public static boolean isHealthPermissionUiEnabled() {
-        return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-                PROPERTY_HEALTH_PERMISSION_UI_ENABLED, true);
+        final long token = Binder.clearCallingIdentity();
+        try {
+            return SdkLevel.isAtLeastU()
+                    && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
+                    PROPERTY_HEALTH_PERMISSION_UI_ENABLED, true);
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
     }
 
     /**
@@ -1061,38 +1059,6 @@ public final class Utils {
      */
     public static int getUpgradeRequestDetail(String groupName) {
         return PERM_GROUP_UPGRADE_REQUEST_DETAIL_RES.getOrDefault(groupName, 0);
-    }
-
-    /**
-     * Checks whether a package has an active one-time permission according to the system server's
-     * flags
-     *
-     * @param context the {@code Context} to retrieve {@code PackageManager}
-     * @param packageName The package to check for
-     * @return Whether a package has an active one-time permission
-     */
-    public static boolean hasOneTimePermissions(Context context, String packageName) {
-        String[] permissions;
-        PackageManager pm = context.getPackageManager();
-        try {
-            permissions = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
-                    .requestedPermissions;
-        } catch (NameNotFoundException e) {
-            Log.w(LOG_TAG, "Checking for one-time permissions in nonexistent package");
-            return false;
-        }
-        if (permissions == null) {
-            return false;
-        }
-        for (String permissionName : permissions) {
-            if ((pm.getPermissionFlags(permissionName, packageName, Process.myUserHandle())
-                    & PackageManager.FLAG_PERMISSION_ONE_TIME) != 0
-                    && pm.checkPermission(permissionName, packageName)
-                    == PackageManager.PERMISSION_GRANTED) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -1366,12 +1332,11 @@ public final class Utils {
      *
      * @param context The current Context
      * @param applicationInfo The {@link ApplicationInfo} of the application to get the label of.
-     * @return Returns a {@link CharSequence} containing the label associated with this application,
-     * or its name the  item does not have a label.
+     * @return the label associated with this application, or its name if there is no label.
      */
     @NonNull
-    public static CharSequence getApplicationLabel(@NonNull Context context,
+    public static String getApplicationLabel(@NonNull Context context,
             @NonNull ApplicationInfo applicationInfo) {
-        return context.getPackageManager().getApplicationLabel(applicationInfo);
+        return context.getPackageManager().getApplicationLabel(applicationInfo).toString();
     }
 }

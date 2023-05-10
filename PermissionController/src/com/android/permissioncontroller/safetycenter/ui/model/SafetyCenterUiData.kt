@@ -22,6 +22,7 @@ import android.safetycenter.SafetyCenterEntryGroup
 import android.safetycenter.SafetyCenterEntryOrGroup
 import android.safetycenter.SafetyCenterIssue
 import androidx.annotation.RequiresApi
+import com.android.safetycenter.internaldata.SafetyCenterBundles.ISSUES_TO_GROUPS_BUNDLE_KEY
 
 /** UI model representation of Safety Center Data */
 data class SafetyCenterUiData(
@@ -42,7 +43,7 @@ data class SafetyCenterUiData(
      */
     @RequiresApi(UPSIDE_DOWN_CAKE)
     fun getMatchingIssues(groupId: String): List<SafetyCenterIssue> =
-        safetyCenterData.issues.filter { it.groupId == groupId }
+        selectMatchingIssuesForGroup(groupId, safetyCenterData.issues)
 
     /**
      * Returns a list of dismissed [SafetyCenterIssue] corresponding to the provided ID. This will
@@ -50,5 +51,21 @@ data class SafetyCenterUiData(
      */
     @RequiresApi(UPSIDE_DOWN_CAKE)
     fun getMatchingDismissedIssues(groupId: String): List<SafetyCenterIssue> =
-        safetyCenterData.dismissedIssues.filter { it.groupId == groupId }
+        selectMatchingIssuesForGroup(groupId, safetyCenterData.dismissedIssues)
+
+    @RequiresApi(UPSIDE_DOWN_CAKE)
+    private fun selectMatchingIssuesForGroup(
+        groupId: String,
+        issues: List<SafetyCenterIssue>
+    ): List<SafetyCenterIssue> {
+        val issuesToGroups = safetyCenterData.extras.getBundle(ISSUES_TO_GROUPS_BUNDLE_KEY)
+        return issues.filter {
+            val mappingExists = issuesToGroups?.containsKey(it.id) ?: false
+            val matchesInMapping =
+                issuesToGroups?.getStringArrayList(it.id)?.contains(groupId) ?: false
+            val matchesByDefault = it.groupId == groupId
+
+            if (mappingExists) matchesInMapping else matchesByDefault
+        }
+    }
 }

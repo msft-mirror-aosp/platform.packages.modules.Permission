@@ -23,7 +23,10 @@ import android.content.pm.PackageManager
 import android.content.pm.PermissionInfo
 import android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP
 import android.util.Log
+
 import com.android.modules.utils.build.SdkLevel
+import com.android.permissioncontroller.permission.model.livedatatypes.LightAppPermGroup
+import com.android.permission.safetylabel.DataCategoryConstants
 
 /**
  * This file contains the canonical mapping of permission to permission group, used in the
@@ -32,6 +35,9 @@ import com.android.modules.utils.build.SdkLevel
 object PermissionMapping {
 
     private val LOG_TAG = "PermissionMapping"
+
+    private val PERMISSION_GROUPS_TO_DATA_CATEGORIES: Map<String, List<String>> = mapOf(
+        Manifest.permission_group.LOCATION to listOf(DataCategoryConstants.CATEGORY_LOCATION))
 
     @JvmField
     val SENSOR_DATA_PERMISSIONS: List<String> =
@@ -49,6 +55,8 @@ object PermissionMapping {
                 Manifest.permission_group.READ_MEDIA_AURAL,
                 Manifest.permission_group.READ_MEDIA_VISUAL)
 
+    val PARTIAL_MEDIA_PERMISSIONS: MutableSet<String> = mutableSetOf()
+
     /** Mapping permission -> group for all dangerous platform permissions */
     private val PLATFORM_PERMISSIONS: MutableMap<String, String> = mutableMapOf()
 
@@ -59,6 +67,7 @@ object PermissionMapping {
     private val ONE_TIME_PERMISSION_GROUPS: MutableSet<String> = mutableSetOf()
 
     private val HEALTH_PERMISSIONS_SET: MutableSet<String> = mutableSetOf()
+
 
     init {
         PLATFORM_PERMISSIONS[Manifest.permission.READ_CONTACTS] = Manifest.permission_group.CONTACTS
@@ -174,14 +183,6 @@ object PermissionMapping {
                 Manifest.permission_group.SENSORS
         }
 
-        if (SdkLevel.isAtLeastU()) {
-            PLATFORM_PERMISSIONS[Manifest.permission.BODY_SENSORS_WRIST_TEMPERATURE] =
-                    Manifest.permission_group.SENSORS
-            PLATFORM_PERMISSIONS[Manifest
-                    .permission.BODY_SENSORS_WRIST_TEMPERATURE_BACKGROUND] =
-                    Manifest.permission_group.SENSORS
-        }
-
         for ((permission, permissionGroup) in PLATFORM_PERMISSIONS) {
             PLATFORM_PERMISSION_GROUPS.getOrPut(permissionGroup) { mutableListOf() }.add(permission)
         }
@@ -189,6 +190,11 @@ object PermissionMapping {
         ONE_TIME_PERMISSION_GROUPS.add(Manifest.permission_group.LOCATION)
         ONE_TIME_PERMISSION_GROUPS.add(Manifest.permission_group.CAMERA)
         ONE_TIME_PERMISSION_GROUPS.add(Manifest.permission_group.MICROPHONE)
+
+        if (SdkLevel.isAtLeastU()) {
+            PARTIAL_MEDIA_PERMISSIONS.add(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+            PARTIAL_MEDIA_PERMISSIONS.add(Manifest.permission.ACCESS_MEDIA_LOCATION)
+        }
     }
 
     /**
@@ -322,6 +328,23 @@ object PermissionMapping {
     }
 
     /**
+     * Get the permissions that, if granted, are considered a "partial grant" of the
+     * READ_MEDIA_VISUAL permission group. If the app declares READ_MEDIA_VISUAL_USER_SELECTED, then
+     * both READ_MEDIA_VISUAL_USER_SELECTED and ACCESS_MEDIA_LOCATION are considered a partial
+     * grant. Otherwise, ACCESS_MEDIA_LOCATION is considered a full grant (for compatibility).
+     */
+    fun getPartialStorageGrantPermissionsForGroup(group: LightAppPermGroup): Set<String> {
+        val appSupportsPickerPrompt = group
+            .permissions[Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED]?.isImplicit == false
+
+        return if (appSupportsPickerPrompt) {
+            PARTIAL_MEDIA_PERMISSIONS
+        } else {
+            setOf(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+        }
+    }
+
+    /**
      * Returns true if the given permission is a health platform permission.
      */
     @JvmStatic
@@ -354,5 +377,33 @@ object PermissionMapping {
         }
 
         return AppOpsManager.opToPermission(opName)?.let { getGroupOfPlatformPermission(it) }
+    }
+
+    /**
+     * Get the SafetyLabel categories pertaining to a specified permission group.
+     *
+     * @return The categories, or an empty list if the group does not have a supported mapping
+     * to safety label category
+     */
+    fun getDataCategoriesForPermissionGroup(permissionGroupName: String): List<String> {
+        return if (isSafetyLabelAwarePermissionGroup(permissionGroupName)) {
+            PERMISSION_GROUPS_TO_DATA_CATEGORIES[permissionGroupName] ?: emptyList()
+        } else {
+            emptyList()
+        }
+    }
+
+    /**
+     * Whether this permission group maps to a SafetyLabel data category.
+     *
+     * @param permissionGroupName the permission group name
+     */
+    @JvmStatic
+    fun isSafetyLabelAwarePermissionGroup(permissionGroupName: String): Boolean {
+        if (!KotlinUtils.isPermissionRationaleEnabled()) {
+            return false
+        }
+
+        return PERMISSION_GROUPS_TO_DATA_CATEGORIES.containsKey(permissionGroupName)
     }
 }

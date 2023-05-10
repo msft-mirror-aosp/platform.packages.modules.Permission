@@ -217,13 +217,13 @@ object SafetyCenterFlags {
         )
 
     /**
-     * Flag that determines whether statsd logging is allowed in tests.
+     * Flag that determines whether statsd logging is allowed.
      *
      * This is useful to allow testing statsd logs in some specific tests, while keeping the other
      * tests from polluting our statsd logs.
      */
-    private val allowStatsdLoggingInTestsFlag =
-        Flag("safety_center_allow_statsd_logging_in_tests", defaultValue = false, BooleanParser())
+    private val allowStatsdLoggingFlag =
+        Flag("safety_center_allow_statsd_logging", defaultValue = false, BooleanParser())
 
     /**
      * The Package Manager flag used while toggling the QS tile component.
@@ -315,7 +315,7 @@ object SafetyCenterFlags {
             issueCategoryAllowlistsFlag,
             allowedAdditionalPackageCertsFlag,
             backgroundRefreshDeniedSourcesFlag,
-            allowStatsdLoggingInTestsFlag,
+            allowStatsdLoggingFlag,
             qsTileComponentSettingFlag,
             showSubpagesFlag,
             overrideRefreshOnPageOpenSourcesFlag,
@@ -324,11 +324,15 @@ object SafetyCenterFlags {
             backgroundRefreshRequiresChargingFlag
         )
 
-    /** Returns whether the device supports Safety Center. */
-    fun Context.deviceSupportsSafetyCenter() =
-        resources.getBoolean(
+    /**
+     * Returns whether the device supports Safety Center according to the
+     * `config_enableSafetyCenter` boolean system resource.
+     */
+    fun Context.deviceSupportsSafetyCenter(): Boolean {
+        val resId =
             Resources.getSystem().getIdentifier("config_enableSafetyCenter", "bool", "android")
-        )
+        return resources.getBoolean(resId)
+    }
 
     /** A property that allows getting and setting the [isEnabledFlag]. */
     var isEnabled: Boolean by isEnabledFlag
@@ -383,8 +387,8 @@ object SafetyCenterFlags {
     /** A property that allows getting and setting the [backgroundRefreshDeniedSourcesFlag]. */
     var backgroundRefreshDeniedSources: Set<String> by backgroundRefreshDeniedSourcesFlag
 
-    /** A property that allows getting and setting the [allowStatsdLoggingInTestsFlag]. */
-    var allowStatsdLoggingInTests: Boolean by allowStatsdLoggingInTestsFlag
+    /** A property that allows getting and setting the [allowStatsdLoggingFlag]. */
+    var allowStatsdLogging: Boolean by allowStatsdLoggingFlag
 
     /** A property that allows getting and setting the [showSubpagesFlag]. */
     var showSubpages: Boolean by showSubpagesFlag

@@ -31,24 +31,22 @@ import com.android.compatibility.common.util.UiAutomatorUtils2
 import com.android.safetycenter.testing.SafetyCenterActivityLauncher.launchSafetyCenterActivity
 import com.android.safetycenter.testing.SafetyCenterActivityLauncher.openPageAndExit
 import com.android.safetycenter.testing.SafetyCenterFlags
-import com.android.safetycenter.testing.SafetyCenterFlags.deviceSupportsSafetyCenter
 import com.android.safetycenter.testing.SafetyCenterTestConfigs
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.PRIVACY_SOURCE_ID_1
-import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.PRIVACY_SOURCE_ID_2
+import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SOURCE_ID_1
 import com.android.safetycenter.testing.SafetyCenterTestHelper
 import com.android.safetycenter.testing.SafetySourceTestData
+import com.android.safetycenter.testing.SupportsSafetyCenterRule
 import com.android.safetycenter.testing.UiTestHelper.MORE_ISSUES_LABEL
 import com.android.safetycenter.testing.UiTestHelper.clickMoreIssuesCard
 import com.android.safetycenter.testing.UiTestHelper.resetRotation
 import com.android.safetycenter.testing.UiTestHelper.waitAllTextDisplayed
-import com.android.safetycenter.testing.UiTestHelper.waitAllTextNotDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitButtonDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitPageTitleDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueNotDisplayed
 import org.junit.After
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -68,29 +66,16 @@ class PrivacySubpageTest {
     private val safetySourceTestData = SafetySourceTestData(context)
     private val safetyCenterTestConfigs = SafetyCenterTestConfigs(context)
 
-    // JUnit's Assume is not supported in @BeforeClass by the tests runner, so this is used to
-    // manually skip the setup and teardown methods.
-    private val shouldRunTests = context.deviceSupportsSafetyCenter()
-
-    @Before
-    fun assumeDeviceSupportsSafetyCenterToRunTests() {
-        assumeTrue(shouldRunTests)
-    }
+    @get:Rule val supportsSafetyCenterRule = SupportsSafetyCenterRule(context)
 
     @Before
     fun enableSafetyCenterBeforeTest() {
-        if (!shouldRunTests) {
-            return
-        }
         safetyCenterTestHelper.setup()
         SafetyCenterFlags.showSubpages = true
     }
 
     @After
     fun clearDataAfterTest() {
-        if (!shouldRunTests) {
-            return
-        }
         safetyCenterTestHelper.reset()
         UiAutomatorUtils2.getUiDevice().resetRotation()
     }
@@ -110,29 +95,9 @@ class PrivacySubpageTest {
                 context.getString(firstSource.titleResId),
                 context.getString(firstSource.summaryResId),
                 "Controls",
-                "Data",
                 context.getString(lastSource.titleResId),
                 context.getString(lastSource.summaryResId)
             )
-        }
-    }
-
-    @Test
-    fun privacySubpage_withoutDataSources_hidesDataCategory() {
-        val config = safetyCenterTestConfigs.privacySubpageWithoutDataSourcesConfig
-        safetyCenterTestHelper.setConfig(config)
-        val sourcesGroup = config.safetySourcesGroups.first()
-        val firstSource: SafetySource = sourcesGroup.safetySources.first()
-        val extras = Bundle()
-        extras.putString(EXTRA_SAFETY_SOURCES_GROUP_ID, sourcesGroup.id)
-
-        context.launchSafetyCenterActivity(extras) {
-            waitAllTextDisplayed(
-                context.getString(firstSource.titleResId),
-                context.getString(firstSource.summaryResId),
-                "Controls",
-            )
-            waitAllTextNotDisplayed("Data")
         }
     }
 
@@ -162,7 +127,7 @@ class PrivacySubpageTest {
         val firstSourceData = safetySourceTestData.criticalWithIssueWithAttributionTitle
         val secondSourceData = safetySourceTestData.informationWithIssueWithAttributionTitle
         safetyCenterTestHelper.setData(PRIVACY_SOURCE_ID_1, firstSourceData)
-        safetyCenterTestHelper.setData(PRIVACY_SOURCE_ID_2, secondSourceData)
+        safetyCenterTestHelper.setData(SOURCE_ID_1, secondSourceData)
         val extras = Bundle()
         extras.putString(EXTRA_SAFETY_SOURCES_GROUP_ID, config.safetySourcesGroups.first().id)
 
@@ -192,7 +157,7 @@ class PrivacySubpageTest {
                 "Microphone access",
                 "Show clipboard access",
                 "Show passwords",
-                "Location Settings"
+                "Location access"
             )
         }
     }
@@ -207,7 +172,7 @@ class PrivacySubpageTest {
         extras.putString(EXTRA_SAFETY_SOURCES_GROUP_ID, sourcesGroup.id)
 
         context.launchSafetyCenterActivity(extras) {
-            openPageAndExit("Location Settings") {
+            openPageAndExit("Location access") {
                 waitPageTitleDisplayed("Location")
                 waitAllTextDisplayed("Use location")
             }
@@ -233,7 +198,6 @@ class PrivacySubpageTest {
                 context.getString(source.titleResId),
                 context.getString(source.summaryResId),
                 "Controls",
-                "Data",
             )
         }
     }

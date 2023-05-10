@@ -53,6 +53,7 @@
 
                     <TextView
                         android:id="@+id/permission_message"
+                        android:accessibilityHeading="true"
                         style="@style/PermissionGrantTitleMessage" />
 
                 </LinearLayout>
@@ -152,11 +153,6 @@
                     style="@style/PermissionGrantButtonAllowAllMaterial3" />
 
                 <com.android.permissioncontroller.permission.ui.widget.SecureButton
-                    android:id="@+id/permission_allow_more_selected_button"
-                    android:text="@string/grant_dialog_button_allow_more_selected_photos"
-                    style="@style/PermissionGrantButtonAllowMoreMaterial3" />
-
-                <com.android.permissioncontroller.permission.ui.widget.SecureButton
                     android:id="@+id/permission_deny_button"
                     android:text="@string/grant_dialog_button_deny"
                     style="@style/PermissionGrantButtonDenyMaterial3" />
@@ -188,17 +184,12 @@
 
                 <com.android.permissioncontroller.permission.ui.widget.SecureButton
                     android:id="@+id/permission_dont_allow_more_selected_button"
-                    android:text="@string/grant_dialog_button_dont_allow_more_selected_photos"
+                    android:text="@string/grant_dialog_button_dont_select_more"
                     style="@style/PermissionGrantButtonDontAllowMoreMaterial3" />
-
-                <com.android.permissioncontroller.permission.ui.widget.SecureButton
-                    android:id="@+id/permission_allow_all_singleton_button"
-                    android:text="@string/grant_dialog_button_always_allow_all"
-                    style="@style/PermissionGrantButtonAllowAllSingletonMaterial3" />
 
             </LinearLayout>
 
-            <com.android.permissioncontroller.permission.ui.widget.SafetyProtectionSectionView
+            <com.android.permissioncontroller.permission.ui.v33.widget.SafetyProtectionSectionView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="0dp"

@@ -27,9 +27,13 @@ import android.safetycenter.SafetyCenterEntry
 import android.safetycenter.SafetyCenterIssue
 import android.safetycenter.SafetyCenterManager.EXTRA_SAFETY_SOURCE_ISSUE_ID
 import android.safetycenter.SafetyCenterStatus
+import android.safetycenter.config.SafetyCenterConfig
+import android.safetycenter.config.SafetySource
 import androidx.annotation.RequiresApi
 import com.android.permissioncontroller.Constants
 import com.android.permissioncontroller.PermissionControllerStatsLog
+import com.android.permissioncontroller.PermissionControllerStatsLog.SAFETY_CENTER_INTERACTION_REPORTED__ISSUE_STATE__ACTIVE
+import com.android.permissioncontroller.PermissionControllerStatsLog.SAFETY_CENTER_INTERACTION_REPORTED__ISSUE_STATE__DISMISSED
 import com.android.permissioncontroller.PermissionControllerStatsLog.SAFETY_CENTER_INTERACTION_REPORTED__ISSUE_STATE__ISSUE_STATE_UNKNOWN
 import com.android.permissioncontroller.permission.utils.Utils
 import com.android.permissioncontroller.safetycenter.SafetyCenterConstants
@@ -39,19 +43,40 @@ import java.math.BigInteger
 import java.security.MessageDigest
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-class InteractionLogger(
-    val noLogSourceIds: Set<String>,
-    var sessionId: Long = Constants.INVALID_SESSION_ID,
-    var viewType: ViewType = ViewType.UNKNOWN,
-    var navigationSource: NavigationSource = NavigationSource.UNKNOWN,
-    var navigationSensor: Sensor = Sensor.UNKNOWN,
-    var groupId: String? = null
+class InteractionLogger
+private constructor(
+    private val noLogSourceIds: Set<String?>
 ) {
+    var sessionId: Long = Constants.INVALID_SESSION_ID
+    var viewType: ViewType = ViewType.UNKNOWN
+    var navigationSource: NavigationSource = NavigationSource.UNKNOWN
+    var navigationSensor: Sensor = Sensor.UNKNOWN
+    var groupId: String? = null
+
+    private val viewedIssueIds: MutableSet<String> = mutableSetOf()
+
+    constructor(
+        safetyCenterConfig: SafetyCenterConfig?
+    ) : this(extractNoLogSourceIds(safetyCenterConfig))
+
     fun record(action: Action) {
         writeAtom(action)
     }
 
-    fun recordForIssue(action: Action, issue: SafetyCenterIssue) {
+    fun recordIssueViewed(issue: SafetyCenterIssue, isDismissed: Boolean) {
+        if (viewedIssueIds.contains(issue.id)) {
+            return
+        }
+
+        recordForIssue(Action.SAFETY_ISSUE_VIEWED, issue, isDismissed)
+        viewedIssueIds.add(issue.id)
+    }
+
+    fun clearViewedIssues() {
+        viewedIssueIds.clear()
+    }
+
+    fun recordForIssue(action: Action, issue: SafetyCenterIssue, isDismissed: Boolean) {
         val decodedId = SafetyCenterIds.issueIdFromString(issue.id)
         writeAtom(
             action,
@@ -59,7 +84,13 @@ class InteractionLogger(
             sourceId = decodedId.safetyCenterIssueKey.safetySourceId,
             sourceProfileType =
                 SafetySourceProfileType.fromUserId(decodedId.safetyCenterIssueKey.userId),
-            issueTypeId = decodedId.issueTypeId
+            issueTypeId = decodedId.issueTypeId,
+            issueState =
+                if (isDismissed) {
+                    SAFETY_CENTER_INTERACTION_REPORTED__ISSUE_STATE__DISMISSED
+                } else {
+                    SAFETY_CENTER_INTERACTION_REPORTED__ISSUE_STATE__ACTIVE
+                }
         )
     }
 
@@ -83,7 +114,8 @@ class InteractionLogger(
         sourceId: String? = null,
         sourceProfileType: SafetySourceProfileType = SafetySourceProfileType.UNKNOWN,
         issueTypeId: String? = null,
-        sensor: Sensor = Sensor.UNKNOWN
+        issueState: Int = SAFETY_CENTER_INTERACTION_REPORTED__ISSUE_STATE__ISSUE_STATE_UNKNOWN,
+        sensor: Sensor = Sensor.UNKNOWN,
     ) {
         if (noLogSourceIds.contains(sourceId)) {
             return
@@ -106,8 +138,7 @@ class InteractionLogger(
             encodeStringId(issueTypeId),
             (if (sensor != Sensor.UNKNOWN) sensor else navigationSensor).statsLogValue,
             encodeStringId(groupId),
-            // TODO(b/268309491): Log issue state for dismissed and un-dismissed issues.
-            SAFETY_CENTER_INTERACTION_REPORTED__ISSUE_STATE__ISSUE_STATE_UNKNOWN
+            issueState
         )
     }
 
@@ -125,6 +156,26 @@ class InteractionLogger(
             // Truncate to the size of a long
             return BigInteger(digest.digest()).toLong()
         }
+
+        private fun extractNoLogSourceIds(safetyCenterConfig: SafetyCenterConfig?): Set<String?> {
+            if (safetyCenterConfig == null) return setOf()
+
+            return safetyCenterConfig.safetySourcesGroups
+                .asSequence()
+                .flatMap { it.safetySources }
+                .filterNot { it.isLoggable() }
+                .map { it.id }
+                .toSet()
+        }
+
+        private fun SafetySource.isLoggable(): Boolean =
+            try {
+                isLoggingAllowed
+            } catch (ex: UnsupportedOperationException) {
+                // isLoggingAllowed will throw if you call it on a static source :(
+                // Default to logging all sources that don't support this config value.
+                true
+            }
     }
 }
 

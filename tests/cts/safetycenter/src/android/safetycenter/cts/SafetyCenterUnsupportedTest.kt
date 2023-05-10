@@ -17,6 +17,7 @@
 package android.safetycenter.cts
 
 import android.content.Context
+import android.os.UserManager
 import android.safetycenter.SafetyCenterManager
 import android.safetycenter.SafetyCenterManager.REFRESH_REASON_PAGE_OPEN
 import android.safetycenter.SafetyCenterManager.REFRESH_REASON_RESCAN_BUTTON_CLICK
@@ -41,7 +42,6 @@ import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.rep
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.setSafetyCenterConfigForTestsWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.setSafetySourceDataWithPermission
 import com.android.safetycenter.testing.SafetyCenterEnabledChangedReceiver
-import com.android.safetycenter.testing.SafetyCenterFlags.deviceSupportsSafetyCenter
 import com.android.safetycenter.testing.SafetyCenterTestConfigs
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SINGLE_SOURCE_ID
 import com.android.safetycenter.testing.SafetyCenterTestData
@@ -55,6 +55,7 @@ import com.android.safetycenter.testing.SafetySourceTestData.Companion.CRITICAL_
 import com.android.safetycenter.testing.SafetySourceTestData.Companion.CRITICAL_ISSUE_ID
 import com.android.safetycenter.testing.SafetySourceTestData.Companion.EVENT_SOURCE_STATE_CHANGED
 import com.android.safetycenter.testing.SettingsPackage.getSettingsPackageName
+import com.android.safetycenter.testing.SupportsSafetyCenterRule
 import com.android.safetycenter.testing.UiTestHelper.waitDisplayed
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
@@ -80,28 +81,17 @@ class SafetyCenterUnsupportedTest {
     private val safetySourceTestData = SafetySourceTestData(context)
     private val safetyCenterTestConfigs = SafetyCenterTestConfigs(context)
     private val safetyCenterManager = context.getSystemService(SafetyCenterManager::class.java)!!
-    // JUnit's Assume is not supported in @BeforeClass by the CTS tests runner, so this is used to
-    // manually skip the setup and teardown methods.
-    private val shouldRunTests = !context.deviceSupportsSafetyCenter()
 
-    @Before
-    fun assumeDeviceDoesntSupportSafetyCenterToRunTests() {
-        assumeTrue(shouldRunTests)
-    }
+    @get:Rule
+    val supportsSafetyCenterRule = SupportsSafetyCenterRule(context, requireSupportIs = false)
 
     @Before
     fun enableSafetyCenterBeforeTest() {
-        if (!shouldRunTests) {
-            return
-        }
         safetyCenterTestHelper.setup()
     }
 
     @After
     fun clearDataAfterTest() {
-        if (!shouldRunTests) {
-            return
-        }
         safetyCenterTestHelper.reset()
     }
 
@@ -201,6 +191,8 @@ class SafetyCenterUnsupportedTest {
 
     @Test
     fun safetyCenterEnabledChanged_withImplicitReceiver_doesntCallReceiver() {
+        // Implicit broadcast is only sent to system user.
+        assumeTrue(context.getSystemService(UserManager::class.java)!!.isSystemUser)
         val enabledChangedReceiver = SafetyCenterEnabledChangedReceiver(context)
 
         assertFailsWith(TimeoutCancellationException::class) {

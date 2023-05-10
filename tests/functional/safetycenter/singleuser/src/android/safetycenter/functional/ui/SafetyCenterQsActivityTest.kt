@@ -23,6 +23,7 @@ import android.hardware.SensorPrivacyManager
 import android.hardware.SensorPrivacyManager.Sensors.CAMERA
 import android.hardware.SensorPrivacyManager.Sensors.MICROPHONE
 import android.hardware.SensorPrivacyManager.TOGGLE_TYPE_SOFTWARE
+import android.platform.test.rule.ScreenRecordRule
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.By
@@ -46,13 +47,16 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SafetyCenterQsActivityTest {
 
+    // TODO(b/280991082): Order these rules in a RuleChain
     @get:Rule val disableAnimationRule = DisableAnimationRule()
-
     @get:Rule val freezeRotationRule = FreezeRotationRule()
+    @get:Rule val screenRecordRule = ScreenRecordRule()
 
     private val context: Context = getApplicationContext()
     private val safetyCenterTestHelper = SafetyCenterTestHelper(context)
     private val sensorPrivacyManager = context.getSystemService(SensorPrivacyManager::class.java)!!
+
+    // TODO(b/280991082): Use rules for all SafetyCenterQsActivityTest preconditions
     private var shouldRunTests =
         context.deviceSupportsSafetyCenter() &&
             deviceSupportsSensorToggle(CAMERA) &&
@@ -116,6 +120,7 @@ class SafetyCenterQsActivityTest {
     }
 
     @Test
+    @ScreenRecordRule.ScreenRecord
     fun launchActivity_togglePrivacyControls_hasUpdatedDescriptions() {
         context.launchSafetyCenterQsActivity {
             // Toggle privacy controls

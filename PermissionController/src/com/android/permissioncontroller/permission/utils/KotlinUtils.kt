@@ -54,6 +54,7 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.Icon
 import android.health.connect.HealthConnectManager
 import android.os.Build
 import android.os.Bundle
@@ -63,6 +64,7 @@ import android.provider.DeviceConfig
 import android.provider.Settings
 import android.safetylabel.SafetyLabelConstants.PERMISSION_RATIONALE_ENABLED
 import android.safetylabel.SafetyLabelConstants.SAFETY_LABEL_CHANGE_NOTIFICATIONS_ENABLED
+import android.text.Html
 import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.ChecksSdkIntAtLeast
@@ -72,6 +74,8 @@ import androidx.navigation.NavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceGroup
 import com.android.modules.utils.build.SdkLevel
+import com.android.permissioncontroller.DeviceUtils
+import com.android.permissioncontroller.PermissionControllerApplication
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.data.LightAppPermGroupLiveData
 import com.android.permissioncontroller.permission.data.LightPackageInfoLiveData
@@ -82,6 +86,7 @@ import com.android.permissioncontroller.permission.model.livedatatypes.LightPerm
 import com.android.permissioncontroller.permission.model.livedatatypes.PermState
 import com.android.permissioncontroller.permission.service.LocationAccessCheck
 import com.android.permissioncontroller.permission.ui.handheld.SettingsWithLargeHeader
+import com.android.safetycenter.resources.SafetyCenterResourcesContext
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.Continuation
@@ -141,10 +146,6 @@ object KotlinUtils {
     /** Whether to show 7-day toggle in privacy hub.  */
     private const val PRIVACY_DASHBOARD_7_DAY_TOGGLE = "privacy_dashboard_7_day_toggle"
 
-    /** Whether to placeholder safety label data in permission settings and grant dialog.  */
-    private const val PRIVACY_PLACEHOLDER_SAFETY_LABEL_DATA_ENABLED =
-        "privacy_placeholder_safety_label_data_enabled"
-
     /** Default location precision */
     private const val PROPERTY_LOCATION_PRECISION = "location_precision"
 
@@ -165,6 +166,10 @@ object KotlinUtils {
     /** Whether the safety label changes job should only be run when the device is idle. */
     private const val PROPERTY_SAFETY_LABEL_CHANGES_JOB_RUN_WHEN_IDLE =
         "safety_label_changes_job_run_when_idle"
+
+    /** Whether the kill switch is set for [SafetyLabelChangesJobService]. */
+    private const val PROPERTY_SAFETY_LABEL_CHANGES_JOB_SERVICE_KILL_SWITCH =
+        "safety_label_changes_job_service_kill_switch"
 
     /**
      * Whether the Permissions Hub 2 flag is enabled
@@ -265,8 +270,11 @@ object KotlinUtils {
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
     fun isPhotoPickerPromptEnabled(): Boolean {
-        return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-            PROPERTY_PHOTO_PICKER_PROMPT_ENABLED, true)
+        val app = PermissionControllerApplication.get()
+        return SdkLevel.isAtLeastU() && !DeviceUtils.isAuto(app) &&
+                !DeviceUtils.isTelevision(app) && !DeviceUtils.isWear(app) &&
+                DeviceConfig.getBoolean(
+                        DeviceConfig.NAMESPACE_PRIVACY, PROPERTY_PHOTO_PICKER_PROMPT_ENABLED, true)
     }
 
     /*
@@ -277,38 +285,29 @@ object KotlinUtils {
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
     fun isPermissionRationaleEnabled(): Boolean {
         return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-            PERMISSION_RATIONALE_ENABLED, false)
-    }
-
-    /**
-     * Whether we should use placeholder safety label data
-     *
-     * @return whether the flag is enabled
-     */
-    fun isPlaceholderSafetyLabelDataEnabled(): Boolean {
-        return DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-            PRIVACY_PLACEHOLDER_SAFETY_LABEL_DATA_ENABLED, false)
+            PERMISSION_RATIONALE_ENABLED, true)
     }
 
     /**
      * Whether we should enable the safety label change notifications and data sharing updates UI.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
-    fun isSafetyLabelChangeNotificationsEnabled(): Boolean {
+    fun isSafetyLabelChangeNotificationsEnabled(context: Context): Boolean {
         return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-                SAFETY_LABEL_CHANGE_NOTIFICATIONS_ENABLED, false)
+                SAFETY_LABEL_CHANGE_NOTIFICATIONS_ENABLED, true) &&
+            !DeviceUtils.isAuto(context) &&
+            !DeviceUtils.isTelevision(context) &&
+            !DeviceUtils.isWear(context)
     }
 
     /**
-     * The minimum amount of time to wait, after scheduling the safety label changes job, before
-     * the job actually runs for the first time.
+     * Whether the kill switch is set for [SafetyLabelChangesJobService]. If {@code true}, the
+     * service is effectively disabled and will not run or schedule any jobs.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
-    fun getSafetyLabelChangesJobDelayMillis(): Long {
-        return DeviceConfig.getLong(
-            DeviceConfig.NAMESPACE_PRIVACY,
-            PROPERTY_SAFETY_LABEL_CHANGES_JOB_DELAY_MILLIS,
-            Duration.ofMinutes(30).toMillis())
+    fun safetyLabelChangesJobServiceKillSwitch(): Boolean {
+        return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
+            PROPERTY_SAFETY_LABEL_CHANGES_JOB_SERVICE_KILL_SWITCH, false)
     }
 
     /** How often the safety label changes job will run. */
@@ -1240,8 +1239,8 @@ object KotlinUtils {
                 val appOpName = permissionToOp(foregroundPermName) ?: continue
 
                 if (fgPerm != null && fgPerm.isGrantedIncludingAppOp) {
-                    wasChanged = wasChanged || setOpMode(appOpName, uid, packageName, MODE_ALLOWED,
-                        appOpsManager)
+                    wasChanged = setOpMode(appOpName, uid, packageName, MODE_ALLOWED,
+                        appOpsManager) || wasChanged
                 }
             }
         } else {
@@ -1451,14 +1450,20 @@ object KotlinUtils {
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.TIRAMISU)
     fun shouldShowSafetyProtectionResources(context: Context): Boolean {
-        return SdkLevel.isAtLeastT() &&
-            DeviceConfig.getBoolean(
-                DeviceConfig.NAMESPACE_PRIVACY, SAFETY_PROTECTION_RESOURCES_ENABLED, false) &&
-            context.getResources().getBoolean(
-                Resources.getSystem()
-                    .getIdentifier("config_safetyProtectionEnabled", "bool", "android")) &&
-            context.getDrawable(android.R.drawable.ic_safety_protection) != null &&
-            !context.getString(android.R.string.safety_protection_display_text).isNullOrEmpty()
+        return try {
+            SdkLevel.isAtLeastT() &&
+                DeviceConfig.getBoolean(
+                    DeviceConfig.NAMESPACE_PRIVACY, SAFETY_PROTECTION_RESOURCES_ENABLED, false) &&
+                context.getResources().getBoolean(
+                    Resources.getSystem()
+                        .getIdentifier("config_safetyProtectionEnabled", "bool", "android")) &&
+                context.getDrawable(android.R.drawable.ic_safety_protection) != null &&
+                !context.getString(android.R.string.safety_protection_display_text).isNullOrEmpty()
+        } catch (e: Resources.NotFoundException) {
+            // We should expect the resources to not exist for non-pixel devices
+            // (except for the OEMs that opt-in)
+            false
+        }
     }
 
     fun addHealthPermissions(context: Context) {
@@ -1497,6 +1502,39 @@ object KotlinUtils {
         } else {
             null
         }
+    }
+
+    data class NotificationResources(val appLabel: String, val smallIcon: Icon, val color: Int)
+
+    fun getSafetyCenterNotificationResources(context: Context): NotificationResources {
+        val appLabel: String
+        val smallIcon: Icon
+        val color: Int
+        // If U resources are available, and this is a U+ device, use those
+        if (SdkLevel.isAtLeastU()) {
+            val scContext = SafetyCenterResourcesContext(context)
+            val uIcon = scContext.getIconByDrawableName("ic_notification_badge_general")
+            val uColor = scContext.getColorByName("notification_tint_normal")
+            if (uIcon != null && uColor != null) {
+                appLabel = context.getString(R.string.safety_privacy_qs_tile_title)
+                return NotificationResources(appLabel, uIcon, uColor)
+            }
+        }
+
+        // Use PbA branding if available, otherwise default to more generic branding
+        if (shouldShowSafetyProtectionResources(context)) {
+            appLabel = Html.fromHtml(context.getString(
+                android.R.string.safety_protection_display_text), 0).toString()
+            smallIcon =
+                Icon.createWithResource(context, android.R.drawable.ic_safety_protection)
+            color = context.getColor(R.color.safety_center_info)
+        } else {
+            appLabel = context.getString(R.string.safety_center_notification_app_label)
+            smallIcon =
+                Icon.createWithResource(context, R.drawable.ic_settings_notification)
+            color = context.getColor(android.R.color.system_notification_accent_color)
+        }
+        return NotificationResources(appLabel, smallIcon, color)
     }
 }
 

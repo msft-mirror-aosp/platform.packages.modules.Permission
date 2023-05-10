@@ -92,8 +92,8 @@ public final class SafetyCenterFlags {
     private static final String PROPERTY_ISSUE_CATEGORY_ALLOWLISTS =
             "safety_center_issue_category_allowlists";
 
-    private static final String PROPERTY_ALLOW_STATSD_LOGGING_IN_TESTS =
-            "safety_center_allow_statsd_logging_in_tests";
+    private static final String PROPERTY_ALLOW_STATSD_LOGGING =
+            "safety_center_allow_statsd_logging";
 
     private static final String PROPERTY_SHOW_SUBPAGES = "safety_center_show_subpages";
 
@@ -113,8 +113,6 @@ public final class SafetyCenterFlags {
 
     private static final Duration NOTIFICATIONS_MIN_DELAY_DEFAULT_DURATION = Duration.ofDays(180);
 
-    private static String sIssueCategoryAllowlistDefault = "";
-
     private static final String REFRESH_SOURCES_TIMEOUT_DEFAULT =
             "100:15000,200:60000,300:30000,400:30000,500:30000,600:3600000";
     private static final Duration REFRESH_SOURCES_TIMEOUT_DEFAULT_DURATION = Duration.ofSeconds(15);
@@ -125,27 +123,37 @@ public final class SafetyCenterFlags {
     private static final String RESURFACE_ISSUE_DELAYS_DEFAULT = "";
     private static final Duration RESURFACE_ISSUE_DELAYS_DEFAULT_DURATION = Duration.ofDays(180);
 
-    private static String sUntrackedSourcesDefault =
+    private static volatile String sUntrackedSourcesDefault =
             "AndroidAccessibility,AndroidBackgroundLocation,"
                     + "AndroidNotificationListener,AndroidPermissionAutoRevoke";
 
-    private static String sBackgroundRefreshDenyDefault = "";
+    private static volatile String sBackgroundRefreshDenyDefault = "";
+
+    private static volatile String sIssueCategoryAllowlistDefault = "";
+
+    private static volatile String sRefreshOnPageOpenSourcesDefault =
+            "AndroidBiometrics,AndroidLockScreen";
 
     static void init(SafetyCenterResourcesContext resourceContext) {
         String untrackedSourcesDefault =
-                resourceContext.getOptionalString("config_defaultUntrackedSources");
+                resourceContext.getOptionalStringByName("config_defaultUntrackedSources");
         if (untrackedSourcesDefault != null) {
             sUntrackedSourcesDefault = untrackedSourcesDefault;
         }
         String backgroundRefreshDenyDefault =
-                resourceContext.getOptionalString("config_defaultBackgroundRefreshDeny");
+                resourceContext.getOptionalStringByName("config_defaultBackgroundRefreshDeny");
         if (backgroundRefreshDenyDefault != null) {
             sBackgroundRefreshDenyDefault = backgroundRefreshDenyDefault;
         }
         String issueCategoryAllowlistDefault =
-                resourceContext.getOptionalString("config_defaultIssueCategoryAllowlist");
+                resourceContext.getOptionalStringByName("config_defaultIssueCategoryAllowlist");
         if (issueCategoryAllowlistDefault != null) {
             sIssueCategoryAllowlistDefault = issueCategoryAllowlistDefault;
+        }
+        String refreshOnPageOpenSourcesDefault =
+                resourceContext.getOptionalStringByName("config_defaultRefreshOnPageOpenSources");
+        if (refreshOnPageOpenSourcesDefault != null) {
+            sRefreshOnPageOpenSourcesDefault = refreshOnPageOpenSourcesDefault;
         }
     }
 
@@ -179,7 +187,7 @@ public final class SafetyCenterFlags {
         printFlag(
                 fout, PROPERTY_REFRESH_SOURCES_TIMEOUTS_MILLIS, getRefreshSourcesTimeoutsMillis());
         printFlag(fout, PROPERTY_ISSUE_CATEGORY_ALLOWLISTS, getIssueCategoryAllowlists());
-        printFlag(fout, PROPERTY_ALLOW_STATSD_LOGGING_IN_TESTS, getAllowStatsdLoggingInTests());
+        printFlag(fout, PROPERTY_ALLOW_STATSD_LOGGING, getAllowStatsdLogging());
         printFlag(fout, PROPERTY_SHOW_SUBPAGES, getShowSubpages());
         printFlag(
                 fout,
@@ -210,7 +218,7 @@ public final class SafetyCenterFlags {
     }
 
     /** Returns whether Safety Center notifications are enabled. */
-    static boolean getNotificationsEnabled() {
+    public static boolean getNotificationsEnabled() {
         return getBoolean(PROPERTY_NOTIFICATIONS_ENABLED, false);
     }
 
@@ -226,7 +234,7 @@ public final class SafetyCenterFlags {
      * <p>Note that the {@code areNotificationsAllowed} config attribute is only available on API U+
      * and therefore this is the only way to enable notifications for sources on Android T.
      */
-    static ArraySet<String> getNotificationsAllowedSourceIds() {
+    public static ArraySet<String> getNotificationsAllowedSourceIds() {
         return getCommaSeparatedStrings(PROPERTY_NOTIFICATIONS_ALLOWED_SOURCES);
     }
 
@@ -236,7 +244,7 @@ public final class SafetyCenterFlags {
      *
      * <p>The actual delay used may be longer.
      */
-    static Duration getNotificationsMinDelay() {
+    public static Duration getNotificationsMinDelay() {
         return getDuration(
                 PROPERTY_NOTIFICATIONS_MIN_DELAY, NOTIFICATIONS_MIN_DELAY_DEFAULT_DURATION);
     }
@@ -250,7 +258,7 @@ public final class SafetyCenterFlags {
      *
      * <p>Entries in this set should be strings of the form "safety_source_id/issue_type_id".
      */
-    static ArraySet<String> getImmediateNotificationBehaviorIssues() {
+    public static ArraySet<String> getImmediateNotificationBehaviorIssues() {
         return getCommaSeparatedStrings(PROPERTY_NOTIFICATIONS_IMMEDIATE_BEHAVIOR_ISSUES);
     }
 
@@ -450,9 +458,9 @@ public final class SafetyCenterFlags {
         return getString(PROPERTY_ADDITIONAL_ALLOW_PACKAGE_CERTS, "");
     }
 
-    /** Returns whether we allow statsd logging in tests. */
-    static boolean getAllowStatsdLoggingInTests() {
-        return getBoolean(PROPERTY_ALLOW_STATSD_LOGGING_IN_TESTS, false);
+    /** Returns whether we allow statsd logging. */
+    public static boolean getAllowStatsdLogging() {
+        return getBoolean(PROPERTY_ALLOW_STATSD_LOGGING, true);
     }
 
     /**
@@ -460,7 +468,6 @@ public final class SafetyCenterFlags {
      * expand-and-collapse list implementation.
      */
     static boolean getShowSubpages() {
-        // TODO(b/260822348): Add CTS test to verify that the flag is disabled when turned on for T
         return SdkLevel.isAtLeastU() && getBoolean(PROPERTY_SHOW_SUBPAGES, true);
     }
 
@@ -469,7 +476,8 @@ public final class SafetyCenterFlags {
      * refreshOnPageOpenAllowed is false (the default) in the XML config.
      */
     static ArraySet<String> getOverrideRefreshOnPageOpenSourceIds() {
-        return getCommaSeparatedStrings(PROPERTY_OVERRIDE_REFRESH_ON_PAGE_OPEN_SOURCES);
+        return getCommaSeparatedStrings(
+                PROPERTY_OVERRIDE_REFRESH_ON_PAGE_OPEN_SOURCES, sRefreshOnPageOpenSourcesDefault);
     }
 
     private static Duration getDuration(String property, Duration defaultValue) {
