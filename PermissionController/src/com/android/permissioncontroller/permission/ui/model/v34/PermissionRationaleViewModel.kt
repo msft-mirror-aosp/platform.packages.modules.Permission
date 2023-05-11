@@ -37,7 +37,7 @@ import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_
 import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_RATIONALE_DIALOG_ACTION_REPORTED__BUTTON_PRESSED__PERMISSION_SETTINGS
 import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_RATIONALE_DIALOG_VIEWED
 import com.android.permissioncontroller.R
-import com.android.permissioncontroller.permission.data.SafetyLabelInfoLiveData
+import com.android.permissioncontroller.permission.data.v34.SafetyLabelInfoLiveData
 import com.android.permissioncontroller.permission.data.SmartUpdateMediatorLiveData
 import com.android.permissioncontroller.permission.data.get
 import com.android.permissioncontroller.permission.ui.ManagePermissionsActivity
@@ -46,7 +46,7 @@ import com.android.permissioncontroller.permission.ui.ManagePermissionsActivity.
 import com.android.permissioncontroller.permission.ui.v34.PermissionRationaleActivity
 import com.android.permissioncontroller.permission.utils.KotlinUtils
 import com.android.permissioncontroller.permission.utils.KotlinUtils.getAppStoreIntent
-import com.android.permissioncontroller.permission.utils.PermissionMapping
+import com.android.permissioncontroller.permission.utils.v34.SafetyLabelUtils
 import com.android.settingslib.HelpUtils
 
 /**
@@ -124,9 +124,9 @@ class PermissionRationaleViewModel(
                         KotlinUtils.getPackageLabel(app, it, Process.myUserHandle())
                     }
 
-                val purposes = PermissionMapping.getSafetyLabelSharingPurposesForGroup(
+                val purposes = SafetyLabelUtils.getSafetyLabelSharingPurposesForGroup(
                         safetyLabelInfo.safetyLabel, permissionGroupName)
-                if (isStale) {
+                if (value == null) {
                     logPermissionRationaleDialogViewed(purposes)
                 }
                 value =

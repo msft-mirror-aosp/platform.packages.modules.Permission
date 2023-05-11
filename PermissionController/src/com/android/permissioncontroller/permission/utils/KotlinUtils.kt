@@ -54,6 +54,7 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.Icon
 import android.health.connect.HealthConnectManager
 import android.os.Build
 import android.os.Bundle
@@ -63,6 +64,7 @@ import android.provider.DeviceConfig
 import android.provider.Settings
 import android.safetylabel.SafetyLabelConstants.PERMISSION_RATIONALE_ENABLED
 import android.safetylabel.SafetyLabelConstants.SAFETY_LABEL_CHANGE_NOTIFICATIONS_ENABLED
+import android.text.Html
 import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.ChecksSdkIntAtLeast
@@ -84,6 +86,7 @@ import com.android.permissioncontroller.permission.model.livedatatypes.LightPerm
 import com.android.permissioncontroller.permission.model.livedatatypes.PermState
 import com.android.permissioncontroller.permission.service.LocationAccessCheck
 import com.android.permissioncontroller.permission.ui.handheld.SettingsWithLargeHeader
+import com.android.safetycenter.resources.SafetyCenterResourcesContext
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.Continuation
@@ -282,16 +285,19 @@ object KotlinUtils {
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
     fun isPermissionRationaleEnabled(): Boolean {
         return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-            PERMISSION_RATIONALE_ENABLED, false)
+            PERMISSION_RATIONALE_ENABLED, true)
     }
 
     /**
      * Whether we should enable the safety label change notifications and data sharing updates UI.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
-    fun isSafetyLabelChangeNotificationsEnabled(): Boolean {
+    fun isSafetyLabelChangeNotificationsEnabled(context: Context): Boolean {
         return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-                SAFETY_LABEL_CHANGE_NOTIFICATIONS_ENABLED, false)
+                SAFETY_LABEL_CHANGE_NOTIFICATIONS_ENABLED, true) &&
+            !DeviceUtils.isAuto(context) &&
+            !DeviceUtils.isTelevision(context) &&
+            !DeviceUtils.isWear(context)
     }
 
     /**
@@ -302,18 +308,6 @@ object KotlinUtils {
     fun safetyLabelChangesJobServiceKillSwitch(): Boolean {
         return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
             PROPERTY_SAFETY_LABEL_CHANGES_JOB_SERVICE_KILL_SWITCH, false)
-    }
-
-    /**
-     * The minimum amount of time to wait, after scheduling the safety label changes job, before
-     * the job actually runs for the first time.
-     */
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
-    fun getSafetyLabelChangesJobDelayMillis(): Long {
-        return DeviceConfig.getLong(
-            DeviceConfig.NAMESPACE_PRIVACY,
-            PROPERTY_SAFETY_LABEL_CHANGES_JOB_DELAY_MILLIS,
-            Duration.ofMinutes(30).toMillis())
     }
 
     /** How often the safety label changes job will run. */
@@ -1508,6 +1502,39 @@ object KotlinUtils {
         } else {
             null
         }
+    }
+
+    data class NotificationResources(val appLabel: String, val smallIcon: Icon, val color: Int)
+
+    fun getSafetyCenterNotificationResources(context: Context): NotificationResources {
+        val appLabel: String
+        val smallIcon: Icon
+        val color: Int
+        // If U resources are available, and this is a U+ device, use those
+        if (SdkLevel.isAtLeastU()) {
+            val scContext = SafetyCenterResourcesContext(context)
+            val uIcon = scContext.getIconByDrawableName("ic_notification_badge_general")
+            val uColor = scContext.getColorByName("notification_tint_normal")
+            if (uIcon != null && uColor != null) {
+                appLabel = context.getString(R.string.safety_privacy_qs_tile_title)
+                return NotificationResources(appLabel, uIcon, uColor)
+            }
+        }
+
+        // Use PbA branding if available, otherwise default to more generic branding
+        if (shouldShowSafetyProtectionResources(context)) {
+            appLabel = Html.fromHtml(context.getString(
+                android.R.string.safety_protection_display_text), 0).toString()
+            smallIcon =
+                Icon.createWithResource(context, android.R.drawable.ic_safety_protection)
+            color = context.getColor(R.color.safety_center_info)
+        } else {
+            appLabel = context.getString(R.string.safety_center_notification_app_label)
+            smallIcon =
+                Icon.createWithResource(context, R.drawable.ic_settings_notification)
+            color = context.getColor(android.R.color.system_notification_accent_color)
+        }
+        return NotificationResources(appLabel, smallIcon, color)
     }
 }
 

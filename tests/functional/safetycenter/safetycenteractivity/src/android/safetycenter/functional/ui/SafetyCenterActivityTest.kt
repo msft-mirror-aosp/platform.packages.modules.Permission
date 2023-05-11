@@ -21,6 +21,7 @@ import android.os.Build.VERSION.CODENAME
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.os.Bundle
+import android.platform.test.rule.ScreenRecordRule
 import android.safetycenter.SafetyCenterManager.EXTRA_SAFETY_SOURCE_ID
 import android.safetycenter.SafetyCenterManager.EXTRA_SAFETY_SOURCE_ISSUE_ID
 import android.safetycenter.SafetySourceData.SEVERITY_LEVEL_CRITICAL_WARNING
@@ -67,7 +68,6 @@ import com.android.safetycenter.testing.UiTestHelper.waitButtonDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitCollapsedIssuesDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitExpandedIssuesDisplayed
-import com.android.safetycenter.testing.UiTestHelper.waitNotDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceDataDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueNotDisplayed
@@ -86,6 +86,8 @@ class SafetyCenterActivityTest {
     @get:Rule val disableAnimationRule = DisableAnimationRule()
 
     @get:Rule val freezeRotationRule = FreezeRotationRule()
+
+    @get:Rule val screenRecordRule = ScreenRecordRule()
 
     private val context: Context = getApplicationContext()
 
@@ -116,6 +118,17 @@ class SafetyCenterActivityTest {
         }
         safetyCenterTestHelper.reset()
         getUiDevice().resetRotation()
+    }
+
+    @Test
+    fun launchActivity_allowingSettingsTrampoline() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
+        val dataToDisplay = safetySourceTestData.criticalWithResolvingGeneralIssue
+        safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, dataToDisplay)
+
+        context.launchSafetyCenterActivity(preventTrampolineToSettings = false) {
+            waitSourceDataDisplayed(dataToDisplay)
+        }
     }
 
     @Test
@@ -417,6 +430,7 @@ class SafetyCenterActivityTest {
     }
 
     @Test
+    @ScreenRecordRule.ScreenRecord
     fun entryListWithEntryGroup_clickingAClickableDisabledEntry_redirectsToDifferentScreen() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.multipleSourcesConfig)
         safetyCenterTestHelper.setData(
@@ -472,6 +486,7 @@ class SafetyCenterActivityTest {
     }
 
     @Test
+    @ScreenRecordRule.ScreenRecord
     fun entryListWithSingleSource_clickingDefaultEntryImplicitIntent_redirectsToDifferentScreen() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.implicitIntentSingleSourceConfig)
 
@@ -526,43 +541,30 @@ class SafetyCenterActivityTest {
     }
 
     @Test
-    fun issueCard_criticalIssue_hasContentDescriptions() {
-        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
+    fun issueCard_noAttribution_hasProperContentDescriptions() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.issueOnlySourceNoGroupTitleConfig)
+
+        val issue = safetySourceTestData.recommendationGeneralIssue
         safetyCenterTestHelper.setData(
-            SINGLE_SOURCE_ID,
-            safetySourceTestData.criticalWithResolvingGeneralIssue
+            ISSUE_ONLY_ALL_OPTIONAL_ID,
+            SafetySourceTestData.issuesOnly(issue)
         )
 
-        context.launchSafetyCenterActivity {
-            waitDisplayed(By.desc("Alert. Critical issue title. Critical issue summary"))
-            waitButtonDisplayed("Solve issue")
-            waitNotDisplayed(By.desc("Protected by Android"))
-
-            // Since we already have a combined content description for the issue card, the below
-            // tests ensure that we don't make the individual views visible to a11y technologies.
-            waitNotDisplayed(By.desc("Critical issue title"))
-            waitNotDisplayed(By.desc("Critical issue summary"))
-        }
+        context.launchSafetyCenterActivity { waitDisplayed(By.desc("Alert. ${issue.title}")) }
     }
 
     @Test
-    fun issueCard_informationIssueWithSubtitle_hasContentDescriptions() {
-        val sourceIssue = safetySourceTestData.informationWithSubtitleIssue
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    fun issueCard_withAttribution_hasProperContentDescriptions() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
-        safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, sourceIssue)
-        val expectedString =
-            "Alert. Information issue title. Information issue subtitle. Information issue summary"
+
+        val data = safetySourceTestData.informationWithIssueWithAttributionTitle
+        val issue = data.issues[0]
+
+        safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, data)
 
         context.launchSafetyCenterActivity {
-            waitDisplayed(By.desc(expectedString))
-            waitButtonDisplayed("Review")
-            waitNotDisplayed(By.desc("Protected by Android"))
-
-            // Since we already have a combined content description for the issue card, the below
-            // tests ensure that we don't make the individual views visible to a11y technologies.
-            waitNotDisplayed(By.desc("Information issue title"))
-            waitNotDisplayed(By.desc("Information issue subtitle"))
-            waitNotDisplayed(By.desc("Information issue summary"))
+            waitDisplayed(By.desc("Alert. ${issue.attributionTitle}"))
         }
     }
 
@@ -930,6 +932,7 @@ class SafetyCenterActivityTest {
     }
 
     @Test
+    @ScreenRecordRule.ScreenRecord
     fun launchActivity_fromQuickSettings_issuesExpanded() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.multipleSourcesConfig)
         safetyCenterTestHelper.setData(
