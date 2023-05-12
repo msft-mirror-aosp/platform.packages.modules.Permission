@@ -173,6 +173,8 @@
 
         <service android:name="com.android.permissioncontroller.permission.service.PermissionEventCleanupJobService"
                  android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service android:name="com.android.permissioncontroller.permission.service.v33.CorrectSensorPrivacyJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <service
             android:name="com.android.permissioncontroller.safetycenter.service.SafetyCenterBackgroundRefreshJobService"
@@ -266,6 +268,18 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity-alias android:name="com.android.permissioncontroller.permission.ui.ManagePermissionsActivityAlias"
+                        android:configChanges="orientation|keyboardHidden|screenSize"
+                        android:label="@string/app_permissions"
+                        android:exported="true"
+                        android:theme="@style/Theme.PermissionController.Settings.FilterTouches"
+                        android:permission="android.permission.LAUNCH_PERMISSION_SETTINGS"
+                        android:targetActivity="com.android.permissioncontroller.permission.ui.ManagePermissionsActivity">
+            <intent-filter android:priority="1">
+                <action android:name="android.settings.APP_PERMISSIONS_SETTINGS"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
 
         <activity android:name="com.android.permissioncontroller.permission.ui.ManagePermissionsActivityTrampoline"
                   android:excludeFromRecents="true"
@@ -297,7 +311,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.android.permissioncontroller.permission.ui.SafetyCenterQsActivity"
+        <activity android:name="com.android.permissioncontroller.safetycenter.ui.SafetyCenterQsActivity"
                   android:excludeFromRecents="true"
                   android:launchMode="singleInstance"
                   android:exported="true"
