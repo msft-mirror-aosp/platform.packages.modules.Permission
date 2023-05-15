@@ -113,7 +113,7 @@
     <string name="loading" msgid="4789365003890741082">"Läser in …"</string>
     <string name="all_permissions" msgid="6911125611996872522">"Alla behörigheter"</string>
     <string name="other_permissions" msgid="2901186127193849594">"Andra appbehörigheter"</string>
-    <string name="permission_request_title" msgid="8790310151025020126">"Begäran om behörighet"</string>
+    <string name="permission_request_title" msgid="8790310151025020126">"Behörighetsbegäran"</string>
     <string name="wear_not_allowed_dlg_title" msgid="1429467891296932713">"Android Wear"</string>
     <string name="wear_not_allowed_dlg_text" msgid="512340555334769098">"Åtgärder för att installera/avinstallera stöds inte på Wear."</string>
     <string name="permission_review_title_template_install" msgid="1284337937156289081">"Välj vad du vill ge &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; åtkomst till"</string>
@@ -589,6 +589,7 @@
     <string name="permission_rationale_message_location" msgid="2153841534298068414">"Appen har angett att den kan dela platsdata med tredje part"</string>
     <string name="permission_rationale_location_title" msgid="2404797182678793506">"Datadelning och plats"</string>
     <string name="permission_rationale_data_sharing_source_title" msgid="6874604543125814316">"Härifrån kommer informationen om datadelning"</string>
+    <string name="permission_rationale_data_sharing_device_manufacturer_message" msgid="7569261218145653185">"Utvecklaren har gett enhetens tillverkare information om hur appen delar data. Utvecklaren kan uppdatera den här informationen med tiden."</string>
     <string name="permission_rationale_data_sharing_source_message" msgid="8330794595417986883">"Utvecklaren har angett information om hur appen delar data i "<annotation id="link"><annotation id="install_source" example="App Store">"%1$s"</annotation></annotation>". Utvecklaren kan uppdatera den här informationen med tiden."</string>
     <string name="permission_rationale_location_purpose_title" msgid="5115877143670012618">"Appen kan dela platsdata för följande:"</string>
     <string name="permission_rationale_permission_data_sharing_varies_title" msgid="9103718980919908316">"Datadelningen varierar"</string>
