@@ -260,7 +260,11 @@ class SafetyCenterTestConfigs(private val context: Context) {
                 )
                 .build()
 
-    /** A simple [SafetyCenterConfig] with multiple sources for testing the Privacy subpage. */
+    /**
+     * A simple [SafetyCenterConfig] for testing the Privacy subpage. Note that this config contains
+     * the [PRIVACY_SOURCE_ID_1] source that is part of the generic category, and the [SOURCE_ID_1]
+     * that is part of the data category.
+     */
     val privacySubpageConfig: SafetyCenterConfig
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         get() =
@@ -268,7 +272,23 @@ class SafetyCenterTestConfigs(private val context: Context) {
                 .addSafetySourcesGroup(
                     safetySourcesGroupBuilder(ANDROID_PRIVACY_SOURCES_GROUP_ID)
                         .addSafetySource(dynamicSafetySource(PRIVACY_SOURCE_ID_1))
-                        .addSafetySource(dynamicSafetySource(PRIVACY_SOURCE_ID_2))
+                        .addSafetySource(dynamicSafetySource(SOURCE_ID_1))
+                        .build()
+                )
+                .build()
+
+    /**
+     * A simple [SafetyCenterConfig] without data sources for testing the Privacy subpage. Note that
+     * this config contains only [PRIVACY_SOURCE_ID_1] source that is part of the generic category.
+     * Hence it doesn't have any data category sources.
+     */
+    val privacySubpageWithoutDataSourcesConfig: SafetyCenterConfig
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        get() =
+            SafetyCenterConfig.Builder()
+                .addSafetySourcesGroup(
+                    safetySourcesGroupBuilder(ANDROID_PRIVACY_SOURCES_GROUP_ID)
+                        .addSafetySource(dynamicSafetySource(PRIVACY_SOURCE_ID_1))
                         .build()
                 )
                 .build()
@@ -375,6 +395,14 @@ class SafetyCenterTestConfigs(private val context: Context) {
             .addSafetySourcesGroup(staticSourceGroup1)
             .addSafetySourcesGroup(staticSourceGroup2)
             .build()
+
+    /**
+     * A [SafetyCenterConfig] with a single static source
+     *
+     * The particular source ID is configured in the same way as sources hosted by the Settings app,
+     * to launch as if it is part of the Settings app UI.
+     */
+    val singleStaticSettingsSource = singleSourceConfig(staticSafetySource("TestSource"))
 
     /** [SafetyCenterConfig] used in tests for Your Work Policy Info source. */
     val workPolicyInfoConfig =
@@ -825,11 +853,11 @@ class SafetyCenterTestConfigs(private val context: Context) {
         /** ID of a source provided by [summaryTestConfig]. */
         const val SOURCE_ID_7 = "test_source_id_7"
 
-        /** ID of a source provided by [privacySubpageConfig]. */
+        /**
+         * ID of a source provided by [privacySubpageConfig] and
+         * [privacySubpageWithoutDataSourcesConfig].
+         */
         const val PRIVACY_SOURCE_ID_1 = "AndroidPermissionUsage"
-
-        /** ID of a source provided by [privacySubpageConfig]. */
-        const val PRIVACY_SOURCE_ID_2 = "AndroidPrivacyAppDataSharingUpdates"
 
         /**
          * ID of a [SafetySourcesGroup] provided by [multipleSourcesConfig], containing two sources
@@ -1001,8 +1029,8 @@ class SafetyCenterTestConfigs(private val context: Context) {
         const val ANDROID_LOCK_SCREEN_SOURCES_GROUP_ID = "AndroidLockScreenSources"
 
         /**
-         * ID of a [SafetySourcesGroup] provided by [privacySubpageConfig], to replicate the privacy
-         * sources group.
+         * ID of a [SafetySourcesGroup] provided by [privacySubpageConfig] and
+         * [privacySubpageWithoutDataSourcesConfig], to replicate the privacy sources group.
          */
         const val ANDROID_PRIVACY_SOURCES_GROUP_ID = "AndroidPrivacySources"
     }

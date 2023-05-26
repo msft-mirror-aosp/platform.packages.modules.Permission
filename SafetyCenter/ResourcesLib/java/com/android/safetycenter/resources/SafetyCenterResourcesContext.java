@@ -26,8 +26,10 @@ import android.content.pm.ResolveInfo;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.util.Log;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.VisibleForTesting;
@@ -119,6 +121,21 @@ public class SafetyCenterResourcesContext extends ContextWrapper {
     public static SafetyCenterResourcesContext forTests(Context contextBase) {
         return new SafetyCenterResourcesContext(
                 contextBase, /* shouldFallbackIfNamedResourceNotFound */ false);
+    }
+
+    /**
+     * Initializes the {@link Context}'s {@link AssetManager}, {@link Resources} and {@link
+     * Resources.Theme}.
+     *
+     * <p>This call is optional as this can also be lazily instantiated. This is useful to ensure
+     * that resources are loaded prior to interacting with the {@link SafetyCenterResourcesContext},
+     * as this code needs to run for the same user as the provided base {@link Context}; which may
+     * not be the case with a binder call.
+     */
+    public void init() {
+        mAssetsFromApk = getAssets();
+        mResourcesFromApk = getResources();
+        mThemeFromApk = getTheme();
     }
 
     /** Get the package name of the Safety Center resources APK. */
@@ -220,6 +237,12 @@ public class SafetyCenterResourcesContext extends ContextWrapper {
         return getString(stringId, formatArgs);
     }
 
+    /** Same as {@link #getOptionalString(int)} but using the string name rather than ID. */
+    @Nullable
+    public String getOptionalStringByName(String name) {
+        return getOptionalString(getStringRes(name));
+    }
+
     /**
      * Gets a string resource by name from the Safety Center resources APK, and returns an empty
      * string if the resource does not exist (or throws a {@link Resources.NotFoundException} if
@@ -249,6 +272,10 @@ public class SafetyCenterResourcesContext extends ContextWrapper {
 
     @StringRes
     private int getStringRes(String name) {
+        return getResId(name, "string");
+    }
+
+    private int getResId(String name, String type) {
         String resourcePkgName = getResourcesApkPkgName();
         if (resourcePkgName == null) {
             return Resources.ID_NULL;
@@ -259,7 +286,7 @@ public class SafetyCenterResourcesContext extends ContextWrapper {
         }
         // TODO(b/227738283): profile the performance of this operation and consider adding caching
         //  or finding some alternative solution.
-        return resources.getIdentifier(name, "string", resourcePkgName);
+        return resources.getIdentifier(name, type, resourcePkgName);
     }
 
     @Nullable
@@ -278,6 +305,7 @@ public class SafetyCenterResourcesContext extends ContextWrapper {
 
     /** Retrieve assets held in the Safety Center resources APK. */
     @Override
+    @Nullable
     public AssetManager getAssets() {
         if (mAssetsFromApk == null) {
             Context resourcesApkContext = getResourcesApkContext();
@@ -290,6 +318,7 @@ public class SafetyCenterResourcesContext extends ContextWrapper {
 
     /** Retrieve resources held in the Safety Center resources APK. */
     @Override
+    @Nullable
     public Resources getResources() {
         if (mResourcesFromApk == null) {
             Context resourcesApkContext = getResourcesApkContext();
@@ -302,6 +331,7 @@ public class SafetyCenterResourcesContext extends ContextWrapper {
 
     /** Retrieve theme held in the Safety Center resources APK. */
     @Override
+    @Nullable
     public Resources.Theme getTheme() {
         if (mThemeFromApk == null) {
             Context resourcesApkContext = getResourcesApkContext();
@@ -322,19 +352,9 @@ public class SafetyCenterResourcesContext extends ContextWrapper {
      */
     @Nullable
     public Drawable getDrawableByName(String name, @Nullable Resources.Theme theme) {
-        String resourcePkgName = getResourcesApkPkgName();
-        if (resourcePkgName == null) {
-            return null;
-        }
-
-        Resources resources = getResources();
-        if (resources == null) {
-            return null;
-        }
-
-        int resId = resources.getIdentifier(name, "drawable", resourcePkgName);
+        int resId = getResId(name, "drawable");
         if (resId != Resources.ID_NULL) {
-            return resources.getDrawable(resId, theme);
+            return getResources().getDrawable(resId, theme);
         }
 
         if (!mShouldFallbackIfNamedResourceNotFound) {
@@ -342,6 +362,42 @@ public class SafetyCenterResourcesContext extends ContextWrapper {
         }
 
         Log.w(TAG, "Drawable resource " + name + " not found");
+        return null;
+    }
+
+    /**
+     * Returns an {@link Icon} instance containing a drawable with the given name. If no such
+     * drawable exists, returns {@code null} or throws {@link Resources.NotFoundException}.
+     */
+    @Nullable
+    public Icon getIconByDrawableName(String drawableResName) {
+        int resId = getResId(drawableResName, "drawable");
+        if (resId != Resources.ID_NULL) {
+            return Icon.createWithResource(getResourcesApkPkgName(), resId);
+        }
+
+        if (!mShouldFallbackIfNamedResourceNotFound) {
+            throw new Resources.NotFoundException();
+        }
+
+        Log.w(TAG, "Drawable resource " + drawableResName + " not found");
+        return null;
+    }
+
+    /** Gets a color by resource name */
+    @ColorInt
+    @Nullable
+    public Integer getColorByName(String name) {
+        int resId = getResId(name, "color");
+        if (resId != Resources.ID_NULL) {
+            return getResources().getColor(resId, getTheme());
+        }
+
+        if (!mShouldFallbackIfNamedResourceNotFound) {
+            throw new Resources.NotFoundException();
+        }
+
+        Log.w(TAG, "Color resource " + name + " not found");
         return null;
     }
 }

@@ -20,6 +20,8 @@ import android.Manifest.permission.READ_SAFETY_CENTER_STATUS
 import android.Manifest.permission.SEND_SAFETY_CENTER_UPDATE
 import android.content.Context
 import android.os.Build.VERSION_CODES.TIRAMISU
+import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+import android.os.UserManager
 import android.safetycenter.SafetyCenterManager
 import android.safetycenter.SafetyEvent
 import android.safetycenter.SafetySourceData
@@ -29,6 +31,7 @@ import androidx.annotation.RequiresApi
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.addOnSafetyCenterDataChangedListenerWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.clearAllSafetySourceDataForTestsWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.clearSafetyCenterConfigForTestsWithPermission
+import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.dismissSafetyCenterIssueWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.getSafetyCenterConfigWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.isSafetyCenterEnabledWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.removeOnSafetyCenterDataChangedListenerWithPermission
@@ -44,6 +47,7 @@ import com.google.common.util.concurrent.MoreExecutors.directExecutor
 class SafetyCenterTestHelper(private val context: Context) {
 
     private val safetyCenterManager = context.getSystemService(SafetyCenterManager::class.java)!!
+    private val userManager = context.getSystemService(UserManager::class.java)!!
     private val listeners = mutableListOf<SafetyCenterTestListener>()
 
     /**
@@ -51,6 +55,7 @@ class SafetyCenterTestHelper(private val context: Context) {
      * values. To be called before each test.
      */
     fun setup() {
+        SafetySourceReceiver.setup()
         Coroutines.enableDebugging()
         SafetyCenterFlags.setup()
         setEnabled(true)
@@ -99,7 +104,7 @@ class SafetyCenterTestHelper(private val context: Context) {
      * Adds and returns a [SafetyCenterTestListener] to SafetyCenter.
      *
      * @param skipInitialData whether the returned [SafetyCenterTestListener] should receive the
-     * initial SafetyCenter update
+     *   initial SafetyCenter update
      */
     fun addListener(skipInitialData: Boolean = true): SafetyCenterTestListener {
         require(isEnabled())
@@ -129,6 +134,12 @@ class SafetyCenterTestHelper(private val context: Context) {
         )
     }
 
+    /** Dismisses the [SafetyCenterIssue] for the given [safetyCenterIssueId]. */
+    @RequiresApi(UPSIDE_DOWN_CAKE)
+    fun dismissSafetyCenterIssue(safetyCenterIssueId: String) {
+        safetyCenterManager.dismissSafetyCenterIssueWithPermission(safetyCenterIssueId)
+    }
+
     private fun resetFlags() {
         setEnabled(SafetyCenterFlags.snapshot.isSafetyCenterEnabled())
         SafetyCenterFlags.reset()
@@ -154,7 +165,10 @@ class SafetyCenterTestHelper(private val context: Context) {
             // asynchronously, a wrong sequencing could still cause failures (e.g: 1: flag switched,
             // 2: test finishes, 3: new test starts, 4: a test config is set, 5: broadcast from 1
             // dispatched).
-            enabledChangedReceiver.receiveSafetyCenterEnabledChanged()
+            if (userManager.isSystemUser) {
+                // The implicit broadcast is only sent to the system user.
+                enabledChangedReceiver.receiveSafetyCenterEnabledChanged()
+            }
             enabledChangedReceiver.unregister()
             // NOTE: We could be using ActivityManager#waitForBroadcastIdle() to achieve the same
             // thing.

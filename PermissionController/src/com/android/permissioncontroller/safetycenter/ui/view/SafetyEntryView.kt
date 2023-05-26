@@ -81,6 +81,7 @@ constructor(
 
     private fun showEntryDetails(entry: SafetyCenterEntry) {
         commonEntryView?.showDetails(
+            entry.id,
             entry.title,
             entry.summary,
             entry.severityLevel,
@@ -174,7 +175,9 @@ constructor(
         isClickable = true
         isEnabled = entry.pendingIntent != null
         changeEnabledState(
+            context,
             entry.isEnabled,
+            isEnabled,
             commonEntryView?.titleView,
             commonEntryView?.summaryView
         )

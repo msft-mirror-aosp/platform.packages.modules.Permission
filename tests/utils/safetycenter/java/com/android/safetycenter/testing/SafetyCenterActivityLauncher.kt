@@ -28,6 +28,7 @@ import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.test.uiautomator.By
+import com.android.compatibility.common.util.RetryableException
 import com.android.compatibility.common.util.UiAutomatorUtils2.getUiDevice
 import com.android.safetycenter.testing.ShellPermissions.callWithShellPermissionIdentity
 import com.android.safetycenter.testing.UiTestHelper.waitDisplayed
@@ -40,15 +41,21 @@ object SafetyCenterActivityLauncher {
      * Launches the SafetyCenter activity and exits it once [block] completes.
      *
      * @param withReceiverPermission whether we should hold the [SEND_SAFETY_CENTER_UPDATE]
-     * permission while the activity is on the screen (e.g. to ensure the CTS package can have its
-     * receiver called during refresh/rescan)
+     *   permission while the activity is on the screen (e.g. to ensure the CTS package can have its
+     *   receiver called during refresh/rescan)
      */
     fun Context.launchSafetyCenterActivity(
         intentExtras: Bundle? = null,
         withReceiverPermission: Boolean = false,
+        preventTrampolineToSettings: Boolean = true,
         block: () -> Unit
     ) {
-        val launchSafetyCenterIntent = createIntent(ACTION_SAFETY_CENTER, intentExtras)
+        val launchSafetyCenterIntent =
+            createIntent(
+                ACTION_SAFETY_CENTER,
+                intentExtras,
+                preventTrampolineToSettings = preventTrampolineToSettings
+            )
         if (withReceiverPermission) {
             callWithShellPermissionIdentity(SEND_SAFETY_CENTER_UPDATE) {
                 executeBlockAndExit(block) { startActivity(launchSafetyCenterIntent) }
@@ -73,10 +80,30 @@ object SafetyCenterActivityLauncher {
         executeBlockAndExit(block) { waitDisplayed(By.text(entryPoint)) { it.click() } }
     }
 
-    private fun createIntent(intentAction: String, intentExtras: Bundle?): Intent {
+    /**
+     * Launches a page in Safety Center and exits it once [block] completes, throwing a
+     * [RetryableException] for any [RuntimeException] thrown by [block] to allow [RetryRule] to
+     * retry the test invocation.
+     */
+    fun openPageAndExitAllowingRetries(entryPoint: String, block: () -> Unit) {
+        try {
+            openPageAndExit(entryPoint, block)
+        } catch (e: Throwable) {
+            throw RetryableException(e, "Exception occurred when checking a Safety Center page")
+        }
+    }
+
+    private fun createIntent(
+        intentAction: String,
+        intentExtras: Bundle?,
+        preventTrampolineToSettings: Boolean = false
+    ): Intent {
         val launchIntent =
             Intent(intentAction).addFlags(FLAG_ACTIVITY_NEW_TASK).addFlags(FLAG_ACTIVITY_CLEAR_TASK)
         intentExtras?.let { launchIntent.putExtras(it) }
+        if (preventTrampolineToSettings) {
+            launchIntent.putExtra(EXTRA_PREVENT_TRAMPOLINE_TO_SETTINGS, true)
+        }
         return launchIntent
     }
 
@@ -89,4 +116,7 @@ object SafetyCenterActivityLauncher {
         uiDevice.pressBack()
         uiDevice.waitForIdle()
     }
+
+    private const val EXTRA_PREVENT_TRAMPOLINE_TO_SETTINGS: String =
+        "com.android.permissioncontroller.safetycenter.extra.PREVENT_TRAMPOLINE_TO_SETTINGS"
 }

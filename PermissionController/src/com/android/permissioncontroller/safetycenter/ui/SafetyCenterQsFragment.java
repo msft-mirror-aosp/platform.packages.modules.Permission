@@ -150,7 +150,6 @@ public class SafetyCenterQsFragment extends Fragment {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.safety_center_qs, container, false);
         root.setVisibility(View.GONE);
 
-        root.setBackgroundColor(android.R.color.background_dark);
         View closeButton = root.findViewById(R.id.close_button);
         closeButton.setOnClickListener((v) -> requireActivity().finish());
         SafetyCenterTouchTarget.configureSize(
