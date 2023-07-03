@@ -1,28 +1,16 @@
 {
-  "presubmit": [
+  "imports": [
     {
-      "name": "CtsSafetyCenterTestCases",
-      "options": [
-        {
-          "exclude-annotation": "com.android.bedstead.harrier.annotations.Postsubmit"
-        }
-      ]
+      "path": "packages/modules/Permission/tests/cts/safetycenter/"
     },
     {
-      "name": "SafetyCenterFunctionalTestCases",
-      "options": [
-        {
-          "exclude-annotation": "com.android.bedstead.harrier.annotations.Postsubmit"
-        }
-      ]
-    }
-  ],
-  "postsubmit": [
-    {
-      "name": "CtsSafetyCenterTestCases"
+      "path": "packages/modules/Permission/tests/functional/safetycenter/multiusers/"
     },
     {
-      "name": "SafetyCenterFunctionalTestCases"
+      "path": "packages/modules/Permission/tests/functional/safetycenter/safetycenteractivity/"
+    },
+    {
+      "path": "packages/modules/Permission/tests/functional/safetycenter/singleuser/"
     }
   ]
 }

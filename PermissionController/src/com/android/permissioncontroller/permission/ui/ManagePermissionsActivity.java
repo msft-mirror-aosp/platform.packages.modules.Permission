@@ -16,6 +16,7 @@
 
 package com.android.permissioncontroller.permission.ui;
 
+import static android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP;
 import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
 
 import static com.android.permissioncontroller.Constants.ACTION_MANAGE_AUTO_REVOKE;
@@ -30,7 +31,6 @@ import static com.android.permissioncontroller.PermissionControllerStatsLog.PERM
 import static com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_USAGE_FRAGMENT_INTERACTION__ACTION__OPEN;
 
 import android.Manifest;
-import android.app.ActionBar;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -73,7 +73,8 @@ import com.android.permissioncontroller.permission.ui.handheld.AppPermissionGrou
 import com.android.permissioncontroller.permission.ui.handheld.HandheldUnusedAppsWrapperFragment;
 import com.android.permissioncontroller.permission.ui.handheld.PermissionAppsFragment;
 import com.android.permissioncontroller.permission.ui.handheld.v31.PermissionDetailsWrapperFragment;
-import com.android.permissioncontroller.permission.ui.handheld.v31.PermissionUsageV2WrapperFragment;
+import com.android.permissioncontroller.permission.ui.handheld.v31.PermissionUsageWrapperFragment;
+import com.android.permissioncontroller.permission.ui.handheld.v34.AppDataSharingUpdatesFragment;
 import com.android.permissioncontroller.permission.ui.legacy.AppPermissionActivity;
 import com.android.permissioncontroller.permission.ui.television.TvUnusedAppsFragment;
 import com.android.permissioncontroller.permission.ui.wear.AppPermissionsFragmentWear;
@@ -163,6 +164,8 @@ public final class ManagePermissionsActivity extends SettingsActivity {
         boolean completed = Settings.Secure.getInt(
                 getContentResolver(), Settings.Secure.USER_SETUP_COMPLETE, 0) != 0;
         if (!provisioned || !completed) {
+            Log.e(LOG_TAG, "Device setup incomplete. device provisioned=" + provisioned
+                    + ", user setup complete=" + completed);
             finishAfterTransition();
             return;
         }
@@ -225,7 +228,7 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                 if (DeviceUtils.isAuto(this)) {
                     androidXFragment = new AutoPermissionUsageFragment();
                 } else {
-                    androidXFragment = PermissionUsageV2WrapperFragment.newInstance(
+                    androidXFragment = PermissionUsageWrapperFragment.newInstance(
                             Long.MAX_VALUE, sessionId);
                 }
             } break;
@@ -418,6 +421,13 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                     return;
                 }
 
+                if (Utils.isHealthPermissionUiEnabled() && permissionGroupName
+                                .equals(HEALTH_PERMISSION_GROUP)) {
+                    Utils.navigateToHealthConnectSettings(this);
+                    finishAfterTransition();
+                    return;
+                }
+
                 if (DeviceUtils.isAuto(this)) {
                     androidXFragment =
                             AutoPermissionAppsFragment.newInstance(permissionGroupName, sessionId);
@@ -490,6 +500,16 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                 }
             } break;
 
+            case Intent.ACTION_REVIEW_APP_DATA_SHARING_UPDATES: {
+                if (KotlinUtils.INSTANCE.isSafetyLabelChangeNotificationsEnabled(this)) {
+                    setNavGraph(AppDataSharingUpdatesFragment.Companion.createArgs(sessionId),
+                            R.id.app_data_sharing_updates);
+                } else {
+                    finishAfterTransition();
+                    return;
+                }
+            } break;
+
             default: {
                 Log.w(LOG_TAG, "Unrecognized action " + action);
                 finishAfterTransition();
@@ -525,15 +545,6 @@ public final class ManagePermissionsActivity extends SettingsActivity {
         NavGraph graph = inflater.inflate(R.navigation.nav_graph);
         graph.setStartDestination(startDestination);
         navHost.getNavController().setGraph(graph, args);
-    }
-
-    @Override
-    public ActionBar getActionBar() {
-        ActionBar ab = super.getActionBar();
-        if (ab != null) {
-            ab.setHomeActionContentDescription(R.string.back);
-        }
-        return ab;
     }
 
     @Override

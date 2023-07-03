@@ -20,7 +20,6 @@ import static android.os.Build.VERSION_CODES.TIRAMISU;
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.NonNull;
 import android.annotation.StringRes;
 import android.app.admin.DevicePolicyManager;
 import android.app.admin.DevicePolicyResourcesManager;
@@ -29,7 +28,7 @@ import android.os.Binder;
 
 import androidx.annotation.RequiresApi;
 
-import com.android.safetycenter.resources.SafetyCenterResourcesContext;
+import com.android.safetycenter.resources.SafetyCenterResourcesApk;
 
 import java.util.function.Supplier;
 
@@ -46,37 +45,31 @@ final class DevicePolicyResources {
      * Returns the updated string for the given {@code safetySourceId} by calling {@link
      * DevicePolicyResourcesManager#getString}.
      */
-    @NonNull
     static String getSafetySourceWorkString(
-            @NonNull SafetyCenterResourcesContext safetyCenterResourcesContext,
-            @NonNull String safetySourceId,
+            SafetyCenterResourcesApk safetyCenterResourcesApk,
+            String safetySourceId,
             @StringRes int workResId) {
         return getEnterpriseString(
-                safetyCenterResourcesContext,
+                safetyCenterResourcesApk.getContext(),
                 safetySourceId,
-                () -> safetyCenterResourcesContext.getString(workResId));
+                () -> safetyCenterResourcesApk.getString(workResId));
     }
 
     /**
      * Returns the updated string for the {@code work_profile_paused} string by calling {@link
      * DevicePolicyResourcesManager#getString}.
      */
-    @NonNull
-    static String getWorkProfilePausedString(
-            @NonNull SafetyCenterResourcesContext safetyCenterResourcesContext) {
+    static String getWorkProfilePausedString(SafetyCenterResourcesApk safetyCenterResourcesApk) {
         return getEnterpriseString(
-                safetyCenterResourcesContext,
+                safetyCenterResourcesApk.getContext(),
                 WORK_PROFILE_PAUSED_TITLE,
-                () -> safetyCenterResourcesContext.getStringByName("work_profile_paused"));
+                () -> safetyCenterResourcesApk.getStringByName("work_profile_paused"));
     }
 
-    @NonNull
     private static String getEnterpriseString(
-            @NonNull Context context,
-            @NonNull String devicePolicyIdentifier,
-            @NonNull Supplier<String> defaultValueLoader) {
+            Context context, String devicePolicyIdentifier, Supplier<String> defaultValueLoader) {
         // This call requires the caller’s identity to match the package name of the given context.
-        // However, the SafetyCenterResourcesContext’s has package name "android", which does not
+        // However, the SafetyCenterResourceApk Context's has package name "android", which does not
         // necessarily match the caller’s package when making Binder calls, so the calling identity
         // has to be cleared.
         final long callingId = Binder.clearCallingIdentity();

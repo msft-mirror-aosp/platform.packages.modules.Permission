@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi;
 
 import com.android.permissioncontroller.hibernation.HibernationJobService;
 import com.android.permissioncontroller.permission.service.PermissionEventCleanupJobService;
+import com.android.permissioncontroller.permission.service.v34.SafetyLabelChangesJobService;
 
 /**
  * App-global constants
@@ -70,15 +71,24 @@ public class Constants {
      */
     public static final int PERIODIC_ACCESSIBILITY_CHECK_JOB_ID = 6;
 
-    /**
-     * ID for Safety Centers delayed job scheduled after boot and after Safety Center is enabled
-     *
-     * @see
+     /**
+     * ID for Safety Centers periodic background refresh job, scheduled after boot and after Safety
+     * Center is enabled, in {@link
      * com.android.permissioncontroller.safetycenter.service.SafetyCenterBackgroundRefreshJobService
+     * }.
      */
     public static final int SAFETY_CENTER_BACKGROUND_REFRESH_JOB_ID = 7;
 
-    public static final int FIX_SENSOR_PRIVACY_STATE_PERIODIC_JOB_ID = 10;
+
+    /**
+     * ID for the detect updates job in {@link SafetyLabelChangesJobService}.
+     */
+    public static final int SAFETY_LABEL_CHANGES_DETECT_UPDATES_JOB_ID = 8;
+
+    /**
+     * ID for the periodic notification job in {@link SafetyLabelChangesJobService}.
+     */
+    public static final int SAFETY_LABEL_CHANGES_PERIODIC_NOTIFICATION_JOB_ID = 9;
 
     /**
      * Name of file to containing the packages we already showed a notification for.
@@ -119,6 +129,29 @@ public class Constants {
     public static final int ACCESSIBILITY_CHECK_NOTIFICATION_ID = 4;
 
     /**
+     * ID for notification shown by
+     * {@link SafetyLabelChangesJobService}.
+     */
+    public static final int SAFETY_LABEL_CHANGES_NOTIFICATION_ID = 5;
+
+    /**
+     * ID for notification of auto-granted permissions shown by
+     * {@link com.android.permissioncontroller.permission.ui.AutoGrantPermissionsNotifier}.
+     */
+    public static final int PERMISSION_GRANTED_BY_ADMIN_NOTIFICATION_ID = 6;
+
+    /**
+     * Summary notification ID for the group of admin auto-granted permission notifications
+     */
+    public static final int ADMIN_AUTO_GRANTED_PERMISSIONS_NOTIFICATION_SUMMARY_ID = 7;
+
+    /**
+     * Group ID for all admin auto-granted permission notifications
+     */
+    public static final String ADMIN_AUTO_GRANTED_PERMISSIONS_NOTIFICATION_GROUP_ID =
+            "auto granted permission group id";
+
+    /**
      * String action for navigating to the auto revoke screen.
      */
     public static final String ACTION_MANAGE_AUTO_REVOKE = "manageAutoRevoke";
@@ -142,8 +175,9 @@ public class Constants {
      * Channel of the notifications shown by
      * {@link com.android.permissioncontroller.permission.service.LocationAccessCheck},
      * {@link com.android.permissioncontroller.privacysources.NotificationListenerCheck},
-     * {@link com.android.permissioncontroller.hibernation.HibernationPolicyKt}, and
-     * {@link com.android.permissioncontroller.auto.DrivingDecisionReminderService}
+     * {@link com.android.permissioncontroller.hibernation.HibernationPolicyKt},
+     * {@link com.android.permissioncontroller.auto.DrivingDecisionReminderService}, and
+     * {@link SafetyLabelChangesJobService}
      */
     public static final String PERMISSION_REMINDER_CHANNEL_ID = "permission reminders";
 
@@ -265,11 +299,6 @@ public class Constants {
      */
     public static final String ADMIN_AUTO_GRANTED_PERMISSIONS_ALERTING_NOTIFICATION_CHANNEL_ID =
             "alerting auto granted permissions";
-    /**
-     * ID for notification of auto-granted permissions shown by
-     * {@link com.android.permissioncontroller.permission.ui.AutoGrantPermissionsNotifier}.
-     */
-    public static final int PERMISSION_GRANTED_BY_ADMIN_NOTIFICATION_ID = 1;
 
     /**
      * Package name of the Android platform.
