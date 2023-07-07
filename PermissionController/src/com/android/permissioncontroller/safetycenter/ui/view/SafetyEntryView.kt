@@ -32,9 +32,12 @@ import com.android.permissioncontroller.safetycenter.ui.Action
 import com.android.permissioncontroller.safetycenter.ui.PendingIntentSender
 import com.android.permissioncontroller.safetycenter.ui.PositionInCardList
 import com.android.permissioncontroller.safetycenter.ui.model.SafetyCenterViewModel
+import com.android.permissioncontroller.safetycenter.ui.view.SafetyEntryCommonViewsManager.Companion.changeEnabledState
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-internal class SafetyEntryView @JvmOverloads constructor(
+internal class SafetyEntryView
+@JvmOverloads
+constructor(
     context: Context?,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
@@ -49,10 +52,10 @@ internal class SafetyEntryView @JvmOverloads constructor(
         inflate(context, R.layout.view_entry, this)
     }
 
-    private val commonEntryView: SafetyEntryCommonViewsManager? by lazy {
+    private val commonEntryView: SafetyEntryCommonViewsManager? by lazyView {
         SafetyEntryCommonViewsManager(this)
     }
-    private val widgetFrame: ViewGroup? by lazy { findViewById(R.id.widget_frame) }
+    private val widgetFrame: ViewGroup? by lazyView(R.id.widget_frame)
 
     fun showEntry(
         entry: SafetyCenterEntry,
@@ -78,10 +81,12 @@ internal class SafetyEntryView @JvmOverloads constructor(
 
     private fun showEntryDetails(entry: SafetyCenterEntry) {
         commonEntryView?.showDetails(
-                entry.title,
-                entry.summary,
-                entry.severityLevel,
-                entry.severityUnspecifiedIconType)
+            entry.id,
+            entry.title,
+            entry.summary,
+            entry.severityLevel,
+            entry.severityUnspecifiedIconType
+        )
     }
 
     private fun TextView.showText(text: CharSequence?) {
@@ -103,16 +108,15 @@ internal class SafetyEntryView @JvmOverloads constructor(
             setOnClickListener {
                 try {
                     PendingIntentSender.send(entry.pendingIntent, launchTaskId)
-                    viewModel
-                            .interactionLogger
-                            .recordForEntry(Action.ENTRY_CLICKED, entry)
+                    viewModel.interactionLogger.recordForEntry(Action.ENTRY_CLICKED, entry)
                 } catch (ex: java.lang.Exception) {
-                    Log.e(
-                            TAG,
-                            "Failed to execute pending intent for entry: $entry",
-                            ex)
+                    Log.e(TAG, "Failed to execute pending intent for entry: $entry", ex)
                 }
             }
+        } else {
+            // Ensure that views without listeners can still be focused by accessibility services
+            // TODO b/243713158: Set the proper accessibility focus in style, rather than in code
+            isFocusable = true
         }
     }
 
@@ -123,38 +127,32 @@ internal class SafetyEntryView @JvmOverloads constructor(
     ) {
         val iconAction = entry.iconAction
         if (iconAction != null) {
-            val iconActionButton = widgetFrame?.findViewById(R.id.icon_action_button)
+            val iconActionButton =
+                widgetFrame?.findViewById(R.id.icon_action_button)
                     ?: kotlin.run {
-                        val widgetLayout = if (iconAction.type == ICON_ACTION_TYPE_GEAR) {
-                            R.layout.preference_entry_icon_action_gear_widget
-                        } else {
-                            R.layout.preference_entry_icon_action_info_widget
-                        }
+                        val widgetLayout =
+                            if (iconAction.type == ICON_ACTION_TYPE_GEAR) {
+                                R.layout.preference_entry_icon_action_gear_widget
+                            } else {
+                                R.layout.preference_entry_icon_action_info_widget
+                            }
                         inflate(context, widgetLayout, widgetFrame)
                         widgetFrame?.findViewById<ImageView>(R.id.icon_action_button)
                     }
             widgetFrame?.visibility = VISIBLE
-            iconActionButton
-                    ?.setOnClickListener {
-                        sendIconActionIntent(iconAction, launchTaskId, entry)
-                        viewModel
-                                .interactionLogger
-                                .recordForEntry(Action.ENTRY_ICON_ACTION_CLICKED, entry)
-                    }
-            setPaddingRelative(
-                    paddingStart,
-                    paddingTop,
-                    /* end = */ 0,
-                    paddingBottom)
+            iconActionButton?.setOnClickListener {
+                sendIconActionIntent(iconAction, launchTaskId, entry)
+                viewModel.interactionLogger.recordForEntry(Action.ENTRY_ICON_ACTION_CLICKED, entry)
+            }
+            setPaddingRelative(paddingStart, paddingTop, /* end = */ 0, paddingBottom)
         } else {
             widgetFrame?.visibility = GONE
             setPaddingRelative(
-                    paddingStart,
-                    paddingTop,
-                    context
-                            .resources
-                            .getDimensionPixelSize(R.dimen.sc_entry_padding_end),
-                    paddingBottom)
+                paddingStart,
+                paddingTop,
+                context.resources.getDimensionPixelSize(R.dimen.sc_entry_padding_end),
+                paddingBottom
+            )
         }
     }
 
@@ -166,27 +164,34 @@ internal class SafetyEntryView @JvmOverloads constructor(
         try {
             PendingIntentSender.send(iconAction.pendingIntent, launchTaskId)
         } catch (ex: Exception) {
-            Log.e(
-                    TAG,
-                    "Failed to execute icon action intent for entry: $entry",
-                    ex)
+            Log.e(TAG, "Failed to execute icon action intent for entry: $entry", ex)
         }
     }
 
     /** We are doing this because we need some entries to look disabled but still be clickable. */
     private fun enableOrDisableEntry(entry: SafetyCenterEntry) {
+        // Making it clickable allows a disabled Entry View to consume its click which would
+        // otherwise be sent to the parent and cause the entry group to collapse.
+        isClickable = true
         isEnabled = entry.pendingIntent != null
-        commonEntryView?.changeEnabledState(entry.isEnabled)
+        changeEnabledState(
+            context,
+            entry.isEnabled,
+            isEnabled,
+            commonEntryView?.titleView,
+            commonEntryView?.summaryView
+        )
     }
 
     private fun setContentDescription(entry: SafetyCenterEntry, isGroupEntry: Boolean) {
         // Setting a customized description for entries that are part of an expandable group.
         // Whereas for non-expandable entries, the default description of title and summary is used.
-        val resourceId = if (isGroupEntry) {
-            R.string.safety_center_entry_group_item_content_description
-        } else {
-            R.string.safety_center_entry_content_description
-        }
+        val resourceId =
+            if (isGroupEntry) {
+                R.string.safety_center_entry_group_item_content_description
+            } else {
+                R.string.safety_center_entry_content_description
+            }
         contentDescription = context.getString(resourceId, entry.title, entry.summary)
     }
 }

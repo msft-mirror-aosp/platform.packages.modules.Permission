@@ -17,6 +17,7 @@
 package com.android.permissioncontroller.permission.data
 
 import android.Manifest
+import android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
 import android.Manifest.permission_group.STORAGE
 import android.app.AppOpsManager
 import android.app.Application
@@ -31,9 +32,9 @@ import com.android.permissioncontroller.permission.model.livedatatypes.LightPack
 import com.android.permissioncontroller.permission.model.livedatatypes.LightPermGroupInfo
 import com.android.permissioncontroller.permission.model.livedatatypes.LightPermInfo
 import com.android.permissioncontroller.permission.model.livedatatypes.PermState
+import com.android.permissioncontroller.permission.utils.PermissionMapping.isPlatformPermissionGroup
 import com.android.permissioncontroller.permission.utils.LocationUtils
 import com.android.permissioncontroller.permission.utils.Utils
-import com.android.permissioncontroller.permission.utils.Utils.isModernPermissionGroup
 import kotlinx.coroutines.Job
 
 /**
@@ -61,6 +62,7 @@ class AppPermGroupUiInfoLiveData private constructor(
     private val permGroupLiveData = PermGroupLiveData[permGroupName]
     private val permissionStateLiveData = PermStateLiveData[packageName, permGroupName, user]
     private val isStorage = permGroupName == STORAGE
+    private val isHealth = Utils.isHealthPermissionGroup(permGroupName)
 
     init {
         isSpecialLocation = LocationUtils.isLocationGroupAndProvider(app,
@@ -126,15 +128,17 @@ class AppPermGroupUiInfoLiveData private constructor(
 
         val shouldShow = packageInfo.enabled &&
             isGrantableAndNotLegacyPlatform(packageInfo, groupInfo, requestedPermissionInfos) &&
-            (!isStorage || Utils.shouldShowStorage(packageInfo))
+            (!isStorage || Utils.shouldShowStorage(packageInfo)) &&
+            (!isHealth || Utils.shouldShowHealthPermission(packageInfo, groupInfo.name))
 
         val isSystemApp = !isUserSensitive(permissionState)
 
         val isUserSet = isUserSet(permissionState)
 
-        val isGranted = getGrantedIncludingBackground(permissionState, allPermInfos, packageInfo)
+        val permGrantState =
+            getGrantedIncludingBackground(permissionState, allPermInfos, packageInfo)
 
-        return AppPermGroupUiInfo(shouldShow, isGranted, isSystemApp, isUserSet)
+        return AppPermGroupUiInfo(shouldShow, permGrantState, isSystemApp, isUserSet)
     }
 
     /**
@@ -155,7 +159,7 @@ class AppPermGroupUiInfoLiveData private constructor(
         permissionInfos: Collection<LightPermInfo>
     ): Boolean {
         if (groupInfo.packageName == Utils.OS_PKG &&
-            !isModernPermissionGroup(groupInfo.name)) {
+            !isPlatformPermissionGroup(groupInfo.name)) {
             return false
         }
 
@@ -193,7 +197,7 @@ class AppPermGroupUiInfoLiveData private constructor(
      * permission group
      */
     private fun isUserSensitive(permissionState: Map<String, PermState>): Boolean {
-        if (!isModernPermissionGroup(permGroupName)) {
+        if (!isPlatformPermissionGroup(permGroupName)) {
             return true
         }
 
@@ -282,6 +286,12 @@ class AppPermGroupUiInfoLiveData private constructor(
             state.granted || (supportsRuntime &&
                 (state.permFlags and PackageManager.FLAG_PERMISSION_REVIEW_REQUIRED) != 0)
         }
+        val onlySelectedPhotosGranted =
+            permissionState.containsKey(READ_MEDIA_VISUAL_USER_SELECTED) &&
+                    permissionState.all { (permName, state) ->
+            (permName == READ_MEDIA_VISUAL_USER_SELECTED && state.granted) ||
+                    (permName != READ_MEDIA_VISUAL_USER_SELECTED && !state.granted)
+        }
         if (anyAllowed && (hasPermWithBackground || shouldShowAsForegroundGroup())) {
             return if (isOneTime) {
                 PermGrantState.PERMS_ASK
@@ -289,7 +299,7 @@ class AppPermGroupUiInfoLiveData private constructor(
                 PermGrantState.PERMS_ALLOWED_FOREGROUND_ONLY
             }
         } else if (anyAllowed) {
-            return if (isOneTime) {
+            return if (isOneTime || onlySelectedPhotosGranted) {
                 PermGrantState.PERMS_ASK
             } else {
                 PermGrantState.PERMS_ALLOWED

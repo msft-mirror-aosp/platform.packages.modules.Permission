@@ -20,7 +20,6 @@ import static android.os.Build.VERSION_CODES.TIRAMISU;
 
 import android.util.Base64;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -36,24 +35,12 @@ public final class SafetyCenterIds {
     private SafetyCenterIds() {}
 
     /**
-     * Converts a String to a {@link SafetyCenterEntryGroupId}.
-     *
-     * <p>Throws an {@link IllegalArgumentException} if the String couldn't be converted to a {@link
-     * SafetyCenterEntryGroupId}.
-     */
-    @NonNull
-    public static SafetyCenterEntryGroupId entryGroupIdFromString(@NonNull String encoded) {
-        return decodeToProto(SafetyCenterEntryGroupId.parser(), encoded);
-    }
-
-    /**
      * Converts a String to a {@link SafetyCenterEntryId}.
      *
      * <p>Throws an {@link IllegalArgumentException} if the String couldn't be converted to a {@link
      * SafetyCenterEntryId}.
      */
-    @NonNull
-    public static SafetyCenterEntryId entryIdFromString(@NonNull String encoded) {
+    public static SafetyCenterEntryId entryIdFromString(String encoded) {
         return decodeToProto(SafetyCenterEntryId.parser(), encoded);
     }
 
@@ -63,8 +50,7 @@ public final class SafetyCenterIds {
      * <p>Throws an {@link IllegalArgumentException} if the String couldn't be converted to a {@link
      * SafetyCenterIssueId}.
      */
-    @NonNull
-    public static SafetyCenterIssueId issueIdFromString(@NonNull String encoded) {
+    public static SafetyCenterIssueId issueIdFromString(String encoded) {
         return decodeToProto(SafetyCenterIssueId.parser(), encoded);
     }
 
@@ -74,8 +60,7 @@ public final class SafetyCenterIds {
      * <p>Throws an {@link IllegalArgumentException} if the String couldn't be converted to a {@link
      * SafetyCenterIssueKey}.
      */
-    @NonNull
-    public static SafetyCenterIssueKey issueKeyFromString(@NonNull String encoded) {
+    public static SafetyCenterIssueKey issueKeyFromString(String encoded) {
         return decodeToProto(SafetyCenterIssueKey.parser(), encoded);
     }
 
@@ -85,14 +70,12 @@ public final class SafetyCenterIds {
      * <p>Throws an {@link IllegalArgumentException} if the String couldn't be converted to a {@link
      * SafetyCenterIssueActionId}.
      */
-    @NonNull
-    public static SafetyCenterIssueActionId issueActionIdFromString(@NonNull String encoded) {
+    public static SafetyCenterIssueActionId issueActionIdFromString(String encoded) {
         return decodeToProto(SafetyCenterIssueActionId.parser(), encoded);
     }
 
     /** Encodes a Safety Center id to a String. */
-    @NonNull
-    public static String encodeToString(@NonNull MessageLite message) {
+    public static String encodeToString(MessageLite message) {
         return Base64.encodeToString(message.toByteArray(), ENCODING_FLAGS);
     }
 
@@ -102,8 +85,7 @@ public final class SafetyCenterIds {
      * <p>This is necessary as the implementation of {@link #toString()} for Java lite protos is
      * optimized in production builds and does not return a user-readable output.
      */
-    @NonNull
-    public static String toUserFriendlyString(@NonNull SafetyCenterIssueKey safetyCenterIssueKey) {
+    public static String toUserFriendlyString(SafetyCenterIssueKey safetyCenterIssueKey) {
         return "SafetyCenterIssueKey{safetySourceId='"
                 + safetyCenterIssueKey.getSafetySourceId()
                 + "', safetySourceIssueId='"
@@ -119,8 +101,7 @@ public final class SafetyCenterIds {
      * <p>This is necessary as the implementation of {@link #toString()} for Java lite protos is
      * optimized in production builds and does not return a user-readable output.
      */
-    @NonNull
-    public static String toUserFriendlyString(@NonNull SafetyCenterIssueId safetyCenterIssueId) {
+    public static String toUserFriendlyString(SafetyCenterIssueId safetyCenterIssueId) {
         return "SafetyCenterIssueId{safetyCenterIssueKey="
                 + toUserFriendlyString(safetyCenterIssueId.getSafetyCenterIssueKey())
                 + ", issueTypeId='"
@@ -136,9 +117,7 @@ public final class SafetyCenterIds {
      * <p>This is necessary as the implementation of {@link #toString()} for Java lite protos is
      * optimized in production builds and does not return a user-readable output.
      */
-    @NonNull
-    public static String toUserFriendlyString(
-            @NonNull SafetyCenterIssueActionId safetyCenterIssueActionId) {
+    public static String toUserFriendlyString(SafetyCenterIssueActionId safetyCenterIssueActionId) {
         return "SafetyCenterIssueActionId{safetyCenterIssueKey="
                 + toUserFriendlyString(safetyCenterIssueActionId.getSafetyCenterIssueKey())
                 + ", safetySourceIssueActionId='"
@@ -146,9 +125,7 @@ public final class SafetyCenterIds {
                 + "'}";
     }
 
-    @NonNull
-    private static <T extends MessageLite> T decodeToProto(
-            @NonNull Parser<T> parser, @NonNull String encoded) {
+    private static <T extends MessageLite> T decodeToProto(Parser<T> parser, String encoded) {
         try {
             return parser.parseFrom(Base64.decode(encoded, ENCODING_FLAGS));
         } catch (InvalidProtocolBufferException e) {

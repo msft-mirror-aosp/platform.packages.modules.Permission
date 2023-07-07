@@ -28,7 +28,7 @@
     <string name="privacy_sources_title" msgid="4061110826457365957">"Privacidade"</string>
     <string name="privacy_sources_summary" msgid="4089719981155120864">"Painel de controlo, autorizações e controlos"</string>
     <string name="permission_usage_title" msgid="3633779688945350407">"Painel de privacidade"</string>
-    <string name="permission_usage_summary" msgid="5323079206029964468">"Mostrar apps que usaram autorizações recentemente"</string>
+    <string name="permission_usage_summary" msgid="5323079206029964468">"Mostre apps que usaram autorizações recentemente"</string>
     <string name="permission_usage_search_terms" msgid="3852343592870257104">"Privacidade, painel de privacidade"</string>
     <string name="permission_manager_title" msgid="5277347862821255015">"Gestor de autorizações"</string>
     <string name="permission_manager_summary" msgid="8099852107340970790">"Controle o acesso de apps aos seus dados"</string>
@@ -43,6 +43,4 @@
     <string name="advanced_privacy_title" msgid="1117725225706176643">"Mais definições de privacidade"</string>
     <string name="advanced_privacy_summary" msgid="2281203390575069543">"Preenchimento automático, controlos da atividade e mais"</string>
     <string name="advanced_privacy_search_terms" msgid="5044404599789175222"></string>
-    <string name="overall_severity_level_account_recommendation_title" msgid="6524855037045765671">"A conta pode estar em risco"</string>
-    <string name="overall_severity_level_critical_account_warning_title" msgid="3294187096461368277">"A conta está em risco"</string>
 </resources>

@@ -32,6 +32,11 @@
     <string name="grant_dialog_button_no_upgrade" msgid="8344732743633736625">"Behold \"Mens appen er i brug\""</string>
     <string name="grant_dialog_button_no_upgrade_one_time" msgid="5125892775684968694">"Behold \"Kun denne ene gang\""</string>
     <string name="grant_dialog_button_more_info" msgid="213350268561945193">"Mere info"</string>
+    <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"Tillad alle"</string>
+    <string name="grant_dialog_button_always_allow_all" msgid="1719900027660252167">"Tillad altid alle"</string>
+    <string name="grant_dialog_button_allow_selected_photos" msgid="5497042471576153842">"Vælg billeder og videoer"</string>
+    <string name="grant_dialog_button_allow_more_selected_photos" msgid="5145657877588697709">"Vælg flere"</string>
+    <string name="grant_dialog_button_dont_select_more" msgid="6643552729129461268">"Vælg ikke flere"</string>
     <string name="grant_dialog_button_deny_anyway" msgid="7225905870668915151">"Tillad ikke alligevel"</string>
     <string name="grant_dialog_button_dismiss" msgid="1930399742250226393">"Luk"</string>
     <string name="current_permission_template" msgid="7452035392573329375">"<xliff:g id="CURRENT_PERMISSION_INDEX">%1$s</xliff:g> ud af <xliff:g id="PERMISSION_COUNT">%2$s</xliff:g>"</string>
@@ -45,7 +50,7 @@
     <string name="permission_revoked_none" msgid="9213345075484381180">"ingen er deaktiveret"</string>
     <string name="grant_dialog_button_allow" msgid="5314677880021102550">"Tillad"</string>
     <string name="grant_dialog_button_allow_always" msgid="4485552579273565981">"Tillad altid"</string>
-    <string name="grant_dialog_button_allow_foreground" msgid="501896824973636533">"Mens du bruger appen"</string>
+    <string name="grant_dialog_button_allow_foreground" msgid="501896824973636533">"Mens appen bruges"</string>
     <string name="grant_dialog_button_change_to_precise_location" msgid="3273115879467236033">"Skift til præcis lokation"</string>
     <string name="grant_dialog_button_keey_approximate_location" msgid="438025182769080011">"Behold omtrentlig lokation"</string>
     <string name="grant_dialog_button_allow_one_time" msgid="2618088516449706391">"Kun denne gang"</string>
@@ -63,10 +68,10 @@
     <string name="auto_permission_manager_summary" msgid="9157438376234301354">"Administrer adgang til data for kalender, opkaldshistorik m.m."</string>
     <string name="granted_permission_decision" msgid="7824827491551861365">"Du har givet <xliff:g id="APP_NAME">%1$s</xliff:g> adgang til <xliff:g id="PERMISSION_NAME">%2$s</xliff:g>"</string>
     <string name="denied_permission_decision" msgid="5308961501779563781">"Du har nægtet <xliff:g id="APP_NAME">%1$s</xliff:g> adgang til <xliff:g id="PERMISSION_NAME">%2$s</xliff:g>"</string>
-    <string name="days_ago" msgid="6650359081551335629">"{count,plural, =0{I dag}=1{For 1 dag siden}one{for # dag siden}other{for # dage siden}}"</string>
+    <string name="days_ago" msgid="6650359081551335629">"{count,plural, =0{I dag}=1{1 dag siden}one{# dag siden}other{# dage siden}}"</string>
     <string name="app_disable_dlg_positive" msgid="7418444149981904940">"Deaktiver appen"</string>
     <string name="app_disable_dlg_text" msgid="3126943217146120240">"Hvis du deaktiverer denne app, kan det medføre, at Android-apps og andre apps ikke fungerer korrekt. Vær opmærksom på, at du ikke kan slette denne app, da den er forudinstalleret på din enhed. Hvis du slår appen fra, deaktiveres og skjules den på din enhed."</string>
-    <string name="app_permission_manager" msgid="3903811137630909550">"Tilladelsesadministrator"</string>
+    <string name="app_permission_manager" msgid="3903811137630909550">"Tilladelses­administrator"</string>
     <string name="never_ask_again" msgid="4728762438198560329">"Spørg ikke igen"</string>
     <string name="no_permissions" msgid="3881676756371148563">"Ingen tilladelser"</string>
     <string name="additional_permissions" msgid="5801285469338873430">"Yderligere tilladelser"</string>
@@ -109,9 +114,6 @@
     <string name="all_permissions" msgid="6911125611996872522">"Alle tilladelser"</string>
     <string name="other_permissions" msgid="2901186127193849594">"Andre app-egenskaber"</string>
     <string name="permission_request_title" msgid="8790310151025020126">"Anmodning om tilladelse"</string>
-    <string name="screen_overlay_title" msgid="6977038513913222078">"Der er registreret skærmoverlejring"</string>
-    <string name="screen_overlay_message" msgid="5622563069757142102">"Hvis du vil ændre denne indstilling for tilladelser, skal du først deaktivere skærmoverlejringen i Indstillinger &gt; Apps"</string>
-    <string name="screen_overlay_button" msgid="4655005928054025250">"Åbn indstillinger"</string>
     <string name="wear_not_allowed_dlg_title" msgid="1429467891296932713">"Android Wear"</string>
     <string name="wear_not_allowed_dlg_text" msgid="512340555334769098">"Det er ikke muligt at installere/afinstallere på Wear."</string>
     <string name="permission_review_title_template_install" msgid="1284337937156289081">"Vælg, hvad &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; må få adgang til"</string>
@@ -137,17 +139,15 @@
     <string name="auto_permission_usage_timeline_summary" msgid="2713135806453218703">"<xliff:g id="ACCESS_TIME">%1$s</xliff:g> • <xliff:g id="SUMMARY_TEXT">%2$s</xliff:g>"</string>
     <string name="history_preference_subtext_2" msgid="1521763591164293683">"<xliff:g id="APP_NAME">%1$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%2$s</xliff:g>"</string>
     <string name="history_preference_subtext_3" msgid="758761785983094351">"<xliff:g id="ATTRIBUTION_NAME">%1$s</xliff:g> • <xliff:g id="APP_NAME">%2$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%3$s</xliff:g>"</string>
-    <string name="duration_used_days" msgid="8293010131040301793">"{count,plural, =1{1 dag}one{# dag}other{# dage}}"</string>
-    <string name="duration_used_hours" msgid="1128716208752263576">"{count,plural, =1{1 time}one{# time}other{# timer}}"</string>
-    <string name="duration_used_minutes" msgid="5335824115042576567">"{count,plural, =1{1 min.}one{# min.}other{# min.}}"</string>
-    <string name="duration_used_seconds" msgid="6543746449171675028">"{count,plural, =1{1 sek.}one{# sek.}other{# sek.}}"</string>
+    <string name="duration_used_days" msgid="8238355545812998877">"{count,plural, =1{# dag}one{# dag}other{# dage}}"</string>
+    <string name="duration_used_hours" msgid="4983814806123370332">"{count,plural, =1{# time}one{# time}other{# timer}}"</string>
+    <string name="duration_used_minutes" msgid="1701379522897227819">"{count,plural, =1{# min.}one{# min.}other{# min.}}"</string>
+    <string name="duration_used_seconds" msgid="4067390990568727715">"{count,plural, =1{# sek.}one{# sek.}other{# sek.}}"</string>
     <string name="permission_usage_any_permission" msgid="6358023078298106997">"Alle tilladelser"</string>
     <string name="permission_usage_any_time" msgid="3802087027301631827">"Nogensinde"</string>
-    <string name="permission_usage_last_7_days" msgid="7386221251886130065">"De seneste 7 dage"</string>
-    <string name="permission_usage_last_day" msgid="1512880889737305115">"De seneste 24 timer"</string>
-    <string name="permission_usage_last_hour" msgid="3866005205535400264">"Den seneste time"</string>
-    <string name="permission_usage_last_15_minutes" msgid="9077554653436200702">"De seneste 15 minutter"</string>
-    <string name="permission_usage_last_minute" msgid="7297055967335176238">"Seneste minut"</string>
+    <string name="permission_usage_last_n_days" msgid="7882626467375714145">"{count,plural, =1{Seneste dag}one{Seneste # dag}other{Seneste # dage}}"</string>
+    <string name="permission_usage_last_n_hours" msgid="8490466053680267858">"{count,plural, =1{Seneste time}one{Seneste # time}other{Seneste # timer}}"</string>
+    <string name="permission_usage_last_n_minutes" msgid="7817864229878281983">"{count,plural, =1{Seneste minut}one{Seneste # minut}other{Seneste # minutter}}"</string>
     <string name="no_permission_usages" msgid="9119517454177289331">"Ingen brug af tilladelsen"</string>
     <string name="permission_usage_list_title_any_time" msgid="8718257027381592407">"Seneste adgang nogensinde"</string>
     <string name="permission_usage_list_title_last_7_days" msgid="9048542342670890615">"Seneste adgang i de sidste 7 dage"</string>
@@ -161,8 +161,8 @@
     <string name="permission_usage_bar_chart_title_last_hour" msgid="6571647509660009185">"Anvendte tilladelser den seneste time"</string>
     <string name="permission_usage_bar_chart_title_last_15_minutes" msgid="2743143675412824819">"Anvendte tilladelser i de sidste 15 minutter"</string>
     <string name="permission_usage_bar_chart_title_last_minute" msgid="820450867183487607">"Anvendte tilladelser det seneste minut"</string>
-    <string name="permission_usage_preference_summary_not_used_24h" msgid="3087783232178611025">"Ikke brugt i de seneste 24 timer"</string>
-    <string name="permission_usage_preference_summary_not_used_7d" msgid="4592301300810120096">"Ikke brugt i de seneste 7 dage"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_days" msgid="4771868094611359651">"{count,plural, =1{Ikke brugt i # dag}one{Ikke brugt i # dag}other{Ikke brugt i de seneste # dage}}"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_hours" msgid="3828973177433435742">"{count,plural, =1{Ikke brugt i # time}one{Ikke brugt i # time}other{Ikke brugt i de seneste # timer}}"</string>
     <string name="permission_usage_preference_label" msgid="8343167938128676378">"{count,plural, =1{Anvendes af 1 app}one{Anvendes af # app}other{Anvendes af # apps}}"</string>
     <string name="permission_usage_view_details" msgid="6675335735468752787">"Se alt i kontrolpanelet"</string>
     <string name="app_permission_usage_filter_label" msgid="7182861154638631550">"Filtreret efter: <xliff:g id="PERM">%1$s</xliff:g>"</string>
@@ -188,6 +188,7 @@
     <string name="app_permission_button_allow_media_only" msgid="2834282724426046154">"Tillad kun adgang til mediefiler"</string>
     <string name="app_permission_button_allow_always" msgid="4573292371734011171">"Tillad altid"</string>
     <string name="app_permission_button_allow_foreground" msgid="1991570451498943207">"Tillad kun, mens appen er i brug"</string>
+    <string name="app_permission_button_always_allow_all" msgid="4905699259378428855">"Tillad altid alle"</string>
     <string name="app_permission_button_ask" msgid="3342950658789427">"Spørg hver gang"</string>
     <string name="app_permission_button_deny" msgid="6016454069832050300">"Tillad ikke"</string>
     <string name="precise_image_description" msgid="6349638632303619872">"Præcis lokation"</string>
@@ -219,8 +220,8 @@
     <string name="auto_revoked_app_summary_many" msgid="5930976230827378798">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> og <xliff:g id="NUMBER">%2$s</xliff:g> andre tilladelser blev fjernet"</string>
     <string name="unused_apps_page_title" msgid="6986983535677572559">"Apps, du ikke bruger"</string>
     <string name="unused_apps_page_summary" msgid="1867593913217272155">"Hvis en app ikke bruges i et par måneder, sker følgende:\n\n• Tilladelser fjernes for at beskytte dine data\n• Notifikationer stoppes for at spare på batteriet\n• Midlertidige filer fjernes for at frigøre plads\n\nHvis du vil aktivere tilladelser og notifikationer igen, skal du åbne appen."</string>
-    <string name="unused_apps_page_tv_summary" msgid="3685907153054355671">"Hvis en app ikke bruges i et par måneder, sker følgende:\n\n• Tilladelser fjernes for at beskytte dine data\n• Midlertidige filer fjernes for at frigøre plads\n\nHvis du vil aktivere tilladelserne igen, skal du åbne appen."</string>
-    <string name="last_opened_category_title" msgid="7871347400611202595">"Sidst åbnet for mere end <xliff:g id="NUMBER">%s</xliff:g> måneder siden"</string>
+    <string name="unused_apps_page_tv_summary" msgid="2624911608663778308">"Hvis en app ikke bruges i en måned, sker følgende:\n\n• Tilladelser fjernes for at beskytte dine data\n• Midlertidige filer fjernes for at frigøre plads\n\nHvis du vil aktivere tilladelserne igen, skal du åbne appen."</string>
+    <string name="last_opened_category_title" msgid="8796557894614236128">"{count,plural, =1{Sidst åbnet for mere end # måned siden}one{Sidst åbnet for mere end # måned siden}other{Sidst åbnet for mere end # måneder siden}}"</string>
     <string name="last_opened_summary" msgid="5248984030024968808">"Appen blev sidst åbnet <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="last_opened_summary_short" msgid="1646067226191176825">"Sidst åbnet <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="app_permission_footer_special_file_access" msgid="1884202176147657788">"Hvis du tillader administration af alle filer, får denne app adgang og tilladelse til at ændre og slette alle filer på enhedens almindelige lagerplads og tilsluttede lagerenheder. Appen kan få adgang til filer uden at spørge dig først."</string>
@@ -253,9 +254,9 @@
     <string name="denied_header" msgid="903209608358177654">"Ikke tilladt"</string>
     <string name="storage_footer_hyperlink_text" msgid="8873343987957834810">"Se flere apps, som kan tilgå alle filer"</string>
     <string name="days" msgid="609563020985571393">"{count,plural, =1{1 dag}one{# dag}other{# dage}}"</string>
-    <string name="hours" msgid="3447767892295843282">"{count,plural, =1{1 time}one{# time}other{# timer}}"</string>
-    <string name="minutes" msgid="4408293038068503157">"{count,plural, =1{1 minut}one{# minut}other{# minutter}}"</string>
-    <string name="seconds" msgid="5397771912131132690">"{count,plural, =1{1 sekund}one{# sekund}other{# sekunder}}"</string>
+    <string name="hours" msgid="7302866489666950038">"{count,plural, =1{# time}one{# time}other{# timer}}"</string>
+    <string name="minutes" msgid="4868414855445375753">"{count,plural, =1{# minut}one{# minut}other{# minutter}}"</string>
+    <string name="seconds" msgid="5893958182059842734">"{count,plural, =1{# sekund}one{# sekund}other{# sekunder}}"</string>
     <string name="permission_reminders" msgid="6528257957664832636">"Påmindelser om tilladelse"</string>
     <string name="auto_revoke_permission_reminder_notification_title_one" msgid="6690347469376854137">"1 app, du ikke bruger"</string>
     <string name="auto_revoke_permission_reminder_notification_title_many" msgid="6062217713645069960">"<xliff:g id="NUMBER_OF_APPS">%s</xliff:g> apps, du ikke bruger"</string>
@@ -294,13 +295,13 @@
     <string name="accessibility_show_all_apps_button_label" msgid="960067249326392280">"Se apps med fuld adgang"</string>
     <string name="accessibility_remove_access_success_label" msgid="4380995302917014670">"Adgangen er blevet fjernet"</string>
     <string name="safety_center_notification_app_label" msgid="2457720616141926534">"Android-system"</string>
-    <string name="auto_revoke_after_notification_title" msgid="5417761027669887431">"Apptilladelserne blev fjernet for at beskytte dine personlige oplysninger"</string>
+    <string name="auto_revoke_after_notification_title" msgid="5417761027669887431">"Apptilladelserne blev fjernet for at beskytte dit privatliv"</string>
     <string name="auto_revoke_after_notification_content_one" msgid="6804038707453662753">"<xliff:g id="APP_NAME">%s</xliff:g> er ikke blevet brugt i et par måneder. Tryk for at gennemgå."</string>
     <string name="auto_revoke_after_notification_content_two" msgid="9108709764831425172">"<xliff:g id="APP_NAME">%s</xliff:g> og 1 anden app er ikke blevet brugt i et par måneder. Tryk for at gennemgå."</string>
     <string name="auto_revoke_after_notification_content_many" msgid="4774106206289751220">"<xliff:g id="APP_NAME">%1$s</xliff:g> og <xliff:g id="NUMBER_OF_APPS">%2$s</xliff:g> andre apps er ikke blevet brugt i et par måneder. Tryk for at gennemgå."</string>
     <string name="auto_revoke_before_notification_title_one" msgid="6758024954464359876">"1 app bruges ikke"</string>
     <string name="auto_revoke_before_notification_title_many" msgid="4415543943846385685">"<xliff:g id="NUMBER_OF_APPS">%s</xliff:g> apps bruges ikke"</string>
-    <string name="auto_revoke_before_notification_content_one" msgid="1156635373417068822">"Tilladelserne fjernes for at beskytte dine personlige oplysninger. Tryk for at gennemgå."</string>
+    <string name="auto_revoke_before_notification_content_one" msgid="1156635373417068822">"Tilladelserne fjernes for at beskytte dit privatliv. Tryk for at gennemgå."</string>
     <string name="unused_apps_title" msgid="8589298917717872239">"Apps, du ikke bruger"</string>
     <string name="unused_apps_subtitle_after" msgid="2034267519506357898">"Tilladelserne blev fjernet fra"</string>
     <string name="unused_apps_subtitle_before" msgid="5233302577076132427">"Tilladelserne fjernes fra"</string>
@@ -390,12 +391,16 @@
     <string name="role_call_screening_request_description" msgid="7338511921032446006">"Der kræves ingen tilladelser"</string>
     <string name="role_automotive_navigation_label" msgid="2701890757955474751">"Standardapp til navigation"</string>
     <string name="role_automotive_navigation_short_label" msgid="5165823092506922457">"App til navigation"</string>
-    <string name="role_automotive_navigation_description" msgid="7834601873792870134">"Apps, som kan give vejledning til søgninger efter interessante steder og detaljeret rutevejledning"</string>
+    <string name="role_automotive_navigation_description" msgid="7834601873792870134">"Apps, som kan give vejledning til søgninger efter interessante lokationer og detaljeret rutevejledning"</string>
     <string name="role_automotive_navigation_request_title" msgid="7525693151489384300">"Vil du angive <xliff:g id="APP_NAME">%1$s</xliff:g> som din standardapp til navigation?"</string>
     <string name="role_automotive_navigation_request_description" msgid="7073023813249245540">"Der kræves ingen tilladelser"</string>
     <string name="role_watch_description" msgid="267003778693177779">"<xliff:g id="APP_NAME">%1$s</xliff:g> får tilladelse til at interagere med dine notifikationer og får adgang til dine tilladelser for Opkald, Sms, Kontakter og Kalender."</string>
     <string name="role_app_streaming_description" msgid="7341638576226183992">"<xliff:g id="APP_NAME">%1$s</xliff:g> får tilladelse til at interagere med dine notifikationer og streame dine apps til forbundne enheder."</string>
     <string name="role_companion_device_computer_description" msgid="416099879217066377">"Denne tjeneste deler dine billeder, medier og notifikationer fra din telefon til andre enheder."</string>
+    <string name="role_notes_label" msgid="7451627001058089536">"Standardapp til notetagning"</string>
+    <string name="role_notes_short_label" msgid="8796604147546125285">"App til notetagning"</string>
+    <string name="role_notes_description" msgid="8496852798616883551">"Apps, som giver dig mulighed for at tage noter på din enhed"</string>
+    <string name="role_notes_search_keywords" msgid="7710756695666744631">"noter"</string>
     <string name="request_role_current_default" msgid="738722892438247184">"Nuværende standardapp"</string>
     <string name="request_role_dont_ask_again" msgid="3556017886029520306">"Spørg ikke igen"</string>
     <string name="request_role_set_as_default" msgid="4253949643984172880">"Angiv som standard"</string>
@@ -470,6 +475,7 @@
     <string name="permgrouprequest_storage_pre_q" msgid="168130651144569428">"Vil du give &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; adgang til &lt;b&gt;billeder, videoer, musik, lyd og andre filer&lt;/b&gt; på denne enhed?"</string>
     <string name="permgrouprequest_read_media_aural" msgid="2593365397347577812">"Vil du give &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; adgang til musik og lyd på denne enhed?"</string>
     <string name="permgrouprequest_read_media_visual" msgid="5548780620779729975">"Vil du give &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; adgang til billeder og videoer på denne enhed?"</string>
+    <string name="permgrouprequest_more_photos" msgid="128933814654231321">"Vil du give &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; tilladelse til at tilgå flere billeder og videoer på denne enhed?"</string>
     <string name="permgrouprequest_microphone" msgid="2825208549114811299">"Vil du give &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; tilladelse til at optage lyd?"</string>
     <string name="permgrouprequestdetail_microphone" msgid="8510456971528228861">"Appen kan kun optage lyd, mens du bruger appen"</string>
     <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"Vil du give &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; tilladelse til at optage lyd?"</string>
@@ -492,8 +498,8 @@
     <string name="permgroupupgraderequest_sensors" msgid="7576527638411370468">"Vil du fortsætte med at give &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; adgang til kropssensordata, mens appen er i brug?"</string>
     <string name="permgrouprequest_notifications" msgid="6396739062335106181">"Vil du give &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; tilladelse til at sende dig notifikationer?"</string>
     <string name="auto_granted_permissions" msgid="6009452264824455892">"Administrerede tilladelser"</string>
-    <string name="auto_granted_location_permission_notification_title" msgid="1438871159268985993">"Der er adgang til din lokation"</string>
-    <string name="auto_granted_permission_notification_body" msgid="6919835973190443695">"Din it-administrator har givet <xliff:g id="APP_NAME">%s</xliff:g> adgang til din lokation"</string>
+    <string name="auto_granted_location_permission_notification_title" msgid="7570818224669050377">"<xliff:g id="APP_NAME">%1$s</xliff:g> har lokationsadgang"</string>
+    <string name="auto_granted_permission_notification_body" msgid="5040234389205471318">"Din organisation har givet <xliff:g id="APP_NAME">%1$s</xliff:g> tilladelse til at tilgå din lokation"</string>
     <string name="other_permissions_label" msgid="8986184335503271992">"Andre tilladelser"</string>
     <string name="not_used_permissions_label" msgid="3939839426115141264">"Tilladelse, der anvendes af systemet"</string>
     <string name="not_used_permissions_description" msgid="7595514824169388718">"Tilladelser, der kun anvendes af systemapps"</string>
@@ -567,7 +573,7 @@
     <string name="safety_center_background_location_access_notification_title" msgid="8933610618810588237">"Gennemgå appen, der har adgang til lokation i baggrunden"</string>
     <string name="safety_center_background_location_access_reminder_notification_content" msgid="4066560182507301022">"<xliff:g id="APP_NAME">%s</xliff:g> kan til enhver tid tilgå din lokation, selv når appen er lukket"</string>
     <string name="safety_center_background_location_access_reminder_title" msgid="5477847038103863843">"Gennemgå appen, der har adgang til lokation i baggrunden"</string>
-    <string name="safety_center_background_location_access_reminder_summary" msgid="8276755741395332974">"Denne app kan tilhver tid tilgå din lokation, selv når den er lukket."</string>
+    <string name="safety_center_background_location_access_reminder_summary" msgid="7431657777510537658">"Denne app kan til enhver tid tilgå din lokation, selv når den er lukket.\n\nVisse apps til sikkerhed og nødsituationer kræver adgang til din lokation i baggrunden for at fungere efter hensigten."</string>
     <string name="safety_center_background_location_access_revoked" msgid="6972274943343442213">"Adgangen er ændret"</string>
     <string name="safety_center_view_recent_location_access" msgid="3524391299490678243">"Se seneste brug af lokation"</string>
     <string name="privacy_controls_title" msgid="7605929972256835199">"Privatlivsindstillinger"</string>
@@ -580,4 +586,37 @@
     <string name="show_clip_access_notification_summary" msgid="3532020182782112687">"Vis en meddelelse, når apps får adgang til tekst, billeder eller andet indhold, du har kopieret"</string>
     <string name="show_password_title" msgid="2877269286984684659">"Vis adgangskoder"</string>
     <string name="show_password_summary" msgid="1110166488865981610">"Vis kort tegnene, mens du skriver"</string>
+    <string name="permission_rationale_message_location" msgid="2153841534298068414">"Denne app har angivet, at den muligvis deler lokationsdata med tredjeparter"</string>
+    <string name="permission_rationale_location_title" msgid="2404797182678793506">"Datadeling og lokation"</string>
+    <string name="permission_rationale_data_sharing_source_title" msgid="6874604543125814316">"Hvor oplysninger om datadeling stammer fra"</string>
+    <string name="permission_rationale_data_sharing_device_manufacturer_message" msgid="7569261218145653185">"Udvikleren har stillet oplysninger om, hvordan denne app deler data, til rådighed for producenten af denne enhed. Udvikleren opdaterer muligvis disse oplysninger senere."</string>
+    <string name="permission_rationale_data_sharing_source_message" msgid="8330794595417986883">"Udvikleren gav oplysninger til "<annotation id="link"><annotation id="install_source" example="App Store">"%1$s"</annotation></annotation>" om, hvordan denne app deler data. Udvikleren opdaterer muligvis disse oplysninger senere."</string>
+    <string name="permission_rationale_location_purpose_title" msgid="5115877143670012618">"Denne app deler muligvis lokationsdata for:"</string>
+    <string name="permission_rationale_permission_data_sharing_varies_title" msgid="9103718980919908316">"Datadeling varierer"</string>
+    <string name="permission_rationale_data_sharing_varies_message" msgid="4224469559084489222">"Databehandlingen kan variere afhængigt af din appversion, din brug, dit område og din alder. "<annotation id="link">"Flere oplysninger om datadeling"</annotation></string>
+    <string name="permission_rationale_data_sharing_varies_message_without_link" msgid="4912763761399025094">"Databehandlingen kan variere afhængigt af din appversion, din brug, dit område og din alder."</string>
+    <string name="permission_rationale_location_settings_title" msgid="7204145004850190953">"Dine lokationsdata"</string>
+    <string name="permission_rationale_permission_settings_message" msgid="631286040979660267">"Skift denne apps adgang i "<annotation id="link">"privatlivsindstillingerne"</annotation></string>
+    <string name="permission_rationale_purpose_app_functionality" msgid="8397736681065841405">"Appfunktionalitet"</string>
+    <string name="permission_rationale_purpose_analytics" msgid="2070800501189620712">"Analysedata"</string>
+    <string name="permission_rationale_purpose_developer_communications" msgid="6453047018892062374">"Kommunikation fra udvikleren"</string>
+    <string name="permission_rationale_purpose_advertising" msgid="7156966429245180236">"Annoncering eller marketing"</string>
+    <string name="permission_rationale_purpose_fraud_prevention_security" msgid="4262104770357031902">"Sikkerhed, overholdelse og forebyggelse af svindel"</string>
+    <string name="permission_rationale_purpose_personalization" msgid="1589973273682238708">"Personlig tilpasning"</string>
+    <string name="permission_rationale_purpose_account_management" msgid="2985772421946688879">"Kontoadministration"</string>
+    <string name="app_permission_rationale_message" msgid="8511466916077100713">"Datasikkerhed"</string>
+    <string name="app_location_permission_rationale_title" msgid="925420340572401350">"Lokationsdata deles muligvis"</string>
+    <string name="app_location_permission_rationale_subtitle" msgid="6986985722752868692">"Denne app har angivet, at den muligvis deler dine lokationsdata med tredjeparter"</string>
+    <string name="data_sharing_updates_title" msgid="7996933386875213859">"Opdateringer om deling af lokationsdata"</string>
+    <string name="data_sharing_updates_summary" msgid="764113985772233889">"Gennemse apps, der har ændret måden, hvorpå de kan dele dine lokationsdata"</string>
+    <string name="data_sharing_updates_subtitle" msgid="6311537708950632329">"Disse apps har ændret den måde, hvorpå de kan dele dine lokationsdata. De har muligvis ikke delt dataene før eller kan nu anvende dem til annoncering eller marketing."</string>
+    <string name="data_sharing_updates_footer_message" msgid="1582711655172892107">"Udviklerne af disse apps har givet oplysninger om deres procedurer for datadeling til en appbutik. De kan opdatere procedurerne med tiden.\n\nProcedurer for datadeling kan variere afhængigt af din appversion, din brug, dit område og din alder."</string>
+    <string name="learn_about_data_sharing" msgid="4200480587079488045">"Få flere oplysninger om deling af data"</string>
+    <string name="shares_location_with_third_parties" msgid="2278051743742057767">"Dine lokationsdata deles nu med tredjeparter"</string>
+    <string name="shares_location_with_third_parties_for_advertising" msgid="1918588064014480513">"Dine lokationsdata deles nu med tredjeparter med henblik på annoncering eller marketing"</string>
+    <string name="updated_in_last_days" msgid="8371811947153042322">"{count,plural, =0{Opdateret inden for den seneste dag}=1{Opdateret inden for den seneste dag}one{Opdateret for maks. # dag siden}other{Opdateret inden for de seneste # dage}}"</string>
+    <string name="no_updates_at_this_time" msgid="9031085635689982935">"Der er på nuværende tidspunkt ikke nogen opdateringer"</string>
+    <string name="safety_label_changes_notification_title" msgid="4479955083472203839">"Opdateringer om datadeling"</string>
+    <string name="safety_label_changes_notification_desc" msgid="7808764283266234675">"Nogle apps har ændret måden, hvorpå de kan dele dine lokationsdata"</string>
+    <string name="safety_label_changes_gear_description" msgid="2655887555599138509">"Indstillinger"</string>
 </resources>

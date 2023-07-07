@@ -24,6 +24,9 @@ import static android.app.AppOpsManager.MODE_FOREGROUND;
 import static android.app.AppOpsManager.MODE_IGNORED;
 import static android.app.AppOpsManager.OPSTR_LEGACY_STORAGE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP;
+
+import static com.android.permissioncontroller.permission.utils.Utils.isHealthPermissionUiEnabled;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -55,6 +58,7 @@ import com.android.permissioncontroller.permission.service.LocationAccessCheck;
 import com.android.permissioncontroller.permission.utils.ArrayUtils;
 import com.android.permissioncontroller.permission.utils.KotlinUtils;
 import com.android.permissioncontroller.permission.utils.LocationUtils;
+import com.android.permissioncontroller.permission.utils.PermissionMapping;
 import com.android.permissioncontroller.permission.utils.SoftRestrictedPermissionPolicy;
 import com.android.permissioncontroller.permission.utils.Utils;
 
@@ -181,7 +185,7 @@ public final class AppPermissionGroup implements Comparable<AppPermissionGroup> 
             return null;
         }
 
-        String group = Utils.getGroupOfPermission(permissionInfo);
+        String group = PermissionMapping.getGroupOfPermission(permissionInfo);
         PackageItemInfo groupInfo = permissionInfo;
         if (group != null) {
             try {
@@ -336,6 +340,8 @@ public final class AppPermissionGroup implements Comparable<AppPermissionGroup> 
                     & PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0;
 
             final String appOp = PLATFORM_PACKAGE_NAME.equals(requestedPermissionInfo.packageName)
+                    || (isHealthPermissionUiEnabled() && HEALTH_PERMISSION_GROUP.equals(
+                    requestedPermissionInfo.group))
                     ? AppOpsManager.permissionToOp(requestedPermissionInfo.name) : null;
 
             final boolean appOpAllowed;
@@ -1334,7 +1340,7 @@ public final class AppPermissionGroup implements Comparable<AppPermissionGroup> 
      * @return {@code true} iff this group supports one-time permissions
      */
     public boolean supportsOneTimeGrant() {
-        return Utils.supportsOneTimeGrant(getName());
+        return PermissionMapping.supportsOneTimeGrant(getName());
     }
 
     public int getFlags() {
@@ -1588,12 +1594,13 @@ public final class AppPermissionGroup implements Comparable<AppPermissionGroup> 
                     // Enabling/Disabling an app op may put the app in a situation in which it has
                     // a handle to state it shouldn't have, so we have to kill the app. This matches
                     // the revoke runtime permission behavior.
+                    boolean wasChanged;
                     if (permission.isAppOpAllowed()) {
-                        boolean wasChanged = allowAppOp(permission, uid);
-                        shouldKillApp |= wasChanged && !mAppSupportsRuntimePermissions;
+                        wasChanged = allowAppOp(permission, uid);
                     } else {
-                        shouldKillApp |= disallowAppOp(permission, uid);
+                        wasChanged = disallowAppOp(permission, uid);
                     }
+                    shouldKillApp |= wasChanged && !mAppSupportsRuntimePermissions;
                 }
             }
         }
