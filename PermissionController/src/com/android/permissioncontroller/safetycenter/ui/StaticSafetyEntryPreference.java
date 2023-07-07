@@ -18,18 +18,21 @@ package com.android.permissioncontroller.safetycenter.ui;
 
 import static android.os.Build.VERSION_CODES.TIRAMISU;
 
+import static com.android.permissioncontroller.safetycenter.SafetyCenterConstants.PERSONAL_PROFILE_SUFFIX;
+import static com.android.permissioncontroller.safetycenter.SafetyCenterConstants.WORK_PROFILE_SUFFIX;
+
 import android.content.Context;
+import android.os.UserManager;
 import android.safetycenter.SafetyCenterStaticEntry;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.preference.Preference;
 
-import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.safetycenter.ui.model.SafetyCenterViewModel;
+import com.android.safetycenter.internaldata.SafetyCenterEntryId;
 
 /** A preference which displays a visual representation of a {@link SafetyCenterStaticEntry}. */
 @RequiresApi(TIRAMISU)
@@ -44,11 +47,11 @@ public class StaticSafetyEntryPreference extends Preference implements Comparabl
             Context context,
             @Nullable Integer launchTaskId,
             SafetyCenterStaticEntry entry,
+            @Nullable SafetyCenterEntryId entryId,
             SafetyCenterViewModel viewModel) {
         super(context);
         mEntry = entry;
         mViewModel = viewModel;
-        setLayoutResource(R.layout.preference_static_entry);
         setTitle(entry.getTitle());
         setSummary(entry.getSummary());
         if (entry.getPendingIntent() != null) {
@@ -72,10 +75,25 @@ public class StaticSafetyEntryPreference extends Preference implements Comparabl
                         return true;
                     });
         }
+        if (entryId != null) {
+            setupPreferenceKey(entryId);
+        }
+    }
+
+    private void setupPreferenceKey(SafetyCenterEntryId entryId) {
+        boolean isWorkProfile =
+                getContext()
+                        .getSystemService(UserManager.class)
+                        .isManagedProfile(entryId.getUserId());
+        if (isWorkProfile) {
+            setKey(String.format("%s_%s", entryId.getSafetySourceId(), WORK_PROFILE_SUFFIX));
+        } else {
+            setKey(String.format("%s_%s", entryId.getSafetySourceId(), PERSONAL_PROFILE_SUFFIX));
+        }
     }
 
     @Override
-    public boolean isSameItem(@NonNull Preference preference) {
+    public boolean isSameItem(Preference preference) {
         return preference instanceof StaticSafetyEntryPreference
                 && TextUtils.equals(
                         mEntry.getTitle(),
@@ -83,7 +101,7 @@ public class StaticSafetyEntryPreference extends Preference implements Comparabl
     }
 
     @Override
-    public boolean hasSameContents(@NonNull Preference preference) {
+    public boolean hasSameContents(Preference preference) {
         return preference instanceof StaticSafetyEntryPreference
                 && mEntry.equals(((StaticSafetyEntryPreference) preference).mEntry);
     }

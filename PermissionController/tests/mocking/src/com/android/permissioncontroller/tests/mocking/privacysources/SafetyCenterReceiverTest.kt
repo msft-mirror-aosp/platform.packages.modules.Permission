@@ -23,6 +23,7 @@ import android.content.Intent.ACTION_BOOT_COMPLETED
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.UserManager
+import android.provider.DeviceConfig
 import android.safetycenter.SafetyCenterManager
 import android.safetycenter.SafetyCenterManager.ACTION_REFRESH_SAFETY_SOURCES
 import android.safetycenter.SafetyCenterManager.ACTION_SAFETY_CENTER_ENABLED_CHANGED
@@ -31,21 +32,26 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import com.android.dx.mockito.inline.extended.ExtendedMockito
 import com.android.permissioncontroller.PermissionControllerApplication
+import com.android.permissioncontroller.permission.service.v33.SafetyCenterQsTileService
 import com.android.permissioncontroller.permission.utils.Utils
 import com.android.permissioncontroller.privacysources.PrivacySource
 import com.android.permissioncontroller.privacysources.SafetyCenterReceiver
 import com.android.permissioncontroller.privacysources.SafetyCenterReceiver.RefreshEvent.EVENT_DEVICE_REBOOTED
 import com.android.permissioncontroller.privacysources.SafetyCenterReceiver.RefreshEvent.EVENT_REFRESH_REQUESTED
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mock
@@ -72,7 +78,7 @@ class SafetyCenterReceiverTest {
         val application = Mockito.mock(PermissionControllerApplication::class.java)
     }
 
-    private val testCoroutineDispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
+    private val testCoroutineDispatcher = TestCoroutineDispatcher()
 
     @Mock
     lateinit var mockSafetyCenterManager: SafetyCenterManager
@@ -98,6 +104,7 @@ class SafetyCenterReceiverTest {
         MockitoAnnotations.initMocks(this)
 
         mockitoSession = ExtendedMockito.mockitoSession()
+            .mockStatic(DeviceConfig::class.java)
             .mockStatic(PermissionControllerApplication::class.java)
             .mockStatic(Utils::class.java)
             .strictness(Strictness.LENIENT).startMocking()
@@ -131,8 +138,19 @@ class SafetyCenterReceiverTest {
         mockitoSession.finishMocking()
     }
 
+    private fun mockQSTileSettingsFlag() {
+        whenever(
+            DeviceConfig.getInt(
+                eq(DeviceConfig.NAMESPACE_PRIVACY),
+                eq(SafetyCenterQsTileService.QS_TILE_COMPONENT_SETTING_FLAGS),
+                ArgumentMatchers.anyInt()
+            )
+        ).thenReturn(PackageManager.DONT_KILL_APP)
+    }
+
     @Test
     fun onReceive_actionSafetyCenterEnabledChanged() = runBlockingTest {
+        mockQSTileSettingsFlag()
         safetyCenterReceiver.onReceive(application, Intent(ACTION_SAFETY_CENTER_ENABLED_CHANGED))
 
         verify(mockPrivacySource).safetyCenterEnabledChanged(application, true)
@@ -141,6 +159,7 @@ class SafetyCenterReceiverTest {
 
     @Test
     fun onReceive_actionSafetyCenterEnabledChanged_safetyCenterDisabled() = runBlockingTest {
+        mockQSTileSettingsFlag()
         whenever(mockSafetyCenterManager.isSafetyCenterEnabled).thenReturn(false)
 
         safetyCenterReceiver.onReceive(application, Intent(ACTION_SAFETY_CENTER_ENABLED_CHANGED))

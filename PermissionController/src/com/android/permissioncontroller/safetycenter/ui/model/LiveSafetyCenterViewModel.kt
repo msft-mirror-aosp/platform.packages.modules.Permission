@@ -17,24 +17,26 @@
 package com.android.permissioncontroller.safetycenter.ui.model
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_SAFETY_CENTER
 import android.os.Build
+import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.safetycenter.SafetyCenterData
 import android.safetycenter.SafetyCenterErrorDetails
 import android.safetycenter.SafetyCenterIssue
 import android.safetycenter.SafetyCenterManager
 import android.safetycenter.SafetyCenterStatus
-import android.safetycenter.config.SafetySource
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getMainExecutor
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.android.modules.utils.build.SdkLevel
 import com.android.permissioncontroller.safetycenter.ui.InteractionLogger
 import com.android.permissioncontroller.safetycenter.ui.NavigationSource
 import com.android.safetycenter.internaldata.SafetyCenterIds
@@ -44,6 +46,8 @@ import com.android.safetycenter.internaldata.SafetyCenterIds
 class LiveSafetyCenterViewModel(app: Application) : SafetyCenterViewModel(app) {
 
     private val TAG: String = LiveSafetyCenterViewModel::class.java.simpleName
+    override val statusUiLiveData: LiveData<StatusUiData>
+        get() = Transformations.map(safetyCenterUiLiveData) { StatusUiData(it.safetyCenterData) }
     override val safetyCenterUiLiveData: LiveData<SafetyCenterUiData> by this::_safetyCenterLiveData
     override val errorLiveData: LiveData<SafetyCenterErrorDetails> by this::_errorLiveData
 
@@ -51,36 +55,17 @@ class LiveSafetyCenterViewModel(app: Application) : SafetyCenterViewModel(app) {
     private val _errorLiveData = MutableLiveData<SafetyCenterErrorDetails>()
 
     override val interactionLogger: InteractionLogger by lazy {
-        fun isLoggable(safetySource: SafetySource): Boolean {
-            return try {
-                safetySource.isLoggingAllowed
-            } catch (ex: UnsupportedOperationException) {
-                // isLoggingAllowed will throw if you call it on a static source :(
-                // Default to logging all sources that don't support this config value.
-                true
-            }
-        }
-
         // Fetching the config to build this set of source IDs requires IPC, so we do this
         // initialization lazily.
-        val safetyCenterConfig = safetyCenterManager.safetyCenterConfig
-
-        InteractionLogger(
-            if (safetyCenterConfig != null) {
-                safetyCenterConfig.safetySourcesGroups
-                    .asSequence()
-                    .flatMap { it.safetySources }
-                    .filterNot(::isLoggable)
-                    .map { it.id }
-                    .toSet()
-            } else {
-                setOf()
-            })
+        InteractionLogger(safetyCenterManager.safetyCenterConfig)
     }
 
     private var changingConfigurations = false
 
     private val safetyCenterManager = app.getSystemService(SafetyCenterManager::class.java)!!
+
+    override fun getCurrentSafetyCenterDataAsUiData(): SafetyCenterUiData =
+        SafetyCenterUiData(safetyCenterManager.safetyCenterData)
 
     override fun dismissIssue(issue: SafetyCenterIssue) {
         safetyCenterManager.dismissSafetyCenterIssue(issue.id)
@@ -97,7 +82,8 @@ class LiveSafetyCenterViewModel(app: Application) : SafetyCenterViewModel(app) {
                     SafetyCenterIds.issueIdFromString(issue.id)
                         .toBuilder()
                         .setTaskId(launchTaskId)
-                        .build())
+                        .build()
+                )
             } else {
                 issue.id
             }
@@ -110,34 +96,68 @@ class LiveSafetyCenterViewModel(app: Application) : SafetyCenterViewModel(app) {
 
     override fun rescan() {
         safetyCenterManager.refreshSafetySources(
-            SafetyCenterManager.REFRESH_REASON_RESCAN_BUTTON_CLICK)
+            SafetyCenterManager.REFRESH_REASON_RESCAN_BUTTON_CLICK
+        )
     }
 
     override fun clearError() {
         _errorLiveData.value = null
     }
 
-    override fun navigateToSafetyCenter(fragment: Fragment, navigationSource: NavigationSource?) {
+    override fun navigateToSafetyCenter(context: Context, navigationSource: NavigationSource?) {
         val intent = Intent(ACTION_SAFETY_CENTER)
 
         if (navigationSource != null) {
             navigationSource.addToIntent(intent)
         }
 
-        fragment.startActivity(intent)
+        context.startActivity(intent)
     }
 
     override fun pageOpen() {
-        if (changingConfigurations) {
-            // Don't refresh when changing configurations, but reset for the next pageOpen call
-            changingConfigurations = false
-        } else {
+        executeIfNotChangingConfigurations {
             safetyCenterManager.refreshSafetySources(SafetyCenterManager.REFRESH_REASON_PAGE_OPEN)
+        }
+    }
+
+    @RequiresApi(UPSIDE_DOWN_CAKE)
+    override fun pageOpen(sourceGroupId: String) {
+        executeIfNotChangingConfigurations {
+            val safetySourceIds = getSafetySourceIdsToRefresh(sourceGroupId)
+            if (safetySourceIds == null) {
+                Log.w(TAG, "$sourceGroupId has no matching source IDs, so refreshing all sources")
+                safetyCenterManager.refreshSafetySources(
+                    SafetyCenterManager.REFRESH_REASON_PAGE_OPEN
+                )
+            } else {
+                safetyCenterManager.refreshSafetySources(
+                    SafetyCenterManager.REFRESH_REASON_PAGE_OPEN,
+                    safetySourceIds
+                )
+            }
         }
     }
 
     override fun changingConfigurations() {
         changingConfigurations = true
+    }
+
+    private fun executeIfNotChangingConfigurations(block: () -> Unit) {
+        if (changingConfigurations) {
+            // Don't refresh when changing configurations, but reset for the next pageOpen call
+            changingConfigurations = false
+            return
+        }
+
+        block()
+    }
+
+    private fun getSafetySourceIdsToRefresh(sourceGroupId: String): List<String>? {
+        val safetySourcesGroup =
+            safetyCenterManager.safetyCenterConfig?.safetySourcesGroups?.find {
+                it.id == sourceGroupId
+            }
+        return safetySourcesGroup?.safetySources?.map { it.id }
     }
 
     private inner class SafetyCenterLiveData :
@@ -153,7 +173,9 @@ class LiveSafetyCenterViewModel(app: Application) : SafetyCenterViewModel(app) {
 
         override fun onActive() {
             safetyCenterManager.addOnSafetyCenterDataChangedListener(
-                getMainExecutor(app.applicationContext), this)
+                getMainExecutor(app.applicationContext),
+                this
+            )
             super.onActive()
         }
 
@@ -187,7 +209,8 @@ class LiveSafetyCenterViewModel(app: Application) : SafetyCenterViewModel(app) {
                 Log.d(
                     TAG,
                     "Received SafetyCenterData while issue resolution animations" +
-                        " occurring. Will update UI with new data soon.")
+                        " occurring. Will update UI with new data soon."
+                )
                 return
             }
 
@@ -219,9 +242,7 @@ class LiveSafetyCenterViewModel(app: Application) : SafetyCenterViewModel(app) {
         private fun determineResolvedIssues(nextIssueIds: Set<IssueId>): Map<IssueId, ActionId> {
             // Any previously in-flight issue that does not appear in the incoming SafetyCenterData
             // is considered resolved.
-            return issuesPendingResolution.filterNot { issue ->
-                nextIssueIds.contains(issue.key)
-            }
+            return issuesPendingResolution.filterNot { issue -> nextIssueIds.contains(issue.key) }
         }
 
         private fun shouldEndScan(nextData: SafetyCenterData): Boolean =
@@ -260,11 +281,9 @@ class LiveSafetyCenterViewModel(app: Application) : SafetyCenterViewModel(app) {
     }
 }
 
-/**
- * Returns inflight issues pending resolution
- */
+/** Returns inflight issues pending resolution */
 private fun SafetyCenterData.getInFlightIssues(): Map<IssueId, ActionId> =
-    issues
+    allResolvableIssues
         .map { issue ->
             issue.actions
                 // UX requirements require skipping resolution UI for issues that do not have a
@@ -278,7 +297,16 @@ private fun SafetyCenterData.getInFlightIssues(): Map<IssueId, ActionId> =
 private fun SafetyCenterData.isScanning() =
     status.refreshStatus == SafetyCenterStatus.REFRESH_STATUS_FULL_RESCAN_IN_PROGRESS
 
-private fun SafetyCenterData.buildIssueIdSet(): Set<IssueId> = issues.map { it.id }.toSet()
+private fun SafetyCenterData.buildIssueIdSet(): Set<IssueId> =
+    allResolvableIssues.map { it.id }.toSet()
+
+private val SafetyCenterData.allResolvableIssues: Sequence<SafetyCenterIssue>
+    get() =
+        if (SdkLevel.isAtLeastU()) {
+            issues.asSequence() + dismissedIssues.asSequence()
+        } else {
+            issues.asSequence()
+        }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class LiveSafetyCenterViewModelFactory(private val app: Application) : ViewModelProvider.Factory {

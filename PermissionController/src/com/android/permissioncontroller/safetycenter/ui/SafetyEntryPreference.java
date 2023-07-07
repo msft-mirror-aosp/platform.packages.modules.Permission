@@ -22,7 +22,6 @@ import android.content.Context;
 import android.safetycenter.SafetyCenterEntry;
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.preference.Preference;
@@ -35,8 +34,6 @@ import com.android.permissioncontroller.safetycenter.ui.view.SafetyEntryView;
 /** A preference that displays a visual representation of a {@link SafetyCenterEntry}. */
 @RequiresApi(TIRAMISU)
 public final class SafetyEntryPreference extends Preference implements ComparablePreference {
-
-    private static final String TAG = SafetyEntryPreference.class.getSimpleName();
 
     private final PositionInCardList mPosition;
     private final SafetyCenterEntry mEntry;
@@ -60,20 +57,20 @@ public final class SafetyEntryPreference extends Preference implements Comparabl
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
+    public void onBindViewHolder(PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
 
         ((SafetyEntryView) holder.itemView).showEntry(mEntry, mPosition, mLaunchTaskId, mViewModel);
     }
 
     @Override
-    public boolean isSameItem(@NonNull Preference other) {
+    public boolean isSameItem(Preference other) {
         return other instanceof SafetyEntryPreference
                 && TextUtils.equals(mEntry.getId(), ((SafetyEntryPreference) other).mEntry.getId());
     }
 
     @Override
-    public boolean hasSameContents(@NonNull Preference other) {
+    public boolean hasSameContents(Preference other) {
         if (other instanceof SafetyEntryPreference) {
             SafetyEntryPreference o = (SafetyEntryPreference) other;
             return mEntry.equals(o.mEntry) && mPosition == o.mPosition;

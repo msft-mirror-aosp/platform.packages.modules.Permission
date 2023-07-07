@@ -20,7 +20,7 @@
     <string name="safetyCenterResourcesAppLabel" msgid="4043334186295695930">"Ресурси Центра за безбедност"</string>
     <string name="lock_screen_sources_title" msgid="3317906280484627707">"Закључавање уређаја"</string>
     <string name="lock_screen_sources_summary" msgid="7220439741282516496"></string>
-    <string name="lock_screen_title" msgid="4069104894527169877">"Закључавање екрана"</string>
+    <string name="lock_screen_title" msgid="4069104894527169877">"Откључавање екрана"</string>
     <string name="lock_screen_summary_disabled" msgid="354071230916616692">"Још нема информација"</string>
     <string name="lock_screen_search_terms" msgid="2678486357779794826">"закључавање уређаја, закључавање екрана, закључани екран, лозинка, PIN, шаблон"</string>
     <string name="biometrics_title" msgid="5859504610285212938">"Биометрија"</string>
@@ -43,6 +43,4 @@
     <string name="advanced_privacy_title" msgid="1117725225706176643">"Још подешавања приватности"</string>
     <string name="advanced_privacy_summary" msgid="2281203390575069543">"Аутоматско попуњавање, контроле активности и друго"</string>
     <string name="advanced_privacy_search_terms" msgid="5044404599789175222"></string>
-    <string name="overall_severity_level_account_recommendation_title" msgid="6524855037045765671">"Налог је можда угрожен"</string>
-    <string name="overall_severity_level_critical_account_warning_title" msgid="3294187096461368277">"Налог је угрожен"</string>
 </resources>
