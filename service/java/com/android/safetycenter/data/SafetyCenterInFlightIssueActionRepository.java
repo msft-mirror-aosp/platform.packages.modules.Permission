@@ -16,20 +16,19 @@
 
 package com.android.safetycenter.data;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static com.android.safetycenter.internaldata.SafetyCenterIds.toUserFriendlyString;
 
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
+import android.content.Context;
 import android.os.SystemClock;
-import android.safetycenter.SafetyCenterData;
 import android.safetycenter.SafetySourceIssue;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
+import com.android.permission.util.UserUtils;
 import com.android.safetycenter.internaldata.SafetyCenterIssueActionId;
 import com.android.safetycenter.internaldata.SafetyCenterIssueKey;
 import com.android.safetycenter.logging.SafetyCenterStatsdLogger;
@@ -41,20 +40,19 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /** Maintains data about in-flight issue actions. */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 final class SafetyCenterInFlightIssueActionRepository {
 
     private static final String TAG = "SafetyCenterInFlight";
 
-    private final SafetyCenterStatsdLogger mSafetyCenterStatsdLogger;
-
     private final ArrayMap<SafetyCenterIssueActionId, Long> mSafetyCenterIssueActionsInFlight =
             new ArrayMap<>();
 
+    private final Context mContext;
+
     /** Constructs a new instance of {@link SafetyCenterInFlightIssueActionRepository}. */
-    SafetyCenterInFlightIssueActionRepository(SafetyCenterStatsdLogger safetyCenterStatsdLogger) {
-        mSafetyCenterStatsdLogger = safetyCenterStatsdLogger;
+    SafetyCenterInFlightIssueActionRepository(Context context) {
+        mContext = context;
     }
 
     /** Marks the given {@link SafetyCenterIssueActionId} as in-flight. */
@@ -64,9 +62,10 @@ final class SafetyCenterInFlightIssueActionRepository {
     }
 
     /**
-     * Unmarks the given {@link SafetyCenterIssueActionId} as in-flight, logs that event to statsd
-     * with the given {@code result} value, and returns {@code true} if the underlying {@link
-     * SafetyCenterData} changed.
+     * Unmarks the given {@link SafetyCenterIssueActionId} as in-flight and returns {@code true} if
+     * the given action was valid and unmarked successfully.
+     *
+     * <p>Also logs an event to statsd with the given {@code result} value.
      */
     boolean unmarkSafetyCenterIssueActionInFlight(
             SafetyCenterIssueActionId safetyCenterIssueActionId,
@@ -86,8 +85,12 @@ final class SafetyCenterInFlightIssueActionRepository {
         String issueTypeId = safetySourceIssue == null ? null : safetySourceIssue.getIssueTypeId();
         Duration duration = Duration.ofMillis(SystemClock.elapsedRealtime() - startElapsedMillis);
 
-        mSafetyCenterStatsdLogger.writeInlineActionSystemEvent(
-                issueKey.getSafetySourceId(), issueKey.getUserId(), issueTypeId, duration, result);
+        SafetyCenterStatsdLogger.writeInlineActionSystemEvent(
+                issueKey.getSafetySourceId(),
+                UserUtils.isManagedProfile(issueKey.getUserId(), mContext),
+                issueTypeId,
+                duration,
+                result);
 
         if (safetySourceIssue == null
                 || getSafetySourceIssueAction(safetyCenterIssueActionId, safetySourceIssue)
@@ -105,6 +108,19 @@ final class SafetyCenterInFlightIssueActionRepository {
     /** Returns {@code true} if the given issue action is in flight. */
     boolean actionIsInFlight(SafetyCenterIssueActionId safetyCenterIssueActionId) {
         return mSafetyCenterIssueActionsInFlight.containsKey(safetyCenterIssueActionId);
+    }
+
+    /** Returns a list of IDs of in-flight actions for the given source and user */
+    ArraySet<SafetyCenterIssueActionId> getInFlightActions(String sourceId, @UserIdInt int userId) {
+        ArraySet<SafetyCenterIssueActionId> result = new ArraySet<>();
+        for (int i = 0; i < mSafetyCenterIssueActionsInFlight.size(); i++) {
+            SafetyCenterIssueActionId actionId = mSafetyCenterIssueActionsInFlight.keyAt(i);
+            SafetyCenterIssueKey issueKey = actionId.getSafetyCenterIssueKey();
+            if (sourceId.equals(issueKey.getSafetySourceId()) && issueKey.getUserId() == userId) {
+                result.add(actionId);
+            }
+        }
+        return result;
     }
 
     /**

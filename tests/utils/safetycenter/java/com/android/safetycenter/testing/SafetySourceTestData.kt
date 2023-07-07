@@ -593,6 +593,40 @@ class SafetySourceTestData(private val context: Context) {
                 .build()
 
     /**
+     * A [SafetySourceData] with a [SEVERITY_LEVEL_CRITICAL_WARNING] having a redirecting
+     * [SafetySourceIssue] with a [SafetySourceIssue.attributionTitle] and confirmation.
+     */
+    val criticalWithIssueWithConfirmationWithAttributionTitle: SafetySourceData
+        @RequiresApi(UPSIDE_DOWN_CAKE)
+        get() =
+            defaultCriticalDataBuilder()
+                .addIssue(
+                    defaultCriticalResolvingIssueBuilder()
+                        .setAttributionTitle("Attribution Title")
+                        .clearActions()
+                        .addAction(criticalResolvingActionWithConfirmation)
+                        .build()
+                )
+                .build()
+
+    /**
+     * A [SafetySourceData] with a [SEVERITY_LEVEL_CRITICAL_WARNING] having a redirecting
+     * [SafetySourceIssue] with a [SafetySourceIssue.attributionTitle].
+     */
+    val criticalWithTestActivityRedirectWithAttributionTitle: SafetySourceData
+        @RequiresApi(UPSIDE_DOWN_CAKE)
+        get() =
+            defaultCriticalDataBuilder()
+                .addIssue(
+                    defaultCriticalResolvingIssueBuilder()
+                        .setAttributionTitle("Attribution Title")
+                        .clearActions()
+                        .addAction(testActivityRedirectAction)
+                        .build()
+                )
+                .build()
+
+    /**
      * A [SafetySourceData] with a [SEVERITY_LEVEL_CRITICAL_WARNING] resolving general
      * [SafetySourceIssue] and [SafetySourceStatus].
      */
@@ -778,13 +812,26 @@ class SafetySourceTestData(private val context: Context) {
         }
 
         /** Returns a [PendingIntent] that redirects to [intent]. */
-        fun createRedirectPendingIntent(context: Context, intent: Intent): PendingIntent {
+        fun createRedirectPendingIntent(
+            context: Context,
+            intent: Intent,
+            inQuietMode: Boolean = false
+        ): PendingIntent {
             val explicitIntent = Intent(intent).setPackage(context.packageName)
             val redirectIntent =
                 if (intentResolves(context, explicitIntent)) {
                     explicitIntent
                 } else if (intentResolves(context, intent)) {
-                    intent
+                    // We have seen some flakiness where implicit intents find multiple receivers
+                    // and the ResolveActivity pops up.  A test cannot handle this, so crash.  Most
+                    // likely the cause is other test's APKs being left hanging around by flaky
+                    // test infrastructure.
+                    val intentWithFlag = Intent(intent)
+                    intentWithFlag.flags =
+                        intentWithFlag.flags or Intent.FLAG_ACTIVITY_REQUIRE_DEFAULT
+                    intentWithFlag
+                } else if (inQuietMode) {
+                    explicitIntent
                 } else {
                     throw IllegalStateException("Intent doesn't resolve")
                 }

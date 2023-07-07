@@ -46,7 +46,7 @@ object UiTestHelper {
     const val MORE_ISSUES_LABEL = "More alerts"
 
     private const val DISMISS_ISSUE_LABEL = "Dismiss"
-    private val WAIT_TIMEOUT = Duration.ofSeconds(25)
+    private val WAIT_TIMEOUT = Duration.ofSeconds(15)
     private val NOT_DISPLAYED_TIMEOUT = Duration.ofMillis(500)
 
     private val TAG = UiTestHelper::class.java.simpleName
@@ -122,6 +122,24 @@ object UiTestHelper {
     @RequiresApi(TIRAMISU)
     fun waitSourceIssueNotDisplayed(sourceIssue: SafetySourceIssue) {
         waitAllTextNotDisplayed(sourceIssue.title)
+    }
+
+    /**
+     * Waits for only one [SafetySourceIssue] to be displayed together with [MORE_ISSUES_LABEL]
+     * card, and for all other [SafetySourceIssue]s not to be diplayed.
+     */
+    fun waitCollapsedIssuesDisplayed(vararg sourceIssues: SafetySourceIssue) {
+        waitSourceIssueDisplayed(sourceIssues.first())
+        waitAllTextDisplayed(MORE_ISSUES_LABEL)
+        sourceIssues.asSequence().drop(1).forEach { waitSourceIssueNotDisplayed(it) }
+    }
+
+    /** Waits for all the [SafetySourceIssue] to be displayed with the [MORE_ISSUES_LABEL] card. */
+    fun waitExpandedIssuesDisplayed(vararg sourceIssues: SafetySourceIssue) {
+        // to make landscape checks less flaky it is important to match their order with visuals
+        waitSourceIssueDisplayed(sourceIssues.first())
+        waitAllTextDisplayed(MORE_ISSUES_LABEL)
+        sourceIssues.asSequence().drop(1).forEach { waitSourceIssueDisplayed(it) }
     }
 
     /** Waits for the specified screen title to be displayed. */

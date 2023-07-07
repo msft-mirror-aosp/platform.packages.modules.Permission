@@ -17,6 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.safetycenter.functional">
     <application>
+
         <uses-library android:name="android.test.runner"/>
     </application>
 

@@ -25,12 +25,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
 import androidx.recyclerview.widget.RecyclerView
+import com.android.permissioncontroller.Constants.EXTRA_SESSION_ID
+import com.android.permissioncontroller.Constants.INVALID_SESSION_ID
 import com.android.permissioncontroller.safetycenter.SafetyCenterConstants.QUICK_SETTINGS_SAFETY_CENTER_FRAGMENT
 import com.android.permissioncontroller.safetycenter.ui.ParsedSafetyCenterIntent.Companion.toSafetyCenterIntent
 import com.android.permissioncontroller.safetycenter.ui.model.LiveSafetyCenterViewModelFactory
 import com.android.permissioncontroller.safetycenter.ui.model.SafetyCenterUiData
 import com.android.permissioncontroller.safetycenter.ui.model.SafetyCenterViewModel
-import com.android.safetycenter.resources.SafetyCenterResourcesContext
+import com.android.safetycenter.resources.SafetyCenterResourcesApk
 
 /** A base fragment that represents a page in Safety Center. */
 @RequiresApi(TIRAMISU)
@@ -39,25 +41,41 @@ abstract class SafetyCenterFragment : PreferenceFragmentCompat() {
     lateinit var safetyCenterViewModel: SafetyCenterViewModel
     lateinit var sameTaskSourceIds: List<String>
     lateinit var collapsableIssuesCardHelper: CollapsableIssuesCardHelper
+    var safetyCenterSessionId = INVALID_SESSION_ID
+    private val highlightManager = PreferenceHighlightManager(this)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        highlightManager.restoreState(savedInstanceState)
+    }
 
     override fun onCreateAdapter(
         preferenceScreen: PreferenceScreen?
     ): RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        /* The scroll-to-result functionality for settings search is currently implemented only for
+         * subpages i.e. non expand-and-collapse type entries. Hence, we check that the flag is
+         * enabled before using an adapter that does the highlighting and scrolling. */
+        val adapter: RecyclerView.Adapter<RecyclerView.ViewHolder> =
+            if (SafetyCenterUiFlags.getShowSubpages()) {
+                highlightManager.createAdapter(preferenceScreen)
+            } else {
+                super.onCreateAdapter(preferenceScreen)
+            }
+
         /* By default, the PreferenceGroupAdapter does setHasStableIds(true). Since each Preference
          * is internally allocated with an auto-incremented ID, it does not allow us to gracefully
          * update only changed preferences based on SafetyPreferenceComparisonCallback. In order to
          * allow the list to track the changes, we need to ignore the Preference IDs. */
-        val adapter: RecyclerView.Adapter<RecyclerView.ViewHolder> =
-            super.onCreateAdapter(preferenceScreen)
         adapter.setHasStableIds(false)
         return adapter
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         sameTaskSourceIds =
-            SafetyCenterResourcesContext(requireContext())
+            SafetyCenterResourcesApk(requireContext())
                 .getStringByName("config_same_task_safety_source_ids")
                 .split(",")
+        safetyCenterSessionId = requireArguments().getLong(EXTRA_SESSION_ID, INVALID_SESSION_ID)
 
         safetyCenterViewModel =
             ViewModelProvider(
@@ -89,9 +107,36 @@ abstract class SafetyCenterFragment : PreferenceFragmentCompat() {
         getPreferenceManager().setPreferenceComparisonCallback(SafetyPreferenceComparisonCallback())
     }
 
+    override fun onBindPreferences() {
+        super.onBindPreferences()
+        highlightManager.registerObserverIfNeeded()
+    }
+
+    override fun onUnbindPreferences() {
+        super.onUnbindPreferences()
+        highlightManager.unregisterObserverIfNeeded()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        configureInteractionLogger()
+        safetyCenterViewModel.interactionLogger.record(Action.SAFETY_CENTER_VIEWED)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        highlightManager.highlightPreferenceIfNeeded()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         collapsableIssuesCardHelper.saveState(outState)
+        highlightManager.saveState(outState)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        safetyCenterViewModel.interactionLogger.clearViewedIssues()
     }
 
     override fun onDestroy() {
@@ -101,7 +146,21 @@ abstract class SafetyCenterFragment : PreferenceFragmentCompat() {
         }
     }
 
+    /**
+     * Insert preferences for whatever Safety Center data we currently have available.
+     *
+     * This should contain the groups and entries to render the basic page structure, even if no
+     * source has responded with data at this point.
+     *
+     * This should be called by subclasses in [onCreatePreferences] after they've pulled out the
+     * preferences they will modify in [renderSafetyCenterData].
+     */
+    protected fun prerenderCurrentSafetyCenterData() =
+        renderSafetyCenterData(safetyCenterViewModel.getCurrentSafetyCenterDataAsUiData())
+
     abstract fun renderSafetyCenterData(uiData: SafetyCenterUiData?)
+
+    abstract fun configureInteractionLogger()
 
     private fun displayErrorDetails(errorDetails: SafetyCenterErrorDetails?) {
         if (errorDetails == null) return

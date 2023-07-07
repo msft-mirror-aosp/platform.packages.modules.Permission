@@ -23,6 +23,7 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -35,6 +36,7 @@ import com.android.modules.utils.build.SdkLevel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A representation of the safety state of the device.
@@ -44,6 +46,21 @@ import java.util.Objects;
 @SystemApi
 @RequiresApi(TIRAMISU)
 public final class SafetyCenterData implements Parcelable {
+
+    /**
+     * A key used in {@link #getExtras()} to map {@link SafetyCenterIssue} ids to their associated
+     * {@link SafetyCenterEntryGroup} ids.
+     */
+    private static final String ISSUES_TO_GROUPS_BUNDLE_KEY = "IssuesToGroups";
+
+    /**
+     * A key used in {@link #getExtras()} to map {@link SafetyCenterStaticEntry} to their associated
+     * ids.
+     *
+     * <p>{@link SafetyCenterStaticEntry} are keyed by {@code
+     * SafetyCenterIds.toBundleKey(safetyCenterStaticEntry)}.
+     */
+    private static final String STATIC_ENTRIES_TO_IDS_BUNDLE_KEY = "StaticEntriesToIds";
 
     @NonNull
     public static final Creator<SafetyCenterData> CREATOR =
@@ -159,7 +176,8 @@ public final class SafetyCenterData implements Parcelable {
     @RequiresApi(UPSIDE_DOWN_CAKE)
     public List<SafetyCenterIssue> getDismissedIssues() {
         if (!SdkLevel.isAtLeastU()) {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(
+                    "Method not supported on versions lower than UPSIDE_DOWN_CAKE");
         }
         return mDismissedIssues;
     }
@@ -174,7 +192,8 @@ public final class SafetyCenterData implements Parcelable {
     @RequiresApi(UPSIDE_DOWN_CAKE)
     public Bundle getExtras() {
         if (!SdkLevel.isAtLeastU()) {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(
+                    "Method not supported on versions lower than UPSIDE_DOWN_CAKE");
         }
         return mExtras;
     }
@@ -188,13 +207,79 @@ public final class SafetyCenterData implements Parcelable {
                 && Objects.equals(mIssues, that.mIssues)
                 && Objects.equals(mEntriesOrGroups, that.mEntriesOrGroups)
                 && Objects.equals(mStaticEntryGroups, that.mStaticEntryGroups)
-                && Objects.equals(mDismissedIssues, that.mDismissedIssues);
+                && Objects.equals(mDismissedIssues, that.mDismissedIssues)
+                && areKnownExtrasContentsEqual(mExtras, that.mExtras);
+    }
+
+    /** We're only comparing the bundle data that we know of. */
+    private static boolean areKnownExtrasContentsEqual(
+            @NonNull Bundle left, @NonNull Bundle right) {
+        return areBundlesEqual(left, right, ISSUES_TO_GROUPS_BUNDLE_KEY)
+                && areBundlesEqual(left, right, STATIC_ENTRIES_TO_IDS_BUNDLE_KEY);
+    }
+
+    private static boolean areBundlesEqual(
+            @NonNull Bundle left, @NonNull Bundle right, @NonNull String bundleKey) {
+        Bundle leftBundle = left.getBundle(bundleKey);
+        Bundle rightBundle = right.getBundle(bundleKey);
+
+        if (leftBundle == null && rightBundle == null) {
+            return true;
+        }
+
+        if (leftBundle == null || rightBundle == null) {
+            return false;
+        }
+
+        Set<String> leftKeys = leftBundle.keySet();
+        Set<String> rightKeys = rightBundle.keySet();
+
+        if (!Objects.equals(leftKeys, rightKeys)) {
+            return false;
+        }
+
+        for (String key : leftKeys) {
+            if (!Objects.equals(
+                    getBundleValue(leftBundle, bundleKey, key),
+                    getBundleValue(rightBundle, bundleKey, key))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
-                mStatus, mIssues, mEntriesOrGroups, mStaticEntryGroups, mDismissedIssues);
+                mStatus,
+                mIssues,
+                mEntriesOrGroups,
+                mStaticEntryGroups,
+                mDismissedIssues,
+                getExtrasHash());
+    }
+
+    /** We're only hashing bundle data that we know of. */
+    private int getExtrasHash() {
+        return Objects.hash(
+                bundleHash(ISSUES_TO_GROUPS_BUNDLE_KEY),
+                bundleHash(STATIC_ENTRIES_TO_IDS_BUNDLE_KEY));
+    }
+
+    private int bundleHash(@NonNull String bundleKey) {
+        Bundle bundle = mExtras.getBundle(bundleKey);
+        if (bundle == null) {
+            return 0;
+        }
+
+        int hash = 0;
+        for (String key : bundle.keySet()) {
+            hash +=
+                    Objects.hashCode(key)
+                            ^ Objects.hashCode(getBundleValue(bundle, bundleKey, key));
+        }
+        return hash;
     }
 
     @Override
@@ -210,8 +295,49 @@ public final class SafetyCenterData implements Parcelable {
                 + mStaticEntryGroups
                 + ", mDismissedIssues="
                 + mDismissedIssues
-                + (!mExtras.isEmpty() ? ", (has extras)" : "")
+                + ", mExtras="
+                + extrasToString()
                 + '}';
+    }
+
+    /** We're only including bundle data that we know of. */
+    @NonNull
+    private String extrasToString() {
+        int knownExtras = 0;
+        StringBuilder sb = new StringBuilder();
+        if (appendBundleString(sb, ISSUES_TO_GROUPS_BUNDLE_KEY)) {
+            knownExtras++;
+        }
+        if (appendBundleString(sb, STATIC_ENTRIES_TO_IDS_BUNDLE_KEY)) {
+            knownExtras++;
+        }
+
+        boolean hasUnknownExtras = knownExtras != mExtras.keySet().size();
+        if (hasUnknownExtras) {
+            sb.append("(has unknown extras)");
+        } else if (knownExtras == 0) {
+            sb.append("(no extras)");
+        }
+
+        return sb.toString();
+    }
+
+    private boolean appendBundleString(@NonNull StringBuilder sb, @NonNull String bundleKey) {
+        Bundle bundle = mExtras.getBundle(bundleKey);
+        if (bundle == null) {
+            return false;
+        }
+        sb.append(bundleKey);
+        sb.append(":[");
+        for (String key : bundle.keySet()) {
+            sb.append("(key=")
+                    .append(key)
+                    .append(";value=")
+                    .append(getBundleValue(bundle, bundleKey, key))
+                    .append(")");
+        }
+        sb.append("]");
+        return true;
     }
 
     @Override
@@ -247,7 +373,8 @@ public final class SafetyCenterData implements Parcelable {
 
         public Builder(@NonNull SafetyCenterStatus status) {
             if (!SdkLevel.isAtLeastU()) {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException(
+                        "Method not supported on versions lower than UPSIDE_DOWN_CAKE");
             }
             mStatus = requireNonNull(status);
         }
@@ -255,7 +382,8 @@ public final class SafetyCenterData implements Parcelable {
         /** Creates a {@link Builder} with the values from the given {@link SafetyCenterData}. */
         public Builder(@NonNull SafetyCenterData safetyCenterData) {
             if (!SdkLevel.isAtLeastU()) {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException(
+                        "Method not supported on versions lower than UPSIDE_DOWN_CAKE");
             }
             requireNonNull(safetyCenterData);
             mStatus = safetyCenterData.mStatus;
@@ -301,7 +429,7 @@ public final class SafetyCenterData implements Parcelable {
         /**
          * Sets additional information for the {@link SafetyCenterData}.
          *
-         * If not set, the default value is {@link Bundle#EMPTY}.
+         * <p>If not set, the default value is {@link Bundle#EMPTY}.
          */
         @NonNull
         public SafetyCenterData.Builder setExtras(@NonNull Bundle extras) {
@@ -375,5 +503,18 @@ public final class SafetyCenterData implements Parcelable {
             return new SafetyCenterData(
                     mStatus, issues, entriesOrGroups, staticEntryGroups, dismissedIssues, mExtras);
         }
+    }
+
+    @Nullable
+    private static Object getBundleValue(
+            @NonNull Bundle bundle, @NonNull String bundleParentKey, @NonNull String key) {
+        switch (bundleParentKey) {
+            case ISSUES_TO_GROUPS_BUNDLE_KEY:
+                return bundle.getStringArrayList(key);
+            case STATIC_ENTRIES_TO_IDS_BUNDLE_KEY:
+                return bundle.getString(key);
+            default:
+        }
+        throw new IllegalArgumentException("Unexpected bundle parent key: " + bundleParentKey);
     }
 }

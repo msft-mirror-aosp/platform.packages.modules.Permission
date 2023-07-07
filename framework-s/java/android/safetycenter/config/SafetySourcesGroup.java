@@ -314,7 +314,8 @@ public final class SafetySourcesGroup implements Parcelable {
         @RequiresApi(UPSIDE_DOWN_CAKE)
         public Builder(@NonNull SafetySourcesGroup original) {
             if (!SdkLevel.isAtLeastU()) {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException(
+                        "Method not supported on versions lower than UPSIDE_DOWN_CAKE");
             }
             requireNonNull(original);
             mSafetySources.addAll(original.mSafetySources);
@@ -446,7 +447,7 @@ public final class SafetySourcesGroup implements Parcelable {
             if (hasOnlyIssueOnlySources) {
                 inferredGroupType = SAFETY_SOURCES_GROUP_TYPE_HIDDEN;
             } else if (summaryResId != Resources.ID_NULL
-                    || statelessIconType != Resources.ID_NULL) {
+                    || statelessIconType != STATELESS_ICON_TYPE_NONE) {
                 inferredGroupType = SAFETY_SOURCES_GROUP_TYPE_STATEFUL;
             }
             int type =

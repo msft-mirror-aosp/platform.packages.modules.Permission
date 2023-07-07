@@ -16,8 +16,6 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.UserIdInt;
@@ -27,9 +25,9 @@ import android.os.Binder;
 import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.android.permission.util.UserUtils;
 
@@ -44,8 +42,9 @@ import java.util.Objects;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 public final class UserProfileGroup {
+
+    private static final String TAG = "UserProfileGroup";
 
     @UserIdInt private final int mProfileParentUserId;
     private final int[] mManagedProfilesUserIds;
@@ -72,7 +71,11 @@ public final class UserProfileGroup {
                 continue;
             }
 
-            UserProfileGroup userProfileGroup = UserProfileGroup.from(context, userId);
+            UserProfileGroup userProfileGroup = UserProfileGroup.fromUser(context, userId);
+            if (!userProfileGroup.contains(userId)) {
+                continue;
+            }
+
             userProfileGroups.add(userProfileGroup);
         }
         return userProfileGroups;
@@ -95,9 +98,13 @@ public final class UserProfileGroup {
      * Returns the {@link UserProfileGroup} associated with the given {@code userId}.
      *
      * <p>The given {@code userId} could be related to the profile parent or any of its associated
-     * managed profile(s).
+     * profile(s).
+     *
+     * <p>It is possible for the {@code userId} to not be contained within the returned {@link
+     * UserProfileGroup}. This can happen if the {@code userId} is a profile that is not managed or
+     * is disabled.
      */
-    public static UserProfileGroup from(Context context, @UserIdInt int userId) {
+    public static UserProfileGroup fromUser(Context context, @UserIdInt int userId) {
         UserManager userManager = getUserManagerForUser(userId, context);
         List<UserHandle> userProfiles = getEnabledUserProfiles(userManager);
         UserHandle profileParent = getProfileParent(userManager, userId);
@@ -123,10 +130,27 @@ public final class UserProfileGroup {
             }
         }
 
-        return new UserProfileGroup(
-                profileParentUserId,
-                Arrays.copyOf(managedProfilesUserIds, managedProfilesUserIdsLen),
-                Arrays.copyOf(managedRunningProfilesUserIds, managedRunningProfilesUserIdsLen));
+        UserProfileGroup userProfileGroup =
+                new UserProfileGroup(
+                        profileParentUserId,
+                        Arrays.copyOf(managedProfilesUserIds, managedProfilesUserIdsLen),
+                        Arrays.copyOf(
+                                managedRunningProfilesUserIds, managedRunningProfilesUserIdsLen));
+        if (!userProfileGroup.contains(userId)) {
+            Log.i(
+                    TAG,
+                    "User id: " + userId + " does not belong to: " + userProfileGroup,
+                    new Exception());
+        }
+        return userProfileGroup;
+    }
+
+    /** Returns whether the given {@code userId} is supported by {@link UserProfileGroup}. */
+    public static boolean isSupported(@UserIdInt int userId, Context context) {
+        if (!isProfile(userId, context)) {
+            return true;
+        }
+        return UserUtils.isManagedProfile(userId, context);
     }
 
     private static UserManager getUserManagerForUser(@UserIdInt int userId, Context context) {
@@ -139,10 +163,22 @@ public final class UserProfileGroup {
             return context;
         } else {
             try {
-                return context.createPackageContextAsUser(context.getPackageName(), 0, userHandle);
+                return context.createPackageContextAsUser(
+                        context.getPackageName(), /* flags= */ 0, userHandle);
             } catch (PackageManager.NameNotFoundException doesNotHappen) {
                 throw new IllegalStateException(doesNotHappen);
             }
+        }
+    }
+
+    private static boolean isProfile(@UserIdInt int userId, Context context) {
+        // This call requires the INTERACT_ACROSS_USERS permission.
+        final long callingId = Binder.clearCallingIdentity();
+        try {
+            UserManager userManager = getUserManagerForUser(userId, context);
+            return userManager.isProfile();
+        } finally {
+            Binder.restoreCallingIdentity(callingId);
         }
     }
 
@@ -193,9 +229,9 @@ public final class UserProfileGroup {
         profileParentAndManagedRunningProfilesUserIds[0] = mProfileParentUserId;
         System.arraycopy(
                 mManagedRunningProfilesUserIds,
-                0,
+                /* srcPos= */ 0,
                 profileParentAndManagedRunningProfilesUserIds,
-                1,
+                /* destPos= */ 1,
                 mManagedRunningProfilesUserIds.length);
         return profileParentAndManagedRunningProfilesUserIds;
     }

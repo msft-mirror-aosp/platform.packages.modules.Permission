@@ -16,11 +16,9 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import android.annotation.UserIdInt;
 
-import androidx.annotation.RequiresApi;
+import com.android.safetycenter.notifications.SafetyCenterNotificationSender;
 
 import java.util.List;
 
@@ -29,10 +27,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 /**
  * Knows how to update classes that need to know about any change in SafetyCenter data, which in
  * this context entails any state change that happened in the data subpackage.
+ *
+ * @hide
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
-final class SafetyCenterDataChangeNotifier {
+public final class SafetyCenterDataChangeNotifier {
 
     private final SafetyCenterNotificationSender mSafetyCenterNotificationSender;
     private final SafetyCenterListeners mSafetyCenterListeners;
@@ -46,7 +45,7 @@ final class SafetyCenterDataChangeNotifier {
     }
 
     /** Updates classes that depend on data changes (changes of state in the data subpackage). */
-    void updateDataConsumers(UserProfileGroup userProfileGroup, @UserIdInt int userId) {
+    public void updateDataConsumers(UserProfileGroup userProfileGroup, @UserIdInt int userId) {
         mSafetyCenterNotificationSender.updateNotifications(userId);
         mSafetyCenterListeners.deliverDataForUserProfileGroup(userProfileGroup);
     }

@@ -52,10 +52,10 @@ constructor(
         inflate(context, R.layout.view_entry, this)
     }
 
-    private val commonEntryView: SafetyEntryCommonViewsManager? by lazy {
+    private val commonEntryView: SafetyEntryCommonViewsManager? by lazyView {
         SafetyEntryCommonViewsManager(this)
     }
-    private val widgetFrame: ViewGroup? by lazy { findViewById(R.id.widget_frame) }
+    private val widgetFrame: ViewGroup? by lazyView(R.id.widget_frame)
 
     fun showEntry(
         entry: SafetyCenterEntry,
@@ -81,6 +81,7 @@ constructor(
 
     private fun showEntryDetails(entry: SafetyCenterEntry) {
         commonEntryView?.showDetails(
+            entry.id,
             entry.title,
             entry.summary,
             entry.severityLevel,
@@ -174,7 +175,9 @@ constructor(
         isClickable = true
         isEnabled = entry.pendingIntent != null
         changeEnabledState(
+            context,
             entry.isEnabled,
+            isEnabled,
             commonEntryView?.titleView,
             commonEntryView?.summaryView
         )

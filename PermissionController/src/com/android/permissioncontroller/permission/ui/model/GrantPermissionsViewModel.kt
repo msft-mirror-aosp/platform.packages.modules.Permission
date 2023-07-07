@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package com.android.permissioncontroller.permission.ui.model
 
@@ -38,10 +39,10 @@ import android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP
 import android.os.Build
 import android.os.Bundle
 import android.os.Process
+import android.os.UserManager
 import android.permission.PermissionManager
 import android.provider.MediaStore
 import android.util.Log
-import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.core.util.Consumer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -49,9 +50,9 @@ import com.android.modules.utils.build.SdkLevel
 import com.android.permission.safetylabel.SafetyLabel
 import com.android.permissioncontroller.Constants
 import com.android.permissioncontroller.DeviceUtils
-import com.android.permissioncontroller.PermissionControllerApplication
 import com.android.permissioncontroller.PermissionControllerStatsLog
 import com.android.permissioncontroller.PermissionControllerStatsLog.GRANT_PERMISSIONS_ACTIVITY_BUTTON_ACTIONS
+import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_GRANT_REQUEST_RESULT_REPORTED
 import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_GRANT_REQUEST_RESULT_REPORTED__RESULT__AUTO_DENIED
 import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_GRANT_REQUEST_RESULT_REPORTED__RESULT__AUTO_GRANTED
 import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_GRANT_REQUEST_RESULT_REPORTED__RESULT__IGNORED
@@ -71,7 +72,7 @@ import com.android.permissioncontroller.auto.DrivingDecisionReminderService
 import com.android.permissioncontroller.permission.data.LightAppPermGroupLiveData
 import com.android.permissioncontroller.permission.data.LightPackageInfoLiveData
 import com.android.permissioncontroller.permission.data.PackagePermissionsLiveData
-import com.android.permissioncontroller.permission.data.SafetyLabelInfoLiveData
+import com.android.permissioncontroller.permission.data.v34.SafetyLabelInfoLiveData
 import com.android.permissioncontroller.permission.data.SmartUpdateMediatorLiveData
 import com.android.permissioncontroller.permission.data.get
 import com.android.permissioncontroller.permission.model.AppPermissionGroup
@@ -82,19 +83,21 @@ import com.android.permissioncontroller.permission.service.PermissionChangeStora
 import com.android.permissioncontroller.permission.service.v33.PermissionDecisionStorageImpl
 import com.android.permissioncontroller.permission.ui.AutoGrantPermissionsNotifier
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity
-import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_ALL_PHOTOS_BUTTON
+import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_ALL_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_FOREGROUND_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_ONE_TIME_BUTTON
-import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_SELECTED_PHOTOS_BUTTON
+import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_SELECTED_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.COARSE_RADIO_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DENY_AND_DONT_ASK_AGAIN_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DENY_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DIALOG_WITH_BOTH_LOCATIONS
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DIALOG_WITH_COARSE_LOCATION_ONLY
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DIALOG_WITH_FINE_LOCATION_ONLY
+import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DONT_ALLOW_MORE_SELECTED_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.FINE_RADIO_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.INTENT_PHOTOS_SELECTED
+import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.LINK_TO_PERMISSION_RATIONALE
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.LINK_TO_SETTINGS
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.LOCATION_ACCURACY_LAYOUT
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.NEXT_BUTTON
@@ -106,6 +109,7 @@ import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.N
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.CANCELED
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.DENIED
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.DENIED_DO_NOT_ASK_AGAIN
+import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.DENIED_MORE
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_ALWAYS
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_FOREGROUND_ONLY
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_ONE_TIME
@@ -114,15 +118,19 @@ import com.android.permissioncontroller.permission.ui.ManagePermissionsActivity
 import com.android.permissioncontroller.permission.ui.ManagePermissionsActivity.EXTRA_RESULT_PERMISSION_INTERACTED
 import com.android.permissioncontroller.permission.ui.ManagePermissionsActivity.EXTRA_RESULT_PERMISSION_RESULT
 import com.android.permissioncontroller.permission.ui.v34.PermissionRationaleActivity
-import com.android.permissioncontroller.permission.utils.AdminRestrictedPermissionsUtils
+import com.android.permissioncontroller.permission.utils.v31.AdminRestrictedPermissionsUtils
 import com.android.permissioncontroller.permission.utils.KotlinUtils
 import com.android.permissioncontroller.permission.utils.KotlinUtils.getDefaultPrecision
 import com.android.permissioncontroller.permission.utils.KotlinUtils.grantBackgroundRuntimePermissions
 import com.android.permissioncontroller.permission.utils.KotlinUtils.grantForegroundRuntimePermissions
 import com.android.permissioncontroller.permission.utils.KotlinUtils.isLocationAccuracyEnabled
+import com.android.permissioncontroller.permission.utils.KotlinUtils.revokeBackgroundRuntimePermissions
+import com.android.permissioncontroller.permission.utils.KotlinUtils.revokeForegroundRuntimePermissions
 import com.android.permissioncontroller.permission.utils.PermissionMapping
+import com.android.permissioncontroller.permission.utils.PermissionMapping.getPartialStorageGrantPermissionsForGroup
 import com.android.permissioncontroller.permission.utils.SafetyNetLogger
 import com.android.permissioncontroller.permission.utils.Utils
+import com.android.permissioncontroller.permission.utils.v34.SafetyLabelUtils
 
 /**
  * ViewModel for the GrantPermissionsActivity. Tracks all permission groups that are affected by
@@ -146,7 +154,9 @@ class GrantPermissionsViewModel(
     private val user = Process.myUserHandle()
     private val packageInfoLiveData = LightPackageInfoLiveData[packageName, user]
     private val safetyLabelInfoLiveData =
-        if (requestedPermissions.any { PermissionMapping.isSafetyLabelAwarePermission(it) }) {
+        if (SdkLevel.isAtLeastU() && requestedPermissions
+                .mapNotNull { PermissionMapping.getGroupOfPlatformPermission(it) }
+                .any { PermissionMapping.isSafetyLabelAwarePermissionGroup(it) }) {
             SafetyLabelInfoLiveData[packageName, user]
         } else {
             null
@@ -184,7 +194,6 @@ class GrantPermissionsViewModel(
         val detailMessage: RequestMessage = RequestMessage.NO_MESSAGE,
         val sendToSettingsImmediately: Boolean = false,
         val openPhotoPicker: Boolean = false,
-        val showPermissionRationale: Boolean = false
     ) {
         val groupName = groupInfo.name
     }
@@ -367,13 +376,20 @@ class GrantPermissionsViewModel(
                         groupState.affectedPermissions == listOf(READ_MEDIA_VISUAL_USER_SELECTED)) {
                         requestInfos.add(RequestInfo(groupInfo, openPhotoPicker = true))
                         continue
+                    } else if (isPartialStorageGrant(groupState.group)) {
+                        // More photos dialog
+                        message = RequestMessage.MORE_PHOTOS_MESSAGE
+                        buttonVisibilities[DENY_AND_DONT_ASK_AGAIN_BUTTON] = false
+                        buttonVisibilities[DENY_BUTTON] = false
+                        buttonVisibilities[DONT_ALLOW_MORE_SELECTED_BUTTON] = true
                     } else {
-                        buttonVisibilities[ALLOW_BUTTON] = false
-                        buttonVisibilities[ALLOW_SELECTED_PHOTOS_BUTTON] = true
-                        buttonVisibilities[ALLOW_ALL_PHOTOS_BUTTON] = true
+                        // Standard photos dialog
                         buttonVisibilities[DENY_AND_DONT_ASK_AGAIN_BUTTON] = isFgUserSet
                         buttonVisibilities[DENY_BUTTON] = !isFgUserSet
                     }
+                    buttonVisibilities[ALLOW_SELECTED_BUTTON] = true
+                    buttonVisibilities[ALLOW_BUTTON] = false
+                    buttonVisibilities[ALLOW_ALL_BUTTON] = true
                 } else if (groupState.group.packageInfo.targetSdkVersion >=
                         minSdkForOrderedSplitPermissions) {
                     if (isBackground || Utils.hasPermWithBackgroundModeCompat(groupState.group)) {
@@ -421,8 +437,17 @@ class GrantPermissionsViewModel(
                             }
                         } else if (needBgPermissions) {
                             // Case: sdk >= R, BG/FG permission requesting BG only
-                            requestInfos.add(RequestInfo(
-                                groupInfo, sendToSettingsImmediately = true))
+                            if (storedState != null && storedState.containsKey(getInstanceStateKey(
+                                    groupInfo.name, groupState.isBackground))) {
+                                // If we're restoring state, and we had this groupInfo in our
+                                // previous state, that means that we likely sent the user to
+                                // settings already. Don't send the user back.
+                                permGroupsToSkip.add(groupInfo.name)
+                                groupState.state = STATE_SKIPPED
+                            } else {
+                                requestInfos.add(RequestInfo(
+                                    groupInfo, sendToSettingsImmediately = true))
+                            }
                             continue
                         } else {
                             // Not reached as the permissions should be auto-granted
@@ -490,8 +515,8 @@ class GrantPermissionsViewModel(
 
                 // Show location permission dialogs based on location permissions
                 val locationVisibilities = MutableList(NEXT_LOCATION_DIALOG) { false }
-                if (groupState.group.permGroupName == LOCATION && isLocationAccuracyEnabled() &&
-                    packageInfo.targetSdkVersion >= Build.VERSION_CODES.S) {
+                if (groupState.group.permGroupName == LOCATION &&
+                    isLocationAccuracyEnabledForApp(groupState.group)) {
                     if (needFgPermissions) {
                         locationVisibilities[LOCATION_ACCURACY_LAYOUT] = true
                         if (fgState != null &&
@@ -561,14 +586,16 @@ class GrantPermissionsViewModel(
                 }
 
                 val safetyLabel = safetyLabelInfoLiveData?.value?.safetyLabel
+                val showPermissionRationale =
+                    shouldShowPermissionRationale(safetyLabel, groupState.group.permGroupName)
+                buttonVisibilities[LINK_TO_PERMISSION_RATIONALE] = showPermissionRationale
 
                 requestInfos.add(RequestInfo(
                     groupInfo,
                     buttonVisibilities,
                     locationVisibilities,
                     message,
-                    detailMessage,
-                    shouldShowPermissionRationale(safetyLabel, groupState)))
+                    detailMessage))
             }
 
             sortPermissionGroups(requestInfos)
@@ -584,19 +611,6 @@ class GrantPermissionsViewModel(
         }
     }
 
-    private fun shouldShowPermissionRationale(
-        safetyLabel: SafetyLabel?,
-        groupState: GroupState
-    ): Boolean {
-        if (safetyLabel == null) {
-            return false
-        }
-
-        val purposes = PermissionMapping.getSafetyLabelSharingPurposesForGroup(safetyLabel,
-            groupState.group.permGroupName)
-        return purposes.isNotEmpty()
-    }
-
     fun sortPermissionGroups(requestInfos: MutableList<RequestInfo>) {
         requestInfos.sortWith { rhs, lhs ->
             val rhsHasOneTime = rhs.buttonVisibilities[ALLOW_ONE_TIME_BUTTON]
@@ -604,13 +618,26 @@ class GrantPermissionsViewModel(
             if (rhsHasOneTime && !lhsHasOneTime) {
                 -1
             } else if ((!rhsHasOneTime && lhsHasOneTime) ||
-                isHealthPermissionGroup(rhs.groupName)
+                Utils.isHealthPermissionGroup(rhs.groupName)
             ) {
                 1
             } else {
                 rhs.groupName.compareTo(lhs.groupName)
             }
         }
+    }
+
+    private fun shouldShowPermissionRationale(
+        safetyLabel: SafetyLabel?,
+        permissionGroupName: String?
+    ): Boolean {
+        if (safetyLabel == null || permissionGroupName == null) {
+            return false
+        }
+
+        val purposes = SafetyLabelUtils.getSafetyLabelSharingPurposesForGroup(safetyLabel,
+            permissionGroupName)
+        return purposes.isNotEmpty()
     }
 
     /**
@@ -736,7 +763,7 @@ class GrantPermissionsViewModel(
             // Skip showing groups that we know cannot be granted.
             return false
         } else if (subGroup.isUserFixed) {
-            if (perm == ACCESS_COARSE_LOCATION) {
+            if (perm == ACCESS_COARSE_LOCATION && isLocationAccuracyEnabledForApp(group)) {
                 val coarsePerm = group.permissions[perm]
                 if (coarsePerm != null && !coarsePerm.isUserFixed) {
                     // If the location group is user fixed but ACCESS_COARSE_LOCATION is not, then
@@ -744,9 +771,10 @@ class GrantPermissionsViewModel(
                     // is still grantable.
                     return true
                 }
-            } else if (perm == READ_MEDIA_VISUAL_USER_SELECTED &&
+            } else if (perm in getPartialStorageGrantPermissionsForGroup(group) &&
                 lightPermission.isGrantedIncludingAppOp) {
-                // If USER_SELECTED is granted as fixed, we should immediately show the photo picker
+                // If a partial storage permission is granted as fixed, we should immediately show
+                // the photo picker
                 return true
             }
             reportRequestResult(perm,
@@ -776,11 +804,14 @@ class GrantPermissionsViewModel(
             group.foreground.isUserSet) {
             return STATE_SKIPPED
         } else if (perm == READ_MEDIA_VISUAL_USER_SELECTED) {
+            val partialPerms = getPartialStorageGrantPermissionsForGroup(group)
             val otherRequestedPerms = unfilteredAffectedPermissions.filter { otherPerm ->
-                otherPerm in group.permissions && otherPerm != READ_MEDIA_VISUAL_USER_SELECTED
+                otherPerm in group.permissions && otherPerm !in partialPerms
             }
             if (otherRequestedPerms.isEmpty()) {
-                // If the user only requested USER_SELECTED, skip the request
+                // If the app requested USER_SELECTED while not supporting the photo picker, or if
+                // the app explicitly requested only USER_SELECTED and/or ACCESS_MEDIA_LOCATION,
+                // then skip the request
                 return STATE_SKIPPED
             }
         }
@@ -836,24 +867,33 @@ class GrantPermissionsViewModel(
     private fun canAutoGrantWholeGroup(group: LightAppPermGroup): Boolean {
         // If FINE location is not granted, do not grant it automatically when COARSE
         // location is already granted.
-        if (group.permGroupName == LOCATION &&
+        if (group.permGroupName == LOCATION && isLocationAccuracyEnabledForApp(group) &&
             group.allPermissions[ACCESS_FINE_LOCATION]?.isGrantedIncludingAppOp == false) {
             return false
         }
         // If READ_MEDIA_VISUAL_USER_SELECTED is the only permission in the group that is granted,
         // do not grant.
-        if (isVisualUserSelectedOnlyGranted(group) ||
-            HEALTH_PERMISSION_GROUP == group.permGroupName) {
+        if (isPartialStorageGrant(group) || HEALTH_PERMISSION_GROUP == group.permGroupName) {
             return false
         }
         return true
     }
 
-    private fun isVisualUserSelectedOnlyGranted(group: LightAppPermGroup): Boolean {
-       return KotlinUtils.isPhotoPickerPromptEnabled() &&
-               group.permGroupName == READ_MEDIA_VISUAL && group.permissions.values.all {
-           (it.name == READ_MEDIA_VISUAL_USER_SELECTED) || !it.isGrantedIncludingAppOp } &&
-           group.permissions[READ_MEDIA_VISUAL_USER_SELECTED]?.isGrantedIncludingAppOp == true
+    /**
+     * A partial storage grant happens when:
+     * An app which doesn't support the photo picker has READ_MEDIA_VISUAL_USER_SELECTED granted, or
+     * An app which does support the photo picker has READ_MEDIA_VISUAL_USER_SELECTED and/or
+     * ACCESS_MEDIA_LOCATION granted
+     */
+    private fun isPartialStorageGrant(group: LightAppPermGroup): Boolean {
+        if (!KotlinUtils.isPhotoPickerPromptEnabled() || group.permGroupName != READ_MEDIA_VISUAL) {
+            return false
+        }
+
+        val partialPerms = getPartialStorageGrantPermissionsForGroup(group)
+        return group.isGranted && group.permissions.values.all {
+            it.name in partialPerms || (it.name !in partialPerms && !it.isGrantedIncludingAppOp)
+        }
     }
 
     private fun getStateFromPolicy(perm: String, group: LightAppPermGroup): Int {
@@ -929,10 +969,10 @@ class GrantPermissionsViewModel(
         if (!alreadyRequestedStorageGroupsIfNeeded &&
             groupName in PermissionMapping.STORAGE_SUPERGROUP_PERMISSIONS &&
             packageInfo.targetSdkVersion <= Build.VERSION_CODES.S_V2) {
-            for (groupName in PermissionMapping.STORAGE_SUPERGROUP_PERMISSIONS) {
-                val groupPerms = appPermGroupLiveDatas[groupName]
+            for (storageGroupName in PermissionMapping.STORAGE_SUPERGROUP_PERMISSIONS) {
+                val groupPerms = appPermGroupLiveDatas[storageGroupName]
                     ?.value?.allPermissions?.keys?.toList()
-                onPermissionGrantResult(groupName, groupPerms, result, true)
+                onPermissionGrantResult(storageGroupName, groupPerms, result, true)
             }
             return
         }
@@ -990,7 +1030,7 @@ class GrantPermissionsViewModel(
                         doNotAskAgain = false)
                 }
             }
-            GRANTED_USER_SELECTED -> {
+            GRANTED_USER_SELECTED, DENIED_MORE -> {
                 if (foregroundGroupState != null) {
                     grantUserSelectedVisualGroupPermissions(foregroundGroupState)
                 }
@@ -1030,23 +1070,23 @@ class GrantPermissionsViewModel(
                 .filter { it != READ_MEDIA_VISUAL_USER_SELECTED }
             // If the permission is implicit, grant USER_SELECTED as user set, and all other
             // permissions as one time, and without app ops.
-            KotlinUtils.grantForegroundRuntimePermissions(app, groupState.group,
-                nonSelectedPerms, isOneTime = true, userFixed = false, withoutAppOps = true)
-            KotlinUtils.grantForegroundRuntimePermissions(app, groupState.group,
+            grantForegroundRuntimePermissions(app, groupState.group,
                 listOf(READ_MEDIA_VISUAL_USER_SELECTED))
-            onPermissionGrantResultSingleState(groupState, listOf(READ_MEDIA_VISUAL_USER_SELECTED),
-                granted = true, isOneTime = false, doNotAskAgain = false)
+            grantForegroundRuntimePermissions(app, groupState.group,
+                nonSelectedPerms, isOneTime = true, userFixed = false, withoutAppOps = true)
             val appPermGroup = AppPermissionGroup.create(app, packageName,
             groupState.group.permGroupName, groupState.group.userHandle, false)
             appPermGroup.setSelfRevoked()
             appPermGroup.persistChanges(false, null, nonSelectedPerms.toSet())
         } else {
-            val nonSelectedPerms = groupState.affectedPermissions
-                .filter { it != READ_MEDIA_VISUAL_USER_SELECTED }
+            val partialPerms = getPartialStorageGrantPermissionsForGroup(groupState.group).filter {
+                it in groupState.affectedPermissions
+            }
+            val nonSelectedPerms = groupState.affectedPermissions.filter { it !in partialPerms }
             val setUserFixed = userSelectedPerm.isUserFixed || userSelectedPerm.isUserSet
-            KotlinUtils.grantForegroundRuntimePermissions(app, groupState.group,
-                listOf(READ_MEDIA_VISUAL_USER_SELECTED), userFixed = setUserFixed)
-            KotlinUtils.revokeForegroundRuntimePermissions(app, groupState.group,
+            grantForegroundRuntimePermissions(app, groupState.group,
+                partialPerms.toList(), userFixed = setUserFixed)
+            revokeForegroundRuntimePermissions(app, groupState.group,
                 userFixed = setUserFixed, oneTime = false, filterPermissions = nonSelectedPerms)
         }
         groupState.state = STATE_ALLOWED
@@ -1097,16 +1137,16 @@ class GrantPermissionsViewModel(
             groupState.state = STATE_ALLOWED
         } else {
             if (groupState.isBackground) {
-                KotlinUtils.revokeBackgroundRuntimePermissions(app, groupState.group,
+                revokeBackgroundRuntimePermissions(app, groupState.group,
                     userFixed = doNotAskAgain, filterPermissions = groupState.affectedPermissions)
             } else {
                 if (affectedForegroundPermissions == null ||
                         affectedForegroundPermissions.contains(ACCESS_COARSE_LOCATION)) {
-                    KotlinUtils.revokeForegroundRuntimePermissions(app, groupState.group,
+                    revokeForegroundRuntimePermissions(app, groupState.group,
                         userFixed = doNotAskAgain,
                         filterPermissions = groupState.affectedPermissions, oneTime = isOneTime)
                 } else {
-                    KotlinUtils.revokeForegroundRuntimePermissions(app, groupState.group,
+                    revokeForegroundRuntimePermissions(app, groupState.group,
                         userFixed = doNotAskAgain,
                         filterPermissions = affectedForegroundPermissions, oneTime = isOneTime)
                 }
@@ -1190,14 +1230,19 @@ class GrantPermissionsViewModel(
      */
     private fun reportRequestResult(permission: String, result: Int) {
         val isImplicit = permission !in requestedPermissions
+        val isPermissionRationaleShown = shouldShowPermissionRationale(
+            safetyLabelInfoLiveData?.value?.safetyLabel,
+            PermissionMapping.getGroupOfPlatformPermission(permission))
 
         Log.v(LOG_TAG, "Permission grant result requestId=$sessionId " +
             "callingUid=${packageInfo.uid} callingPackage=$packageName permission=$permission " +
-            "isImplicit=$isImplicit result=$result")
+            "isImplicit=$isImplicit result=$result " +
+            "isPermissionRationaleShown=$isPermissionRationaleShown")
 
         PermissionControllerStatsLog.write(
-            PermissionControllerStatsLog.PERMISSION_GRANT_REQUEST_RESULT_REPORTED, sessionId,
-            packageInfo.uid, packageName, permission, isImplicit, result)
+            PERMISSION_GRANT_REQUEST_RESULT_REPORTED, sessionId,
+            packageInfo.uid, packageName, permission, isImplicit, result,
+            isPermissionRationaleShown)
     }
 
     /**
@@ -1232,11 +1277,6 @@ class GrantPermissionsViewModel(
                 true
             }
         }
-    }
-
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private fun isHealthPermissionGroup(permGroupName: String): Boolean {
-        return SdkLevel.isAtLeastU() && HEALTH_PERMISSION_GROUP.equals(permGroupName)
     }
 
     fun handleHealthConnectPermissions(activity: Activity) {
@@ -1291,7 +1331,9 @@ class GrantPermissionsViewModel(
         if (activityResultCallback != null) {
             return
         }
-        val permissions = groupStates[READ_MEDIA_VISUAL to false]?.affectedPermissions ?: return
+        if (groupStates[READ_MEDIA_VISUAL to false]?.affectedPermissions == null) {
+            return
+        }
         activityResultCallback = Consumer { data ->
             val anySelected = data?.getBooleanExtra(INTENT_PHOTOS_SELECTED, true) == true
             if (anySelected) {
@@ -1299,13 +1341,20 @@ class GrantPermissionsViewModel(
             } else {
                 onPermissionGrantResult(READ_MEDIA_VISUAL, null, CANCELED)
             }
-            logPhotoPickerInteraction(result)
             requestInfosLiveData.update()
         }
-        activity.startActivityForResult(Intent(MediaStore.ACTION_USER_SELECT_IMAGES_FOR_APP)
+        // A clone profile doesn't have a MediaProvider. If this user is a clone profile, open
+        // the photo picker in the parent profile
+        val userManager = activity.getSystemService(UserManager::class.java)!!
+        val user = if (userManager.isCloneProfile) {
+            userManager.getProfileParent(Process.myUserHandle()) ?: Process.myUserHandle()
+        } else {
+            Process.myUserHandle()
+        }
+        activity.startActivityForResultAsUser(Intent(MediaStore.ACTION_USER_SELECT_IMAGES_FOR_APP)
             .putExtra(Intent.EXTRA_UID, packageInfo.uid)
             .setType(KotlinUtils.getMimeTypeForPermissions(unfilteredAffectedPermissions)),
-            PHOTO_PICKER_REQUEST_CODE)
+            PHOTO_PICKER_REQUEST_CODE, user)
     }
 
     /**
@@ -1371,20 +1420,6 @@ class GrantPermissionsViewModel(
         return "${this::class.java.name}_${groupName}_$isBackground"
     }
 
-    private fun logPhotoPickerInteraction(result: Int) {
-        val foregroundGroupState = groupStates[READ_MEDIA_VISUAL to false] ?: return
-        when (result) {
-            GRANTED_USER_SELECTED -> {
-                reportRequestResult(foregroundGroupState.affectedPermissions,
-                    PERMISSION_GRANT_REQUEST_RESULT_REPORTED__RESULT__PHOTOS_SELECTED)
-            }
-            CANCELED -> {
-                reportRequestResult(foregroundGroupState.affectedPermissions,
-                    PERMISSION_GRANT_REQUEST_RESULT_REPORTED__RESULT__IGNORED)
-            }
-        }
-    }
-
     private fun logSettingsInteraction(groupName: String, result: Int) {
         val foregroundGroupState = groupStates[groupName to false]
         val backgroundGroupState = groupStates[groupName to true]
@@ -1434,6 +1469,11 @@ class GrantPermissionsViewModel(
         }
     }
 
+    private fun isLocationAccuracyEnabledForApp(group: LightAppPermGroup): Boolean {
+        return isLocationAccuracyEnabled() &&
+                group.packageInfo.targetSdkVersion >= Build.VERSION_CODES.S
+    }
+
     /**
      * Log all permission groups which were requested
      */
@@ -1458,26 +1498,31 @@ class GrantPermissionsViewModel(
         groupName: String?,
         selectedPrecision: Int,
         clickedButton: Int,
-        presentedButtons: Int
+        presentedButtons: Int,
+        isPermissionRationaleShown: Boolean
     ) {
         if (groupName == null) {
             return
         }
+
         if (!requestInfosLiveData.isInitialized || !packageInfoLiveData.isInitialized) {
             Log.wtf(LOG_TAG, "Logged buttons presented and clicked permissionGroupName=" +
                     "$groupName package=$packageName presentedButtons=$presentedButtons " +
-                    "clickedButton=$clickedButton sessionId=$sessionId, but requests were not yet" +
+                    "clickedButton=$clickedButton isPermissionRationaleShown=" +
+                    "$isPermissionRationaleShown sessionId=$sessionId, but requests were not yet" +
                     "initialized", IllegalStateException())
             return
         }
 
         PermissionControllerStatsLog.write(GRANT_PERMISSIONS_ACTIVITY_BUTTON_ACTIONS,
                 groupName, packageInfo.uid, packageName, presentedButtons, clickedButton, sessionId,
-                packageInfo.targetSdkVersion, selectedPrecision)
+                packageInfo.targetSdkVersion, selectedPrecision,
+                isPermissionRationaleShown)
         Log.v(LOG_TAG, "Logged buttons presented and clicked permissionGroupName=" +
                 "$groupName uid=${packageInfo.uid} selectedPrecision=$selectedPrecision " +
                 "package=$packageName presentedButtons=$presentedButtons " +
-                "clickedButton=$clickedButton sessionId=$sessionId " +
+                "clickedButton=$clickedButton isPermissionRationaleShown=" +
+                "$isPermissionRationaleShown sessionId=$sessionId " +
                 "targetSdk=${packageInfo.targetSdkVersion}")
     }
 
@@ -1501,38 +1546,33 @@ class GrantPermissionsViewModel(
          * An enum that represents the type of message which should be shown- foreground,
          * background, upgrade, or no message.
          */
-        enum class RequestMessage(request: Int) {
-            FG_MESSAGE(0),
-            BG_MESSAGE(1),
-            UPGRADE_MESSAGE(2),
-            NO_MESSAGE(3),
-            FG_FINE_LOCATION_MESSAGE(4),
-            FG_COARSE_LOCATION_MESSAGE(5),
-            STORAGE_SUPERGROUP_MESSAGE_Q_TO_S(6),
-            STORAGE_SUPERGROUP_MESSAGE_PRE_Q(7),
+        enum class RequestMessage {
+            FG_MESSAGE,
+            BG_MESSAGE,
+            UPGRADE_MESSAGE,
+            NO_MESSAGE,
+            FG_FINE_LOCATION_MESSAGE,
+            FG_COARSE_LOCATION_MESSAGE,
+            STORAGE_SUPERGROUP_MESSAGE_Q_TO_S,
+            STORAGE_SUPERGROUP_MESSAGE_PRE_Q,
+            MORE_PHOTOS_MESSAGE,
         }
 
-        fun filterPermissionsIfNeededSync(
-            packageName: String,
-            permissions: Array<String>?
-        ): Array<String>? {
-            if (permissions == null) {
-                return null
-            }
-
-            val targetSdk = try {
-                PermissionControllerApplication.get().packageManager
-                        .getPackageInfo(packageName, 0).applicationInfo.targetSdkVersion
-            } catch (e: PackageManager.NameNotFoundException) {
-                Build.VERSION_CODES.TIRAMISU
-            }
-            var permsList = permissions.toMutableList()
-
-            if (targetSdk < Build.VERSION_CODES.TIRAMISU) {
-                permsList.remove(POST_NOTIFICATIONS)
-            }
-
-            return permsList.toTypedArray()
+        /**
+         * Make a copy of a list of permissions that is filtered to remove permissions blocked
+         * according to the target SDK level.
+         */
+        fun getSanitizedPermissionsList(
+            permissions: Array<String?>,
+            targetSdkVersion: Int
+        ): List<String> {
+            return permissions
+                .filter { !it.isNullOrEmpty() }
+                // POST_NOTIFICATIONS is actively disallowed to be declared by apps below T.
+                // Others we don't care as much if they were declared but not used.
+                .filter { targetSdkVersion >= Build.VERSION_CODES.TIRAMISU ||
+                    it != POST_NOTIFICATIONS }
+                .filterIsInstance<String>()
         }
     }
 }
@@ -1546,13 +1586,13 @@ class GrantPermissionsViewModel(
 class GrantPermissionsViewModelFactory(
     private val app: Application,
     private val packageName: String,
-    private val requestedPermissions: Array<String>,
+    private val requestedPermissions: List<String>,
     private val sessionId: Long,
     private val savedState: Bundle?
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
-        return GrantPermissionsViewModel(app, packageName, requestedPermissions.toList(),
+        return GrantPermissionsViewModel(app, packageName, requestedPermissions,
             sessionId, savedState) as T
     }
 }

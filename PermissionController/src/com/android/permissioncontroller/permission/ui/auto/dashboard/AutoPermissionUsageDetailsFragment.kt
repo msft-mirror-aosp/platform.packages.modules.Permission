@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package com.android.permissioncontroller.permission.ui.auto.dashboard
 
@@ -41,8 +42,8 @@ import com.android.permissioncontroller.permission.model.v31.PermissionUsages
 import com.android.permissioncontroller.permission.model.v31.PermissionUsages.PermissionsUsagesChangeCallback
 import com.android.permissioncontroller.permission.ui.ManagePermissionsActivity
 import com.android.permissioncontroller.permission.ui.auto.AutoDividerPreference
-import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageDetailsViewModelFactoryLegacy
-import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageDetailsViewModelLegacy
+import com.android.permissioncontroller.permission.ui.legacy.PermissionUsageDetailsViewModelFactoryLegacy
+import com.android.permissioncontroller.permission.ui.legacy.PermissionUsageDetailsViewModelLegacy
 import com.android.permissioncontroller.permission.utils.KotlinUtils.getPermGroupLabel
 import com.android.permissioncontroller.permission.utils.Utils
 import java.time.Clock
@@ -202,8 +203,6 @@ class AutoPermissionUsageDetailsFragment :
         }
         preferenceScreen.removeAll()
         setupHeaderPreferences()
-
-        val exemptedPackages = Utils.getExemptedPackages(roleManager)
 
         val uiData =
             usageViewModel.buildPermissionUsageDetailsUiData(

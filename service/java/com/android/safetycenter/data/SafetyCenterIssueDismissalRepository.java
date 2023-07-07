@@ -16,11 +16,8 @@
 
 package com.android.safetycenter.data;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static com.android.safetycenter.internaldata.SafetyCenterIds.toUserFriendlyString;
 
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.annotation.WorkerThread;
 import android.content.ApexEnvironment;
@@ -30,7 +27,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.modules.utils.BackgroundThread;
 import com.android.safetycenter.ApiLock;
@@ -66,7 +63,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * <p>This class isn't thread safe. Thread safety must be handled by the caller.
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 final class SafetyCenterIssueDismissalRepository {
 
@@ -130,11 +126,7 @@ final class SafetyCenterIssueDismissalRepository {
 
         Duration timeSinceLastDismissal = Duration.between(dismissedAt, Instant.now());
         boolean isTimeToResurface = timeSinceLastDismissal.compareTo(delay) >= 0;
-        if (isTimeToResurface) {
-            return false;
-        }
-
-        return true;
+        return !isTimeToResurface;
     }
 
     /**
@@ -216,17 +208,41 @@ final class SafetyCenterIssueDismissalRepository {
         return issueData.getFirstSeenAt();
     }
 
-    /**
-     * Returns the {@link Instant} when the notification for the issue with the given key was last
-     * dismissed.
-     */
     @Nullable
-    Instant getNotificationDismissedAt(SafetyCenterIssueKey safetyCenterIssueKey) {
+    private Instant getNotificationDismissedAt(SafetyCenterIssueKey safetyCenterIssueKey) {
         IssueData issueData = getOrWarn(safetyCenterIssueKey, "getting notification dismissed");
         if (issueData == null) {
             return null;
         }
         return issueData.getNotificationDismissedAt();
+    }
+
+    /** Returns {@code true} if an issue's notification is dismissed now. */
+    // TODO(b/259084807): Consider extracting notification dismissal logic to separate class
+    boolean isNotificationDismissedNow(
+            SafetyCenterIssueKey issueKey, @SafetySourceData.SeverityLevel int severityLevel) {
+        // The current code for dismissing an issue/warning card also dismisses any
+        // corresponding notification, but it is still necessary to check the issue dismissal
+        // status, in addition to the notification dismissal (below) because issues may have been
+        // dismissed by an earlier version of the code which lacked this functionality.
+        if (isIssueDismissed(issueKey, severityLevel)) {
+            return true;
+        }
+
+        Instant dismissedAt = getNotificationDismissedAt(issueKey);
+        if (dismissedAt == null) {
+            // Notification was never dismissed
+            return false;
+        }
+
+        Duration resurfaceDelay = SafetyCenterFlags.getNotificationResurfaceInterval();
+        if (resurfaceDelay == null) {
+            // Null resurface delay means notifications may never resurface
+            return true;
+        }
+
+        Instant canResurfaceAt = dismissedAt.plus(resurfaceDelay);
+        return Instant.now().isBefore(canResurfaceAt);
     }
 
     /**
@@ -318,7 +334,7 @@ final class SafetyCenterIssueDismissalRepository {
      * and all following calls won't have any effect.
      */
     void resurfaceHiddenIssueAfterPeriod(SafetyCenterIssueKey safetyCenterIssueKey) {
-        IssueData issueData = getOrWarn(safetyCenterIssueKey, "resurfaceIssueAfterPeriod");
+        IssueData issueData = getOrWarn(safetyCenterIssueKey, "resurfacing hidden issue");
         if (issueData == null) {
             return;
         }
@@ -350,10 +366,13 @@ final class SafetyCenterIssueDismissalRepository {
             PersistedSafetyCenterIssue persistedIssue = persistedSafetyCenterIssues.get(i);
             SafetyCenterIssueKey key = SafetyCenterIds.issueKeyFromString(persistedIssue.getKey());
 
-            // Check the source associated with this issue still exists, it might have been removed
-            // from the Safety Center config or the device might have rebooted with data persisted
-            // from a temporary Safety Center config.
-            if (!mSafetyCenterConfigReader.isExternalSafetySourceActive(key.getSafetySourceId())) {
+            // Only load the issues associated with the "real" config. We do not want to keep on
+            // persisting potentially stray issues from tests (they should supposedly be cleared,
+            // but may stick around if the data is not cleared after a test run).
+            // There is a caveat that if a real source was overridden in tests and the override
+            // provided data without clearing it, we will associate this issue with the real source.
+            if (!mSafetyCenterConfigReader.isExternalSafetySourceFromRealConfig(
+                    key.getSafetySourceId())) {
                 someDataChanged = true;
                 continue;
             }
@@ -413,10 +432,16 @@ final class SafetyCenterIssueDismissalRepository {
         try {
             Files.copy(issueDismissalRepositoryFile.toPath(), new FileOutputStream(fd));
         } catch (IOException e) {
-            // TODO(b/266202404)
-            e.printStackTrace(fout);
+            printError(e, fout);
         }
         fout.println();
+    }
+
+    // We want to dump the stack trace on a specific PrintWriter here, this is a false positive as
+    // the warning does not consider the overload that takes a PrintWriter as an argument (yet).
+    @SuppressWarnings("CatchAndPrintStackTrace")
+    private void printError(Throwable error, PrintWriter fout) {
+        error.printStackTrace(fout);
     }
 
     @Nullable
@@ -465,9 +490,9 @@ final class SafetyCenterIssueDismissalRepository {
         try {
             persistedSafetyCenterIssues =
                     SafetyCenterIssuesPersistence.read(getIssueDismissalRepositoryFile());
-            Log.i(TAG, "Safety Center persisted issues read successfully");
+            Log.d(TAG, "Safety Center persisted issues read successfully");
         } catch (PersistenceException e) {
-            Log.e(TAG, "Cannot read Safety Center persisted issues", e);
+            Log.w(TAG, "Cannot read Safety Center persisted issues", e);
         }
 
         load(persistedSafetyCenterIssues);

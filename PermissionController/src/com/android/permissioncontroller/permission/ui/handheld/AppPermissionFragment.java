@@ -71,15 +71,16 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.android.modules.utils.build.SdkLevel;
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.permission.data.FullStoragePermissionAppsLiveData.FullStoragePackageState;
-import com.android.permissioncontroller.permission.ui.AdvancedConfirmDialogArgs;
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler;
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel;
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonState;
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType;
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ChangeRequest;
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModelFactory;
+import com.android.permissioncontroller.permission.ui.v33.AdvancedConfirmDialogArgs;
 import com.android.permissioncontroller.permission.utils.KotlinUtils;
 import com.android.permissioncontroller.permission.utils.Utils;
 import com.android.settingslib.RestrictedLockUtils;
@@ -195,9 +196,6 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
                 getActivity().getApplication(), mPackageName, mPermGroupName, mUser, mSessionId);
         mViewModel = new ViewModelProvider(this, factory).get(AppPermissionViewModel.class);
         Handler delayHandler = new Handler(Looper.getMainLooper());
-        mViewModel.getShowPermissionRationaleLiveData().observe(this, show -> {
-            showPermissionRationaleDialog(Optional.ofNullable(show).orElse(false));
-        });
         mViewModel.getButtonStateLiveData().observe(this, buttonState -> {
             if (mIsInitialLoad) {
                 setRadioButtonsState(buttonState);
@@ -260,7 +258,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         mAllowForegroundButton = root.requireViewById(R.id.allow_foreground_only_radio_button);
         mAskOneTimeButton = root.requireViewById(R.id.ask_one_time_radio_button);
         mAskButton = root.requireViewById(R.id.ask_radio_button);
-        mSelectPhotosButton = root.requireViewById(R.id.select_photos_radio_button);
+        mSelectPhotosButton = root.requireViewById(R.id.select_radio_button);
         mDenyButton = root.requireViewById(R.id.deny_radio_button);
         mDenyForegroundButton = root.requireViewById(R.id.deny_foreground_radio_button);
         mDivider = root.requireViewById(R.id.two_target_divider);
@@ -294,6 +292,9 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
                 root.requireViewById(R.id.app_permission_rationale_container);
         mAppPermissionRationaleContent =
                 root.requireViewById(R.id.app_permission_rationale_content);
+        mViewModel.getShowPermissionRationaleLiveData().observe(this, show -> {
+            showPermissionRationaleDialog(Optional.ofNullable(show).orElse(false));
+        });
 
         getActivity().setTitle(
                 getPreferenceManager().getContext().getString(R.string.app_permission_title,
@@ -307,6 +308,9 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         } else {
             mAppPermissionRationaleContainer.setVisibility(View.VISIBLE);
             mAppPermissionRationaleContent.setOnClickListener((v) -> {
+                if (!SdkLevel.isAtLeastU()) {
+                    return;
+                }
                 mViewModel.showPermissionRationaleActivity(getActivity(), mPermGroupName);
             });
         }
@@ -447,7 +451,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         setButtonState(mDenyForegroundButton, states.get(ButtonType.DENY_FOREGROUND));
         setButtonState(mSelectPhotosButton, states.get(ButtonType.SELECT_PHOTOS));
         if (mSelectPhotosButton.getVisibility() == View.VISIBLE) {
-            mAllowButton.setText(R.string.app_permission_button_allow_all_photos);
+            mAllowButton.setText(R.string.app_permission_button_always_allow_all);
         } else {
             mAllowButton.setText(R.string.app_permission_button_allow);
         }

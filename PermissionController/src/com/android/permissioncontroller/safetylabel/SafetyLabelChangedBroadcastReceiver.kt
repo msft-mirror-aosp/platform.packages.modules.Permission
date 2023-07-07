@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_PACKAGE_ADDED
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Process
 import android.os.UserHandle
@@ -30,6 +31,7 @@ import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import com.android.permission.safetylabel.SafetyLabel as AppMetadataSafetyLabel
 import com.android.permissioncontroller.permission.data.LightPackageInfoLiveData
+import com.android.permissioncontroller.permission.data.v34.LightInstallSourceInfoLiveData
 import com.android.permissioncontroller.permission.model.livedatatypes.LightPackageInfo
 import com.android.permissioncontroller.permission.utils.KotlinUtils
 import com.android.permissioncontroller.permission.utils.PermissionMapping
@@ -49,7 +51,7 @@ import kotlinx.coroutines.launch
 class SafetyLabelChangedBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (!KotlinUtils.isSafetyLabelChangeNotificationsEnabled()) {
+        if (!KotlinUtils.isSafetyLabelChangeNotificationsEnabled(context)) {
             return
         }
 
@@ -98,8 +100,12 @@ class SafetyLabelChangedBroadcastReceiver : BroadcastReceiver() {
         user: UserHandle,
     ) {
         val lightPackageInfo =
-            LightPackageInfoLiveData[Pair(packageName, user)].getInitializedValue()
+            LightPackageInfoLiveData[Pair(packageName, user)].getInitializedValue() ?: return
         if (!isAppRequestingLocationPermission(lightPackageInfo)) {
+            return
+        }
+
+        if (!isSafetyLabelSupported(Pair(packageName, user))) {
             return
         }
         writeSafetyLabel(context, lightPackageInfo, user)
@@ -131,7 +137,13 @@ class SafetyLabelChangedBroadcastReceiver : BroadcastReceiver() {
             } else {
                 context.createContextAsUser(user, 0)
             }
-        val appMetadataBundle = userContext.packageManager.getAppMetadata(packageName)
+        val appMetadataBundle =
+            try {
+                userContext.packageManager.getAppMetadata(packageName)
+            } catch (e: PackageManager.NameNotFoundException) {
+                Log.w(TAG, "Package $packageName not found while retrieving app metadata")
+                return
+            }
 
         if (DEBUG) {
             Log.i(TAG, "appMetadataBundle $appMetadataBundle")
@@ -142,7 +154,7 @@ class SafetyLabelChangedBroadcastReceiver : BroadcastReceiver() {
         val receivedAtMs: Long = lightPackageInfo.lastUpdateTime
 
         val safetyLabelForPersistence: SafetyLabelForPersistence =
-            AppsSafetyLabelHistory.SafetyLabel.fromAppMetadataSafetyLabel(
+            AppsSafetyLabelHistory.SafetyLabel.extractLocationSharingSafetyLabel(
                 packageName, Instant.ofEpochMilli(receivedAtMs), safetyLabel)
         val historyFile = AppsSafetyLabelHistoryPersistence.getSafetyLabelHistoryFile(context)
 
@@ -173,6 +185,12 @@ class SafetyLabelChangedBroadcastReceiver : BroadcastReceiver() {
 
         private fun isAppRequestingLocationPermission(lightPackageInfo: LightPackageInfo): Boolean {
             return lightPackageInfo.requestedPermissions.any { LOCATION_PERMISSIONS.contains(it) }
+        }
+
+        private suspend fun isSafetyLabelSupported(packageUser: Pair<String, UserHandle>): Boolean {
+            val lightInstallSourceInfo =
+                LightInstallSourceInfoLiveData[packageUser].getInitializedValue()
+            return lightInstallSourceInfo.supportsSafetyLabel
         }
 
         private fun isPackageAddedBroadcast(intentAction: String?) =

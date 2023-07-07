@@ -42,6 +42,7 @@ import static android.content.pm.PackageManager.FLAG_PERMISSION_USER_SENSITIVE_W
 import static android.content.pm.PackageManager.FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED;
 import static android.content.pm.PackageManager.MATCH_SYSTEM_ONLY;
 import static android.health.connect.HealthConnectManager.ACTION_MANAGE_HEALTH_PERMISSIONS;
+import static android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP;
 import static android.os.UserHandle.myUserId;
 
 import static com.android.permissioncontroller.Constants.EXTRA_SESSION_ID;
@@ -73,9 +74,10 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.SensorPrivacyManager;
+import android.health.connect.HealthConnectManager;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Parcelable;
-import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.DeviceConfig;
@@ -109,6 +111,8 @@ import com.android.permissioncontroller.permission.model.AppPermissionGroup;
 import com.android.permissioncontroller.permission.model.livedatatypes.LightAppPermGroup;
 import com.android.permissioncontroller.permission.model.livedatatypes.LightPackageInfo;
 
+import kotlin.Triple;
+
 import java.lang.annotation.Retention;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -119,8 +123,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
-
-import kotlin.Triple;
 
 public final class Utils {
 
@@ -360,12 +362,8 @@ public final class Utils {
      */
     public static @NonNull Context getUserContext(Context context, UserHandle user) {
         if (!sUserContexts.containsKey(user)) {
-            try {
-                sUserContexts.put(user, context.getApplicationContext()
-                        .createPackageContextAsUser(context.getPackageName(), 0, user));
-            } catch (PackageManager.NameNotFoundException neverHappens) {
-                throw new RuntimeException(neverHappens);
-            }
+            sUserContexts.put(user, context.getApplicationContext()
+                    .createContextAsUser(user, 0));
         }
         return Preconditions.checkNotNull(sUserContexts.get(user));
     }
@@ -657,10 +655,6 @@ public final class Utils {
         return typedValue.resourceId;
     }
 
-    public static List<ApplicationInfo> getAllInstalledApplications(Context context) {
-        return context.getPackageManager().getInstalledApplications(0);
-    }
-
     /**
      * Is the group or background group user sensitive?
      *
@@ -940,8 +934,78 @@ public final class Utils {
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
     public static boolean isHealthPermissionUiEnabled() {
-        return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-                PROPERTY_HEALTH_PERMISSION_UI_ENABLED, true);
+        final long token = Binder.clearCallingIdentity();
+        try {
+            return SdkLevel.isAtLeastU()
+                    && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
+                    PROPERTY_HEALTH_PERMISSION_UI_ENABLED, true);
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
+    }
+
+    /**
+     * Returns true if the group name passed is that of the Platform health group.
+     * @param permGroupName name of the group that needs to be checked.
+     */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public static Boolean isHealthPermissionGroup(String permGroupName) {
+        return SdkLevel.isAtLeastU() && HEALTH_PERMISSION_GROUP.equals(permGroupName);
+    }
+
+    /**
+     * Return whether health permission setting entry should be shown or not
+     *
+     * Should not show Health permissions preference if the package doesn't handle
+     * VIEW_PERMISSION_USAGE_INTENT.
+     *
+     * Will show if above is true AND permission is already granted.
+     *
+     * @param packageInfo the {@link PackageInfo} app which uses the permission
+     * @param permGroupName the health permission group name to show
+     * @return {@code TRUE} iff health permission should be shown
+     */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public static Boolean shouldShowHealthPermission(LightPackageInfo packageInfo,
+            String permGroupName) {
+        if (!isHealthPermissionGroup(permGroupName)) {
+            return false;
+        }
+
+        PermissionControllerApplication app = PermissionControllerApplication.get();
+        PackageManager pm = app.getPackageManager();
+        Context context = getUserContext(app, UserHandle.getUserHandleForUid(packageInfo.getUid()));
+
+        List<PermissionInfo> permissions = new ArrayList<>();
+        try {
+            permissions.addAll(getPermissionInfosForGroup(pm, permGroupName));
+        } catch (NameNotFoundException e) {
+            Log.e(LOG_TAG, "No permissions found for permission group " + permGroupName);
+            return false;
+        }
+
+        // Check in permission is already granted as we should not hide it in the UX at that point.
+        List<String> grantedPermissions = packageInfo.getGrantedPermissions();
+        for (PermissionInfo permission : permissions) {
+            boolean isCurrentlyGranted = grantedPermissions.contains(permission.name);
+            if (isCurrentlyGranted) {
+                Log.d(LOG_TAG, "At least one Health permission group permission is granted, "
+                        + "show permission group entry");
+                return true;
+            }
+        }
+
+        Intent viewUsageIntent = new Intent(Intent.ACTION_VIEW_PERMISSION_USAGE);
+        viewUsageIntent.addCategory(HealthConnectManager.CATEGORY_HEALTH_PERMISSIONS);
+        viewUsageIntent.setPackage(packageInfo.getPackageName());
+
+        ResolveInfo resolveInfo = pm.resolveActivity(viewUsageIntent, PackageManager.MATCH_ALL);
+        if (resolveInfo == null) {
+            Log.e(LOG_TAG, "Package that asks for Health permission must also handle "
+                    + "VIEW_PERMISSION_USAGE_INTENT.");
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -1061,38 +1125,6 @@ public final class Utils {
      */
     public static int getUpgradeRequestDetail(String groupName) {
         return PERM_GROUP_UPGRADE_REQUEST_DETAIL_RES.getOrDefault(groupName, 0);
-    }
-
-    /**
-     * Checks whether a package has an active one-time permission according to the system server's
-     * flags
-     *
-     * @param context the {@code Context} to retrieve {@code PackageManager}
-     * @param packageName The package to check for
-     * @return Whether a package has an active one-time permission
-     */
-    public static boolean hasOneTimePermissions(Context context, String packageName) {
-        String[] permissions;
-        PackageManager pm = context.getPackageManager();
-        try {
-            permissions = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
-                    .requestedPermissions;
-        } catch (NameNotFoundException e) {
-            Log.w(LOG_TAG, "Checking for one-time permissions in nonexistent package");
-            return false;
-        }
-        if (permissions == null) {
-            return false;
-        }
-        for (String permissionName : permissions) {
-            if ((pm.getPermissionFlags(permissionName, packageName, Process.myUserHandle())
-                    & PackageManager.FLAG_PERMISSION_ONE_TIME) != 0
-                    && pm.checkPermission(permissionName, packageName)
-                    == PackageManager.PERMISSION_GRANTED) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -1366,12 +1398,11 @@ public final class Utils {
      *
      * @param context The current Context
      * @param applicationInfo The {@link ApplicationInfo} of the application to get the label of.
-     * @return Returns a {@link CharSequence} containing the label associated with this application,
-     * or its name the  item does not have a label.
+     * @return the label associated with this application, or its name if there is no label.
      */
     @NonNull
-    public static CharSequence getApplicationLabel(@NonNull Context context,
+    public static String getApplicationLabel(@NonNull Context context,
             @NonNull ApplicationInfo applicationInfo) {
-        return context.getPackageManager().getApplicationLabel(applicationInfo);
+        return context.getPackageManager().getApplicationLabel(applicationInfo).toString();
     }
 }

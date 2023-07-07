@@ -24,9 +24,6 @@ public class SafetyCenterConstants {
     public static final String QUICK_SETTINGS_SAFETY_CENTER_FRAGMENT =
             "QUICK_SETTINGS_SAFETY_CENTER_FRAGMENT";
 
-    public static final String EXPAND_ISSUE_GROUP_SAVED_INSTANCE_STATE_KEY =
-            "expand_issue_group_saved_instance_state_key";
-
     public static final String EXPAND_ISSUE_GROUP_QS_FRAGMENT_KEY =
             "expand_issue_group_qs_fragment_key";
 
@@ -40,4 +37,10 @@ public class SafetyCenterConstants {
 
     /** Suffix used to identify a source in the Safety Center work profile */
     public static final String WORK_PROFILE_SUFFIX = "work";
+
+    /** Intent extra representing the preference key of a search result */
+    public static final String EXTRA_SETTINGS_FRAGMENT_ARGS_KEY = ":settings:fragment_args_key";
+
+    /** Identifier for the group of privacy safety sources */
+    public static final String PRIVACY_SOURCES_GROUP_ID = "AndroidPrivacySources";
 }

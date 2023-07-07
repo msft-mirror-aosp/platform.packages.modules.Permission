@@ -16,20 +16,15 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import android.safetycenter.SafetySourceData;
 import android.safetycenter.config.SafetySource;
 import android.util.Log;
-
-import androidx.annotation.RequiresApi;
 
 /**
  * A helper class to facilitate working with {@link SafetySource} objects.
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 public final class SafetySources {
 
     private static final String TAG = "SafetySources";
@@ -49,12 +44,6 @@ public final class SafetySources {
         }
         Log.w(TAG, "Unexpected safety source type: " + safetySourceType);
         return false;
-    }
-
-    /** Returns whether a {@link SafetySource} is issue-only. */
-    public static boolean isIssueOnly(SafetySource safetySource) {
-        int safetySourceType = safetySource.getType();
-        return safetySourceType == SafetySource.SAFETY_SOURCE_TYPE_ISSUE_ONLY;
     }
 
     /** Returns whether a {@link SafetySource} supports managed profiles. */

@@ -52,6 +52,7 @@
 
                     <TextView
                         android:id="@+id/permission_message"
+                        android:accessibilityHeading="true"
                         style="@style/PermissionGrantTitleMessage" />
 
                 </LinearLayout>
@@ -141,14 +142,14 @@
                     style="@style/PermissionGrantButtonAllowOneTime" />
 
                 <com.android.permissioncontroller.permission.ui.widget.SecureButton
-                    android:id="@+id/permission_allow_all_photos_button"
-                    android:text="@string/grant_dialog_button_allow_all_photos"
-                    style="@style/PermissionGrantButtonAllowAllPhotos" />
+                    android:id="@+id/permission_allow_selected_button"
+                    android:text="@string/grant_dialog_button_allow_selected_photos"
+                    style="@style/PermissionGrantButtonAllowSelected" />
 
                 <com.android.permissioncontroller.permission.ui.widget.SecureButton
-                    android:id="@+id/permission_allow_selected_photos_button"
-                    android:text="@string/grant_dialog_button_allow_selected_photos"
-                    style="@style/PermissionGrantButtonAllowSelectedPhotos" />
+                    android:id="@+id/permission_allow_all_button"
+                    android:text="@string/grant_dialog_button_allow_all"
+                    style="@style/PermissionGrantButtonAllowAll" />
 
                 <com.android.permissioncontroller.permission.ui.widget.SecureButton
                     android:id="@+id/permission_deny_button"
@@ -179,6 +180,11 @@
                     android:id="@+id/permission_no_upgrade_one_time_and_dont_ask_again_button"
                     android:text="@string/grant_dialog_button_no_upgrade_one_time"
                     style="@style/PermissionGrantButtonNoUpgrade" />
+
+                <com.android.permissioncontroller.permission.ui.widget.SecureButton
+                    android:id="@+id/permission_dont_allow_more_selected_button"
+                    android:text="@string/grant_dialog_button_dont_select_more"
+                    style="@style/PermissionGrantButtonDontAllowMore" />
             </LinearLayout>
 
         </LinearLayout>

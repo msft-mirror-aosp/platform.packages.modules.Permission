@@ -16,12 +16,9 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.Nullable;
 import android.content.res.Resources;
 import android.safetycenter.config.SafetyCenterConfig;
 import android.safetycenter.config.SafetySource;
@@ -29,11 +26,11 @@ import android.safetycenter.config.SafetySourcesGroup;
 import android.util.ArrayMap;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.safetycenter.config.ParseException;
 import com.android.safetycenter.config.SafetyCenterConfigParser;
-import com.android.safetycenter.resources.SafetyCenterResourcesContext;
+import com.android.safetycenter.resources.SafetyCenterResourcesApk;
 
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -50,21 +47,20 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 public final class SafetyCenterConfigReader {
 
     private static final String TAG = "SafetyCenterConfigReade";
 
-    private final SafetyCenterResourcesContext mSafetyCenterResourcesContext;
+    private final SafetyCenterResourcesApk mSafetyCenterResourcesApk;
 
     @Nullable private SafetyCenterConfigInternal mConfigInternalFromXml;
 
     @Nullable private SafetyCenterConfigInternal mConfigInternalOverrideForTests;
 
-    /** Creates a {@link SafetyCenterConfigReader} from a {@link SafetyCenterResourcesContext}. */
-    SafetyCenterConfigReader(SafetyCenterResourcesContext safetyCenterResourcesContext) {
-        mSafetyCenterResourcesContext = safetyCenterResourcesContext;
+    /** Creates a {@link SafetyCenterConfigReader} from a {@link SafetyCenterResourcesApk}. */
+    SafetyCenterConfigReader(SafetyCenterResourcesApk safetyCenterResourcesApk) {
+        mSafetyCenterResourcesApk = safetyCenterResourcesApk;
     }
 
     /**
@@ -76,7 +72,7 @@ public final class SafetyCenterConfigReader {
      * this method was {@code true}.
      */
     boolean loadConfig() {
-        SafetyCenterConfig safetyCenterConfig = readSafetyCenterConfig();
+        SafetyCenterConfig safetyCenterConfig = loadSafetyCenterConfig();
         if (safetyCenterConfig == null) {
             return false;
         }
@@ -114,46 +110,94 @@ public final class SafetyCenterConfigReader {
 
     /**
      * Returns the groups of {@link SafetySource}, filtering out any sources where {@link
-     * SafetySources#isLoggable(SafetySource)} is false (and any resultingly empty groups).
+     * SafetySources#isLoggable(SafetySource)} is {@code false} (and any resulting empty groups).
      */
     public List<SafetySourcesGroup> getLoggableSafetySourcesGroups() {
         return getCurrentConfigInternal().getLoggableSourcesGroups();
     }
 
     /**
-     * Returns the external {@link SafetySource} associated with the {@code safetySourceId}, if any.
+     * Returns the {@link ExternalSafetySource} associated with the {@code safetySourceId}, if any.
      *
      * <p>The returned {@link SafetySource} can either be associated with the XML or overridden
-     * {@link SafetyCenterConfig}; {@link #isExternalSafetySourceActive(String)} can be used to
-     * check if it is associated with the current {@link SafetyCenterConfig}. This is to continue
+     * {@link SafetyCenterConfig}; {@link #isExternalSafetySourceActive(String, String)} can be used
+     * to check if it is associated with the current {@link SafetyCenterConfig}. This is to continue
      * allowing sources from the XML config to interact with SafetCenter during tests (but their
      * calls will be no-oped).
+     *
+     * <p>The {@code callingPackageName} can help break the tie when the source is available in both
+     * the overridden config and the "real" config. Otherwise, the test config is preferred. This is
+     * to support overriding "real" sources in tests while ensuring package checks continue to pass
+     * for "real" sources that interact with our APIs.
      */
     @Nullable
-    public ExternalSafetySource getExternalSafetySource(String safetySourceId) {
-        ExternalSafetySource externalSafetySourceInCurrentConfig =
-                getCurrentConfigInternal().getExternalSafetySources().get(safetySourceId);
-        if (externalSafetySourceInCurrentConfig != null) {
-            return externalSafetySourceInCurrentConfig;
+    public ExternalSafetySource getExternalSafetySource(
+            String safetySourceId, String callingPackageName) {
+        SafetyCenterConfigInternal testConfig = mConfigInternalOverrideForTests;
+        SafetyCenterConfigInternal xmlConfig = requireNonNull(mConfigInternalFromXml);
+        if (testConfig == null) {
+            // No override, access source directly.
+            return xmlConfig.getExternalSafetySources().get(safetySourceId);
         }
 
-        return mConfigInternalFromXml.getExternalSafetySources().get(safetySourceId);
+        ExternalSafetySource externalSafetySourceInTestConfig =
+                testConfig.getExternalSafetySources().get(safetySourceId);
+        ExternalSafetySource externalSafetySourceInRealConfig =
+                xmlConfig.getExternalSafetySources().get(safetySourceId);
+
+        if (externalSafetySourceInTestConfig != null
+                && Objects.equals(
+                        externalSafetySourceInTestConfig.getSafetySource().getPackageName(),
+                        callingPackageName)) {
+            return externalSafetySourceInTestConfig;
+        }
+
+        if (externalSafetySourceInRealConfig != null
+                && Objects.equals(
+                        externalSafetySourceInRealConfig.getSafetySource().getPackageName(),
+                        callingPackageName)) {
+            return externalSafetySourceInRealConfig;
+        }
+
+        if (externalSafetySourceInTestConfig != null) {
+            return externalSafetySourceInTestConfig;
+        }
+
+        return externalSafetySourceInRealConfig;
     }
 
     /**
-     * Returns whether the {@code safetySourceId} is associated with an external {@link
-     * SafetySource} that is currently active.
+     * Returns whether the {@code safetySourceId} is associated with an {@link ExternalSafetySource}
+     * that is currently active.
+     *
+     * <p>The source may either be "active" or "inactive". An active source is a source that is
+     * currently expected to interact with our API and may affect Safety Center status. An inactive
+     * source is expected to interact with Safety Center, but is currently being silenced / no-ops
+     * while an override for tests is in place.
+     *
+     * <p>The {@code callingPackageName} is used to differentiate a real source being overridden. It
+     * could be that a test is overriding a real source and as such the real source should not be
+     * able to provide data while its override is in place.
      */
-    public boolean isExternalSafetySourceActive(String safetySourceId) {
-        return getCurrentConfigInternal().getExternalSafetySources().containsKey(safetySourceId);
+    public boolean isExternalSafetySourceActive(String safetySourceId, String callingPackageName) {
+        ExternalSafetySource externalSafetySourceInCurrentConfig =
+                getCurrentConfigInternal().getExternalSafetySources().get(safetySourceId);
+        if (externalSafetySourceInCurrentConfig == null) {
+            return false;
+        }
+        return Objects.equals(
+                externalSafetySourceInCurrentConfig.getSafetySource().getPackageName(),
+                callingPackageName);
     }
 
-    /** Returns whether the {@link SafetyCenterConfig} allows logging to statsd. */
-    public boolean allowsStatsdLogging() {
-        if (!isOverrideForTestsActive()) {
-            return true;
-        }
-        return SafetyCenterFlags.getAllowStatsdLoggingInTests();
+    /**
+     * Returns whether the {@code safetySourceId} is associated with an {@link ExternalSafetySource}
+     * that is in the real config XML file (i.e. not being overridden).
+     */
+    public boolean isExternalSafetySourceFromRealConfig(String safetySourceId) {
+        return requireNonNull(mConfigInternalFromXml)
+                .getExternalSafetySources()
+                .containsKey(safetySourceId);
     }
 
     /**
@@ -162,11 +206,6 @@ public final class SafetyCenterConfigReader {
      */
     List<Broadcast> getBroadcasts() {
         return getCurrentConfigInternal().getBroadcasts();
-    }
-
-    /** Returns whether the {@link SafetyCenterConfig} is currently overridden for tests. */
-    private boolean isOverrideForTestsActive() {
-        return mConfigInternalOverrideForTests != null;
     }
 
     private SafetyCenterConfigInternal getCurrentConfigInternal() {
@@ -182,26 +221,21 @@ public final class SafetyCenterConfigReader {
     }
 
     @Nullable
-    private SafetyCenterConfig readSafetyCenterConfig() {
-        InputStream in = mSafetyCenterResourcesContext.getSafetyCenterConfig();
+    private SafetyCenterConfig loadSafetyCenterConfig() {
+        InputStream in = mSafetyCenterResourcesApk.getSafetyCenterConfig();
         if (in == null) {
-            Log.e(TAG, "Cannot get safety center config file, safety center will be disabled.");
+            Log.e(TAG, "Cannot access Safety Center config file");
             return null;
         }
 
-        Resources resources = mSafetyCenterResourcesContext.getResources();
-        if (resources == null) {
-            Log.e(TAG, "Cannot get safety center resources, safety center will be disabled.");
-            return null;
-        }
-
+        Resources resources = mSafetyCenterResourcesApk.getResources();
         try {
             SafetyCenterConfig safetyCenterConfig =
                     SafetyCenterConfigParser.parseXmlResource(in, resources);
-            Log.i(TAG, "SafetyCenterConfig read successfully");
+            Log.d(TAG, "SafetyCenterConfig loaded successfully");
             return safetyCenterConfig;
         } catch (ParseException e) {
-            Log.e(TAG, "Cannot read SafetyCenterConfig, safety center will be disabled.", e);
+            Log.e(TAG, "Cannot parse SafetyCenterConfig", e);
             return null;
         }
     }

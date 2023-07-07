@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package com.android.permissioncontroller.permission.utils
 
 import android.Manifest
+import android.app.AppOpsManager
 import android.content.pm.PackageManager
 import android.content.pm.PermissionInfo
 import android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP
 import android.util.Log
 
 import com.android.modules.utils.build.SdkLevel
-import com.android.permission.safetylabel.DataCategory
+import com.android.permissioncontroller.permission.model.livedatatypes.LightAppPermGroup
 import com.android.permission.safetylabel.DataCategoryConstants
-import com.android.permission.safetylabel.DataType
-import com.android.permission.safetylabel.DataTypeConstants
-import com.android.permission.safetylabel.SafetyLabel
 
 /**
  * This file contains the canonical mapping of permission to permission group, used in the
@@ -56,6 +55,8 @@ object PermissionMapping {
                 Manifest.permission_group.READ_MEDIA_AURAL,
                 Manifest.permission_group.READ_MEDIA_VISUAL)
 
+    val PARTIAL_MEDIA_PERMISSIONS: MutableSet<String> = mutableSetOf()
+
     /** Mapping permission -> group for all dangerous platform permissions */
     private val PLATFORM_PERMISSIONS: MutableMap<String, String> = mutableMapOf()
 
@@ -66,6 +67,7 @@ object PermissionMapping {
     private val ONE_TIME_PERMISSION_GROUPS: MutableSet<String> = mutableSetOf()
 
     private val HEALTH_PERMISSIONS_SET: MutableSet<String> = mutableSetOf()
+
 
     init {
         PLATFORM_PERMISSIONS[Manifest.permission.READ_CONTACTS] = Manifest.permission_group.CONTACTS
@@ -181,14 +183,6 @@ object PermissionMapping {
                 Manifest.permission_group.SENSORS
         }
 
-        if (SdkLevel.isAtLeastU()) {
-            PLATFORM_PERMISSIONS[Manifest.permission.BODY_SENSORS_WRIST_TEMPERATURE] =
-                    Manifest.permission_group.SENSORS
-            PLATFORM_PERMISSIONS[Manifest
-                    .permission.BODY_SENSORS_WRIST_TEMPERATURE_BACKGROUND] =
-                    Manifest.permission_group.SENSORS
-        }
-
         for ((permission, permissionGroup) in PLATFORM_PERMISSIONS) {
             PLATFORM_PERMISSION_GROUPS.getOrPut(permissionGroup) { mutableListOf() }.add(permission)
         }
@@ -196,6 +190,11 @@ object PermissionMapping {
         ONE_TIME_PERMISSION_GROUPS.add(Manifest.permission_group.LOCATION)
         ONE_TIME_PERMISSION_GROUPS.add(Manifest.permission_group.CAMERA)
         ONE_TIME_PERMISSION_GROUPS.add(Manifest.permission_group.MICROPHONE)
+
+        if (SdkLevel.isAtLeastU()) {
+            PARTIAL_MEDIA_PERMISSIONS.add(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+            PARTIAL_MEDIA_PERMISSIONS.add(Manifest.permission.ACCESS_MEDIA_LOCATION)
+        }
     }
 
     /**
@@ -329,6 +328,23 @@ object PermissionMapping {
     }
 
     /**
+     * Get the permissions that, if granted, are considered a "partial grant" of the
+     * READ_MEDIA_VISUAL permission group. If the app declares READ_MEDIA_VISUAL_USER_SELECTED, then
+     * both READ_MEDIA_VISUAL_USER_SELECTED and ACCESS_MEDIA_LOCATION are considered a partial
+     * grant. Otherwise, ACCESS_MEDIA_LOCATION is considered a full grant (for compatibility).
+     */
+    fun getPartialStorageGrantPermissionsForGroup(group: LightAppPermGroup): Set<String> {
+        val appSupportsPickerPrompt = group
+            .permissions[Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED]?.isImplicit == false
+
+        return if (appSupportsPickerPrompt) {
+            PARTIAL_MEDIA_PERMISSIONS
+        } else {
+            setOf(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+        }
+    }
+
+    /**
      * Returns true if the given permission is a health platform permission.
      */
     @JvmStatic
@@ -337,35 +353,30 @@ object PermissionMapping {
     }
 
     /**
-     * Get the sharing purposes for a SafetyLabel related to a specific permission group.
+     * Returns the platform permission group for the permission that the provided op backs, if any.
      */
-    @JvmStatic
-    fun getSafetyLabelSharingPurposesForGroup(
-        safetyLabel: SafetyLabel,
-        groupName: String
-    ): Set<Int> {
-        val purposeSet = mutableSetOf<Int>()
-        val categoriesForPermission = getDataCategoriesForPermissionGroup(groupName)
-        categoriesForPermission.forEach categoryLoop@{ category ->
-            val dataCategory: DataCategory? = safetyLabel.dataLabel.dataShared[category]
-            if (dataCategory == null) {
-                // Continue to next
-                return@categoryLoop
-            }
-            val typesForCategory = DataTypeConstants.getValidDataTypesForCategory(category)
-            typesForCategory.forEach typeLoop@{ type ->
-                val dataType: DataType? = dataCategory.dataTypes[type]
-                if (dataType == null) {
-                    // Continue to next
-                    return@typeLoop
-                }
-                if (dataType.purposeSet.isNotEmpty()) {
-                    purposeSet.addAll(dataType.purposeSet)
-                }
-            }
+    fun getPlatformPermissionGroupForOp(opName: String): String? {
+        // The OPSTR_READ_WRITE_HEALTH_DATA is a special case as unlike other ops, it does not
+        // map to a single permission. However it is safe to retrieve a permission group for it,
+        // as all permissions it maps to, map to the same permission group
+        // HEALTH_PERMISSION_GROUP.
+        if (opName == AppOpsManager.OPSTR_READ_WRITE_HEALTH_DATA) {
+            return HEALTH_PERMISSION_GROUP
         }
 
-        return purposeSet
+        // The following app ops are special cased as they don't back any permissions on their own,
+        // but do indicate usage of certain permissions.
+        if (opName == AppOpsManager.OPSTR_PHONE_CALL_MICROPHONE) {
+            return Manifest.permission_group.MICROPHONE
+        }
+        if (SdkLevel.isAtLeastT() && opName == AppOpsManager.OPSTR_RECEIVE_AMBIENT_TRIGGER_AUDIO) {
+            return Manifest.permission_group.MICROPHONE
+        }
+        if (opName == AppOpsManager.OPSTR_PHONE_CALL_CAMERA) {
+            return Manifest.permission_group.CAMERA
+        }
+
+        return AppOpsManager.opToPermission(opName)?.let { getGroupOfPlatformPermission(it) }
     }
 
     /**
@@ -375,7 +386,7 @@ object PermissionMapping {
      * to safety label category
      */
     fun getDataCategoriesForPermissionGroup(permissionGroupName: String): List<String> {
-        return if (isSafetyLabelAwarePermission(permissionGroupName)) {
+        return if (isSafetyLabelAwarePermissionGroup(permissionGroupName)) {
             PERMISSION_GROUPS_TO_DATA_CATEGORIES[permissionGroupName] ?: emptyList()
         } else {
             emptyList()
@@ -388,7 +399,7 @@ object PermissionMapping {
      * @param permissionGroupName the permission group name
      */
     @JvmStatic
-    fun isSafetyLabelAwarePermission(permissionGroupName: String): Boolean {
+    fun isSafetyLabelAwarePermissionGroup(permissionGroupName: String): Boolean {
         if (!KotlinUtils.isPermissionRationaleEnabled()) {
             return false
         }

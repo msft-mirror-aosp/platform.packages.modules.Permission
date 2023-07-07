@@ -22,12 +22,12 @@ import android.safetycenter.SafetyCenterEntryGroup
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.preference.PreferenceGroup
+import com.android.permissioncontroller.Constants.EXTRA_SESSION_ID
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.safetycenter.ui.SafetyBrandChipPreference.Companion.closeSubpage
 import com.android.permissioncontroller.safetycenter.ui.model.SafetyCenterUiData
-import com.android.safetycenter.resources.SafetyCenterResourcesContext
+import com.android.safetycenter.resources.SafetyCenterResourcesApk
 import com.android.settingslib.widget.FooterPreference
-import com.android.settingslib.widget.IllustrationPreference
 
 /** A fragment that represents a generic subpage in Safety Center. */
 @RequiresApi(UPSIDE_DOWN_CAKE)
@@ -35,7 +35,7 @@ class SafetyCenterSubpageFragment : SafetyCenterFragment() {
 
     private lateinit var sourceGroupId: String
     private lateinit var subpageBrandChip: SafetyBrandChipPreference
-    private lateinit var subpageIllustration: IllustrationPreference
+    private lateinit var subpageIllustration: SafetyIllustrationPreference
     private lateinit var subpageIssueGroup: PreferenceGroup
     private lateinit var subpageEntryGroup: PreferenceGroup
     private lateinit var subpageFooter: FooterPreference
@@ -51,9 +51,19 @@ class SafetyCenterSubpageFragment : SafetyCenterFragment() {
         subpageEntryGroup = getPreferenceScreen().findPreference(ENTRY_GROUP_KEY)!!
         subpageFooter = getPreferenceScreen().findPreference(FOOTER_KEY)!!
 
-        subpageBrandChip.setupListener(requireActivity())
+        subpageBrandChip.setupListener(requireActivity(), safetyCenterSessionId)
         setupIllustration()
         setupFooter()
+
+        prerenderCurrentSafetyCenterData()
+    }
+
+    override fun configureInteractionLogger() {
+        val logger = safetyCenterViewModel.interactionLogger
+        logger.sessionId = safetyCenterSessionId
+        logger.navigationSource = NavigationSource.fromIntent(requireActivity().getIntent())
+        logger.viewType = ViewType.SUBPAGE
+        logger.groupId = sourceGroupId
     }
 
     override fun onResume() {
@@ -66,7 +76,7 @@ class SafetyCenterSubpageFragment : SafetyCenterFragment() {
         val entryGroup = uiData?.getMatchingGroup(sourceGroupId)
         if (entryGroup == null) {
             Log.w(TAG, "$sourceGroupId doesn't match any of the existing SafetySourcesGroup IDs")
-            closeSubpage(requireActivity(), requireContext())
+            closeSubpage(requireActivity(), requireContext(), safetyCenterSessionId)
             return
         }
 
@@ -78,35 +88,35 @@ class SafetyCenterSubpageFragment : SafetyCenterFragment() {
     private fun setupIllustration() {
         val resName = "illustration_${SnakeCaseConverter.fromCamelCase(sourceGroupId)}"
         val context = requireContext()
-        val drawable =
-            SafetyCenterResourcesContext(context).getDrawableByName(resName, context.theme)
+        val drawable = SafetyCenterResourcesApk(context).getDrawableByName(resName, context.theme)
         if (drawable == null) {
             Log.w(TAG, "$sourceGroupId doesn't have any matching illustration")
             subpageIllustration.setVisible(false)
         }
 
-        subpageIllustration.setImageDrawable(drawable)
+        subpageIllustration.illustrationDrawable = drawable
     }
 
     private fun setupFooter() {
         val resName = "${SnakeCaseConverter.fromCamelCase(sourceGroupId)}_footer"
-        val footerText = SafetyCenterResourcesContext(requireContext()).getStringByName(resName)
+        val footerText = SafetyCenterResourcesApk(requireContext()).getStringByName(resName)
         if (footerText.isEmpty()) {
             Log.w(TAG, "$sourceGroupId doesn't have any matching footer")
             subpageFooter.setVisible(false)
         }
-
+        // footer is ordered last by default
+        // in order to keep a spacer after the footer, footer needs to be the second from last
+        subpageFooter.setOrder(Int.MAX_VALUE - 2)
         subpageFooter.setSummary(footerText)
     }
 
     private fun updateSafetyCenterIssues(uiData: SafetyCenterUiData?) {
         subpageIssueGroup.removeAll()
-        val subpageIssues = uiData?.safetyCenterData?.issues?.filter { it.groupId == sourceGroupId }
-        val subpageDismissedIssues =
-            uiData?.safetyCenterData?.dismissedIssues?.filter { it.groupId == sourceGroupId }
+        val subpageIssues = uiData?.getMatchingIssues(sourceGroupId)
+        val subpageDismissedIssues = uiData?.getMatchingDismissedIssues(sourceGroupId)
 
         subpageIllustration.isVisible =
-            subpageIssues.isNullOrEmpty() && subpageIllustration.imageDrawable != null
+            subpageIssues.isNullOrEmpty() && subpageIllustration.illustrationDrawable != null
 
         if (subpageIssues.isNullOrEmpty() && subpageDismissedIssues.isNullOrEmpty()) {
             Log.w(TAG, "$sourceGroupId doesn't have any matching SafetyCenterIssues")
@@ -137,7 +147,8 @@ class SafetyCenterSubpageFragment : SafetyCenterFragment() {
                         sameTaskSourceIds,
                         requireActivity()
                     ),
-                    entry
+                    entry,
+                    safetyCenterViewModel
                 )
             )
         }
@@ -154,8 +165,9 @@ class SafetyCenterSubpageFragment : SafetyCenterFragment() {
 
         /** Creates an instance of SafetyCenterSubpageFragment with the arguments set */
         @JvmStatic
-        fun newInstance(groupId: String): SafetyCenterSubpageFragment {
+        fun newInstance(sessionId: Long, groupId: String): SafetyCenterSubpageFragment {
             val args = Bundle()
+            args.putLong(EXTRA_SESSION_ID, sessionId)
             args.putString(SOURCE_GROUP_ID_KEY, groupId)
 
             val subpageFragment = SafetyCenterSubpageFragment()

@@ -40,12 +40,28 @@ class SafetyCenterTestListener : OnSafetyCenterDataChangedListener {
     }
 
     override fun onError(errorDetails: SafetyCenterErrorDetails) {
+        // This call to super is needed for code coverage purposes, see b/272351657 for more
+        // details. The default impl of the interface is a no-op so the call to super is a no-op.
+        super.onError(errorDetails)
         runBlockingWithTimeout { errorChannel.send(errorDetails) }
     }
 
-    /** Waits for a [SafetyCenterData] update from SafetyCenter within the given [timeout]. */
-    fun receiveSafetyCenterData(timeout: Duration = TIMEOUT_LONG) =
-        runBlockingWithTimeout(timeout) { dataChannel.receive() }
+    /**
+     * Waits for a [SafetyCenterData] update from SafetyCenter within the given [timeout].
+     *
+     * Optionally, a predicate can be used to wait for the [SafetyCenterData] to be [matching].
+     */
+    fun receiveSafetyCenterData(
+        timeout: Duration = TIMEOUT_LONG,
+        matching: (SafetyCenterData) -> Boolean = { true }
+    ): SafetyCenterData =
+        runBlockingWithTimeout(timeout) {
+            var safetyCenterData = dataChannel.receive()
+            while (!matching(safetyCenterData)) {
+                safetyCenterData = dataChannel.receive()
+            }
+            safetyCenterData
+        }
 
     /**
      * Waits for a [SafetyCenterErrorDetails] update from SafetyCenter within the given [timeout].

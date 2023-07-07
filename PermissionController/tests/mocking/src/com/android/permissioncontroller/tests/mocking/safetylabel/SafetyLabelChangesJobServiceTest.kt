@@ -22,6 +22,7 @@ import android.app.job.JobParameters
 import android.app.job.JobScheduler
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.UserManager
 import android.provider.DeviceConfig
@@ -43,7 +44,7 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mock
 import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.timeout
+import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyZeroInteractions
 import org.mockito.Mockito.`when` as whenever
@@ -69,6 +70,8 @@ class SafetyLabelChangesJobServiceTest {
 
     @Mock private lateinit var mockNotificationManager: NotificationManager
 
+    @Mock private lateinit var mockPackageManager: PackageManager
+
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
@@ -89,6 +92,13 @@ class SafetyLabelChangesJobServiceTest {
         whenever(application.applicationInfo).thenReturn(context.applicationInfo)
         whenever(application.applicationContext).thenReturn(application)
         whenever(mockUserManager.isProfile).thenReturn(false)
+        whenever(application.packageManager).thenReturn(mockPackageManager)
+        whenever(mockPackageManager.hasSystemFeature(eq(PackageManager.FEATURE_AUTOMOTIVE)))
+            .thenReturn(false)
+        whenever(mockPackageManager.hasSystemFeature(eq(PackageManager.FEATURE_LEANBACK)))
+            .thenReturn(false)
+        whenever(mockPackageManager.hasSystemFeature(eq(PackageManager.FEATURE_WATCH)))
+            .thenReturn(false)
 
         // Mock services
         whenever(application.getSystemService(eq(NotificationManager::class.java)))
@@ -115,18 +125,6 @@ class SafetyLabelChangesJobServiceTest {
     }
 
     @Test
-    fun flagsDisabled_onMainJobStart_notificationNotShown() {
-        setSafetyLabelChangeNotificationsEnabled(false)
-
-        val jobId = mockJobParamsForJobId(Constants.SAFETY_LABEL_CHANGES_JOB_ID)
-        val jobStillRunning = service.onStartJob(jobId)
-
-        assertThat(jobStillRunning).isEqualTo(false)
-
-        verifyZeroInteractions(mockNotificationManager)
-    }
-
-    @Test
     fun onReceiveInvalidIntentAction_jobNotScheduled() {
         receiver.onReceive(application, Intent(Intent.ACTION_DEFAULT))
 
@@ -134,28 +132,16 @@ class SafetyLabelChangesJobServiceTest {
     }
 
     @Test
-    fun onReceiveValidIntentAction_periodicJobScheduled() {
+    fun onReceiveValidIntentAction_jobsScheduled() {
         receiver.onReceive(application, Intent(Intent.ACTION_BOOT_COMPLETED))
 
         val captor = ArgumentCaptor.forClass(JobInfo::class.java)
-        verify(mockJobScheduler).schedule(captor.capture())
-        assertThat(captor.value.id).isEqualTo(Constants.PERIODIC_SAFETY_LABEL_CHANGES_JOB_ID)
-    }
-
-    @Test
-    fun onStartPeriodicJob_scheduleJob() {
-        val jobParams = mockJobParamsForJobId(Constants.PERIODIC_SAFETY_LABEL_CHANGES_JOB_ID)
-        val jobStillRunning = service.onStartJob(jobParams)
-
-        assertThat(jobStillRunning).isEqualTo(false)
-
-        val captor = ArgumentCaptor.forClass(JobInfo::class.java)
-        verify(mockJobScheduler, timeout(5000)).schedule(captor.capture())
-        assertThat(captor.value.id).isEqualTo(Constants.SAFETY_LABEL_CHANGES_JOB_ID)
-    }
-
-    private fun waitForJobFinished() {
-        verify(service, timeout(5000)).jobFinished(any(), anyBoolean())
+        verify(mockJobScheduler, times(2)).schedule(captor.capture())
+        val capturedJobIds = captor.getAllValues()
+        assertThat(capturedJobIds[0].id).isEqualTo(
+            Constants.SAFETY_LABEL_CHANGES_DETECT_UPDATES_JOB_ID)
+        assertThat(capturedJobIds[1].id)
+            .isEqualTo(Constants.SAFETY_LABEL_CHANGES_PERIODIC_NOTIFICATION_JOB_ID)
     }
 
     private fun mockJobParamsForJobId(jobId: Int): JobParameters {

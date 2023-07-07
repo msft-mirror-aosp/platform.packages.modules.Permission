@@ -29,6 +29,7 @@ import static com.android.permission.safetylabel.DataPurposeConstants.PURPOSE_AP
 import static com.android.permission.safetylabel.DataPurposeConstants.PURPOSE_DEVELOPER_COMMUNICATIONS;
 import static com.android.permission.safetylabel.DataPurposeConstants.PURPOSE_FRAUD_PREVENTION_SECURITY;
 import static com.android.permission.safetylabel.DataPurposeConstants.PURPOSE_PERSONALIZATION;
+import static com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_RATIONALE_DIALOG_ACTION_REPORTED__BUTTON_PRESSED__CANCEL;
 import static com.android.permissioncontroller.permission.ui.model.v34.PermissionRationaleViewModel.APP_PERMISSION_REQUEST_CODE;
 import static com.android.permissioncontroller.permission.ui.v34.PermissionRationaleViewHandler.Result.CANCELLED;
 
@@ -44,6 +45,7 @@ import android.text.TextUtils;
 import android.text.style.BulletSpan;
 import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -59,6 +61,7 @@ import com.android.permission.safetylabel.DataPurposeConstants.Purpose;
 import com.android.permissioncontroller.Constants;
 import com.android.permissioncontroller.DeviceUtils;
 import com.android.permissioncontroller.R;
+import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity;
 import com.android.permissioncontroller.permission.ui.SettingsActivity;
 import com.android.permissioncontroller.permission.ui.handheld.v34.PermissionRationaleViewHandlerImpl;
 import com.android.permissioncontroller.permission.ui.model.v34.PermissionRationaleViewModel;
@@ -71,8 +74,12 @@ import com.android.permissioncontroller.permission.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * An activity which displays runtime permission rationale on behalf of an app. This activity is
@@ -119,6 +126,22 @@ public class PermissionRationaleActivity extends SettingsActivity implements
      */
     public static final String EXTRA_SHOULD_SHOW_SETTINGS_SECTION =
             "com.android.permissioncontroller.extra.SHOULD_SHOW_SETTINGS_SECTION";
+
+    // Data class defines these values in a different natural order. Swap advertising and fraud
+    // prevention order for display in permission rationale dialog
+    private static final List<Integer> ORDERED_PURPOSES = Arrays.asList(
+            PURPOSE_APP_FUNCTIONALITY,
+            PURPOSE_ANALYTICS,
+            PURPOSE_DEVELOPER_COMMUNICATIONS,
+            PURPOSE_ADVERTISING,
+            PURPOSE_FRAUD_PREVENTION_SECURITY,
+            PURPOSE_PERSONALIZATION,
+            PURPOSE_ACCOUNT_MANAGEMENT
+    );
+
+    /** Comparator used to update purpose order to expected display order */
+    private static final Comparator<Integer> ORDERED_PURPOSE_COMPARATOR =
+            Comparator.comparingInt(purposeInt -> ORDERED_PURPOSES.indexOf(purposeInt));
 
     /** Unique Id of a request. Inherited from GrantPermissionDialog if provide via intent extra */
     private long mSessionId;
@@ -224,9 +247,6 @@ public class PermissionRationaleActivity extends SettingsActivity implements
         // as the UI behaves differently for updates and initial creations.
         if (icicle != null) {
             mViewHandler.loadInstanceState(icicle);
-        } else {
-            // Do not show screen dim until data is loaded
-            window.setDimAmount(0f);
         }
     }
 
@@ -286,6 +306,17 @@ public class PermissionRationaleActivity extends SettingsActivity implements
         final int x = (int) ev.getX();
         final int y = (int) ev.getY();
         if ((x < 0) || (y < 0) || (x > (rootView.getWidth())) || (y > (rootView.getHeight()))) {
+            //TODO b/278783474: We should make this activity a fragment of the base GrantPermissions
+            // activity
+            GrantPermissionsActivity grantActivity = null;
+            synchronized (GrantPermissionsActivity.sCurrentGrantRequests) {
+                grantActivity = GrantPermissionsActivity.sCurrentGrantRequests
+                        .get(new Pair<>(mTargetPackage, getTaskId()));
+            }
+            if (grantActivity != null
+                    && getIntent().getBooleanExtra(EXTRA_SHOULD_SHOW_SETTINGS_SECTION, false)) {
+                grantActivity.finishAfterTransition();
+            }
             if (MotionEvent.ACTION_DOWN == ev.getAction()) {
                 mViewHandler.onCancelled();
             }
@@ -298,6 +329,8 @@ public class PermissionRationaleActivity extends SettingsActivity implements
     @Override
     public void onPermissionRationaleResult(@Nullable String groupName, int result) {
         if (result == CANCELLED) {
+            mViewModel.logPermissionRationaleDialogActionReported(
+                    PERMISSION_RATIONALE_DIALOG_ACTION_REPORTED__BUTTON_PRESSED__CANCEL);
             finishAfterTransition();
         }
     }
@@ -320,37 +353,32 @@ public class PermissionRationaleActivity extends SettingsActivity implements
         @StringRes int titleResId = getTitleResIdForPermissionGroup(mPermissionGroupName);
         setTitle(titleResId);
         CharSequence title = getString(titleResId);
-
-        String installSourcePackageName = mPermissionRationaleInfo.getInstallSourcePackageName();
-        CharSequence installSourceLabel = mPermissionRationaleInfo.getInstallSourceLabel();
-        checkStringNotEmpty(installSourcePackageName,
-                "installSourcePackageName cannot be null or empty");
-        checkStringNotEmpty(installSourceLabel,
-                "installSourceLabel cannot be null or empty");
-        CharSequence dataSharingSourceMessage = createDataSharingSourceMessageWithSpans(
-                getText(R.string.permission_rationale_data_sharing_source_message),
-                installSourceLabel,
-                getLinkToAppStore(installSourcePackageName));
+        CharSequence dataSharingSourceMessage = getDataSharingSourceMessage();
 
         CharSequence purposeTitle =
                 getString(getPurposeTitleResIdForPermissionGroup(mPermissionGroupName));
 
-        // TODO(b/260144215): update ordering (enum ordering doesn't match expected ux ordering)
-        List<String> purposesList =
-                new ArrayList<>(mPermissionRationaleInfo.getPurposeSet().size());
-        for (@Purpose int purpose : mPermissionRationaleInfo.getPurposeSet()) {
-            purposesList.add(getStringForPurpose(purpose));
-        }
+        List<Integer> purposeList = new ArrayList<>(mPermissionRationaleInfo.getPurposeSet());
+        Collections.sort(purposeList, ORDERED_PURPOSE_COMPARATOR);
+        List<String> purposeStringList = purposeList.stream()
+                .map(this::getStringForPurpose)
+                .collect(Collectors.toList());
+
         CharSequence purposeMessage =
                 createPurposeMessageWithBulletSpan(
                         getText(R.string.permission_rationale_purpose_message),
-                        purposesList);
+                        purposeStringList);
 
-        CharSequence learnMoreMessage =
-                setLink(
-                        getText(R.string.permission_rationale_data_sharing_varies_message),
-                        getLearnMoreLink()
-                );
+        CharSequence learnMoreMessage;
+        if (mViewModel.canLinkToHelpCenter(this)) {
+            learnMoreMessage = setLink(
+                    getText(R.string.permission_rationale_data_sharing_varies_message),
+                    getLearnMoreLink()
+            );
+        } else {
+            learnMoreMessage =
+                    getText(R.string.permission_rationale_data_sharing_varies_message_without_link);
+        }
 
         String groupName = mPermissionRationaleInfo.getGroupName();
         String permissionGroupLabel =
@@ -378,6 +406,22 @@ public class PermissionRationaleActivity extends SettingsActivity implements
             manager.hideSoftInputFromWindow(mRootView.getWindowToken(), 0);
             mRootView.setVisibility(View.VISIBLE);
         }
+    }
+
+    private CharSequence getDataSharingSourceMessage() {
+        if (mPermissionRationaleInfo.isPreloadedApp()) {
+            return getText(R.string.permission_rationale_data_sharing_device_manufacturer_message);
+        }
+
+        String installSourcePackageName = mPermissionRationaleInfo.getInstallSourcePackageName();
+        CharSequence installSourceLabel = mPermissionRationaleInfo.getInstallSourceLabel();
+        checkStringNotEmpty(installSourcePackageName,
+                "installSourcePackageName cannot be null or empty");
+        checkStringNotEmpty(installSourceLabel, "installSourceLabel cannot be null or empty");
+        return createDataSharingSourceMessageWithSpans(
+                getText(R.string.permission_rationale_data_sharing_source_message),
+                installSourceLabel,
+                getLinkToAppStore(installSourcePackageName));
     }
 
     @StringRes

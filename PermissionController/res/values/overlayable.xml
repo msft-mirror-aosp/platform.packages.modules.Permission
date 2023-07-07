@@ -23,6 +23,7 @@
 
             <!-- START HELP LINKS -->
             <item type="string" name="help_app_permissions" />
+            <item type="string" name="data_sharing_help_center_link" />
             <!-- END HELP LINKS -->
 
             <!-- START PERMISSION GRANT DIALOG -->
@@ -36,11 +37,23 @@
             <item type="style" name="PermissionGrantTitleMessage" />
             <item type="style" name="PermissionGrantDetailMessage" />
 
+            <item type="style" name="PermissionGrantPermissionRationaleContent" />
+            <item type="style" name="PermissionGrantPermissionRationaleIcon" />
+            <item type="style" name="PermissionGrantPermissionRationaleMessage" />
+            <item type="style" name="PermissionGrantPermissionRationaleMoreInfoIcon" />
+
+            <item type="color" name="permission_rationale_overview_background" />
+
+            <item type="style" name="PermissionLocationAccuracyRadioGroupMaterial3" />
+            <item type="style" name="PermissionLocationAccuracyFineImageViewMaterial3" />
+            <item type="style" name="PermissionLocationAccuracyCoarseImageViewMaterial3" />
+
+            <item type="style" name="PermissionLocationAccuracyRadioFine" />
+            <item type="style" name="PermissionLocationAccuracyRadioCoarse" />
+
             <item type="style" name="PermissionGrantButtonList" />
             <item type="style" name="PermissionGrantButtonBarSpace" />
             <item type="style" name="PermissionGrantButton" />
-
-            <!-- IDs for V31 only -->
 
             <item type="style" name="PermissionGrantButtonTop" />
             <item type="style" name="PermissionGrantButtonMiddle" />
@@ -51,21 +64,27 @@
             <item type="style" name="PermissionGrantButtonAllowMaterial3" />
             <item type="style" name="PermissionGrantButtonAllowForegroundMaterial3" />
             <item type="style" name="PermissionGrantButtonAllowOneTimeMaterial3" />
+            <item type="style" name="PermissionGrantButtonAllowSelectedMaterial3" />
+            <item type="style" name="PermissionGrantButtonAllowAllMaterial3" />
             <item type="style" name="PermissionGrantButtonDenyMaterial3" />
             <item type="style" name="PermissionGrantButtonNoUpgradeMaterial3" />
+            <item type="style" name="PermissionGrantButtonDontAllowMoreMaterial3" />
 
-            <!-- END IDs for V31 only -->
+            <!-- Used in V30 only -->
+
+            <item type="style" name="PermissionLocationAccuracyFineImageView" />
+            <item type="style" name="PermissionLocationAccuracyCoarseImageView" />
 
             <item type="style" name="PermissionGrantButtonAllow" />
             <item type="style" name="PermissionGrantButtonAllowForeground" />
             <item type="style" name="PermissionGrantButtonAllowOneTime" />
+            <item type="style" name="PermissionGrantButtonAllowSelected" />
+            <item type="style" name="PermissionGrantButtonAllowAll" />
             <item type="style" name="PermissionGrantButtonDeny" />
             <item type="style" name="PermissionGrantButtonNoUpgrade" />
+            <item type="style" name="PermissionGrantButtonDontAllowMore" />
 
-            <item type="style" name="PermissionGrantPermissionRationaleContent" />
-            <item type="style" name="PermissionGrantPermissionRationaleIcon" />
-            <item type="style" name="PermissionGrantPermissionRationaleMessage" />
-            <item type="style" name="PermissionGrantPermissionRationaleMoreInfoIcon" />
+            <!-- END Used in V30 only -->
 
             <!-- END PERMISSION GRANT DIALOG -->
 
@@ -88,6 +107,8 @@
 
             <item type="style" name="PermissionRationaleButtonContainer" />
             <item type="style" name="PermissionRationaleBackButton" />
+
+            <item type="color" name="permission_rationale_accent_primary_variant" />
 
             <!-- END PERMISSION RATIONALE DIALOG -->
 
@@ -387,10 +408,13 @@
             <item type="dimen" name="sc_entry_group_collapsed_padding_bottom" />
             <item type="dimen" name="sc_card_margin_bottom" />
             <item type="dimen" name="sc_button_corner_radius" />
+            <item type="dimen" name="sc_button_corner_radius_small" />
             <item type="dimen" name="sc_card_corner_radius_large" />
             <item type="dimen" name="sc_card_corner_radius_medium" />
             <item type="dimen" name="sc_card_corner_radius_xsmall" />
-            <item type="dimen" name="safety_center_brand_chip_corner_radius" />
+            <item type="dimen" name="sc_card_widget_corner_radius" />
+            <item type="dimen" name="sc_brand_chip_corner_radius" />
+            <item type="dimen" name="sc_brand_chip_padding" />
 
             <item type="color" name="safety_center_button_info" />
             <item type="color" name="safety_center_button_recommend" />
@@ -405,9 +429,32 @@
             <item type="color" name="sc_accent_primary_light" />
             <item type="color" name="sc_accent_primary_dark" />
             <item type="color" name="sc_shield_accent" />
+            <item type="color" name="sc_shield_accent_dark" />
+            <item type="color" name="sc_shield_accent_fixed_variant" />
             <item type="color" name="safety_center_info" />
             <item type="color" name="safety_center_recommend" />
             <item type="color" name="safety_center_warn" />
+
+            <item type="color" name="sc_status_info_light" />
+            <item type="color" name="sc_status_recommend_light" />
+            <item type="color" name="sc_status_warn_light" />
+            <item type="color" name="sc_status_info_dark" />
+            <item type="color" name="sc_status_recommend_dark" />
+            <item type="color" name="sc_status_warn_dark" />
+            <item type="color" name="sc_status_background_info_light" />
+            <item type="color" name="sc_status_background_recommend_light" />
+            <item type="color" name="sc_status_background_warn_light" />
+            <item type="color" name="sc_status_background_info_dark" />
+            <item type="color" name="sc_status_background_recommend_dark" />
+            <item type="color" name="sc_status_background_warn_dark" />
+            <item type="color" name="sc_icon_info_light" />
+            <item type="color" name="sc_icon_recommend_light" />
+            <item type="color" name="sc_icon_warn_light" />
+            <item type="color" name="sc_icon_null_light" />
+            <item type="color" name="sc_icon_info_dark" />
+            <item type="color" name="sc_icon_recommend_dark" />
+            <item type="color" name="sc_icon_warn_dark" />
+            <item type="color" name="sc_icon_null_dark" />
 
             <item type="drawable" name="ic_check" />
             <item type="drawable" name="ic_chevron_right" />
@@ -479,7 +526,6 @@
             <item type="drawable" name="status_scanning_end_anim_warn_to_warn" />
             <item type="drawable" name="status_warn_to_scanning_anim" />
             <item type="drawable" name="safety_center_brand_chip_background" />
-            <!--TODO(b/253171482) Confirm with UX about overlaying this-->
             <item type="drawable" name="ic_safety_center_brand_chip" />
 
             <item type="style" name="TextAppearance.SafetyCenter.Headline" />
@@ -487,9 +533,12 @@
             <item type="style" name="TextAppearance.SafetyCenter.Headline.Issue" />
             <item type="style" name="TextAppearance.SafetyCenter.Headline.Entry" />
             <item type="style" name="TextAppearance.SafetyCenter.Body" />
+            <item type="style" name="TextAppearance.SafetyCenter.IssueAttribution" />
             <item type="style" name="TextAppearance.SafetyCenter.Medium" />
+            <item type="style" name="TextAppearance.SafetyCenter.IssueSubtitle" />
             <item type="style" name="TextAppearance.SafetyCenter.ActionButton" />
             <item type="style" name="TextAppearance.SafetyCenter.ActionButton.Secondary" />
+            <item type="style" name="TextAppearance.SafetyCenter.BrandChip" />
         </policy>
     </overlayable>
 
