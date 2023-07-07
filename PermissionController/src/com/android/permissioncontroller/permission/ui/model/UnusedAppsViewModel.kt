@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package com.android.permissioncontroller.permission.ui.model
 
@@ -57,7 +58,7 @@ class UnusedAppsViewModel(private val app: Application, private val sessionId: L
 
     companion object {
         private val MAX_UNUSED_PERIOD_MILLIS =
-            UnusedPeriod.allPeriods.maxByOrNull(UnusedPeriod::duration)!!.duration.inWholeMilliseconds
+            UnusedPeriod.allPeriods.maxBy(UnusedPeriod::duration).duration.inWholeMilliseconds
         private val LOG_TAG = AppPermissionViewModel::class.java.simpleName
     }
 
@@ -68,7 +69,7 @@ class UnusedAppsViewModel(private val app: Application, private val sessionId: L
 
         val months: Int = (duration.inWholeDays / 30).toInt()
 
-        inline fun isNewlyUnused(): Boolean {
+        fun isNewlyUnused(): Boolean {
             return (this == ONE_MONTH) || (this == THREE_MONTHS)
         }
 

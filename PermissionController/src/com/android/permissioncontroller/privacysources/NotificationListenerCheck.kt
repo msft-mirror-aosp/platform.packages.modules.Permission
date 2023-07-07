@@ -51,7 +51,6 @@ import android.safetycenter.SafetyEvent
 import android.safetycenter.SafetySourceData
 import android.safetycenter.SafetySourceIssue
 import android.service.notification.StatusBarNotification
-import android.text.Html
 import android.util.Log
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.GuardedBy
@@ -91,7 +90,6 @@ import kotlinx.coroutines.sync.withLock
 
 private val TAG = "NotificationListenerCheck"
 private const val DEBUG = false
-
 const val SC_NLS_SOURCE_ID = "AndroidNotificationListener"
 @VisibleForTesting const val SC_NLS_DISABLE_ACTION_ID = "disable_nls_component"
 
@@ -505,7 +503,7 @@ internal class NotificationListenerCheckInternal(
         pkg: PackageInfo,
         sessionId: Long
     ) {
-        val pkgLabel: CharSequence =
+        val pkgLabel =
             Utils.getApplicationLabel(parentUserContext, pkg.applicationInfo)
         val uid = pkg.applicationInfo.uid
 
@@ -520,23 +518,8 @@ internal class NotificationListenerCheckInternal(
             parentUserContext.getString(
                 R.string.notification_listener_reminder_notification_content, pkgLabel)
 
-        // Use PbA branding if available, otherwise default to more generic branding
-        val appLabel: CharSequence?
-        val smallIconResId: Int
-        val colorResId: Int
-        if (KotlinUtils.shouldShowSafetyProtectionResources(parentUserContext)) {
-            // PbA branding and colors
-            val pbaHtmlString =
-                parentUserContext.getString(android.R.string.safety_protection_display_text)
-            appLabel = Html.fromHtml(pbaHtmlString, 0).toString()
-            smallIconResId = android.R.drawable.ic_safety_protection
-            colorResId = R.color.safety_center_info
-        } else {
-            // Generic branding. Settings label, gear icon, and system accent color
-            appLabel = parentUserContext.getString(R.string.safety_center_notification_app_label)
-            smallIconResId = R.drawable.ic_settings_notification
-            colorResId = android.R.color.system_notification_accent_color
-        }
+        val (appLabel, smallIcon, color) =
+            KotlinUtils.getSafetyCenterNotificationResources(parentUserContext)
 
         val b: Notification.Builder =
             Notification.Builder(parentUserContext, Constants.PERMISSION_REMINDER_CHANNEL_ID)
@@ -545,15 +528,15 @@ internal class NotificationListenerCheckInternal(
                 .setContentText(text)
                 // Ensure entire text can be displayed, instead of being truncated to one line
                 .setStyle(Notification.BigTextStyle().bigText(text))
-                .setSmallIcon(smallIconResId)
-                .setColor(parentUserContext.getColor(colorResId))
+                .setSmallIcon(smallIcon)
+                .setColor(color)
                 .setAutoCancel(true)
                 .setDeleteIntent(deletePendingIntent)
                 .setContentIntent(clickPendingIntent)
 
         if (appLabel.isNotEmpty()) {
             val appNameExtras = Bundle()
-            appNameExtras.putString(Notification.EXTRA_SUBSTITUTE_APP_NAME, appLabel.toString())
+            appNameExtras.putString(Notification.EXTRA_SUBSTITUTE_APP_NAME, appLabel)
             b.addExtras(appNameExtras)
         }
 
@@ -714,8 +697,7 @@ internal class NotificationListenerCheckInternal(
             }
             return null
         }
-        val pkgLabel: CharSequence =
-            Utils.getApplicationLabel(parentUserContext, pkgInfo.applicationInfo)
+        val pkgLabel = Utils.getApplicationLabel(parentUserContext, pkgInfo.applicationInfo)
         val safetySourceIssueId = getSafetySourceIssueIdFromComponentName(componentName)
         val uid = pkgInfo.applicationInfo.uid
 
@@ -805,6 +787,7 @@ internal class NotificationListenerCheckInternal(
                     EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME, componentName.flattenToString())
                 putExtra(Constants.EXTRA_SESSION_ID, sessionId)
                 putExtra(Intent.EXTRA_UID, uid)
+                putExtra(Constants.EXTRA_IS_FROM_SLICE, true)
             }
         return PendingIntent.getActivity(context, 0, intent, FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
     }
@@ -846,7 +829,7 @@ class NotificationListenerCheckJobService : JobService() {
 
     override fun onCreate() {
         super.onCreate()
-
+        if (DEBUG) Log.d(TAG, "Nls privacy job created")
         if (!checkNotificationListenerCheckEnabled(this)) {
             // NotificationListenerCheck not enabled. End job.
             return
@@ -871,6 +854,7 @@ class NotificationListenerCheckJobService : JobService() {
      * @return `false` if another check is already running, or if SDK Check fails (below T)
      */
     override fun onStartJob(params: JobParameters): Boolean {
+        if (DEBUG) Log.d(TAG, "Nls privacy job started")
         if (!checkNotificationListenerCheckEnabled(this)) {
             // NotificationListenerCheck not enabled. End job.
             return false
