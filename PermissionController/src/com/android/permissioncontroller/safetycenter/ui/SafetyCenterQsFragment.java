@@ -149,8 +149,8 @@ public class SafetyCenterQsFragment extends Fragment {
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.safety_center_qs, container, false);
         root.setVisibility(View.GONE);
+        root.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
 
-        root.setBackgroundColor(android.R.color.background_dark);
         View closeButton = root.findViewById(R.id.close_button);
         closeButton.setOnClickListener((v) -> requireActivity().finish());
         SafetyCenterTouchTarget.configureSize(
@@ -603,7 +603,7 @@ public class SafetyCenterQsFragment extends Fragment {
         securitySettings.setOnClickListener(
                 (v) ->
                         mSafetyCenterViewModel.navigateToSafetyCenter(
-                                this, NavigationSource.QUICK_SETTINGS_TILE));
+                                mContext, NavigationSource.QUICK_SETTINGS_TILE));
         TextView securitySettingsText = securitySettings.findViewById(R.id.toggle_sensor_name);
         securitySettingsText.setText(R.string.settings);
         securitySettingsText.setSelected(true);
