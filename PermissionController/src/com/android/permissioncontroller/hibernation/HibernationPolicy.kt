@@ -71,9 +71,9 @@ import android.service.voice.VoiceInteractionService
 import android.service.wallpaper.WallpaperService
 import android.telephony.TelephonyManager.CARRIER_PRIVILEGE_STATUS_HAS_ACCESS
 import android.telephony.TelephonyManager.CARRIER_PRIVILEGE_STATUS_NO_ACCESS
-import android.text.Html
 import android.util.Log
 import android.view.inputmethod.InputMethod
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
@@ -163,6 +163,13 @@ fun hibernationTargetsPreSApps(): Boolean {
         false /* defaultValue */)
 }
 
+@ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
+fun isSystemExemptFromHibernationEnabled(): Boolean {
+    return SdkLevel.isAtLeastU() && DeviceConfig.getBoolean(NAMESPACE_APP_HIBERNATION,
+            Utils.PROPERTY_SYSTEM_EXEMPT_HIBERNATION_ENABLED,
+            true /* defaultValue */)
+}
+
 /**
  * Remove the unused apps notification.
  */
@@ -181,7 +188,7 @@ fun cancelUnusedAppsNotification(context: Context) {
 fun rescanAndPushDataToSafetyCenter(
     context: Context,
     sessionId: Long,
-    safetyEvent: SafetyEvent
+    safetyEvent: SafetyEvent,
 ) {
     val safetyCenterManager: SafetyCenterManager =
         context.getSystemService(SafetyCenterManager::class.java)!!
@@ -337,7 +344,7 @@ class HibernationBroadcastReceiver : BroadcastReceiver() {
  */
 @MainThread
 private suspend fun getAppsToHibernate(
-    context: Context
+    context: Context,
 ): Map<UserHandle, List<LightPackageInfo>> {
     val now = System.currentTimeMillis()
     val startTimeOfUnusedAppTracking = getStartTimeOfUnusedAppTracking(context.sharedPreferences)
@@ -484,7 +491,7 @@ private fun List<UsageStats>.lastTimePackageUsed(pkgName: String): Long {
  */
 suspend fun isPackageHibernationExemptBySystem(
     pkg: LightPackageInfo,
-    user: UserHandle
+    user: UserHandle,
 ): Boolean {
     if (!LauncherPackagesLiveData.getInitializedValue().contains(pkg.packageName)) {
         if (DEBUG_HIBERNATION_POLICY) {
@@ -501,6 +508,14 @@ suspend fun isPackageHibernationExemptBySystem(
         if (DEBUG_HIBERNATION_POLICY) {
             DumpableLog.i(LOG_TAG,
                     "Exempted ${pkg.packageName} - $user is disabled or a work profile")
+        }
+        return true
+    }
+
+    if (pkg.uid == Process.SYSTEM_UID){
+        if (DEBUG_HIBERNATION_POLICY) {
+            DumpableLog.i(LOG_TAG,
+                "Exempted ${pkg.packageName} - Package shares system uid")
         }
         return true
     }
@@ -540,6 +555,15 @@ suspend fun isPackageHibernationExemptBySystem(
         if (DEBUG_HIBERNATION_POLICY) {
             DumpableLog.i(LOG_TAG, "Exempted ${pkg.packageName} " +
                     "- holder of READ_PRIVILEGED_PHONE_STATE")
+        }
+        return true
+    }
+
+    val emergencyRoleHolders = context.getSystemService(android.app.role.RoleManager::class.java)!!
+            .getRoleHolders(RoleManager.ROLE_EMERGENCY)
+    if (emergencyRoleHolders.contains(pkg.packageName)) {
+        if (DEBUG_HIBERNATION_POLICY) {
+            DumpableLog.i(LOG_TAG, "Exempted ${pkg.packageName} - emergency app")
         }
         return true
     }
@@ -589,6 +613,18 @@ suspend fun isPackageHibernationExemptBySystem(
         }
     }
 
+    if (isSystemExemptFromHibernationEnabled() && AppOpLiveData[pkg.packageName,
+          AppOpsManager.OPSTR_SYSTEM_EXEMPT_FROM_HIBERNATION,
+          pkg.uid].getInitializedValue() == AppOpsManager.MODE_ALLOWED) {
+        if (DEBUG_HIBERNATION_POLICY) {
+            DumpableLog.i(
+                LOG_TAG,
+                "Exempted ${pkg.packageName} - has OP_SYSTEM_EXEMPT_FROM_HIBERNATION"
+            )
+        }
+        return true
+    }
+
     return false
 }
 
@@ -598,7 +634,7 @@ suspend fun isPackageHibernationExemptBySystem(
  */
 suspend fun isPackageHibernationExemptByUser(
     context: Context,
-    pkg: LightPackageInfo
+    pkg: LightPackageInfo,
 ): Boolean {
     val packageName = pkg.packageName
     val packageUid = pkg.uid
@@ -855,21 +891,12 @@ class HibernationJobService : JobService() {
         val extras = Bundle()
         if (SdkLevel.isAtLeastT() &&
             getSystemService(SafetyCenterManager::class.java)!!.isSafetyCenterEnabled) {
-            if (KotlinUtils.shouldShowSafetyProtectionResources(this)) {
-                // Use Protected by Android branding
-                extras.putString(Notification.EXTRA_SUBSTITUTE_APP_NAME,
-                    Html.fromHtml(getString(android.R.string.safety_protection_display_text),
-                        /* flags= */ 0).toString())
-                b.setSmallIcon(android.R.drawable.ic_safety_protection)
-                    .setColor(getColor(R.color.safety_center_info))
-                    .addExtras(extras)
-            } else {
-                // Use non-GMS PbA branding
-                extras.putString(Notification.EXTRA_SUBSTITUTE_APP_NAME,
-                    getString(R.string.safety_center_notification_app_label))
-                b.setSmallIcon(R.drawable.ic_settings_notification)
-                    .addExtras(extras)
-            }
+            val notificationResources = KotlinUtils.getSafetyCenterNotificationResources(this)
+
+            extras.putString(Notification.EXTRA_SUBSTITUTE_APP_NAME, notificationResources.appLabel)
+            b.setSmallIcon(notificationResources.smallIcon)
+                .setColor(notificationResources.color)
+                .addExtras(extras)
         } else {
             // Use standard Settings branding
             Utils.getSettingsLabelForNotifications(applicationContext.packageManager)?.let {

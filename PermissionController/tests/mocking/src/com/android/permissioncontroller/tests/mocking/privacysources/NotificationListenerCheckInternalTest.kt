@@ -442,7 +442,7 @@ class NotificationListenerCheckInternalTest {
     @Test
     fun createSafetySourceIssue() {
         val testComponent = ComponentName("com.test.package", "TestClass")
-        val testAppLabel: CharSequence = "TestApp Label"
+        val testAppLabel = "TestApp Label"
         doReturn(PackageInfo().apply { applicationInfo = ApplicationInfo() }).`when` {
             Utils.getPackageInfoForComponentName(
                 any(Context::class.java), any(ComponentName::class.java))
@@ -496,6 +496,15 @@ class NotificationListenerCheckInternalTest {
         assertThat(safetySourceIssue.onDismissPendingIntent).isEqualTo(expectedDismissPendingIntent)
         assertThat(safetySourceIssue.actions.size).isEqualTo(2)
         assertThat(safetySourceIssue.actions).containsExactly(expectedAction2, expectedAction1)
+    }
+
+    @Test
+    fun exemptPackagesNotInitializedUntilUsed() {
+        assertThat(notificationListenerCheck.exemptPackagesDelegate.isInitialized()).isFalse()
+        runWithShellPermissionIdentity {
+            notificationListenerCheck.exemptPackages
+        }
+        assertThat(notificationListenerCheck.exemptPackagesDelegate.isInitialized()).isTrue()
     }
 
     private fun getNotifiedComponents(): Set<ComponentName> = runBlocking {

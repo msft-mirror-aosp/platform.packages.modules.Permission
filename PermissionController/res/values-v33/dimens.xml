@@ -28,8 +28,15 @@
     <dimen name="sc_card_margin">@dimen/sc_spacing_xxxsmall</dimen>
     <dimen name="sc_list_margin">@dimen/sc_spacing_large</dimen>
     <dimen name="sc_list_margin_top">@dimen/sc_spacing_small</dimen>
+
+    <!-- Only used for small screen views, but doesn't have _small_screen suffix since it's fixed in
+         the overlayable. -->
     <dimen name="sc_action_button_list_margin">@dimen/sc_spacing_large</dimen>
+    <dimen name="sc_action_button_list_margin_large_screen">@dimen/sc_spacing_large</dimen>
     <dimen name="sc_top_action_button_margin">@dimen/sc_spacing_xxxlarge</dimen>
+    <dimen name="sc_button_horizontal_padding_small_screen">@dimen/sc_spacing_xxxlarge</dimen>
+    <dimen name="sc_button_horizontal_padding_large_screen">56dp</dimen>
+
     <dimen name="sc_entry_padding_end">@dimen/sc_spacing_xxxlarge</dimen>
     <dimen name="sc_entry_group_expanded_padding_top">@dimen/sc_spacing_xxxlarge</dimen>
     <dimen name="sc_entry_group_expanded_padding_bottom">@dimen/sc_spacing_xsmall</dimen>
@@ -42,6 +49,12 @@
     <dimen name="sc_card_corner_radius_large">28dp</dimen>
     <dimen name="sc_card_corner_radius_medium">20dp</dimen>
     <dimen name="sc_card_corner_radius_xsmall">4dp</dimen>
+    <dimen name="sc_card_widget_corner_radius">16dp</dimen>
 
     <dimen name="sc_qs_max_width">492dp</dimen>
+
+    <dimen name="sc_line_height_xlarge">28sp</dimen>
+    <dimen name="sc_line_height_large">24sp</dimen>
+    <dimen name="sc_line_height_medium">20sp</dimen>
+    <dimen name="sc_line_height_small">16dp</dimen>
 </resources>

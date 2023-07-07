@@ -19,7 +19,7 @@ package android.safetycenter.cts
 import android.safetycenter.SafetyCenterErrorDetails
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.ext.truth.os.ParcelableSubject.assertThat
-import com.android.permission.testing.EqualsHashCodeToStringTester
+import com.android.safetycenter.testing.EqualsHashCodeToStringTester
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,12 +51,15 @@ class SafetyCenterErrorDetailsTest {
 
     @Test
     fun equalsHashCodeToString_usingEqualsHashCodeToStringTester() {
-        EqualsHashCodeToStringTester()
+        EqualsHashCodeToStringTester.ofParcelable(
+                parcelableCreator = SafetyCenterErrorDetails.CREATOR
+            )
             .addEqualityGroup(errorDetails1, SafetyCenterErrorDetails("an error message"))
             .addEqualityGroup(errorDetails2, SafetyCenterErrorDetails("another error message"))
             .addEqualityGroup(
                 SafetyCenterErrorDetails("a different error message"),
-                SafetyCenterErrorDetails("a different error message"))
+                SafetyCenterErrorDetails("a different error message")
+            )
             .test()
     }
 }

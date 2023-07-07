@@ -16,6 +16,7 @@
 
 package android.safetycenter.cts
 
+import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.safetycenter.SafetyEvent
 import android.safetycenter.SafetyEvent.SAFETY_EVENT_TYPE_DEVICE_LOCALE_CHANGED
 import android.safetycenter.SafetyEvent.SAFETY_EVENT_TYPE_DEVICE_REBOOTED
@@ -25,7 +26,8 @@ import android.safetycenter.SafetyEvent.SAFETY_EVENT_TYPE_RESOLVING_ACTION_SUCCE
 import android.safetycenter.SafetyEvent.SAFETY_EVENT_TYPE_SOURCE_STATE_CHANGED
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.ext.truth.os.ParcelableSubject.assertThat
-import com.android.permission.testing.EqualsHashCodeToStringTester
+import androidx.test.filters.SdkSuppress
+import com.android.safetycenter.testing.EqualsHashCodeToStringTester
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Test
@@ -86,7 +88,8 @@ class SafetyEventTest {
             .hasMessageThat()
             .isEqualTo(
                 "Missing issue action id for resolving action safety event: " +
-                    SAFETY_EVENT_TYPE_RESOLVING_ACTION_FAILED)
+                    SAFETY_EVENT_TYPE_RESOLVING_ACTION_FAILED
+            )
     }
 
     @Test
@@ -102,7 +105,8 @@ class SafetyEventTest {
             .hasMessageThat()
             .isEqualTo(
                 "Missing issue id for resolving action safety event: " +
-                    SAFETY_EVENT_TYPE_RESOLVING_ACTION_FAILED)
+                    SAFETY_EVENT_TYPE_RESOLVING_ACTION_FAILED
+            )
     }
 
     @Test
@@ -118,7 +122,8 @@ class SafetyEventTest {
             .hasMessageThat()
             .isEqualTo(
                 "Missing issue action id for resolving action safety event: " +
-                    SAFETY_EVENT_TYPE_RESOLVING_ACTION_SUCCEEDED)
+                    SAFETY_EVENT_TYPE_RESOLVING_ACTION_SUCCEEDED
+            )
     }
 
     @Test
@@ -134,7 +139,8 @@ class SafetyEventTest {
             .hasMessageThat()
             .isEqualTo(
                 "Missing issue id for resolving action safety event: " +
-                    SAFETY_EVENT_TYPE_RESOLVING_ACTION_SUCCEEDED)
+                    SAFETY_EVENT_TYPE_RESOLVING_ACTION_SUCCEEDED
+            )
     }
 
     @Test
@@ -180,7 +186,25 @@ class SafetyEventTest {
 
     @Test
     fun equalsHashCodeToString_usingEqualsHashCodeToStringTester() {
-        EqualsHashCodeToStringTester()
+        newTiramisuEqualsHashCodeToStringTester().test()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE)
+    fun equalsHashCodeToString_usingEqualsHashCodeToStringTester_atLeastAndroidU() {
+        newTiramisuEqualsHashCodeToStringTester(
+                createCopyFromBuilder = { SafetyEvent.Builder(it).build() }
+            )
+            .test()
+    }
+
+    private fun newTiramisuEqualsHashCodeToStringTester(
+        createCopyFromBuilder: ((SafetyEvent) -> SafetyEvent)? = null
+    ) =
+        EqualsHashCodeToStringTester.ofParcelable(
+                parcelableCreator = SafetyEvent.CREATOR,
+                createCopy = createCopyFromBuilder
+            )
             .addEqualityGroup(SafetyEvent.Builder(SAFETY_EVENT_TYPE_SOURCE_STATE_CHANGED).build())
             .addEqualityGroup(
                 SafetyEvent.Builder(SAFETY_EVENT_TYPE_REFRESH_REQUESTED)
@@ -188,7 +212,8 @@ class SafetyEventTest {
                     .build(),
                 SafetyEvent.Builder(SAFETY_EVENT_TYPE_REFRESH_REQUESTED)
                     .setRefreshBroadcastId(REFRESH_BROADCAST_ID)
-                    .build())
+                    .build()
+            )
             .addEqualityGroup(
                 SafetyEvent.Builder(SAFETY_EVENT_TYPE_RESOLVING_ACTION_SUCCEEDED)
                     .setSafetySourceIssueId(SAFETY_SOURCE_ISSUE_ID)
@@ -197,7 +222,8 @@ class SafetyEventTest {
                 SafetyEvent.Builder(SAFETY_EVENT_TYPE_RESOLVING_ACTION_SUCCEEDED)
                     .setSafetySourceIssueId(SAFETY_SOURCE_ISSUE_ID)
                     .setSafetySourceIssueActionId(SAFETY_SOURCE_ISSUE_ACTION_ID)
-                    .build())
+                    .build()
+            )
             .addEqualityGroup(
                 SafetyEvent.Builder(SAFETY_EVENT_TYPE_RESOLVING_ACTION_FAILED)
                     .setSafetySourceIssueId(SAFETY_SOURCE_ISSUE_ID)
@@ -206,35 +232,39 @@ class SafetyEventTest {
                 SafetyEvent.Builder(SAFETY_EVENT_TYPE_RESOLVING_ACTION_FAILED)
                     .setSafetySourceIssueId(SAFETY_SOURCE_ISSUE_ID)
                     .setSafetySourceIssueActionId(SAFETY_SOURCE_ISSUE_ACTION_ID)
-                    .build())
+                    .build()
+            )
             .addEqualityGroup(SafetyEvent.Builder(SAFETY_EVENT_TYPE_DEVICE_REBOOTED).build())
             .addEqualityGroup(SafetyEvent.Builder(SAFETY_EVENT_TYPE_DEVICE_LOCALE_CHANGED).build())
             .addEqualityGroup(
                 SafetyEvent.Builder(SAFETY_EVENT_TYPE_REFRESH_REQUESTED)
                     .setRefreshBroadcastId(OTHER_REFRESH_BROADCAST_ID)
-                    .build())
+                    .build()
+            )
             .addEqualityGroup(
                 SafetyEvent.Builder(SAFETY_EVENT_TYPE_RESOLVING_ACTION_SUCCEEDED)
                     .setSafetySourceIssueId(OTHER_SAFETY_SOURCE_ISSUE_ID)
                     .setSafetySourceIssueActionId(SAFETY_SOURCE_ISSUE_ACTION_ID)
-                    .build())
+                    .build()
+            )
             .addEqualityGroup(
                 SafetyEvent.Builder(SAFETY_EVENT_TYPE_RESOLVING_ACTION_SUCCEEDED)
                     .setSafetySourceIssueId(SAFETY_SOURCE_ISSUE_ID)
                     .setSafetySourceIssueActionId(OTHER_SAFETY_SOURCE_ISSUE_ACTION_ID)
-                    .build())
+                    .build()
+            )
             .addEqualityGroup(
                 SafetyEvent.Builder(SAFETY_EVENT_TYPE_RESOLVING_ACTION_FAILED)
                     .setSafetySourceIssueId(OTHER_SAFETY_SOURCE_ISSUE_ID)
                     .setSafetySourceIssueActionId(SAFETY_SOURCE_ISSUE_ACTION_ID)
-                    .build())
+                    .build()
+            )
             .addEqualityGroup(
                 SafetyEvent.Builder(SAFETY_EVENT_TYPE_RESOLVING_ACTION_FAILED)
                     .setSafetySourceIssueId(SAFETY_SOURCE_ISSUE_ID)
                     .setSafetySourceIssueActionId(OTHER_SAFETY_SOURCE_ISSUE_ACTION_ID)
-                    .build())
-            .test()
-    }
+                    .build()
+            )
 
     companion object {
         private const val REFRESH_BROADCAST_ID = "refresh_broadcast_id"

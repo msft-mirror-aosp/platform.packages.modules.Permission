@@ -19,6 +19,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/issue_card"
     android:clickable="false"
+    android:screenReaderFocusable="true"
     style="@style/SafetyCenterCard.Issue">
 
     <ImageButton
@@ -28,28 +29,34 @@
         style="@style/SafetyCenterIssueDismiss" />
 
     <TextView
+        android:id="@+id/issue_card_attribution_title"
+        android:text="@string/summary_placeholder"
+        android:screenReaderFocusable="false"
+        style="@style/SafetyCenterIssueAttributionTitle" />
+
+    <TextView
         android:id="@+id/issue_card_title"
         android:text="@string/summary_placeholder"
-        android:importantForAccessibility="no"
+        android:screenReaderFocusable="false"
         style="@style/SafetyCenterIssueTitle" />
 
     <TextView
         android:id="@+id/issue_card_subtitle"
         android:text="@string/summary_placeholder"
-        android:importantForAccessibility="no"
+        android:screenReaderFocusable="false"
         style="@style/SafetyCenterIssueSubtitle" />
 
     <TextView
         android:id="@+id/issue_card_summary"
         android:text="@string/summary_placeholder"
-        android:importantForAccessibility="no"
+        android:screenReaderFocusable="false"
         style="@style/SafetyCenterIssueSummary" />
 
-    <LinearLayout
-        android:id="@+id/issue_card_action_button_list"
-        style="@style/SafetyCenterIssueActionButtonList" />
+    <include
+      android:id="@+id/issue_card_action_button_list"
+        layout="?attr/scActionButtonListLayout"/>
 
-    <com.android.permissioncontroller.permission.ui.widget.SafetyProtectionSectionView
+    <com.android.permissioncontroller.permission.ui.v33.widget.SafetyProtectionSectionView
         android:id="@+id/issue_card_protected_by_android"
         android:importantForAccessibility="no"
         style="@style/SafetyCenterIssueSafetyProtectionSection" />
@@ -65,15 +72,16 @@
         android:text="@string/safety_center_resolved_issue_fallback"
         style="@style/SafetyCenterIssueCardResolvedTitle" />
 
-    <!--  This group doesn't contain issue_card_subtitle or issue_card_protected_by_android since
-          the version of ConstraintLayout we're using doesn't allow us to override the group's
-          visibility on individual group members. See b/242705351 for context. -->
+    <!--  This group doesn't contain issue_card_dismiss_btn, issue_card_subtitle or
+          issue_card_protected_by_android since the version of ConstraintLayout we're
+          using doesn't allow us to override the group's visibility on individual group
+          members. See b/242705351 for context. -->
     <androidx.constraintlayout.widget.Group
         android:id="@+id/default_issue_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="visible"
-        app:constraint_referenced_ids="issue_card_dismiss_btn,issue_card_title,issue_card_summary,issue_card_action_button_list" />
+        app:constraint_referenced_ids="issue_card_title,issue_card_summary,issue_card_action_button_list" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/resolved_issue_content"

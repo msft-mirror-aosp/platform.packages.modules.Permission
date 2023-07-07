@@ -1,19 +1,7 @@
 {
-  "presubmit": [
+  "imports": [
     {
-      "file_patterns": ["SafetyCenterQsTileService\\.kt"],
-      "name": "CtsSafetyCenterTestCases",
-      "options": [
-        {
-          "exclude-annotation": "com.android.bedstead.harrier.annotations.Postsubmit"
-        }
-      ]
-    }
-  ],
-  "postsubmit": [
-    {
-      "file_patterns": ["SafetyCenterQsTileService\\.kt"],
-      "name": "CtsSafetyCenterTestCases"
+      "path": "packages/modules/Permission/SafetyCenter"
     }
   ]
 }
