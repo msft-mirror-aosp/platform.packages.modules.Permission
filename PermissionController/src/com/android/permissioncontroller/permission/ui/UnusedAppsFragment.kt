@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package com.android.permissioncontroller.permission.ui
 
@@ -95,7 +96,7 @@ class UnusedAppsFragment<PF, UnusedAppPref> : Fragment()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         val preferenceFragment: PF = requirePreferenceFragment()
         isFirstLoad = true
@@ -121,7 +122,8 @@ class UnusedAppsFragment<PF, UnusedAppPref> : Fragment()
                     preferenceFragment.setLoadingState(loading = true, animate = true)
                 } else {
                     updatePackages(viewModel.unusedPackageCategoriesLiveData.value!!)
-            }}, SHOW_LOAD_DELAY_MS)
+                }
+            }, SHOW_LOAD_DELAY_MS)
         } else {
             updatePackages(viewModel.unusedPackageCategoriesLiveData.value!!)
         }
@@ -130,10 +132,7 @@ class UnusedAppsFragment<PF, UnusedAppPref> : Fragment()
 
     override fun onStart() {
         super.onStart()
-        val ab = activity?.actionBar
-        if (ab != null) {
-            ab!!.setElevation(ELEVATION_HIGH)
-        }
+        activity?.actionBar?.setElevation(ELEVATION_HIGH)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -146,6 +145,7 @@ class UnusedAppsFragment<PF, UnusedAppPref> : Fragment()
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun requirePreferenceFragment(): PF {
         return requireParentFragment() as PF
     }
@@ -174,6 +174,7 @@ class UnusedAppsFragment<PF, UnusedAppPref> : Fragment()
         infoMsgCategory?.addPreference(footerPreference)
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun updatePackages(categorizedPackages: Map<UnusedPeriod, List<UnusedPackageInfo>>) {
         val preferenceFragment: PF = requirePreferenceFragment()
         if (preferenceFragment.preferenceScreen == null) {
@@ -261,9 +262,7 @@ class UnusedAppsFragment<PF, UnusedAppPref> : Fragment()
         preferenceFragment.setEmptyState(allCategoriesEmpty)
 
         if (isFirstLoad) {
-            if (categorizedPackages.any { (_, packages) ->
-                    packages!!.isNotEmpty()
-                }) {
+            if (categorizedPackages.any { (_, packages) -> packages.isNotEmpty() }) {
                 isFirstLoad = false
             }
             Log.i(LOG_TAG, "sessionId: $sessionId Showed Auto Revoke Page")
