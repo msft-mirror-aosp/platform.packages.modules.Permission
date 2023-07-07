@@ -16,13 +16,11 @@
 
 package com.android.permissioncontroller.tests.mocking.privacysources
 
-import android.app.job.JobScheduler
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.Intent.ACTION_BOOT_COMPLETED
 import android.content.pm.PackageManager
-import android.hardware.SensorPrivacyManager
 import android.os.Build
 import android.os.UserManager
 import android.provider.DeviceConfig
@@ -40,14 +38,17 @@ import com.android.permissioncontroller.privacysources.PrivacySource
 import com.android.permissioncontroller.privacysources.SafetyCenterReceiver
 import com.android.permissioncontroller.privacysources.SafetyCenterReceiver.RefreshEvent.EVENT_DEVICE_REBOOTED
 import com.android.permissioncontroller.privacysources.SafetyCenterReceiver.RefreshEvent.EVENT_REFRESH_REQUESTED
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
@@ -77,7 +78,7 @@ class SafetyCenterReceiverTest {
         val application = Mockito.mock(PermissionControllerApplication::class.java)
     }
 
-    private val testCoroutineDispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
+    private val testCoroutineDispatcher = TestCoroutineDispatcher()
 
     @Mock
     lateinit var mockSafetyCenterManager: SafetyCenterManager
@@ -89,10 +90,6 @@ class SafetyCenterReceiverTest {
     lateinit var mockPrivacySource2: PrivacySource
     @Mock
     lateinit var mockUserManager: UserManager
-    @Mock
-    lateinit var mockSensorPrivacyManager: SensorPrivacyManager
-    @Mock
-    lateinit var mockJobScheduler: JobScheduler
 
     private lateinit var mockitoSession: MockitoSession
     private lateinit var safetyCenterReceiver: SafetyCenterReceiver
@@ -126,10 +123,6 @@ class SafetyCenterReceiverTest {
                 any(ContextWrapper::class.java), eq(SafetyCenterManager::class.java)
             ))
             .thenReturn(mockSafetyCenterManager)
-        whenever(application.getSystemService(eq(SensorPrivacyManager::class.java)))
-            .thenReturn(mockSensorPrivacyManager)
-        whenever(application.getSystemService(eq(JobScheduler::class.java)))
-            .thenReturn(mockJobScheduler)
         whenever(mockUserManager.isProfile).thenReturn(false)
 
         safetyCenterReceiver = SafetyCenterReceiver(::privacySourceMap, testCoroutineDispatcher)

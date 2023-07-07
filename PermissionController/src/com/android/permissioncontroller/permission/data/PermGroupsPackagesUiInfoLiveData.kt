@@ -158,21 +158,12 @@ class PermGroupsPackagesUiInfoLiveData(
     // Schedule a staggered loading of individual permission group livedatas
     private fun scheduleStaggeredGroupLoad() {
         if (groupNamesLiveData.value != null) {
-            val haveFirstLoadGroup = firstLoadGroup in groupNames
-            if (haveFirstLoadGroup) {
+            if (firstLoadGroup in groupNames) {
                 addLiveDataDelayed(firstLoadGroup!!, 0)
             }
-            var afterFirstLoad = false
             for ((idx, groupName) in groupNames.withIndex()) {
                 if (groupName != firstLoadGroup) {
-                    val delay = if (!haveFirstLoadGroup || afterFirstLoad) {
-                        idx * STAGGER_LOAD_TIME_MS
-                    } else {
-                        (idx + 1) * STAGGER_LOAD_TIME_MS
-                    }
-                    addLiveDataDelayed(groupName, delay)
-                } else {
-                    afterFirstLoad = true
+                    addLiveDataDelayed(groupName, idx * STAGGER_LOAD_TIME_MS)
                 }
             }
         }
@@ -181,7 +172,7 @@ class PermGroupsPackagesUiInfoLiveData(
     private fun addLiveDataDelayed(groupName: String, delayTimeMs: Long) {
         val liveData = SinglePermGroupPackagesUiInfoLiveData[groupName]
         permGroupPackagesLiveDatas[groupName] = liveData
-        handler.postDelayed({ addSource(liveData) { update() } }, delayTimeMs)
+        handler.postDelayed( { addSource(liveData) { update() } }, delayTimeMs)
     }
 
     override fun onActive() {
