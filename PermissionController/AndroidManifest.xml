@@ -4,8 +4,8 @@
   xmlns:tools="http://schemas.android.com/tools"
   package="com.android.permissioncontroller"
   coreApp="true"
-  android:versionCode="340910000"
-  android:versionName="aml_per_340910000"
+  android:versionCode="340911000"
+  android:versionName="aml_per_340911000"
 >
 
     <original-package android:name="com.android.permissioncontroller" />
@@ -64,6 +64,8 @@
     <uses-permission android:name="android.permission.LAUNCH_MULTI_PANE_SETTINGS_DEEP_LINK" />
     <uses-permission android:name="android.permission.SET_UNRESTRICTED_KEEP_CLEAR_AREAS"/>
     <uses-permission android:name="android.permission.START_TASKS_FROM_RECENTS" />
+    <uses-permission android:name="android.permission.READ_APP_SPECIFIC_LOCALES" />
+    <uses-permission android:name="android.permission.GET_APP_METADATA" />
 
     <application android:name="com.android.permissioncontroller.PermissionControllerApplication"
             android:label="@string/app_name"
@@ -154,7 +156,6 @@
             android:enabled="@bool/is_at_least_t"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.safetycenter.action.CORRECT_SENSOR_PRIVACY"/>
                 <action android:name="android.safetycenter.action.SAFETY_CENTER_ENABLED_CHANGED"/>
                 <action android:name="android.safetycenter.action.REFRESH_SAFETY_SOURCES"/>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
@@ -174,8 +175,6 @@
 
         <service android:name="com.android.permissioncontroller.permission.service.PermissionEventCleanupJobService"
                  android:permission="android.permission.BIND_JOB_SERVICE" />
-        <service android:name="com.android.permissioncontroller.permission.service.v33.CorrectSensorPrivacyJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <service
             android:name="com.android.permissioncontroller.safetycenter.service.SafetyCenterBackgroundRefreshJobService"
@@ -193,6 +192,26 @@
             </intent-filter>
         </receiver>
 
+        <service
+            android:name="com.android.permissioncontroller.permission.service.v34.SafetyLabelChangesJobService"
+            android:enabled="@bool/is_at_least_u"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="false" />
+
+        <receiver
+            android:name="com.android.permissioncontroller.permission.service.v34.SafetyLabelChangesJobService$Receiver"
+            android:enabled="@bool/is_at_least_u"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.android.permissioncontroller.action.SET_UP_SAFETY_LABEL_CHANGES_JOB" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.android.permissioncontroller.permission.service.v34.SafetyLabelChangesJobService$NotificationDeleteHandler"
+            android:enabled="@bool/is_at_least_u">
+        </receiver>
 
         <receiver
             android:name="com.android.permissioncontroller.privacysources.AccessibilityOnBootReceiver"
@@ -227,6 +246,17 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name="com.android.permissioncontroller.safetylabel.SafetyLabelChangedBroadcastReceiver"
+            android:enabled="@bool/is_at_least_u"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="com.android.permissioncontroller.action.PACKAGE_ADDED_PERMISSIONCONTROLLER_FORWARDED" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name="com.android.permissioncontroller.privacysources.AccessibilityJobService"
             android:enabled="@bool/is_at_least_t"
@@ -237,6 +267,7 @@
                   android:excludeFromRecents="true"
                   android:exported="true"
                   android:theme="@style/GrantPermissions.FilterTouches"
+                  android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
                   android:visibleToInstantApps="true"
                   android:inheritShowWhenLocked="true"
                   android:hardwareAccelerated="false"
@@ -249,6 +280,18 @@
                 <action android:name="android.content.pm.action.REQUEST_PERMISSIONS_FOR_OTHER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+        </activity>
+
+        <activity android:name="com.android.permissioncontroller.permission.ui.v34.PermissionRationaleActivity"
+                  android:configChanges="keyboardHidden|screenSize"
+                  android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
+                  android:excludeFromRecents="true"
+                  android:exported="false"
+                  android:theme="@style/GrantPermissions.FilterTouches"
+                  android:visibleToInstantApps="true"
+                  android:inheritShowWhenLocked="true"
+                  android:hardwareAccelerated="false"
+                  android:canDisplayOnRemoteDevices="false">
         </activity>
 
         <activity android:name="com.android.permissioncontroller.permission.ui.ManagePermissionsActivity"
@@ -265,6 +308,7 @@
                 <action android:name="android.intent.action.REVIEW_PERMISSION_USAGE" />
                 <action android:name="android.intent.action.REVIEW_PERMISSION_HISTORY" />
                 <action android:name="android.intent.action.MANAGE_UNUSED_APPS" />
+                <action android:name="android.intent.action.REVIEW_APP_DATA_SHARING_UPDATES" />
                 <action android:name="android.permission.action.REVIEW_PERMISSION_DECISIONS"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -324,11 +368,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.android.permissioncontroller.permission.ui.OverlayWarningDialog"
-                android:excludeFromRecents="true"
-                android:exported="false"
-                android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert" />
-
         <activity android:name="com.android.permissioncontroller.permission.ui.LocationProviderInterceptDialog"
                   android:excludeFromRecents="true"
                   android:exported="false"
@@ -350,7 +389,7 @@
                   android:excludeFromRecents="true"
                   android:exported="true"
                   android:theme="@style/PermissionDialog.FilterTouches"
-                  android:permission="android.permission.REVIEW_ACCESSIBILITY_SERVICES" >
+                  android:permission="android.permission.GRANT_RUNTIME_PERMISSIONS" >
             <intent-filter android:priority="1">
                 <action android:name="android.intent.action.REVIEW_ACCESSIBILITY_SERVICES" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -538,9 +577,10 @@
         </receiver>
 
         <activity android:name="com.android.permissioncontroller.incident.ConfirmationActivity"
-                android:theme="@style/Theme.DeviceDefault.Dialog.Alert.DayNight"
+                android:theme="@style/Theme.DeviceDefault.Dialog.NoActionBar.DayNight"
                 android:exported="false"
                 android:excludeFromRecents="true"
+                android:finishOnCloseSystemDialogs="true"
                 android:noHistory="true" />
 
         <receiver android:name="com.android.permissioncontroller.incident.ApprovalReceiver"
@@ -556,6 +596,7 @@
             android:theme="@style/Theme.SafetyCenter">
             <intent-filter android:priority="1">
                 <action android:name="android.intent.action.SAFETY_CENTER"/>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <!-- Higher priority than the settings version of controls, so this should handle it -->
@@ -565,6 +606,8 @@
             </intent-filter>
         </activity>
 
+        <!-- Unexported empty activity for in-process tests -->
+        <activity android:name="android.app.Activity" />
     </application>
 
 </manifest>
