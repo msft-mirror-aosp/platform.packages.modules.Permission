@@ -17,6 +17,7 @@
 package android.safetycenter.config;
 
 import static android.os.Build.VERSION_CODES.TIRAMISU;
+import static android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
@@ -27,6 +28,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.RequiresApi;
+
+import com.android.modules.utils.build.SdkLevel;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -115,6 +118,17 @@ public final class SafetyCenterConfig implements Parcelable {
         /** Creates a {@link Builder} for a {@link SafetyCenterConfig}. */
         public Builder() {}
 
+        /** Creates a {@link Builder} with the values from the given {@link SafetyCenterConfig}. */
+        @RequiresApi(UPSIDE_DOWN_CAKE)
+        public Builder(@NonNull SafetyCenterConfig safetyCenterConfig) {
+            if (!SdkLevel.isAtLeastU()) {
+                throw new UnsupportedOperationException(
+                        "Method not supported on versions lower than UPSIDE_DOWN_CAKE");
+            }
+            requireNonNull(safetyCenterConfig);
+            mSafetySourcesGroups.addAll(safetyCenterConfig.mSafetySourcesGroups);
+        }
+
         /**
          * Adds a {@link SafetySourcesGroup} to the Safety Center configuration.
          *
@@ -129,8 +143,8 @@ public final class SafetyCenterConfig implements Parcelable {
         /**
          * Creates the {@link SafetyCenterConfig} defined by this {@link Builder}.
          *
-         * <p>Throws an {@link IllegalStateException} if any constraint on the Safety Center
-         * configuration is violated.
+         * @throws IllegalStateException if any constraint on the Safety Center configuration is
+         *     violated
          */
         @NonNull
         public SafetyCenterConfig build() {
