@@ -16,14 +16,12 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
 import static android.safetycenter.SafetyCenterManager.REFRESH_REASON_RESCAN_BUTTON_CLICK;
 
 import static com.android.permission.PermissionStatsLog.SAFETY_CENTER_SYSTEM_EVENT_REPORTED__RESULT__TIMEOUT;
 import static com.android.safetycenter.logging.SafetyCenterStatsdLogger.toSystemEventResult;
 
 import android.annotation.ElapsedRealtimeLong;
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.content.Context;
 import android.os.SystemClock;
@@ -34,7 +32,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.permission.util.UserUtils;
 import com.android.safetycenter.logging.SafetyCenterStatsdLogger;
@@ -53,7 +51,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 public final class SafetyCenterRefreshTracker {
     private static final String TAG = "SafetyCenterRefreshTrac";
@@ -78,7 +75,7 @@ public final class SafetyCenterRefreshTracker {
     String reportRefreshInProgress(
             @RefreshReason int refreshReason, UserProfileGroup userProfileGroup) {
         if (mRefreshInProgress != null) {
-            Log.i(TAG, "Replacing an ongoing refresh");
+            Log.i(TAG, "Replacing ongoing refresh with id: " + mRefreshInProgress.getId());
         }
 
         String refreshBroadcastId = UUID.randomUUID() + "_" + mRefreshCounter++;
@@ -272,6 +269,15 @@ public final class SafetyCenterRefreshTracker {
         int refreshReason = clearedRefresh.getReason();
         int requestType = RefreshReasons.toRefreshRequestType(refreshReason);
 
+        Log.w(
+                TAG,
+                "Timeout after "
+                        + clearedRefresh.getDurationSinceStart()
+                        + " for refresh with reason: "
+                        + refreshReason
+                        + ", and id: "
+                        + clearedRefresh.getId());
+
         for (int i = 0; i < timedOutSources.size(); i++) {
             SafetySourceKey sourceKey = timedOutSources.valueAt(i);
             Duration duration = clearedRefresh.getDurationSinceSourceStart(sourceKey);
@@ -285,6 +291,15 @@ public final class SafetyCenterRefreshTracker {
                         refreshReason,
                         false);
             }
+
+            Log.w(
+                    TAG,
+                    "Refresh with id: "
+                            + clearedRefresh.getId()
+                            + " timed out for tracked source id: "
+                            + sourceKey.getSourceId()
+                            + ", and user id: "
+                            + sourceKey.getUserId());
         }
 
         SafetyCenterStatsdLogger.writeWholeRefreshSystemEvent(
@@ -298,7 +313,7 @@ public final class SafetyCenterRefreshTracker {
     }
 
     /**
-     * Clears the any refresh in progress and returns it for the caller to do what it needs to.
+     * Clears the refresh in progress and returns it for the caller to do what it needs to.
      *
      * <p>If there was no refresh in progress then {@code null} is returned.
      */

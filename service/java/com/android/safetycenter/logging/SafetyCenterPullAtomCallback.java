@@ -16,8 +16,6 @@
 
 package com.android.safetycenter.logging;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static com.android.permission.PermissionStatsLog.SAFETY_STATE;
 
 import android.annotation.UserIdInt;
@@ -29,8 +27,6 @@ import android.safetycenter.config.SafetySource;
 import android.safetycenter.config.SafetySourcesGroup;
 import android.util.Log;
 import android.util.StatsEvent;
-
-import androidx.annotation.RequiresApi;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.modules.utils.build.SdkLevel;
@@ -56,7 +52,6 @@ import java.util.List;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 public final class SafetyCenterPullAtomCallback implements StatsPullAtomCallback {
 
     private static final String TAG = "SafetyCenterPullAtom";
@@ -111,8 +106,8 @@ public final class SafetyCenterPullAtomCallback implements StatsPullAtomCallback
                 statsEvents.add(
                         createOverallSafetyStateAtomLocked(userProfileGroup, loggableGroups));
                 // The SAFETY_SOURCE_STATE_COLLECTED atoms are written instead of being pulled,
-                // they do not support pull but we want to collect them at the same time as
-                // the above pulled atom.
+                // as they do not support pull. We still want to collect them at the same time as
+                // the above pulled atom, which is why they're written here.
                 writeSafetySourceStateCollectedAtomsLocked(userProfileGroup, loggableGroups);
             }
         }

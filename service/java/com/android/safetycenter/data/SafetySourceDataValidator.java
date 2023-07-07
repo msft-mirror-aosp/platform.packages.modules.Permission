@@ -16,9 +16,6 @@
 
 package com.android.safetycenter.data;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -29,7 +26,7 @@ import android.safetycenter.SafetySourceStatus;
 import android.safetycenter.config.SafetySource;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.modules.utils.build.SdkLevel;
 import com.android.permission.util.UserUtils;
@@ -48,11 +45,10 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * <p>This class isn't thread safe. Thread safety must be handled by the caller.
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 final class SafetySourceDataValidator {
 
-    private static final String TAG = "SafetySourceDataValidator";
+    private static final String TAG = "SafetySourceDataValidat";
 
     private final Context mContext;
     private final SafetyCenterConfigReader mSafetyCenterConfigReader;

@@ -16,9 +16,6 @@
 
 package com.android.safetycenter.notifications;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
-import android.annotation.Nullable;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,7 +24,7 @@ import android.content.IntentFilter;
 import android.safetycenter.SafetySourceIssue;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.permission.util.UserUtils;
@@ -54,7 +51,6 @@ import com.android.safetycenter.logging.SafetyCenterStatsdLogger;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 public final class SafetyCenterNotificationReceiver extends BroadcastReceiver {
 
     private static final String TAG = "SafetyCenterNR";
@@ -173,6 +169,7 @@ public final class SafetyCenterNotificationReceiver extends BroadcastReceiver {
         }
 
         if (!SafetyCenterFlags.getNotificationsEnabled()) {
+            // TODO(b/284271124): Decide what to do with existing notifications
             Log.i(TAG, "Received notification broadcast but notifications are disabled");
             return;
         }

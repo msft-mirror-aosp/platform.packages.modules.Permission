@@ -35,8 +35,8 @@
     <string name="overall_severity_level_critical_personal_warning_title" msgid="5070434468955164734">"你正面臨風險"</string>
     <string name="overall_severity_level_safety_recommendation_title" msgid="4291797434760242793">"系統發現潛在風險"</string>
     <string name="overall_severity_level_critical_safety_warning_title" msgid="6666640109779586868">"系統發現風險"</string>
-    <string name="overall_severity_level_account_recommendation_title" msgid="2267542168734275090">"帳戶可能面臨風險"</string>
-    <string name="overall_severity_level_critical_account_warning_title" msgid="1913235490583842004">"帳戶正面臨風險"</string>
+    <string name="overall_severity_level_account_recommendation_title" msgid="2267542168734275090">"帳戶可能存在風險"</string>
+    <string name="overall_severity_level_critical_account_warning_title" msgid="1913235490583842004">"帳戶存在風險"</string>
     <string name="overall_severity_n_alerts_summary" msgid="3262010942295408403">"{count,plural, =1{查看警示}other{查看警示}}"</string>
     <string name="redirecting_error" msgid="8146983632878233202">"無法開啟頁面"</string>
     <string name="resolving_action_error" msgid="371968886143262375">"無法解除警示"</string>

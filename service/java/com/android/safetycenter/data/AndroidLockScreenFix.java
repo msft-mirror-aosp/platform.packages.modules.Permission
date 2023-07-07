@@ -16,9 +16,6 @@
 
 package com.android.safetycenter.data;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
-import android.annotation.Nullable;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,7 +27,7 @@ import android.safetycenter.SafetySourceIssue;
 import android.safetycenter.SafetySourceStatus;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.modules.utils.build.SdkLevel;
 import com.android.safetycenter.PendingIntentFactory;
@@ -41,9 +38,10 @@ import java.util.List;
 /**
  * A class to work around an issue with the {@code AndroidLockScreen} safety source, by potentially
  * overriding its {@link SafetySourceData}.
+ *
+ * @hide
  */
-@RequiresApi(TIRAMISU)
-final class AndroidLockScreenFix {
+public final class AndroidLockScreenFix {
 
     private static final String TAG = "AndroidLockScreenFix";
 
@@ -73,7 +71,7 @@ final class AndroidLockScreenFix {
      * created (the key does take into account the request code).
      */
     @Nullable
-    static SafetySourceData maybeOverrideSafetySourceData(
+    public static SafetySourceData maybeOverrideSafetySourceData(
             Context context, String sourceId, @Nullable SafetySourceData safetySourceData) {
         if (safetySourceData == null) {
             return null;

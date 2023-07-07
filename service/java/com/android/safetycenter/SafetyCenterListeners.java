@@ -16,9 +16,6 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
@@ -30,7 +27,7 @@ import android.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicReference;
@@ -43,7 +40,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * <p>This class isn't thread safe. Thread safety must be handled by the caller.
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 final class SafetyCenterListeners {
 

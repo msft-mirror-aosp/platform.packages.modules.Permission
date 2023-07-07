@@ -16,11 +16,8 @@
 
 package com.android.safetycenter.data;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static com.android.safetycenter.logging.SafetyCenterStatsdLogger.toSystemEventResult;
 
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.content.Context;
 import android.safetycenter.SafetyCenterData;
@@ -30,9 +27,10 @@ import android.safetycenter.SafetySourceErrorDetails;
 import android.safetycenter.SafetySourceIssue;
 import android.safetycenter.config.SafetyCenterConfig;
 import android.safetycenter.config.SafetySourcesGroup;
+import android.util.ArraySet;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.safetycenter.ApiLock;
 import com.android.safetycenter.SafetyCenterConfigReader;
@@ -60,7 +58,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 public final class SafetyCenterDataManager {
 
@@ -88,8 +85,6 @@ public final class SafetyCenterDataManager {
                 new SafetyCenterIssueDismissalRepository(apiLock, safetyCenterConfigReader);
         mSafetySourceDataRepository =
                 new SafetySourceDataRepository(
-                        context,
-                        safetyCenterRefreshTracker,
                         mSafetyCenterInFlightIssueActionRepository,
                         mSafetyCenterIssueDismissalRepository);
         mSafetyCenterIssueRepository =
@@ -247,23 +242,17 @@ public final class SafetyCenterDataManager {
     }
 
     /**
-     * Marks the given {@link SafetySourceKey} as being in an error state due to a refresh timeout.
+     * Marks the given {@link SafetySourceKey} as having timed out during a refresh.
+     *
+     * @param setError whether we should clear the data associated with the source and set an error
      */
-    public void markSafetySourceRefreshTimedOut(SafetySourceKey safetySourceKey) {
+    public void markSafetySourceRefreshTimedOut(SafetySourceKey safetySourceKey, boolean setError) {
         boolean dataUpdated =
-                mSafetySourceDataRepository.markSafetySourceRefreshTimedOut(safetySourceKey);
+                mSafetySourceDataRepository.markSafetySourceRefreshTimedOut(
+                        safetySourceKey, setError);
         if (dataUpdated) {
             mSafetyCenterIssueRepository.updateIssues(safetySourceKey.getUserId());
         }
-    }
-
-    /**
-     * Clears all safety source errors received so far for the given {@link UserProfileGroup}, this
-     * is useful e.g. when starting a new broadcast.
-     */
-    public void clearSafetySourceErrors(UserProfileGroup userProfileGroup) {
-        mSafetySourceDataRepository.clearSafetySourceErrors(userProfileGroup);
-        mSafetyCenterIssueRepository.updateIssues(userProfileGroup);
     }
 
     /** Marks the given {@link SafetyCenterIssueActionId} as in-flight. */
@@ -409,6 +398,11 @@ public final class SafetyCenterDataManager {
     public boolean actionIsInFlight(SafetyCenterIssueActionId safetyCenterIssueActionId) {
         return mSafetyCenterInFlightIssueActionRepository.actionIsInFlight(
                 safetyCenterIssueActionId);
+    }
+
+    /** Returns a list of IDs of in-flight actions for the given source and user */
+    ArraySet<SafetyCenterIssueActionId> getInFlightActions(String sourceId, @UserIdInt int userId) {
+        return mSafetyCenterInFlightIssueActionRepository.getInFlightActions(sourceId, userId);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

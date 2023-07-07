@@ -16,11 +16,8 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -30,7 +27,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.permission.util.UserUtils;
 
@@ -45,7 +42,6 @@ import java.util.Objects;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 public final class UserProfileGroup {
 
     private static final String TAG = "UserProfileGroup";

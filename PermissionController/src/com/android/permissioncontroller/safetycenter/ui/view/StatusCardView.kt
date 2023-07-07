@@ -25,7 +25,6 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.android.permissioncontroller.R
-import com.android.permissioncontroller.permission.ui.v33.widget.SafetyProtectionSectionView
 import com.android.permissioncontroller.safetycenter.ui.model.StatusUiData
 import com.google.android.material.button.MaterialButton
 
@@ -43,17 +42,12 @@ constructor(
         inflate(context, R.layout.view_status_card, this)
     }
 
-    val statusImageView: ImageView by lazy { findViewById(R.id.status_image) }
-    val titleAndSummaryContainerView: LinearLayout by lazy {
-        findViewById(R.id.status_title_and_summary)
-    }
-    val titleView: TextView by lazy { findViewById(R.id.status_title) }
-    val summaryView: TextView by lazy { findViewById(R.id.status_summary) }
-    val reviewSettingsButton: MaterialButton by lazy { findViewById(R.id.review_settings_button) }
-    val rescanButton: MaterialButton by lazy { findViewById(R.id.rescan_button) }
-    val safetyProtectionSectionView: SafetyProtectionSectionView by lazy {
-        findViewById(R.id.safety_protection_section_view)
-    }
+    val statusImageView: ImageView by lazyView(R.id.status_image)
+    val titleAndSummaryContainerView: LinearLayout by lazyView(R.id.status_title_and_summary)
+    val titleView: TextView by lazyView(R.id.status_title)
+    val summaryView: TextView by lazyView(R.id.status_summary)
+    val reviewSettingsButton: MaterialButton by lazyView(R.id.review_settings_button)
+    val rescanButton: MaterialButton by lazyView(R.id.rescan_button)
 
     fun showButtons(statusUiData: StatusUiData) {
         rescanButton.isEnabled = !statusUiData.isRefreshInProgress

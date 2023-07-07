@@ -16,11 +16,8 @@
 
 package com.android.safetycenter.notifications;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.Nullable;
 import android.app.NotificationChannel;
 import android.app.NotificationChannelGroup;
 import android.app.NotificationManager;
@@ -31,10 +28,10 @@ import android.safetycenter.SafetySourceData;
 import android.safetycenter.SafetySourceIssue;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.permission.util.UserUtils;
-import com.android.safetycenter.resources.SafetyCenterResourcesContext;
+import com.android.safetycenter.resources.SafetyCenterResourcesApk;
 
 import java.util.List;
 
@@ -43,7 +40,6 @@ import java.util.List;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 public final class SafetyCenterNotificationChannels {
 
     private static final String TAG = "SafetyCenterNC";
@@ -53,11 +49,10 @@ public final class SafetyCenterNotificationChannels {
     private static final String CHANNEL_ID_RECOMMENDATION = "safety_center_recommendation";
     private static final String CHANNEL_ID_CRITICAL_WARNING = "safety_center_critical_warning";
 
-    private final SafetyCenterResourcesContext mResourcesContext;
+    private final SafetyCenterResourcesApk mSafetyCenterResourcesApk;
 
-    public SafetyCenterNotificationChannels(
-            SafetyCenterResourcesContext safetyCenterResourceContext) {
-        mResourcesContext = safetyCenterResourceContext;
+    public SafetyCenterNotificationChannels(SafetyCenterResourcesApk safetyCenterResourcesApk) {
+        mSafetyCenterResourcesApk = safetyCenterResourcesApk;
     }
 
     /** Returns a {@link NotificationManager} which will send notifications to the given user. */
@@ -79,12 +74,16 @@ public final class SafetyCenterNotificationChannels {
     }
 
     @Nullable
-    private static Context getContextAsUser(Context baseContext, UserHandle userHandle) {
+    static Context getContextAsUser(Context baseContext, UserHandle userHandle) {
+        // This call requires the INTERACT_ACROSS_USERS permission.
+        final long callingId = Binder.clearCallingIdentity();
         try {
             return baseContext.createContextAsUser(userHandle, /* flags= */ 0);
         } catch (RuntimeException e) {
             Log.w(TAG, "Could not create Context as user id: " + userHandle.getIdentifier(), e);
             return null;
+        } finally {
+            Binder.restoreCallingIdentity(callingId);
         }
     }
 
@@ -143,15 +142,18 @@ public final class SafetyCenterNotificationChannels {
                 return CHANNEL_ID_RECOMMENDATION;
             case SafetySourceData.SEVERITY_LEVEL_CRITICAL_WARNING:
                 return CHANNEL_ID_CRITICAL_WARNING;
-            default:
-                Log.w(
-                        TAG,
-                        "Unexpected SafetySourceData.SeverityLevel: "
-                                + issueSeverityLevel
-                                + ", for issue: "
-                                + issue);
+            case SafetySourceData.SEVERITY_LEVEL_UNSPECIFIED:
+                Log.w(TAG, "SafetySourceData.SeverityLevel is unspecified for issue: " + issue);
                 return null;
         }
+
+        Log.w(
+                TAG,
+                "Unexpected SafetySourceData.SeverityLevel: "
+                        + issueSeverityLevel
+                        + ", for issue: "
+                        + issue);
+        return null;
     }
 
     /**
@@ -212,6 +214,6 @@ public final class SafetyCenterNotificationChannels {
     }
 
     private String getString(String name) {
-        return mResourcesContext.getStringByName(name);
+        return mSafetyCenterResourcesApk.getStringByName(name);
     }
 }

@@ -39,10 +39,10 @@ import android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP
 import android.os.Build
 import android.os.Bundle
 import android.os.Process
+import android.os.UserManager
 import android.permission.PermissionManager
 import android.provider.MediaStore
 import android.util.Log
-import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.core.util.Consumer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -515,8 +515,8 @@ class GrantPermissionsViewModel(
 
                 // Show location permission dialogs based on location permissions
                 val locationVisibilities = MutableList(NEXT_LOCATION_DIALOG) { false }
-                if (groupState.group.permGroupName == LOCATION && isLocationAccuracyEnabled() &&
-                    packageInfo.targetSdkVersion >= Build.VERSION_CODES.S) {
+                if (groupState.group.permGroupName == LOCATION &&
+                    isLocationAccuracyEnabledForApp(groupState.group)) {
                     if (needFgPermissions) {
                         locationVisibilities[LOCATION_ACCURACY_LAYOUT] = true
                         if (fgState != null &&
@@ -618,7 +618,7 @@ class GrantPermissionsViewModel(
             if (rhsHasOneTime && !lhsHasOneTime) {
                 -1
             } else if ((!rhsHasOneTime && lhsHasOneTime) ||
-                isHealthPermissionGroup(rhs.groupName)
+                Utils.isHealthPermissionGroup(rhs.groupName)
             ) {
                 1
             } else {
@@ -763,7 +763,7 @@ class GrantPermissionsViewModel(
             // Skip showing groups that we know cannot be granted.
             return false
         } else if (subGroup.isUserFixed) {
-            if (perm == ACCESS_COARSE_LOCATION) {
+            if (perm == ACCESS_COARSE_LOCATION && isLocationAccuracyEnabledForApp(group)) {
                 val coarsePerm = group.permissions[perm]
                 if (coarsePerm != null && !coarsePerm.isUserFixed) {
                     // If the location group is user fixed but ACCESS_COARSE_LOCATION is not, then
@@ -867,7 +867,7 @@ class GrantPermissionsViewModel(
     private fun canAutoGrantWholeGroup(group: LightAppPermGroup): Boolean {
         // If FINE location is not granted, do not grant it automatically when COARSE
         // location is already granted.
-        if (group.permGroupName == LOCATION &&
+        if (group.permGroupName == LOCATION && isLocationAccuracyEnabledForApp(group) &&
             group.allPermissions[ACCESS_FINE_LOCATION]?.isGrantedIncludingAppOp == false) {
             return false
         }
@@ -1079,7 +1079,9 @@ class GrantPermissionsViewModel(
             appPermGroup.setSelfRevoked()
             appPermGroup.persistChanges(false, null, nonSelectedPerms.toSet())
         } else {
-            val partialPerms = getPartialStorageGrantPermissionsForGroup(groupState.group)
+            val partialPerms = getPartialStorageGrantPermissionsForGroup(groupState.group).filter {
+                it in groupState.affectedPermissions
+            }
             val nonSelectedPerms = groupState.affectedPermissions.filter { it !in partialPerms }
             val setUserFixed = userSelectedPerm.isUserFixed || userSelectedPerm.isUserSet
             grantForegroundRuntimePermissions(app, groupState.group,
@@ -1277,11 +1279,6 @@ class GrantPermissionsViewModel(
         }
     }
 
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private fun isHealthPermissionGroup(permGroupName: String): Boolean {
-        return SdkLevel.isAtLeastU() && HEALTH_PERMISSION_GROUP.equals(permGroupName)
-    }
-
     fun handleHealthConnectPermissions(activity: Activity) {
         if (activityResultCallback == null) {
             activityResultCallback = Consumer {
@@ -1346,10 +1343,18 @@ class GrantPermissionsViewModel(
             }
             requestInfosLiveData.update()
         }
-        activity.startActivityForResult(Intent(MediaStore.ACTION_USER_SELECT_IMAGES_FOR_APP)
+        // A clone profile doesn't have a MediaProvider. If this user is a clone profile, open
+        // the photo picker in the parent profile
+        val userManager = activity.getSystemService(UserManager::class.java)!!
+        val user = if (userManager.isCloneProfile) {
+            userManager.getProfileParent(Process.myUserHandle()) ?: Process.myUserHandle()
+        } else {
+            Process.myUserHandle()
+        }
+        activity.startActivityForResultAsUser(Intent(MediaStore.ACTION_USER_SELECT_IMAGES_FOR_APP)
             .putExtra(Intent.EXTRA_UID, packageInfo.uid)
             .setType(KotlinUtils.getMimeTypeForPermissions(unfilteredAffectedPermissions)),
-            PHOTO_PICKER_REQUEST_CODE)
+            PHOTO_PICKER_REQUEST_CODE, user)
     }
 
     /**
@@ -1462,6 +1467,11 @@ class GrantPermissionsViewModel(
                 }
             }
         }
+    }
+
+    private fun isLocationAccuracyEnabledForApp(group: LightAppPermGroup): Boolean {
+        return isLocationAccuracyEnabled() &&
+                group.packageInfo.targetSdkVersion >= Build.VERSION_CODES.S
     }
 
     /**

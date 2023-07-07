@@ -16,19 +16,17 @@
 
 package com.android.safetycenter.data;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static com.android.safetycenter.internaldata.SafetyCenterIds.toUserFriendlyString;
 
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.content.Context;
 import android.os.SystemClock;
 import android.safetycenter.SafetySourceIssue;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.permission.util.UserUtils;
 import com.android.safetycenter.internaldata.SafetyCenterIssueActionId;
@@ -42,7 +40,6 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /** Maintains data about in-flight issue actions. */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 final class SafetyCenterInFlightIssueActionRepository {
 
@@ -111,6 +108,19 @@ final class SafetyCenterInFlightIssueActionRepository {
     /** Returns {@code true} if the given issue action is in flight. */
     boolean actionIsInFlight(SafetyCenterIssueActionId safetyCenterIssueActionId) {
         return mSafetyCenterIssueActionsInFlight.containsKey(safetyCenterIssueActionId);
+    }
+
+    /** Returns a list of IDs of in-flight actions for the given source and user */
+    ArraySet<SafetyCenterIssueActionId> getInFlightActions(String sourceId, @UserIdInt int userId) {
+        ArraySet<SafetyCenterIssueActionId> result = new ArraySet<>();
+        for (int i = 0; i < mSafetyCenterIssueActionsInFlight.size(); i++) {
+            SafetyCenterIssueActionId actionId = mSafetyCenterIssueActionsInFlight.keyAt(i);
+            SafetyCenterIssueKey issueKey = actionId.getSafetyCenterIssueKey();
+            if (sourceId.equals(issueKey.getSafetySourceId()) && issueKey.getUserId() == userId) {
+                result.add(actionId);
+            }
+        }
+        return result;
     }
 
     /**

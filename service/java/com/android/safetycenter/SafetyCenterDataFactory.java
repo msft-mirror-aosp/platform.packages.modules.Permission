@@ -16,14 +16,14 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
+import static android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 
 import static com.android.safetycenter.internaldata.SafetyCenterBundles.ISSUES_TO_GROUPS_BUNDLE_KEY;
 import static com.android.safetycenter.internaldata.SafetyCenterBundles.STATIC_ENTRIES_TO_IDS_BUNDLE_KEY;
 
 import static java.util.Collections.emptyList;
 
-import android.annotation.Nullable;
+import android.annotation.TargetApi;
 import android.annotation.UserIdInt;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -50,7 +50,7 @@ import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.modules.utils.build.SdkLevel;
 import com.android.permission.util.UserUtils;
@@ -61,7 +61,7 @@ import com.android.safetycenter.internaldata.SafetyCenterIds;
 import com.android.safetycenter.internaldata.SafetyCenterIssueActionId;
 import com.android.safetycenter.internaldata.SafetyCenterIssueId;
 import com.android.safetycenter.internaldata.SafetyCenterIssueKey;
-import com.android.safetycenter.resources.SafetyCenterResourcesContext;
+import com.android.safetycenter.resources.SafetyCenterResourcesApk;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +78,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 public final class SafetyCenterDataFactory {
 
@@ -87,7 +86,7 @@ public final class SafetyCenterDataFactory {
     private static final String ANDROID_LOCK_SCREEN_SOURCES_GROUP_ID = "AndroidLockScreenSources";
 
     private final Context mContext;
-    private final SafetyCenterResourcesContext mSafetyCenterResourcesContext;
+    private final SafetyCenterResourcesApk mSafetyCenterResourcesApk;
     private final SafetyCenterConfigReader mSafetyCenterConfigReader;
     private final SafetyCenterRefreshTracker mSafetyCenterRefreshTracker;
     private final PendingIntentFactory mPendingIntentFactory;
@@ -96,13 +95,13 @@ public final class SafetyCenterDataFactory {
 
     SafetyCenterDataFactory(
             Context context,
-            SafetyCenterResourcesContext safetyCenterResourcesContext,
+            SafetyCenterResourcesApk safetyCenterResourcesApk,
             SafetyCenterConfigReader safetyCenterConfigReader,
             SafetyCenterRefreshTracker safetyCenterRefreshTracker,
             PendingIntentFactory pendingIntentFactory,
             SafetyCenterDataManager safetyCenterDataManager) {
         mContext = context;
-        mSafetyCenterResourcesContext = safetyCenterResourcesContext;
+        mSafetyCenterResourcesApk = safetyCenterResourcesApk;
         mSafetyCenterConfigReader = safetyCenterConfigReader;
         mSafetyCenterRefreshTracker = safetyCenterRefreshTracker;
         mPendingIntentFactory = pendingIntentFactory;
@@ -334,7 +333,7 @@ public final class SafetyCenterDataFactory {
         if (SdkLevel.isAtLeastU()) {
             CharSequence issueAttributionTitle =
                     TextUtils.isEmpty(safetySourceIssue.getAttributionTitle())
-                            ? mSafetyCenterResourcesContext.getOptionalString(
+                            ? mSafetyCenterResourcesApk.getOptionalString(
                                     safetySourcesGroup.getTitleResId())
                             : safetySourceIssue.getAttributionTitle();
             safetyCenterIssueBuilder.setAttributionTitle(issueAttributionTitle);
@@ -443,7 +442,7 @@ public final class SafetyCenterDataFactory {
                 new SafetyCenterEntryOrGroup(
                         new SafetyCenterEntryGroup.Builder(
                                         safetySourcesGroup.getId(),
-                                        mSafetyCenterResourcesContext.getString(
+                                        mSafetyCenterResourcesApk.getString(
                                                 safetySourcesGroup.getTitleResId()))
                                 .setSeverityLevel(groupSafetyCenterEntryLevel)
                                 .setSummary(groupSummary)
@@ -512,7 +511,7 @@ public final class SafetyCenterDataFactory {
                         return getRefreshErrorString();
                     }
                 }
-                return mSafetyCenterResourcesContext.getStringByName("group_unknown_summary");
+                return mSafetyCenterResourcesApk.getStringByName("group_unknown_summary");
         }
 
         Log.w(
@@ -526,8 +525,7 @@ public final class SafetyCenterDataFactory {
     private CharSequence getDefaultGroupSummary(
             SafetySourcesGroup safetySourcesGroup, List<SafetyCenterEntry> entries) {
         CharSequence groupSummary =
-                mSafetyCenterResourcesContext.getOptionalString(
-                        safetySourcesGroup.getSummaryResId());
+                mSafetyCenterResourcesApk.getOptionalString(safetySourcesGroup.getSummaryResId());
 
         if (safetySourcesGroup.getId().equals(ANDROID_LOCK_SCREEN_SOURCES_GROUP_ID)
                 && TextUtils.isEmpty(groupSummary)) {
@@ -646,7 +644,7 @@ public final class SafetyCenterDataFactory {
                                 .setSummary(
                                         inQuietMode
                                                 ? DevicePolicyResources.getWorkProfilePausedString(
-                                                        mSafetyCenterResourcesContext)
+                                                        mSafetyCenterResourcesApk)
                                                 : safetySourceStatus.getSummary())
                                 .setEnabled(enabled)
                                 .setSeverityUnspecifiedIconType(severityUnspecifiedIconType)
@@ -707,20 +705,19 @@ public final class SafetyCenterDataFactory {
         CharSequence title =
                 isUserManaged
                         ? DevicePolicyResources.getSafetySourceWorkString(
-                                mSafetyCenterResourcesContext,
+                                mSafetyCenterResourcesApk,
                                 safetySource.getId(),
                                 safetySource.getTitleForWorkResId())
-                        : mSafetyCenterResourcesContext.getString(safetySource.getTitleResId());
+                        : mSafetyCenterResourcesApk.getString(safetySource.getTitleResId());
         CharSequence summary =
                 mSafetyCenterDataManager.sourceHasError(
                                 SafetySourceKey.of(safetySource.getId(), userId))
                         ? getRefreshErrorString()
-                        : mSafetyCenterResourcesContext.getOptionalString(
+                        : mSafetyCenterResourcesApk.getOptionalString(
                                 safetySource.getSummaryResId());
         if (isQuietModeEnabled) {
             enabled = false;
-            summary =
-                    DevicePolicyResources.getWorkProfilePausedString(mSafetyCenterResourcesContext);
+            summary = DevicePolicyResources.getWorkProfilePausedString(mSafetyCenterResourcesApk);
         }
         return new SafetyCenterEntry.Builder(
                         SafetyCenterIds.encodeToString(safetyCenterEntryId), title)
@@ -782,7 +779,7 @@ public final class SafetyCenterDataFactory {
 
         safetyCenterStaticEntryGroups.add(
                 new SafetyCenterStaticEntryGroup(
-                        mSafetyCenterResourcesContext.getString(safetySourcesGroup.getTitleResId()),
+                        mSafetyCenterResourcesApk.getString(safetySourcesGroup.getTitleResId()),
                         staticEntries));
     }
 
@@ -861,7 +858,7 @@ public final class SafetyCenterDataFactory {
                             .setSummary(
                                     inQuietMode
                                             ? DevicePolicyResources.getWorkProfilePausedString(
-                                                    mSafetyCenterResourcesContext)
+                                                    mSafetyCenterResourcesApk)
                                             : safetySourceStatus.getSummary())
                             .setPendingIntent(entryPendingIntent)
                             .build();
@@ -911,19 +908,18 @@ public final class SafetyCenterDataFactory {
         CharSequence title =
                 isUserManaged
                         ? DevicePolicyResources.getSafetySourceWorkString(
-                                mSafetyCenterResourcesContext,
+                                mSafetyCenterResourcesApk,
                                 safetySource.getId(),
                                 safetySource.getTitleForWorkResId())
-                        : mSafetyCenterResourcesContext.getString(safetySource.getTitleResId());
+                        : mSafetyCenterResourcesApk.getString(safetySource.getTitleResId());
         CharSequence summary =
                 mSafetyCenterDataManager.sourceHasError(
                                 SafetySourceKey.of(safetySource.getId(), userId))
                         ? getRefreshErrorString()
-                        : mSafetyCenterResourcesContext.getOptionalString(
+                        : mSafetyCenterResourcesApk.getOptionalString(
                                 safetySource.getSummaryResId());
         if (isQuietModeEnabled) {
-            summary =
-                    DevicePolicyResources.getWorkProfilePausedString(mSafetyCenterResourcesContext);
+            summary = DevicePolicyResources.getWorkProfilePausedString(mSafetyCenterResourcesApk);
         }
         return new SafetyCenterStaticEntry.Builder(title)
                 .setSummary(summary)
@@ -1085,11 +1081,10 @@ public final class SafetyCenterDataFactory {
             case SafetyCenterStatus.OVERALL_SEVERITY_LEVEL_UNKNOWN:
             case SafetyCenterStatus.OVERALL_SEVERITY_LEVEL_OK:
                 if (hasSettingsToReview) {
-                    return mSafetyCenterResourcesContext.getStringByName(
+                    return mSafetyCenterResourcesApk.getStringByName(
                             "overall_severity_level_ok_review_title");
                 }
-                return mSafetyCenterResourcesContext.getStringByName(
-                        "overall_severity_level_ok_title");
+                return mSafetyCenterResourcesApk.getStringByName("overall_severity_level_ok_title");
             case SafetyCenterStatus.OVERALL_SEVERITY_LEVEL_RECOMMENDATION:
                 return getStatusTitleFromIssueCategories(
                         topNonDismissedIssueInfo,
@@ -1114,6 +1109,7 @@ public final class SafetyCenterDataFactory {
         return "";
     }
 
+    @TargetApi(UPSIDE_DOWN_CAKE)
     private String getStatusTitleFromIssueCategories(
             @Nullable SafetySourceIssueInfo topNonDismissedIssueInfo,
             String deviceResourceName,
@@ -1122,7 +1118,7 @@ public final class SafetyCenterDataFactory {
             String dataResourceName,
             String passwordsResourceName,
             String personalSafetyResourceName) {
-        String generalString = mSafetyCenterResourcesContext.getStringByName(generalResourceName);
+        String generalString = mSafetyCenterResourcesApk.getStringByName(generalResourceName);
         if (topNonDismissedIssueInfo == null) {
             Log.w(TAG, "No safety center issues found in a non-green status");
             return generalString;
@@ -1130,22 +1126,17 @@ public final class SafetyCenterDataFactory {
         int issueCategory = topNonDismissedIssueInfo.getSafetySourceIssue().getIssueCategory();
         switch (issueCategory) {
             case SafetySourceIssue.ISSUE_CATEGORY_DEVICE:
-                return mSafetyCenterResourcesContext.getStringByName(deviceResourceName);
+                return mSafetyCenterResourcesApk.getStringByName(deviceResourceName);
             case SafetySourceIssue.ISSUE_CATEGORY_ACCOUNT:
-                return mSafetyCenterResourcesContext.getStringByName(accountResourceName);
+                return mSafetyCenterResourcesApk.getStringByName(accountResourceName);
             case SafetySourceIssue.ISSUE_CATEGORY_GENERAL:
                 return generalString;
-        }
-        if (SdkLevel.isAtLeastU()) {
-            switch (issueCategory) {
-                case SafetySourceIssue.ISSUE_CATEGORY_DATA:
-                    return mSafetyCenterResourcesContext.getStringByName(dataResourceName);
-                case SafetySourceIssue.ISSUE_CATEGORY_PASSWORDS:
-                    return mSafetyCenterResourcesContext.getStringByName(passwordsResourceName);
-                case SafetySourceIssue.ISSUE_CATEGORY_PERSONAL_SAFETY:
-                    return mSafetyCenterResourcesContext.getStringByName(
-                            personalSafetyResourceName);
-            }
+            case SafetySourceIssue.ISSUE_CATEGORY_DATA:
+                return mSafetyCenterResourcesApk.getStringByName(dataResourceName);
+            case SafetySourceIssue.ISSUE_CATEGORY_PASSWORDS:
+                return mSafetyCenterResourcesApk.getStringByName(passwordsResourceName);
+            case SafetySourceIssue.ISSUE_CATEGORY_PERSONAL_SAFETY:
+                return mSafetyCenterResourcesApk.getStringByName(personalSafetyResourceName);
         }
 
         Log.w(TAG, "Unexpected SafetySourceIssue.IssueCategory: " + issueCategory);
@@ -1169,17 +1160,17 @@ public final class SafetyCenterDataFactory {
             case SafetyCenterStatus.OVERALL_SEVERITY_LEVEL_OK:
                 if (topNonDismissedIssue == null) {
                     if (safetyCenterOverallState.hasSettingsToReview()) {
-                        return mSafetyCenterResourcesContext.getStringByName(
+                        return mSafetyCenterResourcesApk.getStringByName(
                                 "overall_severity_level_ok_review_summary");
                     }
-                    return mSafetyCenterResourcesContext.getStringByName(
+                    return mSafetyCenterResourcesApk.getStringByName(
                             "overall_severity_level_ok_summary");
                 } else if (isTip(topNonDismissedIssue.getSafetySourceIssue())) {
-                    return mSafetyCenterResourcesContext.getStringByName(
+                    return mSafetyCenterResourcesApk.getStringByName(
                             "overall_severity_level_tip_summary", numTipIssues);
 
                 } else if (isAutomatic(topNonDismissedIssue.getSafetySourceIssue())) {
-                    return mSafetyCenterResourcesContext.getStringByName(
+                    return mSafetyCenterResourcesApk.getStringByName(
                             "overall_severity_level_action_taken_summary", numAutomaticIssues);
                 }
                 // Fall through.
@@ -1211,7 +1202,7 @@ public final class SafetyCenterDataFactory {
     private String getIcuPluralsString(String name, int count, Object... formatArgs) {
         MessageFormat messageFormat =
                 new MessageFormat(
-                        mSafetyCenterResourcesContext.getStringByName(name, formatArgs),
+                        mSafetyCenterResourcesApk.getStringByName(name, formatArgs),
                         Locale.getDefault());
         ArrayMap<String, Object> arguments = new ArrayMap<>();
         arguments.put("count", count);
@@ -1230,7 +1221,7 @@ public final class SafetyCenterDataFactory {
                 }
                 // Fall through.
             case SafetyCenterStatus.REFRESH_STATUS_FULL_RESCAN_IN_PROGRESS:
-                return mSafetyCenterResourcesContext.getStringByName("scanning_title");
+                return mSafetyCenterResourcesApk.getStringByName("scanning_title");
         }
 
         Log.w(TAG, "Unexpected SafetyCenterStatus.RefreshStatus: " + refreshStatus);
@@ -1245,7 +1236,7 @@ public final class SafetyCenterDataFactory {
                 return null;
             case SafetyCenterStatus.REFRESH_STATUS_DATA_FETCH_IN_PROGRESS:
             case SafetyCenterStatus.REFRESH_STATUS_FULL_RESCAN_IN_PROGRESS:
-                return mSafetyCenterResourcesContext.getStringByName("loading_summary");
+                return mSafetyCenterResourcesApk.getStringByName("loading_summary");
         }
 
         Log.w(TAG, "Unexpected SafetyCenterStatus.RefreshStatus: " + refreshStatus);
