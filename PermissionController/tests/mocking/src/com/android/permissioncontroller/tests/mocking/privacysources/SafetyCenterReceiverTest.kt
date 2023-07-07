@@ -38,14 +38,17 @@ import com.android.permissioncontroller.privacysources.PrivacySource
 import com.android.permissioncontroller.privacysources.SafetyCenterReceiver
 import com.android.permissioncontroller.privacysources.SafetyCenterReceiver.RefreshEvent.EVENT_DEVICE_REBOOTED
 import com.android.permissioncontroller.privacysources.SafetyCenterReceiver.RefreshEvent.EVENT_REFRESH_REQUESTED
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
@@ -75,7 +78,7 @@ class SafetyCenterReceiverTest {
         val application = Mockito.mock(PermissionControllerApplication::class.java)
     }
 
-    private val testCoroutineDispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
+    private val testCoroutineDispatcher = TestCoroutineDispatcher()
 
     @Mock
     lateinit var mockSafetyCenterManager: SafetyCenterManager
