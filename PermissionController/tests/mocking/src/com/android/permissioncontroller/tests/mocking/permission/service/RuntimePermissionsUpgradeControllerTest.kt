@@ -24,6 +24,7 @@ import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.READ_MEDIA_AUDIO
 import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.Manifest.permission.READ_MEDIA_VIDEO
+import android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
 import android.Manifest.permission.SEND_SMS
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.app.ActivityManager
@@ -82,7 +83,7 @@ class RuntimePermissionsUpgradeControllerTest {
 
         init {
             whenever(application.applicationContext).thenReturn(application)
-            whenever(application.createPackageContextAsUser(any(), anyInt(), any())).thenReturn(
+            whenever(application.createContextAsUser(any(), anyInt())).thenReturn(
                     application)
 
             whenever(application.registerComponentCallbacks(any())).thenAnswer {
@@ -129,11 +130,9 @@ class RuntimePermissionsUpgradeControllerTest {
      * @param pkgs packages that should pretend to be installed
      */
     private fun setPackages(vararg pkgs: Package) {
-        whenever(packageManager.getInstalledPackagesAsUser(anyInt(), anyInt())).thenAnswer {
-            val flags = it.arguments[0] as Int
-
+        val mockPackageInfo = { pkgs: List<Package>, flags: Long ->
             pkgs.filter { pkg ->
-                (flags and MATCH_FACTORY_ONLY) == 0 || pkg.isPreinstalled
+                (flags and MATCH_FACTORY_ONLY.toLong()) == 0L || pkg.isPreinstalled
             }.map { pkg ->
                 PackageInfo().apply {
                     packageName = pkg.name
@@ -152,12 +151,31 @@ class RuntimePermissionsUpgradeControllerTest {
             }
         }
 
+        whenever(packageManager.getInstalledPackagesAsUser(anyInt(), anyInt())).thenAnswer {
+            val flags = (it.arguments[0] as Int).toLong()
+
+            mockPackageInfo(pkgs.toList(), flags)
+        }
+
+        if (SdkLevel.isAtLeastT()) {
+            whenever(
+                packageManager.getInstalledPackagesAsUser(
+                    any(PackageManager.PackageInfoFlags::class.java),
+                    anyInt()
+                )
+            ).thenAnswer {
+                val flags = it.arguments[0] as PackageManager.PackageInfoFlags
+
+                mockPackageInfo(pkgs.toList(), flags.value)
+            }
+        }
+
         whenever(packageManager.getPackageInfo(anyString(), anyInt())).thenAnswer {
             val packageName = it.arguments[0] as String
 
             packageManager.getInstalledPackagesAsUser(0, 0)
-                    .find { it.packageName == packageName }
-                    ?: throw PackageManager.NameNotFoundException()
+                .find { it.packageName == packageName }
+                ?: throw PackageManager.NameNotFoundException()
         }
 
         whenever(packageManager.getPermissionFlags(any(), any(), any())).thenAnswer {
@@ -528,6 +546,63 @@ class RuntimePermissionsUpgradeControllerTest {
         verifyGranted(TEST_PKG_NAME, READ_MEDIA_AUDIO)
         verifyGranted(TEST_PKG_NAME, READ_MEDIA_VIDEO)
         verifyGranted(TEST_PKG_NAME, READ_MEDIA_IMAGES)
+    }
+
+    @Test
+    fun userSelectedGrantedIfReadMediaVisualGrantedWhenVersionIs10() {
+        Assume.assumeTrue(SdkLevel.isAtLeastU())
+        whenever(packageManager.isDeviceUpgrading).thenReturn(true)
+        setInitialDatabaseVersion(10)
+        setPackages(
+            Package(TEST_PKG_NAME,
+                Permission(READ_MEDIA_VIDEO, isGranted = true, flags = FLAG_PERMISSION_USER_SET),
+                Permission(READ_MEDIA_IMAGES, isGranted = true, flags = FLAG_PERMISSION_USER_SET),
+                Permission(READ_MEDIA_VISUAL_USER_SELECTED, isGranted = false),
+                targetSdkVersion = 33
+            )
+        )
+
+        upgradeIfNeeded()
+
+        verifyGranted(TEST_PKG_NAME, READ_MEDIA_VISUAL_USER_SELECTED)
+    }
+
+    @Test
+    fun userSelectedNotGrantedIfDeviceNotUpgradingWhenVersionIs10() {
+        Assume.assumeTrue(SdkLevel.isAtLeastU())
+        whenever(packageManager.isDeviceUpgrading).thenReturn(false)
+        setInitialDatabaseVersion(10)
+        setPackages(
+            Package(TEST_PKG_NAME,
+                Permission(READ_MEDIA_VIDEO, isGranted = true, flags = FLAG_PERMISSION_USER_SET),
+                Permission(READ_MEDIA_IMAGES, isGranted = true, flags = FLAG_PERMISSION_USER_SET),
+                Permission(READ_MEDIA_VISUAL_USER_SELECTED, isGranted = false),
+                targetSdkVersion = 33
+            )
+        )
+
+        upgradeIfNeeded()
+
+        verifyNotGranted(TEST_PKG_NAME, READ_MEDIA_VISUAL_USER_SELECTED)
+    }
+
+    @Test
+    fun userSelectedNotGrantedIfReadMediaVisualNotGrantedWhenVersionIs10() {
+        Assume.assumeTrue(SdkLevel.isAtLeastU())
+        whenever(packageManager.isDeviceUpgrading).thenReturn(false)
+        setInitialDatabaseVersion(10)
+        setPackages(
+            Package(TEST_PKG_NAME,
+                Permission(READ_MEDIA_VIDEO, isGranted = false, flags = FLAG_PERMISSION_USER_SET),
+                Permission(READ_MEDIA_IMAGES, isGranted = false, flags = FLAG_PERMISSION_USER_SET),
+                Permission(READ_MEDIA_VISUAL_USER_SELECTED, isGranted = false),
+                targetSdkVersion = 33
+            )
+        )
+
+        upgradeIfNeeded()
+
+        verifyNotGranted(TEST_PKG_NAME, READ_MEDIA_VISUAL_USER_SELECTED)
     }
 
     @After
