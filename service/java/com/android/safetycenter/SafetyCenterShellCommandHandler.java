@@ -16,45 +16,47 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
 import static android.safetycenter.SafetyCenterManager.REFRESH_REASON_DEVICE_LOCALE_CHANGE;
 import static android.safetycenter.SafetyCenterManager.REFRESH_REASON_DEVICE_REBOOT;
 import static android.safetycenter.SafetyCenterManager.REFRESH_REASON_OTHER;
 import static android.safetycenter.SafetyCenterManager.REFRESH_REASON_PAGE_OPEN;
+import static android.safetycenter.SafetyCenterManager.REFRESH_REASON_PERIODIC;
 import static android.safetycenter.SafetyCenterManager.REFRESH_REASON_RESCAN_BUTTON_CLICK;
 import static android.safetycenter.SafetyCenterManager.REFRESH_REASON_SAFETY_CENTER_ENABLED;
 
 import static java.util.Collections.unmodifiableMap;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.content.Context;
 import android.os.RemoteException;
 import android.safetycenter.ISafetyCenterManager;
 import android.safetycenter.SafetyCenterManager.RefreshReason;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.modules.utils.BasicShellCommandHandler;
+import com.android.modules.utils.build.SdkLevel;
 
 import java.io.PrintWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** A {@link BasicShellCommandHandler} implementation to handle Safety Center commands. */
-@RequiresApi(TIRAMISU)
+/**
+ * A {@link BasicShellCommandHandler} implementation to handle Safety Center commands.
+ *
+ * <p>Example usage: $ adb shell cmd safety_center refresh --reason PAGE_OPEN --user 10
+ */
 final class SafetyCenterShellCommandHandler extends BasicShellCommandHandler {
 
-    @NonNull private static final Map<String, Integer> REASONS = createReasonMap();
+    private static final Map<String, Integer> REASONS = createReasonMap();
 
-    @NonNull private final Context mContext;
-    @NonNull private final ISafetyCenterManager mSafetyCenterManager;
+    private final Context mContext;
+    private final ISafetyCenterManager mSafetyCenterManager;
     private final boolean mDeviceSupportsSafetyCenter;
 
     SafetyCenterShellCommandHandler(
-            @NonNull Context context,
-            @NonNull ISafetyCenterManager safetyCenterManager,
+            Context context,
+            ISafetyCenterManager safetyCenterManager,
             boolean deviceSupportsSafetyCenter) {
         mContext = context;
         mSafetyCenterManager = safetyCenterManager;
@@ -84,9 +86,16 @@ final class SafetyCenterShellCommandHandler extends BasicShellCommandHandler {
                     return handleDefaultCommands(cmd);
             }
         } catch (RemoteException | IllegalArgumentException e) {
-            e.printStackTrace(getErrPrintWriter());
+            printError(e);
             return 1;
         }
+    }
+
+    // We want to log the stack trace on a specific PrintWriter here, this is a false positive as
+    // the warning does not consider the overload that takes a PrintWriter as an argument (yet).
+    @SuppressWarnings("CatchAndPrintStackTrace")
+    private void printError(Throwable error) {
+        error.printStackTrace(getErrPrintWriter());
     }
 
     private int onEnabled() throws RemoteException {
@@ -181,7 +190,7 @@ final class SafetyCenterShellCommandHandler extends BasicShellCommandHandler {
     }
 
     /** Helper function to standardise pretty-printing of the help text. */
-    private void printCmd(@NonNull String cmd, @NonNull String... description) {
+    private void printCmd(String cmd, String... description) {
         PrintWriter pw = getOutPrintWriter();
         pw.println("  " + cmd);
         for (int i = 0; i < description.length; i++) {
@@ -189,7 +198,6 @@ final class SafetyCenterShellCommandHandler extends BasicShellCommandHandler {
         }
     }
 
-    @NonNull
     private static Map<String, Integer> createReasonMap() {
         // LinkedHashMap so that options get printed in order
         LinkedHashMap<String, Integer> reasons = new LinkedHashMap<>(6);
@@ -199,6 +207,9 @@ final class SafetyCenterShellCommandHandler extends BasicShellCommandHandler {
         reasons.put("LOCALE_CHANGE", REFRESH_REASON_DEVICE_LOCALE_CHANGE);
         reasons.put("SAFETY_CENTER_ENABLED", REFRESH_REASON_SAFETY_CENTER_ENABLED);
         reasons.put("OTHER", REFRESH_REASON_OTHER);
+        if (SdkLevel.isAtLeastU()) {
+            reasons.put("PERIODIC", REFRESH_REASON_PERIODIC);
+        }
         return unmodifiableMap(reasons);
     }
 }
