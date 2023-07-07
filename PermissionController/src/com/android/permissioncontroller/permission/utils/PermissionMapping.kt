@@ -13,19 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package com.android.permissioncontroller.permission.utils
 
 import android.Manifest
+import android.app.AppOpsManager
 import android.content.pm.PackageManager
 import android.content.pm.PermissionInfo
+import android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP
+import android.util.Log
+
 import com.android.modules.utils.build.SdkLevel
+import com.android.permissioncontroller.permission.model.livedatatypes.LightAppPermGroup
+import com.android.permission.safetylabel.DataCategoryConstants
 
 /**
  * This file contains the canonical mapping of permission to permission group, used in the
  * Permission settings screens and grant dialog. It also includes methods related to that mapping.
  */
 object PermissionMapping {
+
+    private val LOG_TAG = "PermissionMapping"
+
+    private val PERMISSION_GROUPS_TO_DATA_CATEGORIES: Map<String, List<String>> = mapOf(
+        Manifest.permission_group.LOCATION to listOf(DataCategoryConstants.CATEGORY_LOCATION))
 
     @JvmField
     val SENSOR_DATA_PERMISSIONS: List<String> =
@@ -43,6 +55,8 @@ object PermissionMapping {
                 Manifest.permission_group.READ_MEDIA_AURAL,
                 Manifest.permission_group.READ_MEDIA_VISUAL)
 
+    val PARTIAL_MEDIA_PERMISSIONS: MutableSet<String> = mutableSetOf()
+
     /** Mapping permission -> group for all dangerous platform permissions */
     private val PLATFORM_PERMISSIONS: MutableMap<String, String> = mutableMapOf()
 
@@ -51,6 +65,9 @@ object PermissionMapping {
 
     /** Set of groups that will be able to receive one-time grant */
     private val ONE_TIME_PERMISSION_GROUPS: MutableSet<String> = mutableSetOf()
+
+    private val HEALTH_PERMISSIONS_SET: MutableSet<String> = mutableSetOf()
+
 
     init {
         PLATFORM_PERMISSIONS[Manifest.permission.READ_CONTACTS] = Manifest.permission_group.CONTACTS
@@ -62,6 +79,9 @@ object PermissionMapping {
         PLATFORM_PERMISSIONS[Manifest.permission.WRITE_CALENDAR] =
             Manifest.permission_group.CALENDAR
 
+        // Any updates to the permissions for the SMS permission group must also be made in
+        // Permissions {@link com.android.role.controller.model.Permissions} in the role
+        // library
         PLATFORM_PERMISSIONS[Manifest.permission.SEND_SMS] = Manifest.permission_group.SMS
         PLATFORM_PERMISSIONS[Manifest.permission.RECEIVE_SMS] = Manifest.permission_group.SMS
         PLATFORM_PERMISSIONS[Manifest.permission.READ_SMS] = Manifest.permission_group.SMS
@@ -92,6 +112,11 @@ object PermissionMapping {
                 Manifest.permission_group.READ_MEDIA_VISUAL
         }
 
+        if (SdkLevel.isAtLeastU()) {
+            PLATFORM_PERMISSIONS[Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED] =
+                Manifest.permission_group.READ_MEDIA_VISUAL
+        }
+
         PLATFORM_PERMISSIONS[Manifest.permission.ACCESS_FINE_LOCATION] =
             Manifest.permission_group.LOCATION
         PLATFORM_PERMISSIONS[Manifest.permission.ACCESS_COARSE_LOCATION] =
@@ -114,6 +139,9 @@ object PermissionMapping {
                 Manifest.permission_group.NEARBY_DEVICES
         }
 
+        // Any updates to the permissions for the CALL_LOG permission group must also be made in
+        // Permissions {@link com.android.role.controller.model.Permissions} in the role
+        // library
         PLATFORM_PERMISSIONS[Manifest.permission.READ_CALL_LOG] = Manifest.permission_group.CALL_LOG
         PLATFORM_PERMISSIONS[Manifest.permission.WRITE_CALL_LOG] =
             Manifest.permission_group.CALL_LOG
@@ -162,6 +190,11 @@ object PermissionMapping {
         ONE_TIME_PERMISSION_GROUPS.add(Manifest.permission_group.LOCATION)
         ONE_TIME_PERMISSION_GROUPS.add(Manifest.permission_group.CAMERA)
         ONE_TIME_PERMISSION_GROUPS.add(Manifest.permission_group.MICROPHONE)
+
+        if (SdkLevel.isAtLeastU()) {
+            PARTIAL_MEDIA_PERMISSIONS.add(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+            PARTIAL_MEDIA_PERMISSIONS.add(Manifest.permission.ACCESS_MEDIA_LOCATION)
+        }
     }
 
     /**
@@ -273,5 +306,104 @@ object PermissionMapping {
     @JvmStatic
     fun supportsOneTimeGrant(permissionGroup: String?): Boolean {
         return ONE_TIME_PERMISSION_GROUPS.contains(permissionGroup)
+    }
+
+    /**
+     * Adds health permissions as platform permissions.
+     */
+    @JvmStatic
+    fun addHealthPermissionsToPlatform(permissions: Set<String>) {
+        if (permissions.isEmpty()) {
+            Log.w(LOG_TAG, "No health connect permissions found.")
+            return
+        }
+
+        PLATFORM_PERMISSION_GROUPS[HEALTH_PERMISSION_GROUP] = mutableListOf()
+
+        for (permission in permissions) {
+            PLATFORM_PERMISSIONS[permission] = HEALTH_PERMISSION_GROUP
+            PLATFORM_PERMISSION_GROUPS[HEALTH_PERMISSION_GROUP]?.add(permission)
+            HEALTH_PERMISSIONS_SET.add(permission)
+        }
+    }
+
+    /**
+     * Get the permissions that, if granted, are considered a "partial grant" of the
+     * READ_MEDIA_VISUAL permission group. If the app declares READ_MEDIA_VISUAL_USER_SELECTED, then
+     * both READ_MEDIA_VISUAL_USER_SELECTED and ACCESS_MEDIA_LOCATION are considered a partial
+     * grant. Otherwise, ACCESS_MEDIA_LOCATION is considered a full grant (for compatibility).
+     */
+    fun getPartialStorageGrantPermissionsForGroup(group: LightAppPermGroup): Set<String> {
+        val appSupportsPickerPrompt = group
+            .permissions[Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED]?.isImplicit == false
+
+        return if (appSupportsPickerPrompt) {
+            PARTIAL_MEDIA_PERMISSIONS
+        } else {
+            setOf(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+        }
+    }
+
+    /**
+     * Returns true if the given permission is a health platform permission.
+     */
+    @JvmStatic
+    fun isHealthPermission(permissionName: String): Boolean {
+        return HEALTH_PERMISSIONS_SET.contains(permissionName)
+    }
+
+    /**
+     * Returns the platform permission group for the permission that the provided op backs, if any.
+     */
+    fun getPlatformPermissionGroupForOp(opName: String): String? {
+        // The OPSTR_READ_WRITE_HEALTH_DATA is a special case as unlike other ops, it does not
+        // map to a single permission. However it is safe to retrieve a permission group for it,
+        // as all permissions it maps to, map to the same permission group
+        // HEALTH_PERMISSION_GROUP.
+        if (opName == AppOpsManager.OPSTR_READ_WRITE_HEALTH_DATA) {
+            return HEALTH_PERMISSION_GROUP
+        }
+
+        // The following app ops are special cased as they don't back any permissions on their own,
+        // but do indicate usage of certain permissions.
+        if (opName == AppOpsManager.OPSTR_PHONE_CALL_MICROPHONE) {
+            return Manifest.permission_group.MICROPHONE
+        }
+        if (SdkLevel.isAtLeastT() && opName == AppOpsManager.OPSTR_RECEIVE_AMBIENT_TRIGGER_AUDIO) {
+            return Manifest.permission_group.MICROPHONE
+        }
+        if (opName == AppOpsManager.OPSTR_PHONE_CALL_CAMERA) {
+            return Manifest.permission_group.CAMERA
+        }
+
+        return AppOpsManager.opToPermission(opName)?.let { getGroupOfPlatformPermission(it) }
+    }
+
+    /**
+     * Get the SafetyLabel categories pertaining to a specified permission group.
+     *
+     * @return The categories, or an empty list if the group does not have a supported mapping
+     * to safety label category
+     */
+    fun getDataCategoriesForPermissionGroup(permissionGroupName: String): List<String> {
+        return if (isSafetyLabelAwarePermissionGroup(permissionGroupName)) {
+            PERMISSION_GROUPS_TO_DATA_CATEGORIES[permissionGroupName] ?: emptyList()
+        } else {
+            emptyList()
+        }
+    }
+
+    /**
+     * Whether this permission group maps to a SafetyLabel data category.
+     *
+     * @param permissionGroupName the permission group name
+     */
+    @JvmStatic
+    fun isSafetyLabelAwarePermissionGroup(permissionGroupName: String): Boolean {
+        if (!KotlinUtils.isPermissionRationaleEnabled()) {
+            return false
+        }
+
+        return PERMISSION_GROUPS_TO_DATA_CATEGORIES.containsKey(permissionGroupName)
     }
 }

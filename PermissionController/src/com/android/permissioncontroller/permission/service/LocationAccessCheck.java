@@ -41,6 +41,9 @@ import static android.os.UserHandle.getUserHandleForUid;
 import static android.os.UserHandle.myUserId;
 import static android.provider.Settings.Secure.LOCATION_ACCESS_CHECK_DELAY_MILLIS;
 import static android.provider.Settings.Secure.LOCATION_ACCESS_CHECK_INTERVAL_MILLIS;
+import static android.safetycenter.SafetyCenterManager.EXTRA_SAFETY_SOURCE_ID;
+import static android.safetycenter.SafetyCenterManager.EXTRA_SAFETY_SOURCE_ISSUE_ID;
+import static android.safetycenter.SafetyCenterManager.EXTRA_SAFETY_SOURCE_USER_HANDLE;
 
 import static com.android.permissioncontroller.Constants.EXTRA_SESSION_ID;
 import static com.android.permissioncontroller.Constants.INVALID_SESSION_ID;
@@ -94,6 +97,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -109,7 +113,6 @@ import android.safetycenter.SafetySourceData;
 import android.safetycenter.SafetySourceIssue;
 import android.safetycenter.SafetySourceIssue.Action;
 import android.service.notification.StatusBarNotification;
-import android.text.Html;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.ArraySet;
@@ -410,6 +413,7 @@ public class LocationAccessCheck {
     private void addLocationNotificationIfNeeded(@NonNull JobParameters params,
             @NonNull LocationAccessCheckJobService service) {
         if (!checkLocationAccessCheckEnabledAndUpdateEnabledTime()) {
+            Log.v(LOG_TAG, "LocationAccessCheck feature is not enabled.");
             service.jobFinished(params, false);
             return;
         }
@@ -419,11 +423,13 @@ public class LocationAccessCheck {
                 if (currentTimeMillis() - mSharedPrefs.getLong(
                         KEY_LAST_LOCATION_ACCESS_NOTIFICATION_SHOWN, 0)
                         < getInBetweenNotificationsMillis()) {
+                    Log.v(LOG_TAG, "location notification interval is not enough.");
                     service.jobFinished(params, false);
                     return;
                 }
 
                 if (getCurrentlyShownNotificationLocked() != null) {
+                    Log.v(LOG_TAG, "already location notification exist.");
                     service.jobFinished(params, false);
                     return;
                 }
@@ -437,6 +443,7 @@ public class LocationAccessCheck {
             } finally {
                 synchronized (sLock) {
                     service.mAddLocationNotificationIfNeededTask = null;
+                    Log.v(LOG_TAG, "LocationAccessCheck privacy job marked complete.");
                 }
             }
         }
@@ -447,6 +454,10 @@ public class LocationAccessCheck {
         synchronized (sLock) {
             List<UserPackage> packages = getLocationUsersLocked(ops);
             ArraySet<UserPackage> alreadyNotifiedPackages = loadAlreadyNotifiedPackagesLocked();
+            if (DEBUG) {
+                Log.v(LOG_TAG, "location packages: " + packages);
+                Log.v(LOG_TAG, "already notified packages: " + alreadyNotifiedPackages);
+            }
             throwInterruptedExceptionIfTaskIsCanceled();
             // Send these issues to safety center
             if (isSafetyCenterBgLocationReminderEnabled()) {
@@ -462,6 +473,9 @@ public class LocationAccessCheck {
                 throwInterruptedExceptionIfTaskIsCanceled();
 
                 if (packages.isEmpty()) {
+                    if (DEBUG) {
+                        Log.v(LOG_TAG, "No package found to send a notification");
+                    }
                     return;
                 }
 
@@ -661,20 +675,16 @@ public class LocationAccessCheck {
                 R.string.background_location_access_reminder_notification_content);
 
         CharSequence appLabel = appName;
-        int smallIconResId;
-        int colorResId = android.R.color.system_notification_accent_color;
+        Icon smallIcon;
+        int color = mContext.getColor(android.R.color.system_notification_accent_color);
         if (safetyCenterBgLocationReminderEnabled) {
-            if (KotlinUtils.INSTANCE.shouldShowSafetyProtectionResources(mContext)) {
-                appLabel = Html.fromHtml(
-                    mContext.getString(android.R.string.safety_protection_display_text), 0);
-                smallIconResId = android.R.drawable.ic_safety_protection;
-                colorResId = R.color.safety_center_info;
-            } else {
-                appLabel = mContext.getString(R.string.safety_center_notification_app_label);
-                smallIconResId = R.drawable.ic_settings_notification;
-            }
+            KotlinUtils.NotificationResources notifRes =
+                    KotlinUtils.INSTANCE.getSafetyCenterNotificationResources(mContext);
+            appLabel = notifRes.getAppLabel();
+            smallIcon = notifRes.getSmallIcon();
+            color = notifRes.getColor();
         } else {
-            smallIconResId = R.drawable.ic_pin_drop;
+            smallIcon = Icon.createWithResource(mContext, R.drawable.ic_pin_drop);
         }
 
         Notification.Builder b = (new Notification.Builder(mContext,
@@ -683,8 +693,8 @@ public class LocationAccessCheck {
                 .setContentTitle(notificationTitle)
                 .setContentText(notificationContent)
                 .setStyle(new Notification.BigTextStyle().bigText(notificationContent))
-                .setSmallIcon(smallIconResId)
-                .setColor(mContext.getColor(colorResId))
+                .setSmallIcon(smallIcon)
+                .setColor(color)
                 .setDeleteIntent(createNotificationDismissIntent(pkgName, sessionId, uid))
                 .setContentIntent(createNotificationClickIntent(pkgName, user, sessionId, uid))
                 .setAutoCancel(true);
@@ -1047,6 +1057,10 @@ public class LocationAccessCheck {
         Intent clickIntent = null;
         if (isSafetyCenterBgLocationReminderEnabled()) {
             clickIntent = new Intent(ACTION_SAFETY_CENTER);
+            clickIntent.putExtra(EXTRA_SAFETY_SOURCE_ID, BG_LOCATION_SOURCE_ID);
+            clickIntent.putExtra(
+                    EXTRA_SAFETY_SOURCE_ISSUE_ID, createSafetySourceIssueId(pkg, user));
+            clickIntent.putExtra(EXTRA_SAFETY_SOURCE_USER_HANDLE, user);
         } else {
             clickIntent = new Intent(ACTION_MANAGE_APP_PERMISSION);
             clickIntent.putExtra(EXTRA_PERMISSION_GROUP_NAME, LOCATION);
@@ -1152,6 +1166,7 @@ public class LocationAccessCheck {
 
         @Override
         public void onCreate() {
+            Log.v(LOG_TAG, "LocationAccessCheck privacy job is created");
             super.onCreate();
             mLocationAccessCheck = new LocationAccessCheck(this, () -> {
                 synchronized (sLock) {
@@ -1170,8 +1185,10 @@ public class LocationAccessCheck {
          */
         @Override
         public boolean onStartJob(JobParameters params) {
+            Log.v(LOG_TAG, "LocationAccessCheck privacy job is started");
             synchronized (LocationAccessCheck.sLock) {
                 if (mAddLocationNotificationIfNeededTask != null) {
+                    Log.v(LOG_TAG, "LocationAccessCheck old job not completed yet.");
                     return false;
                 }
 
@@ -1192,6 +1209,7 @@ public class LocationAccessCheck {
          */
         @Override
         public boolean onStopJob(JobParameters params) {
+            Log.v(LOG_TAG, "LocationAccessCheck privacy source onStopJob called.");
             AddLocationNotificationIfNeededTask task;
             synchronized (sLock) {
                 if (mAddLocationNotificationIfNeededTask == null) {

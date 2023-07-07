@@ -16,6 +16,7 @@
 
 package com.android.permissioncontroller.safetycenter.ui.view
 
+import android.content.Context
 import android.safetycenter.SafetyCenterEntry.ENTRY_SEVERITY_LEVEL_UNSPECIFIED
 import android.safetycenter.SafetyCenterEntry.SEVERITY_UNSPECIFIED_ICON_TYPE_NO_ICON
 import android.view.View
@@ -28,13 +29,14 @@ import com.android.permissioncontroller.safetycenter.ui.SeverityIconPicker
 
 internal class SafetyEntryCommonViewsManager(rootEntryView: ViewGroup?) {
 
-    private val titleView: TextView? by lazy { rootEntryView?.findViewById(R.id.title) }
-    private val summaryView: TextView? by lazy { rootEntryView?.findViewById(R.id.summary) }
-    private val iconView: ImageView? by lazy { rootEntryView?.findViewById(R.id.icon) }
-    private val iconFrame: View? by lazy { rootEntryView?.findViewById(R.id.icon_frame) }
-    private val emptySpace: View? by lazy { rootEntryView?.findViewById(R.id.empty_space) }
+    val titleView: TextView? by lazyView { rootEntryView?.findViewById(R.id.title) }
+    val summaryView: TextView? by lazyView { rootEntryView?.findViewById(R.id.summary) }
+    private val iconView: ImageView? by lazyView { rootEntryView?.findViewById(R.id.icon) }
+    private val iconFrame: View? by lazyView { rootEntryView?.findViewById(R.id.icon_frame) }
+    private val emptySpace: View? by lazyView { rootEntryView?.findViewById(R.id.empty_space) }
 
     fun showDetails(
+        id: String,
         title: CharSequence,
         summary: CharSequence?,
         severityLevel: Int,
@@ -43,23 +45,15 @@ internal class SafetyEntryCommonViewsManager(rootEntryView: ViewGroup?) {
         titleView?.text = title
         summaryView?.showText(summary)
 
-        iconView?.setImageResource(SeverityIconPicker.selectIconResId(
-                severityLevel, severityUnspecifiedIconType))
+        iconView?.setImageResource(
+            SeverityIconPicker.selectIconResId(id, severityLevel, severityUnspecifiedIconType)
+        )
 
-        val hideIcon = (severityLevel == ENTRY_SEVERITY_LEVEL_UNSPECIFIED &&
+        val hideIcon =
+            (severityLevel == ENTRY_SEVERITY_LEVEL_UNSPECIFIED &&
                 severityUnspecifiedIconType == SEVERITY_UNSPECIFIED_ICON_TYPE_NO_ICON)
         iconFrame?.visibility = if (hideIcon) LinearLayout.GONE else LinearLayout.VISIBLE
         emptySpace?.visibility = if (hideIcon) LinearLayout.VISIBLE else LinearLayout.GONE
-    }
-
-    fun changeEnabledState(isEnabled: Boolean) {
-        if (isEnabled) {
-            titleView?.alpha = 1f
-            summaryView?.alpha = 1f
-        } else {
-            titleView?.alpha = 0.4f
-            summaryView?.alpha = 0.4f
-        }
     }
 
     private fun TextView.showText(text: CharSequence?) {
@@ -68,6 +62,48 @@ internal class SafetyEntryCommonViewsManager(rootEntryView: ViewGroup?) {
             this.text = text
         } else {
             visibility = View.GONE
+        }
+    }
+
+    companion object {
+
+        private const val DEFAULT_DISABLED_ALPHA = 0.4f
+
+        /**
+         * Change opacity to make some entries look disabled but still be clickable
+         *
+         * @param isEntryEnabled whether the [android.safetycenter.SafetyCenterEntry] is enabled
+         * @param isPreferenceEnabled whether the corresponding preference is enabled
+         * @param titleView view displaying the title text of the entry
+         * @param summaryView view displaying the summary text of the entry
+         */
+        fun changeEnabledState(
+            context: Context,
+            isEntryEnabled: Boolean,
+            isPreferenceEnabled: Boolean,
+            titleView: TextView?,
+            summaryView: TextView?
+        ) {
+            val disabledAlpha = getDisabledAlpha(context)
+            if (isEntryEnabled) {
+                titleView?.alpha = 1f
+                summaryView?.alpha = 1f
+            } else if (isPreferenceEnabled) {
+                /* Check that preference is enabled before lowering because disabled preferences
+                 * already have a low visibility */
+                titleView?.alpha = disabledAlpha
+                summaryView?.alpha = disabledAlpha
+            }
+        }
+
+        private fun getDisabledAlpha(context: Context): Float {
+            val styledAttributes =
+                context.obtainStyledAttributes(intArrayOf(android.R.attr.disabledAlpha))
+            try {
+                return styledAttributes.getFloat(0, DEFAULT_DISABLED_ALPHA)
+            } finally {
+                styledAttributes.recycle()
+            }
         }
     }
 }
