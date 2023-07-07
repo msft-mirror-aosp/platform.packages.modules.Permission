@@ -20,9 +20,7 @@ import android.Manifest.permission.READ_DEVICE_CONFIG
 import android.Manifest.permission.WRITE_DEVICE_CONFIG
 import android.annotation.TargetApi
 import android.app.job.JobInfo
-import android.content.Context
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.provider.DeviceConfig
 import android.provider.DeviceConfig.NAMESPACE_PRIVACY
@@ -35,6 +33,7 @@ import android.safetycenter.SafetyCenterManager.REFRESH_REASON_PERIODIC
 import android.safetycenter.SafetyCenterManager.REFRESH_REASON_RESCAN_BUTTON_CLICK
 import android.safetycenter.SafetyCenterManager.REFRESH_REASON_SAFETY_CENTER_ENABLED
 import android.safetycenter.SafetySourceData
+import com.android.modules.utils.build.SdkLevel
 import com.android.safetycenter.testing.Coroutines.TIMEOUT_LONG
 import com.android.safetycenter.testing.ShellPermissions.callWithShellPermissionIdentity
 import java.time.Duration
@@ -45,7 +44,7 @@ object SafetyCenterFlags {
 
     /** Flag that determines whether Safety Center is enabled. */
     private val isEnabledFlag =
-        Flag("safety_center_is_enabled", defaultValue = false, BooleanParser())
+        Flag("safety_center_is_enabled", defaultValue = SdkLevel.isAtLeastU(), BooleanParser())
 
     /** Flag that determines whether Safety Center can send notifications. */
     private val notificationsFlag =
@@ -324,12 +323,6 @@ object SafetyCenterFlags {
             backgroundRefreshRequiresChargingFlag
         )
 
-    /** Returns whether the device supports Safety Center. */
-    fun Context.deviceSupportsSafetyCenter() =
-        resources.getBoolean(
-            Resources.getSystem().getIdentifier("config_enableSafetyCenter", "bool", "android")
-        )
-
     /** A property that allows getting and setting the [isEnabledFlag]. */
     var isEnabled: Boolean by isEnabledFlag
 
@@ -454,7 +447,7 @@ object SafetyCenterFlags {
 
     /** Returns the [isEnabledFlag] value of the Safety Center flags snapshot. */
     fun Properties.isSafetyCenterEnabled() =
-        getBoolean(isEnabledFlag.name, /* defaultValue */ false)
+        getBoolean(isEnabledFlag.name, isEnabledFlag.defaultValue)
 
     @TargetApi(UPSIDE_DOWN_CAKE)
     private fun getAllRefreshTimeoutsMap(refreshTimeout: Duration): Map<Int, Duration> =
@@ -527,11 +520,7 @@ object SafetyCenterFlags {
                 .joinToString(entriesDelimiter)
     }
 
-    private class Flag<T>(
-        val name: String,
-        private val defaultValue: T,
-        private val parser: Parser<T>
-    ) {
+    private class Flag<T>(val name: String, val defaultValue: T, private val parser: Parser<T>) {
         val defaultStringValue = parser.toString(defaultValue)
 
         operator fun getValue(thisRef: Any?, property: KProperty<*>): T =

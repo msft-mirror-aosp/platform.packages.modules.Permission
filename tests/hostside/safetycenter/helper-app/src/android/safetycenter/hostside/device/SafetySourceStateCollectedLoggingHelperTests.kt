@@ -18,18 +18,30 @@ package android.safetycenter.hostside.device
 
 import android.content.Context
 import android.safetycenter.SafetyCenterManager
+import android.safetycenter.SafetyCenterStatus
+import android.safetycenter.SafetyCenterStatus.REFRESH_STATUS_DATA_FETCH_IN_PROGRESS
+import android.safetycenter.SafetyCenterStatus.REFRESH_STATUS_FULL_RESCAN_IN_PROGRESS
+import android.safetycenter.SafetyEvent
+import android.safetycenter.SafetySourceErrorDetails
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.android.compatibility.common.util.SystemUtil
-import com.android.safetycenter.testing.*
+import com.android.safetycenter.testing.Coroutines.TIMEOUT_SHORT
+import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.reportSafetySourceErrorWithPermission
+import com.android.safetycenter.testing.SafetyCenterFlags
+import com.android.safetycenter.testing.SafetyCenterTestConfigs
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SOURCE_ID_1
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SOURCE_ID_2
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SOURCE_ID_3
+import com.android.safetycenter.testing.SafetyCenterTestHelper
+import com.android.safetycenter.testing.SafetyCenterTestRule
 import com.android.safetycenter.testing.SafetySourceIntentHandler.Request
 import com.android.safetycenter.testing.SafetySourceIntentHandler.Response
+import com.android.safetycenter.testing.SafetySourceReceiver
 import com.android.safetycenter.testing.SafetySourceReceiver.Companion.refreshSafetySourcesWithReceiverPermissionAndWait
-import org.junit.After
+import com.android.safetycenter.testing.SafetySourceTestData
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -41,16 +53,12 @@ class SafetySourceStateCollectedLoggingHelperTests {
     private val safetyCenterTestConfigs = SafetyCenterTestConfigs(context)
     private val safetyCenterManager = context.getSystemService(SafetyCenterManager::class.java)!!
 
+    @get:Rule val safetyCenterTestRule = SafetyCenterTestRule(safetyCenterTestHelper)
+
     @Before
     fun setUp() {
-        safetyCenterTestHelper.setup()
         SafetyCenterFlags.allowStatsdLogging = true
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.multipleSourcesConfig)
-    }
-
-    @After
-    fun tearDown() {
-        safetyCenterTestHelper.reset()
     }
 
     @Test
@@ -67,11 +75,46 @@ class SafetySourceStateCollectedLoggingHelperTests {
     }
 
     @Test
+    fun reportSafetySourceError_source1() {
+        safetyCenterManager.reportSafetySourceErrorWithPermission(
+            SOURCE_ID_1,
+            SafetySourceErrorDetails(
+                SafetyEvent.Builder(SafetyEvent.SAFETY_EVENT_TYPE_SOURCE_STATE_CHANGED).build()
+            )
+        )
+    }
+
+    @Test
     fun refreshAllSources_reasonPageOpen_allSuccessful() {
         simulateRefresh(
             Response.SetData(safetySourceTestData.information),
             Response.SetData(safetySourceTestData.recommendationWithAccountIssue),
             Response.SetData(safetySourceTestData.criticalWithResolvingDeviceIssue)
+        )
+    }
+
+    @Test
+    fun refreshAllSources_twiceSameData_allSuccessful() {
+        repeat(2) {
+            simulateRefresh(
+                Response.SetData(safetySourceTestData.information),
+                Response.SetData(safetySourceTestData.recommendationWithAccountIssue),
+                Response.SetData(safetySourceTestData.criticalWithResolvingDeviceIssue)
+            )
+        }
+    }
+
+    @Test
+    fun refreshAllSources_twiceDifferentData_onlySource1Unchanged() {
+        simulateRefresh(
+            Response.SetData(safetySourceTestData.information),
+            Response.SetData(safetySourceTestData.recommendationWithAccountIssue),
+            Response.SetData(safetySourceTestData.criticalWithResolvingDeviceIssue)
+        )
+        simulateRefresh(
+            Response.SetData(safetySourceTestData.information),
+            Response.SetData(safetySourceTestData.information),
+            Response.SetData(safetySourceTestData.information)
         )
     }
 
@@ -84,15 +127,53 @@ class SafetySourceStateCollectedLoggingHelperTests {
         )
     }
 
+    @Test
+    fun refreshAllSources_reasonPageOpen_oneSuccessOneErrorOneTimeout() {
+        simulateRefresh(Response.SetData(safetySourceTestData.information), Response.Error, null)
+    }
+
+    @Test
+    fun refreshAllSources_reasonButtonClick_oneSuccessOneErrorOneTimeout() {
+        simulateRefresh(
+            Response.SetData(safetySourceTestData.information),
+            Response.Error,
+            null,
+            refreshReason = SafetyCenterManager.REFRESH_REASON_RESCAN_BUTTON_CLICK
+        )
+    }
+
     private fun simulateRefresh(
-        source1Response: Response,
-        source2Response: Response,
-        source3Response: Response,
+        source1Response: Response?,
+        source2Response: Response?,
+        source3Response: Response?,
         refreshReason: Int = SafetyCenterManager.REFRESH_REASON_PAGE_OPEN
     ) {
-        SafetySourceReceiver.setResponse(Request.Refresh(SOURCE_ID_1), source1Response)
-        SafetySourceReceiver.setResponse(Request.Refresh(SOURCE_ID_2), source2Response)
-        SafetySourceReceiver.setResponse(Request.Refresh(SOURCE_ID_3), source3Response)
+        if (source1Response != null) {
+            SafetySourceReceiver.setResponse(Request.Refresh(SOURCE_ID_1), source1Response)
+        }
+        if (source2Response != null) {
+            SafetySourceReceiver.setResponse(Request.Refresh(SOURCE_ID_2), source2Response)
+        }
+        if (source3Response != null) {
+            SafetySourceReceiver.setResponse(Request.Refresh(SOURCE_ID_3), source3Response)
+        }
+
+        val atLeastOneTimeout =
+            source1Response == null || source2Response == null || source3Response == null
+        if (atLeastOneTimeout) {
+            SafetyCenterFlags.setAllRefreshTimeoutsTo(TIMEOUT_SHORT)
+        }
+
+        // Refresh sources and wait until the refresh has fully completed / timed out to ensure that
+        // things are logged.
+        val listener = safetyCenterTestHelper.addListener()
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(refreshReason)
+        listener.receiveSafetyCenterData {
+            it.status.refreshStatus == REFRESH_STATUS_DATA_FETCH_IN_PROGRESS ||
+                it.status.refreshStatus == REFRESH_STATUS_FULL_RESCAN_IN_PROGRESS
+        }
+        listener.receiveSafetyCenterData {
+            it.status.refreshStatus == SafetyCenterStatus.REFRESH_STATUS_NONE
+        }
     }
 }

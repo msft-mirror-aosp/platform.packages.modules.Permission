@@ -16,11 +16,8 @@
 
 package com.android.safetycenter.data;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static com.android.safetycenter.internaldata.SafetyCenterIds.toUserFriendlyString;
 
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.annotation.WorkerThread;
 import android.content.ApexEnvironment;
@@ -30,7 +27,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.modules.utils.BackgroundThread;
 import com.android.safetycenter.ApiLock;
@@ -66,7 +63,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * <p>This class isn't thread safe. Thread safety must be handled by the caller.
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 final class SafetyCenterIssueDismissalRepository {
 
@@ -130,11 +126,7 @@ final class SafetyCenterIssueDismissalRepository {
 
         Duration timeSinceLastDismissal = Duration.between(dismissedAt, Instant.now());
         boolean isTimeToResurface = timeSinceLastDismissal.compareTo(delay) >= 0;
-        if (isTimeToResurface) {
-            return false;
-        }
-
-        return true;
+        return !isTimeToResurface;
     }
 
     /**
@@ -342,7 +334,7 @@ final class SafetyCenterIssueDismissalRepository {
      * and all following calls won't have any effect.
      */
     void resurfaceHiddenIssueAfterPeriod(SafetyCenterIssueKey safetyCenterIssueKey) {
-        IssueData issueData = getOrWarn(safetyCenterIssueKey, "resurfaceIssueAfterPeriod");
+        IssueData issueData = getOrWarn(safetyCenterIssueKey, "resurfacing hidden issue");
         if (issueData == null) {
             return;
         }
@@ -440,10 +432,16 @@ final class SafetyCenterIssueDismissalRepository {
         try {
             Files.copy(issueDismissalRepositoryFile.toPath(), new FileOutputStream(fd));
         } catch (IOException e) {
-            // TODO(b/266202404)
-            e.printStackTrace(fout);
+            printError(e, fout);
         }
         fout.println();
+    }
+
+    // We want to dump the stack trace on a specific PrintWriter here, this is a false positive as
+    // the warning does not consider the overload that takes a PrintWriter as an argument (yet).
+    @SuppressWarnings("CatchAndPrintStackTrace")
+    private void printError(Throwable error, PrintWriter fout) {
+        error.printStackTrace(fout);
     }
 
     @Nullable
@@ -492,9 +490,9 @@ final class SafetyCenterIssueDismissalRepository {
         try {
             persistedSafetyCenterIssues =
                     SafetyCenterIssuesPersistence.read(getIssueDismissalRepositoryFile());
-            Log.i(TAG, "Safety Center persisted issues read successfully");
+            Log.d(TAG, "Safety Center persisted issues read successfully");
         } catch (PersistenceException e) {
-            Log.e(TAG, "Cannot read Safety Center persisted issues", e);
+            Log.w(TAG, "Cannot read Safety Center persisted issues", e);
         }
 
         load(persistedSafetyCenterIssues);

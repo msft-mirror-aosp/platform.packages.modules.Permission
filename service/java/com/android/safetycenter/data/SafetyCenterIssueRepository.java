@@ -16,8 +16,6 @@
 
 package com.android.safetycenter.data;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static com.android.safetycenter.data.SafetyCenterIssueDeduplicator.DeduplicationInfo;
 
 import static java.util.Collections.emptyList;
@@ -31,8 +29,6 @@ import android.safetycenter.SafetySourceIssue;
 import android.safetycenter.config.SafetySource;
 import android.safetycenter.config.SafetySourcesGroup;
 import android.util.SparseArray;
-
-import androidx.annotation.RequiresApi;
 
 import com.android.modules.utils.build.SdkLevel;
 import com.android.permission.util.UserUtils;
@@ -56,7 +52,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * <p>Responsible for generating lists of issues and deduplication of issues.
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 final class SafetyCenterIssueRepository {
 
@@ -86,19 +81,6 @@ final class SafetyCenterIssueRepository {
         mSafetyCenterConfigReader = safetyCenterConfigReader;
         mSafetyCenterIssueDismissalRepository = safetyCenterIssueDismissalRepository;
         mSafetyCenterIssueDeduplicator = safetyCenterIssueDeduplicator;
-    }
-
-    /**
-     * Updates the class as per the current state of issues. Should be called after any state update
-     * that can affect issues.
-     */
-    void updateIssues(UserProfileGroup userProfileGroup) {
-        updateIssues(userProfileGroup.getProfileParentUserId(), /* isManagedProfile= */ false);
-
-        int[] managedProfileUserIds = userProfileGroup.getManagedProfilesUserIds();
-        for (int i = 0; i < managedProfileUserIds.length; i++) {
-            updateIssues(managedProfileUserIds[i], /* isManagedProfile= */ true);
-        }
     }
 
     /**
@@ -184,7 +166,7 @@ final class SafetyCenterIssueRepository {
      * <p>If this method is called before any calls to {@link
      * SafetyCenterIssueDeduplicator#deduplicateIssues} then an empty list is returned.
      */
-    List<SafetySourceIssueInfo> getMostRecentFilteredOutDuplicateIssues(@UserIdInt int userId) {
+    List<SafetySourceIssueInfo> getLatestDuplicates(@UserIdInt int userId) {
         return mUserIdToDedupInfo.get(userId, EMPTY_DEDUP_INFO).getFilteredOutDuplicateIssues();
     }
 
@@ -240,8 +222,7 @@ final class SafetyCenterIssueRepository {
             SafetySourcesGroup safetySourcesGroup,
             @UserIdInt int userId) {
         SafetySourceKey key = SafetySourceKey.of(safetySource.getId(), userId);
-        SafetySourceData safetySourceData =
-                mSafetySourceDataRepository.getSafetySourceDataInternal(key);
+        SafetySourceData safetySourceData = mSafetySourceDataRepository.getSafetySourceData(key);
 
         if (safetySourceData == null) {
             return;

@@ -28,19 +28,18 @@ import android.safetycenter.SafetyCenterStatus
 import android.safetycenter.SafetyEvent
 import android.safetycenter.SafetySourceErrorDetails
 import android.safetycenter.SafetySourceIssue
-import android.safetycenter.functional.testing.NotificationCharacteristics
-import android.safetycenter.functional.testing.TestNotificationListener
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import com.android.safetycenter.pendingintents.PendingIntentSender
+import com.android.safetycenter.testing.Coroutines
 import com.android.safetycenter.testing.Coroutines.TIMEOUT_SHORT
+import com.android.safetycenter.testing.NotificationCharacteristics
 import com.android.safetycenter.testing.SafetyCenterActivityLauncher.executeBlockAndExit
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.clearAllSafetySourceDataForTestsWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.dismissSafetyCenterIssueWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.reportSafetySourceErrorWithPermission
 import com.android.safetycenter.testing.SafetyCenterFlags
-import com.android.safetycenter.testing.SafetyCenterFlags.deviceSupportsSafetyCenter
 import com.android.safetycenter.testing.SafetyCenterTestConfigs
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SINGLE_SOURCE_ID
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SOURCE_ID_1
@@ -54,14 +53,16 @@ import com.android.safetycenter.testing.SafetySourceReceiver
 import com.android.safetycenter.testing.SafetySourceTestData
 import com.android.safetycenter.testing.SafetySourceTestData.Companion.ISSUE_TYPE_ID
 import com.android.safetycenter.testing.ShellPermissions.callWithShellPermissionIdentity
+import com.android.safetycenter.testing.SupportsSafetyCenterRule
+import com.android.safetycenter.testing.TestNotificationListener
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueDisplayed
 import com.google.common.truth.Truth.assertThat
 import java.time.Duration
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.TimeoutCancellationException
 import org.junit.After
-import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -77,22 +78,13 @@ class SafetyCenterNotificationTest {
             "Could not get system service"
         }
 
-    // JUnit's Assume is not supported in @BeforeClass by the CTS tests runner, so this is used to
-    // manually skip the setup and teardown methods.
-    private val shouldRunTests = context.deviceSupportsSafetyCenter()
-
-    @Before
-    fun assumeDeviceSupportsSafetyCenterToRunTests() {
-        assumeTrue(shouldRunTests)
-    }
+    @get:Rule val supportsSafetyCenterRule = SupportsSafetyCenterRule(context)
 
     @Before
     fun setUp() {
-        if (!shouldRunTests) {
-            return
-        }
+        // TODO(b/283745908): Make TestNotificationListener compatible with SafetyCenterTestRule
         safetyCenterTestHelper.setup()
-        TestNotificationListener.setup()
+        TestNotificationListener.setup(context)
         SafetyCenterFlags.notificationsEnabled = true
         setFlagsForImmediateNotifications(SINGLE_SOURCE_ID)
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
@@ -100,13 +92,11 @@ class SafetyCenterNotificationTest {
 
     @After
     fun tearDown() {
-        if (!shouldRunTests) {
-            return
-        }
         // It is important to reset the notification listener last because it waits/ensures that
         // all notifications have been removed before returning.
+        // TODO(b/283745908): Make TestNotificationListener compatible with SafetyCenterTestRule
         safetyCenterTestHelper.reset()
-        TestNotificationListener.reset()
+        TestNotificationListener.reset(context)
     }
 
     @Test
@@ -153,7 +143,7 @@ class SafetyCenterNotificationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE)
     fun setSafetySourceData_withNotificationBehaviorNever_noNotification() {
         val data =
             safetySourceTestData
@@ -172,7 +162,7 @@ class SafetyCenterNotificationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE)
     fun setSafetySourceData_withNotificationBehaviorDelay_noImmediateNotification() {
         SafetyCenterFlags.notificationsMinDelay = Duration.ofDays(1)
         val data =
@@ -192,7 +182,7 @@ class SafetyCenterNotificationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE)
     fun setSafetySourceData_withNotificationBehaviorDelay_sendsNotificationAfterDelay() {
         SafetyCenterFlags.notificationsMinDelay = Duration.ofDays(1)
         val delayedNotificationIssue =
@@ -237,7 +227,7 @@ class SafetyCenterNotificationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE)
     fun setSafetySourceData_withNotificationBehaviorDelayOfZero_sendsNotificationImmediately() {
         SafetyCenterFlags.immediateNotificationBehaviorIssues = emptySet()
         SafetyCenterFlags.notificationsMinDelay = Duration.ofSeconds(0)
@@ -264,7 +254,7 @@ class SafetyCenterNotificationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE)
     fun setSafetySourceData_withNotificationBehaviorImmediately_sendsNotification() {
         SafetyCenterFlags.immediateNotificationBehaviorIssues = emptySet()
         val data =
@@ -341,7 +331,7 @@ class SafetyCenterNotificationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE)
     fun setSafetySourceData_withNotificationsAllowedForSourceByConfig_sendsNotification() {
         SafetyCenterFlags.notificationsAllowedSources = emptySet()
         SafetyCenterFlags.immediateNotificationBehaviorIssues = emptySet()
@@ -372,7 +362,7 @@ class SafetyCenterNotificationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE)
     fun setSafetySourceData_withCustomNotification_usesCustomValues() {
         val intent1 = safetySourceTestData.testActivityRedirectPendingIntent(identifier = "1")
         val intent2 = safetySourceTestData.testActivityRedirectPendingIntent(identifier = "2")
@@ -418,7 +408,7 @@ class SafetyCenterNotificationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE)
     fun setSafetySourceData_withEmptyCustomActions_notificationHasNoActions() {
         val notification =
             SafetySourceIssue.Notification.Builder("Custom title", "Custom text")
@@ -539,6 +529,22 @@ class SafetyCenterNotificationTest {
         TestNotificationListener.waitForZeroNotifications()
     }
 
+    // TODO(b/284271124): Decide what to do with existing notifications when flag flipped off
+    @Test
+    fun setSafetySourceData_removingAnIssue_afterFlagTurnedOff_noNotificationChanges() {
+        val data1 = safetySourceTestData.recommendationWithAccountIssue
+        val data2 = safetySourceTestData.information
+
+        safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, data1)
+
+        TestNotificationListener.waitForSingleNotification()
+
+        SafetyCenterFlags.notificationsEnabled = false
+        safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, data2)
+
+        TestNotificationListener.waitForZeroNotificationEvents()
+    }
+
     @Test
     fun reportSafetySourceError_sourceWithNotification_cancelsNotification() {
         val data = safetySourceTestData.recommendationWithAccountIssue
@@ -630,7 +636,7 @@ class SafetyCenterNotificationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE)
     fun setSafetySourceData_duplicateIssues_sendsOneNotification() {
         safetyCenterTestHelper.setConfig(
             safetyCenterTestConfigs.multipleSourcesWithDeduplicationInfoConfig
@@ -660,7 +666,7 @@ class SafetyCenterNotificationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE)
     fun setSafetySourceData_duplicateIssueOfLowerSeverityDismissed_sendsNotification() {
         safetyCenterTestHelper.setConfig(
             safetyCenterTestConfigs.multipleSourcesWithDeduplicationInfoConfig
@@ -784,7 +790,7 @@ class SafetyCenterNotificationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE)
     fun dismissingNotification_withDuplicateIssues_allDismissed() {
         safetyCenterTestHelper.setConfig(
             safetyCenterTestConfigs.multipleSourcesWithDeduplicationInfoConfig
@@ -907,6 +913,58 @@ class SafetyCenterNotificationTest {
         )
     }
 
+    // TODO(b/284271124): Decide what to do with existing notifications when flag flipped off
+    @Test
+    fun sendActionPendingIntent_flagDisabled_pendingIntentNotSentToSource() {
+        safetyCenterTestHelper.setData(
+            SINGLE_SOURCE_ID,
+            safetySourceTestData.criticalWithResolvingIssueWithSuccessMessage
+        )
+        val notificationWithChannel = TestNotificationListener.waitForSingleNotification()
+        val action =
+            notificationWithChannel.statusBarNotification.notification.actions.firstOrNull()
+        checkNotNull(action) { "Notification action unexpectedly null" }
+        SafetySourceReceiver.setResponse(
+            Request.ResolveAction(SINGLE_SOURCE_ID),
+            Response.SetData(safetySourceTestData.information)
+        )
+        SafetyCenterFlags.notificationsEnabled = false
+
+        assertFailsWith(TimeoutCancellationException::class) {
+            sendActionPendingIntentAndWaitWithPermission(action, timeout = TIMEOUT_SHORT)
+        }
+    }
+
+    @Test
+    fun sendActionPendingIntent_sourceStateChangedSafetyEvent_successNotification() {
+        safetyCenterTestHelper.setData(
+            SINGLE_SOURCE_ID,
+            safetySourceTestData.criticalWithResolvingIssueWithSuccessMessage
+        )
+        val notificationWithChannel = TestNotificationListener.waitForSingleNotification()
+        val action =
+            notificationWithChannel.statusBarNotification.notification.actions.firstOrNull()
+        checkNotNull(action) { "Notification action unexpectedly null" }
+        SafetySourceReceiver.setResponse(
+            Request.ResolveAction(SINGLE_SOURCE_ID),
+            Response.SetData(
+                safetySourceTestData.information,
+                overrideSafetyEvent =
+                    SafetyEvent.Builder(SafetyEvent.SAFETY_EVENT_TYPE_SOURCE_STATE_CHANGED).build()
+            )
+        )
+
+        sendActionPendingIntentAndWaitWithPermission(action)
+
+        TestNotificationListener.waitForSingleNotificationMatching(
+            NotificationCharacteristics(
+                "Issue solved",
+                "",
+                actions = emptyList(),
+            )
+        )
+    }
+
     @Test
     fun sendActionPendingIntent_error_updatesListenerDoesNotRemoveNotification() {
         // Here we cause a notification with an action to be posted and prepare the fake receiver
@@ -977,12 +1035,15 @@ class SafetyCenterNotificationTest {
         private val SafetyCenterData.inFlightActions: List<SafetyCenterIssue.Action>
             get() = issues.flatMap { it.actions }.filter { it.isInFlight }
 
-        private fun sendActionPendingIntentAndWaitWithPermission(action: Notification.Action) {
+        private fun sendActionPendingIntentAndWaitWithPermission(
+            action: Notification.Action,
+            timeout: Duration = Coroutines.TIMEOUT_LONG
+        ) {
             callWithShellPermissionIdentity(SEND_SAFETY_CENTER_UPDATE) {
                 PendingIntentSender.send(action.actionIntent)
                 // Sending the action's PendingIntent above is asynchronous and we need to wait for
                 // it to be received by the fake receiver below.
-                SafetySourceReceiver.receiveResolveAction()
+                SafetySourceReceiver.receiveResolveAction(timeout)
             }
         }
 

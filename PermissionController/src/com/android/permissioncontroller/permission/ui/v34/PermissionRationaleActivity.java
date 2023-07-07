@@ -45,6 +45,7 @@ import android.text.TextUtils;
 import android.text.style.BulletSpan;
 import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -60,6 +61,7 @@ import com.android.permission.safetylabel.DataPurposeConstants.Purpose;
 import com.android.permissioncontroller.Constants;
 import com.android.permissioncontroller.DeviceUtils;
 import com.android.permissioncontroller.R;
+import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity;
 import com.android.permissioncontroller.permission.ui.SettingsActivity;
 import com.android.permissioncontroller.permission.ui.handheld.v34.PermissionRationaleViewHandlerImpl;
 import com.android.permissioncontroller.permission.ui.model.v34.PermissionRationaleViewModel;
@@ -245,9 +247,6 @@ public class PermissionRationaleActivity extends SettingsActivity implements
         // as the UI behaves differently for updates and initial creations.
         if (icicle != null) {
             mViewHandler.loadInstanceState(icicle);
-        } else {
-            // Do not show screen dim until data is loaded
-            window.setDimAmount(0f);
         }
     }
 
@@ -307,6 +306,17 @@ public class PermissionRationaleActivity extends SettingsActivity implements
         final int x = (int) ev.getX();
         final int y = (int) ev.getY();
         if ((x < 0) || (y < 0) || (x > (rootView.getWidth())) || (y > (rootView.getHeight()))) {
+            //TODO b/278783474: We should make this activity a fragment of the base GrantPermissions
+            // activity
+            GrantPermissionsActivity grantActivity = null;
+            synchronized (GrantPermissionsActivity.sCurrentGrantRequests) {
+                grantActivity = GrantPermissionsActivity.sCurrentGrantRequests
+                        .get(new Pair<>(mTargetPackage, getTaskId()));
+            }
+            if (grantActivity != null
+                    && getIntent().getBooleanExtra(EXTRA_SHOULD_SHOW_SETTINGS_SECTION, false)) {
+                grantActivity.finishAfterTransition();
+            }
             if (MotionEvent.ACTION_DOWN == ev.getAction()) {
                 mViewHandler.onCancelled();
             }
@@ -343,17 +353,7 @@ public class PermissionRationaleActivity extends SettingsActivity implements
         @StringRes int titleResId = getTitleResIdForPermissionGroup(mPermissionGroupName);
         setTitle(titleResId);
         CharSequence title = getString(titleResId);
-
-        String installSourcePackageName = mPermissionRationaleInfo.getInstallSourcePackageName();
-        CharSequence installSourceLabel = mPermissionRationaleInfo.getInstallSourceLabel();
-        checkStringNotEmpty(installSourcePackageName,
-                "installSourcePackageName cannot be null or empty");
-        checkStringNotEmpty(installSourceLabel,
-                "installSourceLabel cannot be null or empty");
-        CharSequence dataSharingSourceMessage = createDataSharingSourceMessageWithSpans(
-                getText(R.string.permission_rationale_data_sharing_source_message),
-                installSourceLabel,
-                getLinkToAppStore(installSourcePackageName));
+        CharSequence dataSharingSourceMessage = getDataSharingSourceMessage();
 
         CharSequence purposeTitle =
                 getString(getPurposeTitleResIdForPermissionGroup(mPermissionGroupName));
@@ -406,6 +406,22 @@ public class PermissionRationaleActivity extends SettingsActivity implements
             manager.hideSoftInputFromWindow(mRootView.getWindowToken(), 0);
             mRootView.setVisibility(View.VISIBLE);
         }
+    }
+
+    private CharSequence getDataSharingSourceMessage() {
+        if (mPermissionRationaleInfo.isPreloadedApp()) {
+            return getText(R.string.permission_rationale_data_sharing_device_manufacturer_message);
+        }
+
+        String installSourcePackageName = mPermissionRationaleInfo.getInstallSourcePackageName();
+        CharSequence installSourceLabel = mPermissionRationaleInfo.getInstallSourceLabel();
+        checkStringNotEmpty(installSourcePackageName,
+                "installSourcePackageName cannot be null or empty");
+        checkStringNotEmpty(installSourceLabel, "installSourceLabel cannot be null or empty");
+        return createDataSharingSourceMessageWithSpans(
+                getText(R.string.permission_rationale_data_sharing_source_message),
+                installSourceLabel,
+                getLinkToAppStore(installSourcePackageName));
     }
 
     @StringRes

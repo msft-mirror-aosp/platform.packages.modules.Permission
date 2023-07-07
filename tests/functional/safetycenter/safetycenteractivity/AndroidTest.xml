@@ -25,9 +25,8 @@
             value="not_instant_app"/>
     <option name="config-descriptor:metadata" key="parameter"
             value="not_multi_abi"/>
-    <!-- Multi-user code is tested separately using Bedstead. See SafetyCenterMultiUsersTest. -->
     <option name="config-descriptor:metadata" key="parameter"
-            value="not_secondary_user"/>
+            value="secondary_user"/>
     <option name="config-descriptor:metadata" key="mainline-param" value="com.google.android.permission.apex" />
     <option name="config-descriptor:metadata" key="parameter" value="all_foldable_states" />
 
@@ -44,10 +43,18 @@
              aren't polluted by `BOOT_COMPLETED` or similar broadcasts still being delivered, which
              causes our `ActivityManager#waitForBroadcastIdle()` calls to timeout. -->
         <option name="run-command" value="am wait-for-broadcast-idle" />
+        <option name="run-command" value="am wait-for-broadcast-barrier" />
         <!-- Disable syncing to prevent overwriting flags during testing. -->
         <option name="run-command" value="device_config set_sync_disabled_for_tests persistent" />
         <option name="teardown-command" value="device_config set_sync_disabled_for_tests none" />
+        <!-- Dismiss any system dialogs (e.g. crashes, ANR). -->
+        <option name="run-command" value="am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS --receiver-foreground"  />
     </target_preparer>
+
+    <metrics_collector class="com.android.tradefed.device.metric.FilePullerLogCollector">
+        <option name="directory-keys" value="/data/user/0/android.safetycenter.functional.ui.safetycenteractivity/files" />
+        <option name="collect-on-run-ended-only" value="true" />
+    </metrics_collector>
 
     <test class="com.android.tradefed.testtype.AndroidJUnitTest">
         <option name="package" value="android.safetycenter.functional.ui.safetycenteractivity"/>

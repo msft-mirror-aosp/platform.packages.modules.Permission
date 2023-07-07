@@ -26,6 +26,7 @@ import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTE
 import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.CANCELED;
 import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.DENIED;
 import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.DENIED_DO_NOT_ASK_AGAIN;
+import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.DENIED_MORE;
 import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_ALWAYS;
 import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_FOREGROUND_ONLY;
 import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_ONE_TIME;
@@ -134,7 +135,7 @@ public class GrantPermissionsActivity extends SettingsActivity
      * A map of the currently shown GrantPermissionsActivity for this user, per package and task ID
      */
     @GuardedBy("sCurrentGrantRequests")
-    private static final Map<Pair<String, Integer>, GrantPermissionsActivity>
+    public static final Map<Pair<String, Integer>, GrantPermissionsActivity>
             sCurrentGrantRequests = new HashMap<>();
 
     /** Unique Id of a request */
@@ -171,7 +172,6 @@ public class GrantPermissionsActivity extends SettingsActivity
     private String mTargetPackage;
     /** A key representing this activity, defined by the target package and task ID */
     private Pair<String, Integer> mKey;
-    private int mCurrentRequestIdx = 0;
     private float mOriginalDimAmount;
     private View mRootView;
     private int mStoragePermGroupIcon = R.drawable.ic_empty_icon;
@@ -506,8 +506,6 @@ public class GrantPermissionsActivity extends SettingsActivity
             Log.e(LOG_TAG, "Cannot load icon for group" + info.getGroupName(), e);
         }
 
-        boolean showingNewGroup = message == null || !message.equals(getTitle());
-
         // Set the permission message as the title so it can be announced. Skip on Wear
         // because the dialog title is already announced, as is the default selection which
         // is a text view containing the title.
@@ -541,12 +539,10 @@ public class GrantPermissionsActivity extends SettingsActivity
             mRequestCounts = mRequestInfos.size();
         }
 
-        mViewHandler.updateUi(info.getGroupName(), mRequestCounts, mCurrentRequestIdx, icon,
+        int pageIdx = mRequestCounts - mRequestInfos.size();
+        mViewHandler.updateUi(info.getGroupName(), mRequestCounts, pageIdx, icon,
                 message, detailMessage, permissionRationaleMessage, mButtonVisibilities,
                 locationVisibilities);
-        if (showingNewGroup) {
-            mCurrentRequestIdx++;
-        }
 
         getWindow().setDimAmount(mOriginalDimAmount);
         if (mRootView.getVisibility() == View.GONE) {
@@ -639,6 +635,7 @@ public class GrantPermissionsActivity extends SettingsActivity
             // Only the top activity can receive activity results
             Activity top = mFollowerActivities.isEmpty() ? this : mFollowerActivities.get(0);
             mViewModel.openPhotoPicker(top, result);
+            logGrantPermissionActivityButtons(name, affectedForegroundPermissions, result);
             return;
         }
 
@@ -786,7 +783,13 @@ public class GrantPermissionsActivity extends SettingsActivity
         int presentedButtons = getButtonState();
         switch (grantResult) {
             case GRANTED_ALWAYS:
-                clickedButton = 1 << ALLOW_BUTTON;
+                if (mButtonVisibilities[ALLOW_BUTTON]) {
+                    clickedButton = 1 << ALLOW_BUTTON;
+                } else if (mButtonVisibilities[ALLOW_ALWAYS_BUTTON]) {
+                    clickedButton = 1 << ALLOW_ALWAYS_BUTTON;
+                } else if (mButtonVisibilities[ALLOW_ALL_BUTTON]) {
+                    clickedButton = 1 << ALLOW_ALL_BUTTON;
+                }
                 break;
             case GRANTED_FOREGROUND_ONLY:
                 clickedButton = 1 << ALLOW_FOREGROUND_BUTTON;
@@ -818,6 +821,12 @@ public class GrantPermissionsActivity extends SettingsActivity
                 break;
             case LINKED_TO_SETTINGS:
                 clickedButton = 1 << LINK_TO_SETTINGS;
+                break;
+            case GRANTED_USER_SELECTED:
+                clickedButton = 1 << ALLOW_SELECTED_BUTTON;
+                break;
+            case DENIED_MORE:
+                clickedButton = 1 << DONT_ALLOW_MORE_SELECTED_BUTTON;
                 break;
             case LINKED_TO_PERMISSION_RATIONALE:
                 clickedButton = 1 << LINK_TO_PERMISSION_RATIONALE;

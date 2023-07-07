@@ -498,10 +498,8 @@
     <string name="permgroupupgraderequest_sensors" msgid="7576527638411370468">"Permites que a aplicación &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; siga accedendo aos datos dos sensores corporais mentres estea en uso?"</string>
     <string name="permgrouprequest_notifications" msgid="6396739062335106181">"Queres permitir que &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; che envíe notificacións?"</string>
     <string name="auto_granted_permissions" msgid="6009452264824455892">"Permisos controlados"</string>
-    <!-- no translation found for auto_granted_location_permission_notification_title (7570818224669050377) -->
-    <skip />
-    <!-- no translation found for auto_granted_permission_notification_body (5040234389205471318) -->
-    <skip />
+    <string name="auto_granted_location_permission_notification_title" msgid="7570818224669050377">"<xliff:g id="APP_NAME">%1$s</xliff:g> ten acceso á localización"</string>
+    <string name="auto_granted_permission_notification_body" msgid="5040234389205471318">"A túa organización permite que <xliff:g id="APP_NAME">%1$s</xliff:g> acceda á túa localización"</string>
     <string name="other_permissions_label" msgid="8986184335503271992">"Outros permisos"</string>
     <string name="not_used_permissions_label" msgid="3939839426115141264">"Permiso que utiliza o sistema"</string>
     <string name="not_used_permissions_description" msgid="7595514824169388718">"Permisos que só utilizan as aplicacións do sistema."</string>
@@ -591,6 +589,7 @@
     <string name="permission_rationale_message_location" msgid="2153841534298068414">"A aplicación indicou que é posible que comparta datos de localización con terceiros"</string>
     <string name="permission_rationale_location_title" msgid="2404797182678793506">"Uso compartido de datos e localización"</string>
     <string name="permission_rationale_data_sharing_source_title" msgid="6874604543125814316">"De onde provén a información sobre o uso compartido de datos?"</string>
+    <string name="permission_rationale_data_sharing_device_manufacturer_message" msgid="7569261218145653185">"A persoa que programou esta aplicación facilitoulle información acerca de como comparte datos ao fabricante deste dispositivo. Esa persoa pode modificar esta información co paso do tempo."</string>
     <string name="permission_rationale_data_sharing_source_message" msgid="8330794595417986883">"A persoa que programou esta aplicación facilitoulle información acerca de como comparte datos a "<annotation id="link"><annotation id="install_source" example="App Store">"%1$s"</annotation></annotation>". É posible que esa persoa modifique esta información co paso do tempo."</string>
     <string name="permission_rationale_location_purpose_title" msgid="5115877143670012618">"A app pode compartir datos de localización para:"</string>
     <string name="permission_rationale_permission_data_sharing_varies_title" msgid="9103718980919908316">"As prácticas de uso compartido de datos varían"</string>
@@ -608,8 +607,6 @@
     <string name="app_permission_rationale_message" msgid="8511466916077100713">"Seguranza dos datos"</string>
     <string name="app_location_permission_rationale_title" msgid="925420340572401350">"Poden compartirse os datos de localización"</string>
     <string name="app_location_permission_rationale_subtitle" msgid="6986985722752868692">"Esta aplicación indicou que pode compartir os teus datos de localización con terceiros"</string>
-    <string name="permission_rationale_data_sharing_link_error_title" msgid="4496607694785370249">"Non se puido abrir esta ligazón"</string>
-    <string name="permission_rationale_data_sharing_link_error_message" msgid="8118116480850030215"></string>
     <string name="data_sharing_updates_title" msgid="7996933386875213859">"Actualizacións do uso compartido de datos de localización"</string>
     <string name="data_sharing_updates_summary" msgid="764113985772233889">"Revisa as aplicacións que cambiaron a forma en que poden compartir os teus datos de localización"</string>
     <string name="data_sharing_updates_subtitle" msgid="6311537708950632329">"Estas aplicacións cambiaron a forma en que poden compartir os teus datos de localización. É posible que non os compartisen antes ou que agora os compartan con fins publicitarios ou de márketing."</string>

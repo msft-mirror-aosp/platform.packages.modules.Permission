@@ -16,27 +16,17 @@
 
 package com.android.safetycenter.logging;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-import static android.safetycenter.SafetySourceData.SEVERITY_LEVEL_UNSPECIFIED;
-
 import static com.android.permission.PermissionStatsLog.SAFETY_STATE;
-
-import static java.util.Collections.emptyList;
 
 import android.annotation.UserIdInt;
 import android.app.StatsManager;
 import android.app.StatsManager.StatsPullAtomCallback;
 import android.content.Context;
 import android.safetycenter.SafetyCenterData;
-import android.safetycenter.SafetySourceData;
-import android.safetycenter.SafetySourceIssue;
-import android.safetycenter.SafetySourceStatus;
 import android.safetycenter.config.SafetySource;
 import android.safetycenter.config.SafetySourcesGroup;
 import android.util.Log;
 import android.util.StatsEvent;
-
-import androidx.annotation.RequiresApi;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.modules.utils.build.SdkLevel;
@@ -45,12 +35,10 @@ import com.android.safetycenter.ApiLock;
 import com.android.safetycenter.SafetyCenterConfigReader;
 import com.android.safetycenter.SafetyCenterDataFactory;
 import com.android.safetycenter.SafetyCenterFlags;
-import com.android.safetycenter.SafetySourceIssueInfo;
 import com.android.safetycenter.SafetySourceKey;
 import com.android.safetycenter.SafetySources;
 import com.android.safetycenter.UserProfileGroup;
 import com.android.safetycenter.data.SafetyCenterDataManager;
-import com.android.safetycenter.internaldata.SafetyCenterIssueKey;
 
 import java.util.List;
 
@@ -64,7 +52,6 @@ import java.util.List;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 public final class SafetyCenterPullAtomCallback implements StatsPullAtomCallback {
 
     private static final String TAG = "SafetyCenterPullAtom";
@@ -101,17 +88,17 @@ public final class SafetyCenterPullAtomCallback implements StatsPullAtomCallback
             return StatsManager.PULL_SKIP;
         }
         if (!SafetyCenterFlags.getSafetyCenterEnabled()) {
-            Log.w(TAG, "Attempt to pull SAFETY_STATE, but Safety Center is disabled");
+            Log.i(TAG, "Attempt to pull SAFETY_STATE, but Safety Center is disabled");
             return StatsManager.PULL_SKIP;
         }
         List<UserProfileGroup> userProfileGroups =
                 UserProfileGroup.getAllUserProfileGroups(mContext);
         synchronized (mApiLock) {
             if (!SafetyCenterFlags.getAllowStatsdLogging()) {
-                Log.w(TAG, "Skipping pulling and writing atoms due to logging being disabled");
+                Log.i(TAG, "Skipping pulling and writing atoms due to logging being disabled");
                 return StatsManager.PULL_SKIP;
             }
-            Log.i(TAG, "Pulling and writing atoms…");
+            Log.d(TAG, "Pulling and writing atoms…");
             for (int i = 0; i < userProfileGroups.size(); i++) {
                 UserProfileGroup userProfileGroup = userProfileGroups.get(i);
                 List<SafetySourcesGroup> loggableGroups =
@@ -119,8 +106,8 @@ public final class SafetyCenterPullAtomCallback implements StatsPullAtomCallback
                 statsEvents.add(
                         createOverallSafetyStateAtomLocked(userProfileGroup, loggableGroups));
                 // The SAFETY_SOURCE_STATE_COLLECTED atoms are written instead of being pulled,
-                // they do not support pull but we want to collect them at the same time as
-                // the above pulled atom.
+                // as they do not support pull. We still want to collect them at the same time as
+                // the above pulled atom, which is why they're written here.
                 writeSafetySourceStateCollectedAtomsLocked(userProfileGroup, loggableGroups);
             }
         }
@@ -173,7 +160,8 @@ public final class SafetyCenterPullAtomCallback implements StatsPullAtomCallback
 
                 int[] managedIds = userProfileGroup.getManagedRunningProfilesUserIds();
                 for (int k = 0; k < managedIds.length; k++) {
-                    writeSafetySourceStateCollectedAtomLocked(loggableSource, managedIds[k], true);
+                    writeSafetySourceStateCollectedAtomLocked(
+                            loggableSource, managedIds[k], /* isUserManaged= */ true);
                 }
             }
         }
@@ -183,61 +171,6 @@ public final class SafetyCenterPullAtomCallback implements StatsPullAtomCallback
     private void writeSafetySourceStateCollectedAtomLocked(
             SafetySource safetySource, @UserIdInt int userId, boolean isUserManaged) {
         SafetySourceKey sourceKey = SafetySourceKey.of(safetySource.getId(), userId);
-        SafetySourceData sourceData = mDataManager.getSafetySourceDataInternal(sourceKey);
-        SafetySourceStatus sourceStatus = sourceData == null ? null : sourceData.getStatus();
-        List<SafetySourceIssue> sourceIssues =
-                sourceData == null ? emptyList() : sourceData.getIssues();
-
-        boolean isIssueOnlyWithData = SafetySources.isIssueOnly(safetySource) && sourceData != null;
-        int maxSeverityLevel = isIssueOnlyWithData ? SEVERITY_LEVEL_UNSPECIFIED : Integer.MIN_VALUE;
-        long openIssuesCount = 0;
-        long dismissedIssuesCount = 0;
-        for (int i = 0; i < sourceIssues.size(); i++) {
-            SafetySourceIssue issue = sourceIssues.get(i);
-            if (isIssueDismissedLocked(issue, safetySource.getId(), userId)) {
-                dismissedIssuesCount++;
-            } else {
-                openIssuesCount++;
-                maxSeverityLevel = Math.max(maxSeverityLevel, issue.getSeverityLevel());
-            }
-        }
-        if (sourceStatus != null) {
-            maxSeverityLevel = Math.max(maxSeverityLevel, sourceStatus.getSeverityLevel());
-        }
-
-        SafetyCenterStatsdLogger.writeSafetySourceStateCollectedAutomatic(
-                safetySource.getId(),
-                isUserManaged,
-                maxSeverityLevel > Integer.MIN_VALUE ? maxSeverityLevel : null,
-                openIssuesCount,
-                dismissedIssuesCount,
-                getDuplicateFilteredOutIssueCountLocked(userId, sourceKey.getSourceId()),
-                mDataManager.getSourceState(sourceKey),
-                mDataManager.getSafetySourceLastUpdated(sourceKey));
-    }
-
-    @GuardedBy("mApiLock")
-    private boolean isIssueDismissedLocked(
-            SafetySourceIssue issue, String sourceId, @UserIdInt int userId) {
-        SafetyCenterIssueKey issueKey =
-                SafetyCenterIssueKey.newBuilder()
-                        .setSafetySourceId(sourceId)
-                        .setSafetySourceIssueId(issue.getId())
-                        .setUserId(userId)
-                        .build();
-        return mDataManager.isIssueDismissed(issueKey, issue.getSeverityLevel());
-    }
-
-    @GuardedBy("mApiLock")
-    private long getDuplicateFilteredOutIssueCountLocked(@UserIdInt int userId, String sourceId) {
-        long duplicateFilteredOutIssuesCount = 0;
-        List<SafetySourceIssueInfo> filteredOutDuplicateIssues =
-                mDataManager.getMostRecentFilteredOutDuplicateIssues(userId);
-        for (int i = 0; i < filteredOutDuplicateIssues.size(); i++) {
-            if (filteredOutDuplicateIssues.get(i).getSafetySource().getId().equals(sourceId)) {
-                duplicateFilteredOutIssuesCount++;
-            }
-        }
-        return duplicateFilteredOutIssuesCount;
+        mDataManager.logSafetySourceStateCollectedAutomatic(sourceKey, isUserManaged);
     }
 }

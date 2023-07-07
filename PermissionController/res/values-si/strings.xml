@@ -498,10 +498,8 @@
     <string name="permgroupupgraderequest_sensors" msgid="7576527638411370468">"යෙදුම භාවිතයේ ඇති අතරතුර ශරීර සංවේදක දත්ත වෙත ප්‍රවේශ වීමට &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;b&gt; හට ඉඩ දෙන්නද?"</string>
     <string name="permgrouprequest_notifications" msgid="6396739062335106181">"ඔබට දැනුම්දීම් එවීමට &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;b&gt; හට ඉඩ දෙන්නද?"</string>
     <string name="auto_granted_permissions" msgid="6009452264824455892">"පාලිත අවසර"</string>
-    <!-- no translation found for auto_granted_location_permission_notification_title (7570818224669050377) -->
-    <skip />
-    <!-- no translation found for auto_granted_permission_notification_body (5040234389205471318) -->
-    <skip />
+    <string name="auto_granted_location_permission_notification_title" msgid="7570818224669050377">"<xliff:g id="APP_NAME">%1$s</xliff:g> හට ස්ථාන ප්‍රවේශය ඇත"</string>
+    <string name="auto_granted_permission_notification_body" msgid="5040234389205471318">"ඔබේ සංවිධානය <xliff:g id="APP_NAME">%1$s</xliff:g> හට ඔබේ ස්ථානයට ප්‍රවේශ වීමට ඉඩ දෙයි"</string>
     <string name="other_permissions_label" msgid="8986184335503271992">"වෙනත් අවසර"</string>
     <string name="not_used_permissions_label" msgid="3939839426115141264">"පද්ධතිය මගින් භාවිත කරන අවසරය"</string>
     <string name="not_used_permissions_description" msgid="7595514824169388718">"පද්ධති යෙදුම් මගින් පමණක් භාවිත කරන අවසර."</string>
@@ -591,6 +589,7 @@
     <string name="permission_rationale_message_location" msgid="2153841534298068414">"මෙම යෙදුම තෙවන පාර්ශ්වයන් සමග ස්ථාන දත්ත බෙදා ගත හැකි බව ප්‍රකාශ කර ඇත"</string>
     <string name="permission_rationale_location_title" msgid="2404797182678793506">"දත්ත බෙදා ගැනීම සහ ස්ථානය"</string>
     <string name="permission_rationale_data_sharing_source_title" msgid="6874604543125814316">"දත්ත බෙදා ගැනීමේ තතු පැමිණෙන තැන"</string>
+    <string name="permission_rationale_data_sharing_device_manufacturer_message" msgid="7569261218145653185">"සංවර්ධකයා මෙම යෙදුම දත්ත බෙදා ගන්නා ආකාරය පිළිබඳ තතු මෙම උපාංගයේ නිෂ්පාදකයාට ලබා දුන්නේ ය. සංවර්ධකයා මෙම තතු කාලයත් සමග යාවත්කාලීන කිරීමට ඉඩ ඇත."</string>
     <string name="permission_rationale_data_sharing_source_message" msgid="8330794595417986883">"මෙම යෙදුම දත්ත බෙදා ගන්නා ආකාරය පිළිබඳව සංවර්ධකයා "<annotation id="link"><annotation id="install_source" example="App Store">"%1$s"</annotation></annotation>" වෙත තතු සපයා ඇත. සංවර්ධකයා මෙම තතු කාලයත් සමග යාවත්කාලීන කළ හැක."</string>
     <string name="permission_rationale_location_purpose_title" msgid="5115877143670012618">"මෙම යෙදුම මේ සඳහා ස්ථාන දත්ත බෙදා ගත හැක:"</string>
     <string name="permission_rationale_permission_data_sharing_varies_title" msgid="9103718980919908316">"දත්ත බෙදා ගැනීම වෙනස් වේ"</string>
@@ -608,8 +607,6 @@
     <string name="app_permission_rationale_message" msgid="8511466916077100713">"දත්ත ආරක්ෂාව"</string>
     <string name="app_location_permission_rationale_title" msgid="925420340572401350">"ස්ථාන දත්ත බෙදා ගත හැක"</string>
     <string name="app_location_permission_rationale_subtitle" msgid="6986985722752868692">"මෙම යෙදුම තෙවන පාර්ශ්වයන් සමග ඔබේ ස්ථාන දත්ත බෙදා ගත හැකි බව ප්‍රකාශ කර ඇත"</string>
-    <string name="permission_rationale_data_sharing_link_error_title" msgid="4496607694785370249">"මෙම සබැඳිය විවෘත කළ නොහැක"</string>
-    <string name="permission_rationale_data_sharing_link_error_message" msgid="8118116480850030215"></string>
     <string name="data_sharing_updates_title" msgid="7996933386875213859">"ස්ථානය සඳහා දත්ත බෙදා ගැනීමේ යාවත්කාලීන"</string>
     <string name="data_sharing_updates_summary" msgid="764113985772233889">"ඒවා ඔබේ ස්ථාන දත්ත බෙදා ගත හැකි ආකාරය වෙනස් කළ යෙදුම් සමාලෝචනය කරන්න"</string>
     <string name="data_sharing_updates_subtitle" msgid="6311537708950632329">"මෙම යෙදුම් ඔබේ ස්ථාන දත්ත බෙදා ගත හැකි ආකාරය වෙනස් කර ඇත. ඒවා එය කලින් බෙදා ගෙන නොතිබිය හැක, නැතහොත් දැන් එය වෙළඳ ප්‍රචාරණ හෝ අලෙවිකරණ අරමුණු සඳහා බෙදා ගත හැක."</string>

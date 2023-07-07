@@ -16,8 +16,6 @@
 
 package com.android.safetycenter.logging;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static com.android.permission.PermissionStatsLog.SAFETY_CENTER_INTERACTION_REPORTED;
 import static com.android.permission.PermissionStatsLog.SAFETY_CENTER_INTERACTION_REPORTED__ACTION__ISSUE_PRIMARY_ACTION_CLICKED;
 import static com.android.permission.PermissionStatsLog.SAFETY_CENTER_INTERACTION_REPORTED__ACTION__ISSUE_SECONDARY_ACTION_CLICKED;
@@ -72,17 +70,17 @@ import static com.android.permission.PermissionStatsLog.SAFETY_STATE__OVERALL_SE
 import static com.android.permission.PermissionStatsLog.SAFETY_STATE__OVERALL_SEVERITY_LEVEL__SAFETY_SEVERITY_OK;
 import static com.android.permission.PermissionStatsLog.SAFETY_STATE__OVERALL_SEVERITY_LEVEL__SAFETY_SEVERITY_RECOMMENDATION;
 
+import android.annotation.ElapsedRealtimeLong;
 import android.annotation.IntDef;
-import android.annotation.Nullable;
-import android.annotation.UptimeMillisLong;
 import android.safetycenter.SafetyCenterManager;
 import android.safetycenter.SafetyCenterManager.RefreshRequestType;
 import android.safetycenter.SafetyCenterStatus;
+import android.safetycenter.SafetyEvent;
 import android.safetycenter.SafetySourceData;
 import android.util.Log;
 import android.util.StatsEvent;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.permission.PermissionStatsLog;
 import com.android.safetycenter.SafetyCenterFlags;
@@ -100,7 +98,6 @@ import java.time.Duration;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 public final class SafetyCenterStatsdLogger {
 
     private static final String TAG = "SafetyCenterStatsdLog";
@@ -108,8 +105,6 @@ public final class SafetyCenterStatsdLogger {
     private static final long UNSET_ISSUE_TYPE_ID = 0;
     private static final long UNSET_SESSION_ID = 0;
     private static final long UNSET_SOURCE_GROUP_ID = 0;
-    private static final int UNSET_UPDATE_TYPE =
-            SAFETY_SOURCE_STATE_COLLECTED__UPDATE_TYPE__UPDATE_TYPE_UNKNOWN;
     private static final long UNSET_REFRESH_REASON = 0L;
     private static final boolean UNSET_DATA_CHANGED = false;
     private static final long UNSET_LAST_UPDATED_ELAPSED_TIME_MILLIS = 0L;
@@ -163,17 +158,8 @@ public final class SafetyCenterStatsdLogger {
                 dismissedIssueCount);
     }
 
-    /**
-     * Writes a {@link PermissionStatsLog#SAFETY_SOURCE_STATE_COLLECTED} atom with {@code AUTOMATIC}
-     * collection type.
-     *
-     * <p>The method should be used during periodic statsd pull and not due to new data being
-     * received from the source.
-     *
-     * @param sourceSeverityLevel is the {@link SafetySourceData.SeverityLevel} to log for this
-     *     source, or {@code null} if none/unknown severity should be recorded.
-     */
-    static void writeSafetySourceStateCollectedAutomatic(
+    /** Writes a {@link PermissionStatsLog#SAFETY_SOURCE_STATE_COLLECTED} atom. */
+    public static void writeSafetySourceStateCollected(
             String sourceId,
             boolean isManagedProfile,
             @Nullable @SafetySourceData.SeverityLevel Integer sourceSeverityLevel,
@@ -181,80 +167,17 @@ public final class SafetyCenterStatsdLogger {
             long dismissedIssuesCount,
             long duplicateFilteredOutIssuesCount,
             @SourceState int sourceState,
-            @UptimeMillisLong long lastUpdatedElapsedTimeMillis) {
-        writeSafetySourceStateCollected(
-                sourceId,
-                isManagedProfile,
-                sourceSeverityLevel,
-                openIssuesCount,
-                dismissedIssuesCount,
-                duplicateFilteredOutIssuesCount,
-                sourceState,
-                SAFETY_SOURCE_STATE_COLLECTED__COLLECTION_TYPE__AUTOMATIC,
-                UNSET_UPDATE_TYPE,
-                UNSET_REFRESH_REASON,
-                UNSET_DATA_CHANGED,
-                lastUpdatedElapsedTimeMillis);
-    }
-
-    /**
-     * Writes a {@link PermissionStatsLog#SAFETY_SOURCE_STATE_COLLECTED} atom with {@code
-     * SOURCE_UPDATED} collection type.
-     *
-     * <p>This method should be used when new data is received from the source in response to a
-     * refresh request from Safety Center, or spontaneously i.e. pushed by the source not in
-     * response to a refresh.
-     *
-     * @param sourceSeverityLevel is the {@link SafetySourceData.SeverityLevel} to log for this
-     *     source, or {@code null} if none/unknown severity should be recorded.
-     * @param refreshReason is the {@link SafetyCenterManager.RefreshReason} of the refresh the
-     *     source is responding to, or {@code null} if the source pushed data spontaneously.
-     */
-    public static void writeSafetySourceStateCollectedSourceUpdated(
-            String sourceId,
-            boolean isManagedProfile,
-            @Nullable @SafetySourceData.SeverityLevel Integer sourceSeverityLevel,
-            long openIssuesCount,
-            long dismissedIssuesCount,
-            long duplicateFilteredOutIssuesCount,
-            @SourceState int sourceState,
+            @Nullable SafetyEvent safetyEvent,
             @Nullable @SafetyCenterManager.RefreshReason Integer refreshReason,
-            boolean dataChanged) {
-        int updateType =
-                refreshReason != null
-                        ? SAFETY_SOURCE_STATE_COLLECTED__UPDATE_TYPE__REFRESH_RESPONSE
-                        : SAFETY_SOURCE_STATE_COLLECTED__UPDATE_TYPE__SELF_INITIATED;
-        writeSafetySourceStateCollected(
-                sourceId,
-                isManagedProfile,
-                sourceSeverityLevel,
-                openIssuesCount,
-                dismissedIssuesCount,
-                duplicateFilteredOutIssuesCount,
-                sourceState,
-                SAFETY_SOURCE_STATE_COLLECTED__COLLECTION_TYPE__SOURCE_UPDATED,
-                updateType,
-                refreshReason != null ? refreshReason : UNSET_REFRESH_REASON,
-                dataChanged,
-                UNSET_LAST_UPDATED_ELAPSED_TIME_MILLIS);
-    }
-
-    private static void writeSafetySourceStateCollected(
-            String sourceId,
-            boolean isManagedProfile,
-            @Nullable @SafetySourceData.SeverityLevel Integer sourceSeverityLevel,
-            long openIssuesCount,
-            long dismissedIssuesCount,
-            long duplicateFilteredOutIssuesCount,
-            @SourceState int sourceState,
-            int collectionType,
-            int updateType,
-            long refreshReason,
             boolean dataChanged,
-            long lastUpdatedElapsedTimeMillis) {
+            @Nullable @ElapsedRealtimeLong Long lastUpdatedElapsedTimeMillis) {
         if (!SafetyCenterFlags.getAllowStatsdLogging()) {
             return;
         }
+        int collectionType =
+                safetyEvent != null
+                        ? SAFETY_SOURCE_STATE_COLLECTED__COLLECTION_TYPE__SOURCE_UPDATED
+                        : SAFETY_SOURCE_STATE_COLLECTED__COLLECTION_TYPE__AUTOMATIC;
         PermissionStatsLog.write(
                 SAFETY_SOURCE_STATE_COLLECTED,
                 idStringToLong(sourceId),
@@ -265,10 +188,12 @@ public final class SafetyCenterStatsdLogger {
                 duplicateFilteredOutIssuesCount,
                 sourceState,
                 collectionType,
-                updateType,
-                refreshReason,
+                toSafetySourceStateCollectedCollectionType(safetyEvent),
+                refreshReason != null ? refreshReason : UNSET_REFRESH_REASON,
                 dataChanged,
-                lastUpdatedElapsedTimeMillis);
+                lastUpdatedElapsedTimeMillis != null
+                        ? lastUpdatedElapsedTimeMillis
+                        : UNSET_LAST_UPDATED_ELAPSED_TIME_MILLIS);
     }
 
     /**
@@ -280,7 +205,9 @@ public final class SafetyCenterStatsdLogger {
             String sourceId,
             boolean isManagedProfile,
             Duration duration,
-            @SystemEventResult int result) {
+            @SystemEventResult int result,
+            long refreshReason,
+            boolean dataChanged) {
         if (!SafetyCenterFlags.getAllowStatsdLogging()) {
             return;
         }
@@ -292,9 +219,8 @@ public final class SafetyCenterStatsdLogger {
                 UNSET_ISSUE_TYPE_ID,
                 duration.toMillis(),
                 result,
-                // TODO(b/268328334): Track refreshReason and dataChanged for system events
-                UNSET_REFRESH_REASON,
-                UNSET_DATA_CHANGED);
+                refreshReason,
+                dataChanged);
     }
 
     /**
@@ -302,7 +228,11 @@ public final class SafetyCenterStatsdLogger {
      * COMPLETE_RESCAN} or {@code COMPLETE_GET_DATA}.
      */
     public static void writeWholeRefreshSystemEvent(
-            @RefreshRequestType int refreshType, Duration duration, @SystemEventResult int result) {
+            @RefreshRequestType int refreshType,
+            Duration duration,
+            @SystemEventResult int result,
+            long refreshReason,
+            boolean dataChanged) {
         if (!SafetyCenterFlags.getAllowStatsdLogging()) {
             return;
         }
@@ -314,9 +244,8 @@ public final class SafetyCenterStatsdLogger {
                 UNSET_ISSUE_TYPE_ID,
                 duration.toMillis(),
                 result,
-                // TODO(b/268328334): Track refreshReason and dataChanged for system events
-                UNSET_REFRESH_REASON,
-                UNSET_DATA_CHANGED);
+                refreshReason,
+                dataChanged);
     }
 
     /**
@@ -351,7 +280,7 @@ public final class SafetyCenterStatsdLogger {
     public static void writeNotificationPostedEvent(
             String sourceId,
             boolean isManagedProfile,
-            @Nullable String issueTypeId,
+            String issueTypeId,
             @SafetySourceData.SeverityLevel int sourceSeverityLevel) {
         writeNotificationInteractionReportedEvent(
                 SAFETY_CENTER_INTERACTION_REPORTED__ACTION__NOTIFICATION_POSTED,
@@ -368,7 +297,7 @@ public final class SafetyCenterStatsdLogger {
     public static void writeNotificationDismissedEvent(
             String sourceId,
             boolean isManagedProfile,
-            @Nullable String issueTypeId,
+            String issueTypeId,
             @SafetySourceData.SeverityLevel int sourceSeverityLevel) {
         writeNotificationInteractionReportedEvent(
                 SAFETY_CENTER_INTERACTION_REPORTED__ACTION__NOTIFICATION_DISMISSED,
@@ -385,7 +314,7 @@ public final class SafetyCenterStatsdLogger {
     public static void writeNotificationActionClickedEvent(
             String sourceId,
             boolean isManagedProfile,
-            @Nullable String issueTypeId,
+            String issueTypeId,
             @SafetySourceData.SeverityLevel int sourceSeverityLevel,
             boolean isPrimaryAction) {
         int action =
@@ -400,7 +329,7 @@ public final class SafetyCenterStatsdLogger {
             int interactionReportedAction,
             String sourceId,
             boolean isManagedProfile,
-            @Nullable String issueTypeId,
+            String issueTypeId,
             @SafetySourceData.SeverityLevel int sourceSeverityLevel) {
         if (!SafetyCenterFlags.getAllowStatsdLogging()) {
             return;
@@ -536,5 +465,17 @@ public final class SafetyCenterStatsdLogger {
         }
         Log.w(TAG, "Unexpected SafetySourceData.SeverityLevel: " + severityLevel);
         return SAFETY_STATE__OVERALL_SEVERITY_LEVEL__SAFETY_SEVERITY_LEVEL_UNKNOWN;
+    }
+
+    private static int toSafetySourceStateCollectedCollectionType(
+            @Nullable SafetyEvent safetyEvent) {
+        if (safetyEvent == null) {
+            return SAFETY_SOURCE_STATE_COLLECTED__UPDATE_TYPE__UPDATE_TYPE_UNKNOWN;
+        }
+        if (safetyEvent.getType() == SafetyEvent.SAFETY_EVENT_TYPE_REFRESH_REQUESTED) {
+            return SAFETY_SOURCE_STATE_COLLECTED__UPDATE_TYPE__REFRESH_RESPONSE;
+        } else {
+            return SAFETY_SOURCE_STATE_COLLECTED__UPDATE_TYPE__SELF_INITIATED;
+        }
     }
 }
