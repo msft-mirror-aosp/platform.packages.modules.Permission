@@ -17,41 +17,79 @@
 package com.android.permissioncontroller.safetycenter.ui.model
 
 import android.app.Application
+import android.content.Context
 import android.os.Build
-import android.safetycenter.SafetyCenterData
+import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.safetycenter.SafetyCenterErrorDetails
 import android.safetycenter.SafetyCenterIssue
 import androidx.annotation.RequiresApi
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import com.android.permissioncontroller.safetycenter.ui.InteractionLogger
+import com.android.permissioncontroller.safetycenter.ui.NavigationSource
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 abstract class SafetyCenterViewModel(protected val app: Application) : AndroidViewModel(app) {
 
-    abstract val safetyCenterLiveData: LiveData<SafetyCenterData>
+    abstract val statusUiLiveData: LiveData<StatusUiData>
+    abstract val safetyCenterUiLiveData: LiveData<SafetyCenterUiData>
     abstract val errorLiveData: LiveData<SafetyCenterErrorDetails>
-    val autoRefreshManager = AutoRefreshManager()
+    abstract val interactionLogger: InteractionLogger
 
     abstract fun dismissIssue(issue: SafetyCenterIssue)
 
-    abstract fun executeIssueAction(issue: SafetyCenterIssue, action: SafetyCenterIssue.Action)
+    /**
+     * Execute the [action] to act on the given [issue]
+     *
+     * If [launchTaskId] is provided, this should be used to force the action to be associated with
+     * a particular taskId (if applicable).
+     */
+    abstract fun executeIssueAction(
+        issue: SafetyCenterIssue,
+        action: SafetyCenterIssue.Action,
+        launchTaskId: Int?
+    )
+
+    /**
+     * Marks a resolved [SafetyCenterIssue] as fully complete, meaning the resolution success
+     * message has been shown
+     *
+     * @param issueId Resolved issue that has completed its UI update and view can be removed
+     */
+    abstract fun markIssueResolvedUiCompleted(issueId: IssueId)
 
     abstract fun rescan()
 
     abstract fun clearError()
 
-    abstract fun navigateToSafetyCenter(fragment: Fragment)
+    abstract fun navigateToSafetyCenter(
+        context: Context,
+        navigationSource: NavigationSource? = null
+    )
 
-    protected abstract fun refresh()
+    abstract fun pageOpen()
 
-    inner class AutoRefreshManager : DefaultLifecycleObserver {
-        // TODO(b/222323674): We may need to do this in onResume to cover certain edge cases.
-        // i.e. FMD changed from quick settings while SC is open
-        override fun onStart(owner: LifecycleOwner) {
-            refresh()
-        }
-    }
+    /**
+     * Refreshes a specific subset of safety sources on page-open.
+     *
+     * This is an overload of the [pageOpen] method and is used to request data from safety sources
+     * that are part of a subpage in the Safety Center UI.
+     *
+     * @param sourceGroupId represents ID of the corresponding safety sources group
+     */
+    @RequiresApi(UPSIDE_DOWN_CAKE) abstract fun pageOpen(sourceGroupId: String)
+
+    abstract fun changingConfigurations()
+
+    /**
+     * Returns the [SafetyCenterData] currently stored by the Safety Center service.
+     *
+     * Note about current impl: This is drawn directly from SafetyCenterManager and will not contain
+     * any data about currently in-flight issues.
+     */
+    abstract fun getCurrentSafetyCenterDataAsUiData(): SafetyCenterUiData
 }
+
+typealias IssueId = String
+
+typealias ActionId = String

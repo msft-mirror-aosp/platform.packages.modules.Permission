@@ -1,11 +1,21 @@
 {
+  "imports": [
+    {
+      "path": "packages/modules/Permission/SafetyCenter"
+    }
+  ],
   "presubmit": [
     {
       "name": "PermissionControllerMockingTests",
       "options": [
         {
-          "include-filter": "com.android.permissioncontroller.tests.mocking.privacysources.NotificationListenerCheckInternalTest",
+          "include-filter": "com.android.permissioncontroller.tests.mocking.privacysources.NotificationListenerCheckInternalTest"
+        },
+        {
           "include-filter": "com.android.permissioncontroller.tests.mocking.privacysources.NotificationListenerPrivacySourceTest"
+        },
+        {
+          "include-filter": "com.android.permissioncontroller.tests.mocking.privacysources.AccessibilitySourceServiceTest"
         },
         {
           "exclude-annotation": "androidx.test.filters.FlakyTest"
@@ -13,15 +23,13 @@
       ]
     },
     {
-      "name": "CtsSafetyCenterTestCases"
-    }
-  ],
-  "postsubmit": [
-    {
       "name": "CtsPermissionTestCases",
       "options": [
         {
           "include-filter": "android.permission.cts.NotificationListenerCheckTest"
+        },
+        {
+          "include-filter": "android.permission.cts.AccessibilityPrivacySourceTest"
         },
         {
           "exclude-annotation": "androidx.test.filters.FlakyTest"

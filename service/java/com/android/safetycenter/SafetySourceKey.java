@@ -16,54 +16,40 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
-import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.safetycenter.SafetySourceData;
-
-import androidx.annotation.RequiresApi;
 
 import java.util.Objects;
 
 /**
  * A key to identify a safety source providing {@link SafetySourceData}; based on the {@code
  * sourceId} and {@code userId}.
+ *
+ * @hide
  */
 // TODO(b/219697341): Look into using AutoValue for this data class.
-@RequiresApi(TIRAMISU)
-final class SafetySourceKey {
-    @NonNull private final String mSourceId;
+
+public final class SafetySourceKey {
+
+    private final String mSourceId;
     @UserIdInt private final int mUserId;
 
-    private SafetySourceKey(@NonNull String sourceId, @UserIdInt int userId) {
+    private SafetySourceKey(String sourceId, @UserIdInt int userId) {
         mSourceId = sourceId;
         mUserId = userId;
     }
 
-    /** Creates a {@link SafetySourceKey}. */
-    @NonNull
-    static SafetySourceKey of(@NonNull String sourceId, @UserIdInt int userId) {
+    /** Creates a {@link SafetySourceKey} for the given {@code sourceId} and {@code userId}. */
+    public static SafetySourceKey of(String sourceId, @UserIdInt int userId) {
         return new SafetySourceKey(sourceId, userId);
     }
 
-    @Override
-    public String toString() {
-        return "SafetySourceKey{"
-                + "mSourceId='"
-                + mSourceId
-                + '\''
-                + ", mUserId="
-                + mUserId
-                + '\''
-                + '}';
-    }
-
-    @NonNull
+    /** Returns the source id of this {@link SafetySourceKey}. */
     public String getSourceId() {
         return mSourceId;
     }
 
+    /** Returns the user id of this {@link SafetySourceKey}. */
     @UserIdInt
     public int getUserId() {
         return mUserId;
@@ -80,5 +66,10 @@ final class SafetySourceKey {
     @Override
     public int hashCode() {
         return Objects.hash(mSourceId, mUserId);
+    }
+
+    @Override
+    public String toString() {
+        return "SafetySourceKey{" + "mSourceId='" + mSourceId + "', mUserId=" + mUserId + '}';
     }
 }

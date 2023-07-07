@@ -17,71 +17,82 @@
 package com.android.permissioncontroller.safetycenter.ui
 
 import android.content.Context
-import android.safetycenter.SafetyCenterIssue
-import android.util.Log
-import android.widget.ImageView
-import android.widget.TextView
+import android.os.Build
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import com.android.permissioncontroller.R
+import com.android.permissioncontroller.safetycenter.ui.view.MoreIssuesHeaderView
 
 /** A preference that displays a card linking to a list of more {@link SafetyCenterIssue}. */
-class MoreIssuesCardPreference(
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+internal class MoreIssuesCardPreference(
     context: Context,
-    @DrawableRes val preferencWidgetIconResourceId: Int,
-    val numberOfHiddenIssues: Int,
-    val firstHiddenIssueSeverityLevel: Int,
-    val onClickListener: OnPreferenceClickListener
+    @DrawableRes val overrideChevronIconResId: Int?,
+    private var previousMoreIssuesCardData: MoreIssuesCardData?,
+    private var newMoreIssuesCardData: MoreIssuesCardData,
+    private val dismissedOnly: Boolean,
+    val isStaticHeader: Boolean,
+    private val onClickListener: () -> Unit
 ) : Preference(context), ComparablePreference {
 
     init {
         layoutResource = R.layout.preference_more_issues_card
-        widgetLayoutResource = R.layout.preference_expand_more_issues_widget
-        onPreferenceClickListener = onClickListener
-
-        setIcon(selectIconResId(firstHiddenIssueSeverityLevel))
-        setTitle(R.string.safety_center_more_issues_card_title)
     }
 
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
 
-        val widgetIcon = holder.findViewById(R.id.widget_icon) as? ImageView
-        widgetIcon?.setImageResource(preferencWidgetIconResourceId)
-        val widgetTitle = holder.findViewById(R.id.widget_title) as? TextView
-        widgetTitle?.text = numberOfHiddenIssues.toString()
-    }
-
-    @DrawableRes
-    private fun selectIconResId(severityLevel: Int): Int {
-        return when (severityLevel) {
-            SafetyCenterIssue.ISSUE_SEVERITY_LEVEL_OK -> R.drawable.ic_safety_info
-            SafetyCenterIssue.ISSUE_SEVERITY_LEVEL_RECOMMENDATION ->
-                R.drawable.ic_safety_recommendation
-            SafetyCenterIssue.ISSUE_SEVERITY_LEVEL_CRITICAL_WARNING -> R.drawable.ic_safety_warn
-            else -> {
-                Log.e(
-                    TAG,
-                    String.format(
-                        "Unexpected SafetyCenterIssue.IssueSeverityLevel: %d", severityLevel))
-                R.drawable.ic_safety_null_state
-            }
+        val issueHeaderView = holder.itemView as MoreIssuesHeaderView
+        if (isStaticHeader) {
+            issueHeaderView.showStaticHeader(
+                context.getString(R.string.safety_center_dismissed_issues_card_title),
+                newMoreIssuesCardData.severityLevel
+            )
+        } else {
+            issueHeaderView.showExpandableHeader(
+                previousMoreIssuesCardData,
+                newMoreIssuesCardData,
+                context.getString(
+                    if (dismissedOnly) {
+                        R.string.safety_center_dismissed_issues_card_title
+                    } else {
+                        R.string.safety_center_more_issues_card_title
+                    }
+                ),
+                overrideChevronIconResId,
+                onClickListener
+            )
         }
     }
 
+    fun setNewMoreIssuesCardData(moreIssuesCardData: MoreIssuesCardData) {
+        previousMoreIssuesCardData = newMoreIssuesCardData
+        newMoreIssuesCardData = moreIssuesCardData
+        notifyChanged()
+    }
+
     override fun isSameItem(preference: Preference): Boolean {
-        return hasSameContents(preference)
+        return preference is MoreIssuesCardPreference && isStaticHeader == preference.isStaticHeader
     }
 
     override fun hasSameContents(preference: Preference): Boolean {
         return preference is MoreIssuesCardPreference &&
-                numberOfHiddenIssues == preference.numberOfHiddenIssues &&
-                firstHiddenIssueSeverityLevel == preference.firstHiddenIssueSeverityLevel &&
-                preferencWidgetIconResourceId == preference.preferencWidgetIconResourceId
+            isStaticHeader == preference.isStaticHeader &&
+            previousMoreIssuesCardData == preference.previousMoreIssuesCardData &&
+            newMoreIssuesCardData == preference.newMoreIssuesCardData &&
+            overrideChevronIconResId == preference.overrideChevronIconResId &&
+            dismissedOnly == preference.dismissedOnly
     }
 
     companion object {
         val TAG: String = MoreIssuesCardPreference::class.java.simpleName
     }
 }
+
+internal data class MoreIssuesCardData(
+    val severityLevel: Int,
+    val hiddenIssueCount: Int,
+    val isExpanded: Boolean
+)
