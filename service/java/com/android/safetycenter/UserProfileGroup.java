@@ -16,11 +16,8 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -28,9 +25,9 @@ import android.os.Binder;
 import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.android.permission.util.UserUtils;
 
@@ -42,17 +39,20 @@ import java.util.Objects;
 /**
  * A class that represent all the enabled profiles (profile parent and managed profile(s))
  * associated with a user id.
+ *
+ * @hide
  */
-@RequiresApi(TIRAMISU)
-final class UserProfileGroup {
+public final class UserProfileGroup {
+
+    private static final String TAG = "UserProfileGroup";
 
     @UserIdInt private final int mProfileParentUserId;
-    @NonNull private final int[] mManagedProfilesUserIds;
-    @NonNull private final int[] mManagedRunningProfilesUserIds;
+    private final int[] mManagedProfilesUserIds;
+    private final int[] mManagedRunningProfilesUserIds;
 
     private UserProfileGroup(
             @UserIdInt int profileParentUserId,
-            @NonNull int[] managedProfilesUserIds,
+            int[] managedProfilesUserIds,
             int[] managedRunningProfilesUserIds) {
         mProfileParentUserId = profileParentUserId;
         mManagedProfilesUserIds = managedProfilesUserIds;
@@ -60,7 +60,7 @@ final class UserProfileGroup {
     }
 
     /** Returns all the alive {@link UserProfileGroup}s. */
-    static List<UserProfileGroup> getAllUserProfileGroups(@NonNull Context context) {
+    public static List<UserProfileGroup> getAllUserProfileGroups(Context context) {
         List<UserProfileGroup> userProfileGroups = new ArrayList<>();
         List<UserHandle> userHandles = UserUtils.getUserHandles(context);
         for (int i = 0; i < userHandles.size(); i++) {
@@ -71,14 +71,18 @@ final class UserProfileGroup {
                 continue;
             }
 
-            UserProfileGroup userProfileGroup = UserProfileGroup.from(context, userId);
+            UserProfileGroup userProfileGroup = UserProfileGroup.fromUser(context, userId);
+            if (!userProfileGroup.contains(userId)) {
+                continue;
+            }
+
             userProfileGroups.add(userProfileGroup);
         }
         return userProfileGroups;
     }
 
     private static boolean userProfileGroupsContain(
-            @NonNull List<UserProfileGroup> userProfileGroups, @UserIdInt int userId) {
+            List<UserProfileGroup> userProfileGroups, @UserIdInt int userId) {
         for (int i = 0; i < userProfileGroups.size(); i++) {
             UserProfileGroup userProfileGroup = userProfileGroups.get(i);
 
@@ -94,9 +98,13 @@ final class UserProfileGroup {
      * Returns the {@link UserProfileGroup} associated with the given {@code userId}.
      *
      * <p>The given {@code userId} could be related to the profile parent or any of its associated
-     * managed profile(s).
+     * profile(s).
+     *
+     * <p>It is possible for the {@code userId} to not be contained within the returned {@link
+     * UserProfileGroup}. This can happen if the {@code userId} is a profile that is not managed or
+     * is disabled.
      */
-    static UserProfileGroup from(@NonNull Context context, @UserIdInt int userId) {
+    public static UserProfileGroup fromUser(Context context, @UserIdInt int userId) {
         UserManager userManager = getUserManagerForUser(userId, context);
         List<UserHandle> userProfiles = getEnabledUserProfiles(userManager);
         UserHandle profileParent = getProfileParent(userManager, userId);
@@ -122,35 +130,59 @@ final class UserProfileGroup {
             }
         }
 
-        return new UserProfileGroup(
-                profileParentUserId,
-                Arrays.copyOf(managedProfilesUserIds, managedProfilesUserIdsLen),
-                Arrays.copyOf(managedRunningProfilesUserIds, managedRunningProfilesUserIdsLen));
+        UserProfileGroup userProfileGroup =
+                new UserProfileGroup(
+                        profileParentUserId,
+                        Arrays.copyOf(managedProfilesUserIds, managedProfilesUserIdsLen),
+                        Arrays.copyOf(
+                                managedRunningProfilesUserIds, managedRunningProfilesUserIdsLen));
+        if (!userProfileGroup.contains(userId)) {
+            Log.i(
+                    TAG,
+                    "User id: " + userId + " does not belong to: " + userProfileGroup,
+                    new Exception());
+        }
+        return userProfileGroup;
     }
 
-    @NonNull
-    private static UserManager getUserManagerForUser(
-            @UserIdInt int userId, @NonNull Context context) {
+    /** Returns whether the given {@code userId} is supported by {@link UserProfileGroup}. */
+    public static boolean isSupported(@UserIdInt int userId, Context context) {
+        if (!isProfile(userId, context)) {
+            return true;
+        }
+        return UserUtils.isManagedProfile(userId, context);
+    }
+
+    private static UserManager getUserManagerForUser(@UserIdInt int userId, Context context) {
         Context userContext = getUserContext(context, UserHandle.of(userId));
         return requireNonNull(userContext.getSystemService(UserManager.class));
     }
 
-    @NonNull
-    private static Context getUserContext(
-            @NonNull Context context, @NonNull UserHandle userHandle) {
+    private static Context getUserContext(Context context, UserHandle userHandle) {
         if (Process.myUserHandle().equals(userHandle)) {
             return context;
         } else {
             try {
-                return context.createPackageContextAsUser(context.getPackageName(), 0, userHandle);
+                return context.createPackageContextAsUser(
+                        context.getPackageName(), /* flags= */ 0, userHandle);
             } catch (PackageManager.NameNotFoundException doesNotHappen) {
                 throw new IllegalStateException(doesNotHappen);
             }
         }
     }
 
-    @NonNull
-    private static List<UserHandle> getEnabledUserProfiles(@NonNull UserManager userManager) {
+    private static boolean isProfile(@UserIdInt int userId, Context context) {
+        // This call requires the INTERACT_ACROSS_USERS permission.
+        final long callingId = Binder.clearCallingIdentity();
+        try {
+            UserManager userManager = getUserManagerForUser(userId, context);
+            return userManager.isProfile();
+        } finally {
+            Binder.restoreCallingIdentity(callingId);
+        }
+    }
+
+    private static List<UserHandle> getEnabledUserProfiles(UserManager userManager) {
         // This call requires the QUERY_USERS permission.
         final long callingId = Binder.clearCallingIdentity();
         try {
@@ -161,8 +193,7 @@ final class UserProfileGroup {
     }
 
     @Nullable
-    private static UserHandle getProfileParent(
-            @NonNull UserManager userManager, @UserIdInt int userId) {
+    private static UserHandle getProfileParent(UserManager userManager, @UserIdInt int userId) {
         // This call requires the INTERACT_ACROSS_USERS permission.
         final long callingId = Binder.clearCallingIdentity();
         try {
@@ -173,22 +204,40 @@ final class UserProfileGroup {
     }
 
     /** Returns the profile parent user id of the {@link UserProfileGroup}. */
-    int getProfileParentUserId() {
+    public int getProfileParentUserId() {
         return mProfileParentUserId;
     }
 
     /** Returns the managed profile user ids of the {@link UserProfileGroup}. */
-    int[] getManagedProfilesUserIds() {
+    public int[] getManagedProfilesUserIds() {
         return mManagedProfilesUserIds;
     }
 
     /** Returns the running managed profile user ids of the {@link UserProfileGroup}. */
-    int[] getManagedRunningProfilesUserIds() {
+    public int[] getManagedRunningProfilesUserIds() {
         return mManagedRunningProfilesUserIds;
     }
 
+    /**
+     * Convenience method that combines the results of {@link
+     * UserProfileGroup#getProfileParentUserId()} and {@link
+     * UserProfileGroup#getManagedRunningProfilesUserIds()}.
+     */
+    public int[] getProfileParentAndManagedRunningProfilesUserIds() {
+        int[] profileParentAndManagedRunningProfilesUserIds =
+                new int[mManagedRunningProfilesUserIds.length + 1];
+        profileParentAndManagedRunningProfilesUserIds[0] = mProfileParentUserId;
+        System.arraycopy(
+                mManagedRunningProfilesUserIds,
+                /* srcPos= */ 0,
+                profileParentAndManagedRunningProfilesUserIds,
+                /* destPos= */ 1,
+                mManagedRunningProfilesUserIds.length);
+        return profileParentAndManagedRunningProfilesUserIds;
+    }
+
     /** Returns whether the {@link UserProfileGroup} contains the given {@code userId}. */
-    boolean contains(@UserIdInt int userId) {
+    public boolean contains(@UserIdInt int userId) {
         if (userId == mProfileParentUserId) {
             return true;
         }
