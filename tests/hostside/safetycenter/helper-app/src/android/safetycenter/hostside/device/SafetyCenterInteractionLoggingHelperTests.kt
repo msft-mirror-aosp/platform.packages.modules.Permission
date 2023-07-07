@@ -17,9 +17,18 @@
 package android.safetycenter.hostside.device
 
 import android.content.Context
+import android.os.Bundle
+import android.safetycenter.SafetyCenterManager.EXTRA_SAFETY_SOURCES_GROUP_ID
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.android.safetycenter.testing.SafetyCenterActivityLauncher.launchSafetyCenterActivity
+import com.android.safetycenter.testing.SafetyCenterActivityLauncher.openPageAndExit
+import com.android.safetycenter.testing.SafetyCenterFlags
+import com.android.safetycenter.testing.SafetyCenterTestConfigs
+import com.android.safetycenter.testing.SafetyCenterTestHelper
+import com.android.safetycenter.testing.SafetyCenterTestRule
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,9 +45,58 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SafetyCenterInteractionLoggingHelperTests {
     private val context: Context = ApplicationProvider.getApplicationContext()
+    private val safetyCenterTestHelper = SafetyCenterTestHelper(context)
+    private val safetyCenterTestConfigs = SafetyCenterTestConfigs(context)
+
+    @get:Rule val safetyCenterTestRule = SafetyCenterTestRule(safetyCenterTestHelper)
+
+    @Before
+    fun setUp() {
+        SafetyCenterFlags.showSubpages = true
+    }
 
     @Test
     fun openSafetyCenter() {
         context.launchSafetyCenterActivity {}
+    }
+
+    @Test
+    fun openSubpageFromIntentExtra() {
+        val config = safetyCenterTestConfigs.singleSourceConfig
+        safetyCenterTestHelper.setConfig(config)
+        val sourceGroup = config.safetySourcesGroups.first()!!
+        val extras = Bundle()
+        extras.putString(EXTRA_SAFETY_SOURCES_GROUP_ID, sourceGroup.id)
+
+        context.launchSafetyCenterActivity(extras) {}
+    }
+
+    @Test
+    fun openSubpageFromHomepage() {
+        val config = safetyCenterTestConfigs.singleSourceConfig
+        safetyCenterTestHelper.setConfig(config)
+        val sourcesGroup = config.safetySourcesGroups.first()!!
+
+        context.launchSafetyCenterActivity {
+            openPageAndExit(context.getString(sourcesGroup.titleResId)) {}
+        }
+    }
+
+    @Test
+    fun openSubpageFromSettingsSearch() {
+        val config = safetyCenterTestConfigs.singleSourceConfig
+        safetyCenterTestHelper.setConfig(config)
+        val sourcesGroup = config.safetySourcesGroups.first()!!
+        val extras = Bundle()
+        extras.putString(
+            EXTRA_SETTINGS_FRAGMENT_ARGS_KEY,
+            "${sourcesGroup.safetySources.first().id}_personal"
+        )
+
+        context.launchSafetyCenterActivity(extras) {}
+    }
+
+    companion object {
+        private const val EXTRA_SETTINGS_FRAGMENT_ARGS_KEY = ":settings:fragment_args_key"
     }
 }
