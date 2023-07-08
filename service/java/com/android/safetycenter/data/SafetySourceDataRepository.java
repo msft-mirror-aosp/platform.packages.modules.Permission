@@ -16,18 +16,14 @@
 
 package com.android.safetycenter.data;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static com.android.permission.PermissionStatsLog.SAFETY_SOURCE_STATE_COLLECTED__SOURCE_STATE__DATA_PROVIDED;
 import static com.android.permission.PermissionStatsLog.SAFETY_SOURCE_STATE_COLLECTED__SOURCE_STATE__NO_DATA_PROVIDED;
 import static com.android.permission.PermissionStatsLog.SAFETY_SOURCE_STATE_COLLECTED__SOURCE_STATE__REFRESH_TIMEOUT;
 import static com.android.permission.PermissionStatsLog.SAFETY_SOURCE_STATE_COLLECTED__SOURCE_STATE__SOURCE_CLEARED;
 import static com.android.permission.PermissionStatsLog.SAFETY_SOURCE_STATE_COLLECTED__SOURCE_STATE__SOURCE_ERROR;
 
-import android.annotation.Nullable;
 import android.annotation.UptimeMillisLong;
 import android.annotation.UserIdInt;
-import android.content.Context;
 import android.os.SystemClock;
 import android.safetycenter.SafetyCenterData;
 import android.safetycenter.SafetyEvent;
@@ -38,7 +34,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.safetycenter.SafetySourceKey;
 import com.android.safetycenter.internaldata.SafetyCenterIssueActionId;
@@ -57,7 +53,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * <p>This class isn't thread safe. Thread safety must be handled by the caller.
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 final class SafetySourceDataRepository {
 
@@ -68,16 +63,13 @@ final class SafetySourceDataRepository {
     private final ArrayMap<SafetySourceKey, Long> mSafetySourceLastUpdated = new ArrayMap<>();
     private final ArrayMap<SafetySourceKey, Integer> mSourceStates = new ArrayMap<>();
 
-    private final Context mContext;
     private final SafetyCenterInFlightIssueActionRepository
             mSafetyCenterInFlightIssueActionRepository;
     private final SafetyCenterIssueDismissalRepository mSafetyCenterIssueDismissalRepository;
 
     SafetySourceDataRepository(
-            Context context,
             SafetyCenterInFlightIssueActionRepository safetyCenterInFlightIssueActionRepository,
             SafetyCenterIssueDismissalRepository safetyCenterIssueDismissalRepository) {
-        mContext = context;
         mSafetyCenterInFlightIssueActionRepository = safetyCenterInFlightIssueActionRepository;
         mSafetyCenterIssueDismissalRepository = safetyCenterIssueDismissalRepository;
     }
@@ -102,10 +94,6 @@ final class SafetySourceDataRepository {
             String safetySourceId,
             @UserIdInt int userId) {
         SafetySourceKey key = SafetySourceKey.of(safetySourceId, userId);
-        safetySourceData =
-                AndroidLockScreenFix.maybeOverrideSafetySourceData(
-                        mContext, safetySourceId, safetySourceData);
-
         boolean sourceDataDiffers = !Objects.equals(safetySourceData, mSafetySourceData.get(key));
         boolean removedSourceError = mSafetySourceErrors.remove(key);
 

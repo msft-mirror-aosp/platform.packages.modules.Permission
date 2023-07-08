@@ -16,11 +16,8 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -32,9 +29,9 @@ import android.os.Binder;
 import android.os.UserHandle;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
-import com.android.safetycenter.resources.SafetyCenterResourcesContext;
+import com.android.safetycenter.resources.SafetyCenterResourcesApk;
 
 import java.util.Arrays;
 
@@ -43,7 +40,6 @@ import java.util.Arrays;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 public final class PendingIntentFactory {
 
     private static final String TAG = "PendingIntentFactory";
@@ -53,12 +49,11 @@ public final class PendingIntentFactory {
     private static final String IS_SETTINGS_HOMEPAGE = "is_from_settings_homepage";
 
     private final Context mContext;
-    private final SafetyCenterResourcesContext mSafetyCenterResourcesContext;
+    private final SafetyCenterResourcesApk mSafetyCenterResourcesApk;
 
-    PendingIntentFactory(
-            Context context, SafetyCenterResourcesContext safetyCenterResourcesContext) {
+    PendingIntentFactory(Context context, SafetyCenterResourcesApk safetyCenterResourcesApk) {
         mContext = context;
-        mSafetyCenterResourcesContext = safetyCenterResourcesContext;
+        mSafetyCenterResourcesApk = safetyCenterResourcesApk;
     }
 
     /**
@@ -146,7 +141,7 @@ public final class PendingIntentFactory {
 
     private boolean shouldAddSettingsHomepageExtra(String sourceId) {
         return Arrays.asList(
-                        mSafetyCenterResourcesContext
+                        mSafetyCenterResourcesApk
                                 .getStringByName("config_useSettingsHomepageIntentExtra")
                                 .split(","))
                 .contains(sourceId);
@@ -235,7 +230,8 @@ public final class PendingIntentFactory {
         // This call requires the INTERACT_ACROSS_USERS permission.
         final long callingId = Binder.clearCallingIdentity();
         try {
-            return context.createPackageContextAsUser(packageName, 0, UserHandle.of(userId));
+            return context.createPackageContextAsUser(
+                    packageName, /* flags= */ 0, UserHandle.of(userId));
         } catch (PackageManager.NameNotFoundException e) {
             Log.w(TAG, "Package name " + packageName + " not found", e);
             return null;

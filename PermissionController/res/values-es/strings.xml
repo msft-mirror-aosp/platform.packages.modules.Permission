@@ -347,7 +347,7 @@
     <string name="accessibility_service_dialog_title_multiple" msgid="5527879210683548175">"<xliff:g id="NUM_SERVICES">%s</xliff:g> aplicaciones de accesibilidad tienen acceso completo a tu dispositivo"</string>
     <string name="accessibility_service_dialog_bottom_text_single" msgid="1128666197822205958">"<xliff:g id="SERVICE_NAME">%s</xliff:g> puede ver tu pantalla, lo que haces y lo que introduces; realizar acciones; y controlar la pantalla."</string>
     <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"Estas aplicaciones pueden ver tu pantalla, lo que haces y lo que introduces; realizar acciones; y controlar la pantalla."</string>
-    <string name="role_assistant_label" msgid="4727586018198208128">"Asistente digital predeterminado"</string>
+    <string name="role_assistant_label" msgid="4727586018198208128">"Asistente predeterminado"</string>
     <string name="role_assistant_short_label" msgid="3369003713187703399">"Asistente digital"</string>
     <string name="role_assistant_description" msgid="6622458130459922952">"Las aplicaciones de asistencia te ayudan según la información que aparezca en la pantalla. Algunas aplicaciones admiten tanto el menú de aplicaciones como los servicios de entrada de voz para ofrecerte asistencia integrada."</string>
     <string name="role_browser_label" msgid="2877796144554070207">"Aplicación de navegador predeterminada"</string>
@@ -607,8 +607,6 @@
     <string name="app_permission_rationale_message" msgid="8511466916077100713">"Seguridad de los datos"</string>
     <string name="app_location_permission_rationale_title" msgid="925420340572401350">"Tus datos de ubicación pueden compartirse"</string>
     <string name="app_location_permission_rationale_subtitle" msgid="6986985722752868692">"Esta aplicación ha indicado que es posible que comparta tus datos de ubicación con terceros"</string>
-    <string name="permission_rationale_data_sharing_link_error_title" msgid="4496607694785370249">"No se puede abrir este enlace"</string>
-    <string name="permission_rationale_data_sharing_link_error_message" msgid="8118116480850030215"></string>
     <string name="data_sharing_updates_title" msgid="7996933386875213859">"Cambios en los datos compartidos de ubicación"</string>
     <string name="data_sharing_updates_summary" msgid="764113985772233889">"Consulta las aplicaciones que han cambiado cómo comparten tus datos de ubicación"</string>
     <string name="data_sharing_updates_subtitle" msgid="6311537708950632329">"Estas aplicaciones han cambiado cómo pueden compartir tus datos de ubicación. Puede que no los hayan compartido antes, o que ahora lo hagan con fines publicitarios o de marketing."</string>

@@ -16,11 +16,8 @@
 
 package com.android.safetycenter.data;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static com.android.safetycenter.logging.SafetyCenterStatsdLogger.toSystemEventResult;
 
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.content.Context;
 import android.safetycenter.SafetyCenterData;
@@ -30,9 +27,10 @@ import android.safetycenter.SafetySourceErrorDetails;
 import android.safetycenter.SafetySourceIssue;
 import android.safetycenter.config.SafetyCenterConfig;
 import android.safetycenter.config.SafetySourcesGroup;
+import android.util.ArraySet;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.safetycenter.ApiLock;
 import com.android.safetycenter.SafetyCenterConfigReader;
@@ -60,7 +58,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 public final class SafetyCenterDataManager {
 
@@ -88,7 +85,6 @@ public final class SafetyCenterDataManager {
                 new SafetyCenterIssueDismissalRepository(apiLock, safetyCenterConfigReader);
         mSafetySourceDataRepository =
                 new SafetySourceDataRepository(
-                        context,
                         mSafetyCenterInFlightIssueActionRepository,
                         mSafetyCenterIssueDismissalRepository);
         mSafetyCenterIssueRepository =
@@ -151,7 +147,12 @@ public final class SafetyCenterDataManager {
                 mSafetySourceDataRepository.setSafetySourceData(
                         safetySourceData, safetySourceId, userId);
         boolean eventCausedChange =
-                processSafetyEvent(safetySourceId, safetyEvent, userId, false, sourceDataDiffers);
+                processSafetyEvent(
+                        safetySourceId,
+                        safetyEvent,
+                        userId,
+                        /* isError= */ false,
+                        sourceDataDiffers);
         boolean safetyCenterDataChanged = sourceDataDiffers || eventCausedChange;
 
         if (safetyCenterDataChanged) {
@@ -199,7 +200,7 @@ public final class SafetyCenterDataManager {
             String packageName,
             @UserIdInt int userId) {
         if (!mSafetySourceDataValidator.validateRequest(
-                null, safetySourceId, packageName, userId)) {
+                /* safetySourceData= */ null, safetySourceId, packageName, userId)) {
             return false;
         }
         SafetyEvent safetyEvent = safetySourceErrorDetails.getSafetyEvent();
@@ -217,7 +218,12 @@ public final class SafetyCenterDataManager {
                 mSafetySourceDataRepository.reportSafetySourceError(
                         safetySourceErrorDetails, safetySourceId, userId);
         boolean eventCausedChange =
-                processSafetyEvent(safetySourceId, safetyEvent, userId, true, sourceDataDiffers);
+                processSafetyEvent(
+                        safetySourceId,
+                        safetyEvent,
+                        userId,
+                        /* isError= */ true,
+                        sourceDataDiffers);
         boolean safetyCenterDataChanged = sourceDataDiffers || eventCausedChange;
 
         if (safetyCenterDataChanged) {
@@ -225,7 +231,12 @@ public final class SafetyCenterDataManager {
         }
 
         mSafetySourceStateCollectedLogger.writeSourceUpdatedAtom(
-                key, null, refreshReason, sourceDataDiffers, userId, safetyEvent);
+                key,
+                /* safetySourceData= */ null,
+                refreshReason,
+                sourceDataDiffers,
+                userId,
+                safetyEvent);
 
         return safetyCenterDataChanged;
     }
@@ -389,6 +400,11 @@ public final class SafetyCenterDataManager {
                 safetyCenterIssueActionId);
     }
 
+    /** Returns a list of IDs of in-flight actions for the given source and user */
+    ArraySet<SafetyCenterIssueActionId> getInFlightActions(String sourceId, @UserIdInt int userId) {
+        return mSafetyCenterInFlightIssueActionRepository.getInFlightActions(sourceId, userId);
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////   SafetySourceDataRepository ///////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -407,7 +423,7 @@ public final class SafetyCenterDataManager {
     public SafetySourceData getSafetySourceData(
             String safetySourceId, String packageName, @UserIdInt int userId) {
         if (!mSafetySourceDataValidator.validateRequest(
-                null, safetySourceId, packageName, userId)) {
+                /* safetySourceData= */ null, safetySourceId, packageName, userId)) {
             return null;
         }
         return mSafetySourceDataRepository.getSafetySourceData(
@@ -482,7 +498,7 @@ public final class SafetyCenterDataManager {
             case SafetyEvent.SAFETY_EVENT_TYPE_REFRESH_REQUESTED:
                 String refreshBroadcastId = safetyEvent.getRefreshBroadcastId();
                 if (refreshBroadcastId == null) {
-                    Log.w(TAG, "No refresh broadcast id in SafetyEvent of type " + type);
+                    Log.w(TAG, "No refresh broadcast id in SafetyEvent of type: " + type);
                     return false;
                 }
                 return mSafetyCenterRefreshTracker.reportSourceRefreshCompleted(
@@ -491,12 +507,12 @@ public final class SafetyCenterDataManager {
             case SafetyEvent.SAFETY_EVENT_TYPE_RESOLVING_ACTION_FAILED:
                 String safetySourceIssueId = safetyEvent.getSafetySourceIssueId();
                 if (safetySourceIssueId == null) {
-                    Log.w(TAG, "No safety source issue id in SafetyEvent of type " + type);
+                    Log.w(TAG, "No safety source issue id in SafetyEvent of type: " + type);
                     return false;
                 }
                 String safetySourceIssueActionId = safetyEvent.getSafetySourceIssueActionId();
                 if (safetySourceIssueActionId == null) {
-                    Log.w(TAG, "No safety source issue action id in SafetyEvent of type " + type);
+                    Log.w(TAG, "No safety source issue action id in SafetyEvent of type: " + type);
                     return false;
                 }
                 SafetyCenterIssueKey safetyCenterIssueKey =

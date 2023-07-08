@@ -16,10 +16,8 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
 import static android.safetycenter.SafetyCenterManager.RefreshReason;
 
-import android.annotation.Nullable;
 import android.os.Binder;
 import android.provider.DeviceConfig;
 import android.safetycenter.SafetySourceData;
@@ -27,10 +25,10 @@ import android.safetycenter.SafetySourceIssue;
 import android.util.ArraySet;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.modules.utils.build.SdkLevel;
-import com.android.safetycenter.resources.SafetyCenterResourcesContext;
+import com.android.safetycenter.resources.SafetyCenterResourcesApk;
 
 import java.io.PrintWriter;
 import java.time.Duration;
@@ -40,7 +38,6 @@ import java.time.Duration;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 public final class SafetyCenterFlags {
 
     private static final String TAG = "SafetyCenterFlags";
@@ -134,24 +131,27 @@ public final class SafetyCenterFlags {
     private static volatile String sRefreshOnPageOpenSourcesDefault =
             "AndroidBiometrics,AndroidLockScreen";
 
-    static void init(SafetyCenterResourcesContext resourceContext) {
+    static void init(SafetyCenterResourcesApk safetyCenterResourcesApk) {
         String untrackedSourcesDefault =
-                resourceContext.getOptionalStringByName("config_defaultUntrackedSources");
+                safetyCenterResourcesApk.getOptionalStringByName("config_defaultUntrackedSources");
         if (untrackedSourcesDefault != null) {
             sUntrackedSourcesDefault = untrackedSourcesDefault;
         }
         String backgroundRefreshDenyDefault =
-                resourceContext.getOptionalStringByName("config_defaultBackgroundRefreshDeny");
+                safetyCenterResourcesApk.getOptionalStringByName(
+                        "config_defaultBackgroundRefreshDeny");
         if (backgroundRefreshDenyDefault != null) {
             sBackgroundRefreshDenyDefault = backgroundRefreshDenyDefault;
         }
         String issueCategoryAllowlistDefault =
-                resourceContext.getOptionalStringByName("config_defaultIssueCategoryAllowlist");
+                safetyCenterResourcesApk.getOptionalStringByName(
+                        "config_defaultIssueCategoryAllowlist");
         if (issueCategoryAllowlistDefault != null) {
             sIssueCategoryAllowlistDefault = issueCategoryAllowlistDefault;
         }
         String refreshOnPageOpenSourcesDefault =
-                resourceContext.getOptionalStringByName("config_defaultRefreshOnPageOpenSources");
+                safetyCenterResourcesApk.getOptionalStringByName(
+                        "config_defaultRefreshOnPageOpenSources");
         if (refreshOnPageOpenSourcesDefault != null) {
             sRefreshOnPageOpenSourcesDefault = refreshOnPageOpenSourcesDefault;
         }
@@ -442,7 +442,7 @@ public final class SafetyCenterFlags {
         if (allowlistedCertString == null) {
             return new ArraySet<>();
         }
-        return new ArraySet<String>(allowlistedCertString.split("\\|"));
+        return new ArraySet<>(allowlistedCertString.split("\\|"));
     }
 
     /**
