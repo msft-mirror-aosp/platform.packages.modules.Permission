@@ -906,8 +906,14 @@ public final class SafetyCenterService extends SystemService {
 
         @GuardedBy("mApiLock")
         private void onApiDisabledLocked() {
+            // We're not clearing the Safety Center notification channels here. The reason for this
+            // is that the NotificationManager will post a runnable to cancel all associated
+            // notifications when clearing the channels. Given this happens asynchronously, this can
+            // leak between test cases and cause notifications that should be active to be cleared
+            // inadvertently. We're ok with the inconsistency because the channels are hidden
+            // somewhat deeply under Settings anyway, and we're unlikely to turn off Safety Center
+            // in production.
             clearDataLocked();
-            mNotificationChannels.clearAllChannelsForAllUsers(getContext());
             mSafetyCenterListeners.clear();
             mSafetyCenterBroadcastDispatcher.sendEnabledChanged();
         }
@@ -938,22 +944,12 @@ public final class SafetyCenterService extends SystemService {
                 if (stillInFlight == null) {
                     return;
                 }
-                boolean showErrorEntriesOnTimeout =
-                        SafetyCenterFlags.getShowErrorEntriesOnTimeout();
-                boolean setError =
-                        showErrorEntriesOnTimeout
-                                && !RefreshReasons.isBackgroundRefresh(mRefreshReason);
+                boolean setError = !RefreshReasons.isBackgroundRefresh(mRefreshReason);
                 for (int i = 0; i < stillInFlight.size(); i++) {
                     mSafetyCenterDataManager.markSafetySourceRefreshTimedOut(
                             stillInFlight.valueAt(i), setError);
                 }
                 mSafetyCenterDataChangeNotifier.updateDataConsumers(mUserProfileGroup);
-                if (!showErrorEntriesOnTimeout) {
-                    mSafetyCenterListeners.deliverErrorForUserProfileGroup(
-                            mUserProfileGroup,
-                            new SafetyCenterErrorDetails(
-                                    mSafetyCenterResourcesApk.getStringByName("refresh_timeout")));
-                }
             }
         }
 
