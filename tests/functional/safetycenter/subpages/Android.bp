@@ -18,21 +18,24 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-java_test_host {
-    name: "SafetyCenterHostSideTestCases",
+android_test {
+    name: "SafetyCenterSubpagesTestCases",
+    defaults: ["mts-target-sdk-version-current"],
+    sdk_version: "test_current",
+    min_sdk_version: "30",
     srcs: [
         "src/**/*.java",
         "src/**/*.kt",
     ],
-    libs: [
-        "tradefed",
-        "junit",
-        "compatibility-host-util",
-    ],
     static_libs: [
-        "cts-statsd-atom-host-test-utils",
+        "androidx.test.rules",
+        "androidx.test.ext.junit",
+        "androidx.test.monitor",
+        "compatibility-device-preconditions",
+        "kotlin-test",
+        "platform-test-rules",
+        "safety-center-test-util-lib",
     ],
-    data: [":SafetyCenterHostSideTestsHelper"],
     test_suites: [
         "general-tests",
         "mts-permission",
