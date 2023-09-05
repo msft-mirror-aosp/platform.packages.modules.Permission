@@ -18,9 +18,6 @@ package android.safetycenter.hostside.device
 
 import android.content.Context
 import android.safetycenter.SafetyCenterManager
-import android.safetycenter.SafetyCenterStatus
-import android.safetycenter.SafetyCenterStatus.REFRESH_STATUS_DATA_FETCH_IN_PROGRESS
-import android.safetycenter.SafetyCenterStatus.REFRESH_STATUS_FULL_RESCAN_IN_PROGRESS
 import android.safetycenter.SafetyEvent
 import android.safetycenter.SafetySourceErrorDetails
 import androidx.test.core.app.ApplicationProvider
@@ -30,16 +27,21 @@ import com.android.safetycenter.testing.Coroutines.TIMEOUT_SHORT
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.reportSafetySourceErrorWithPermission
 import com.android.safetycenter.testing.SafetyCenterFlags
 import com.android.safetycenter.testing.SafetyCenterTestConfigs
+import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SINGLE_SOURCE_ID
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SOURCE_ID_1
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SOURCE_ID_2
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SOURCE_ID_3
+import com.android.safetycenter.testing.SafetyCenterTestData
 import com.android.safetycenter.testing.SafetyCenterTestHelper
 import com.android.safetycenter.testing.SafetyCenterTestRule
 import com.android.safetycenter.testing.SafetySourceIntentHandler.Request
 import com.android.safetycenter.testing.SafetySourceIntentHandler.Response
 import com.android.safetycenter.testing.SafetySourceReceiver
+import com.android.safetycenter.testing.SafetySourceReceiver.Companion.executeSafetyCenterIssueActionWithPermissionAndWait
 import com.android.safetycenter.testing.SafetySourceReceiver.Companion.refreshSafetySourcesWithReceiverPermissionAndWait
 import com.android.safetycenter.testing.SafetySourceTestData
+import com.android.safetycenter.testing.SafetySourceTestData.Companion.CRITICAL_ISSUE_ACTION_ID
+import com.android.safetycenter.testing.SafetySourceTestData.Companion.CRITICAL_ISSUE_ID
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -142,6 +144,16 @@ class SafetySourceStateCollectedLoggingHelperTests {
         )
     }
 
+    @Test
+    fun resolvingAction_success() {
+        simulateResolvingActionWith(Response.SetData(safetySourceTestData.information))
+    }
+
+    @Test
+    fun resolvingAction_error() {
+        simulateResolvingActionWith(Response.Error)
+    }
+
     private fun simulateRefresh(
         source1Response: Response?,
         source2Response: Response?,
@@ -168,12 +180,24 @@ class SafetySourceStateCollectedLoggingHelperTests {
         // things are logged.
         val listener = safetyCenterTestHelper.addListener()
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(refreshReason)
-        listener.receiveSafetyCenterData {
-            it.status.refreshStatus == REFRESH_STATUS_DATA_FETCH_IN_PROGRESS ||
-                it.status.refreshStatus == REFRESH_STATUS_FULL_RESCAN_IN_PROGRESS
-        }
-        listener.receiveSafetyCenterData {
-            it.status.refreshStatus == SafetyCenterStatus.REFRESH_STATUS_NONE
-        }
+        listener.waitForSafetyCenterRefresh()
+    }
+
+    private fun simulateResolvingActionWith(response: Response) {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
+        safetyCenterTestHelper.setData(
+            SINGLE_SOURCE_ID,
+            safetySourceTestData.criticalWithResolvingGeneralIssue
+        )
+        SafetySourceReceiver.setResponse(Request.ResolveAction(SINGLE_SOURCE_ID), response)
+
+        safetyCenterManager.executeSafetyCenterIssueActionWithPermissionAndWait(
+            SafetyCenterTestData.issueId(SINGLE_SOURCE_ID, CRITICAL_ISSUE_ID),
+            SafetyCenterTestData.issueActionId(
+                SINGLE_SOURCE_ID,
+                CRITICAL_ISSUE_ID,
+                CRITICAL_ISSUE_ACTION_ID
+            )
+        )
     }
 }
