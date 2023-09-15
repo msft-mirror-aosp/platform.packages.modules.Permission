@@ -125,6 +125,8 @@ import com.android.permissioncontroller.permission.utils.KotlinUtils.getDefaultP
 import com.android.permissioncontroller.permission.utils.KotlinUtils.grantBackgroundRuntimePermissions
 import com.android.permissioncontroller.permission.utils.KotlinUtils.grantForegroundRuntimePermissions
 import com.android.permissioncontroller.permission.utils.KotlinUtils.isLocationAccuracyEnabled
+import com.android.permissioncontroller.permission.utils.KotlinUtils.isPhotoPickerPromptSupported
+import com.android.permissioncontroller.permission.utils.KotlinUtils.isPhotoPickerPromptEnabled
 import com.android.permissioncontroller.permission.utils.KotlinUtils.revokeBackgroundRuntimePermissions
 import com.android.permissioncontroller.permission.utils.KotlinUtils.revokeForegroundRuntimePermissions
 import com.android.permissioncontroller.permission.utils.PermissionMapping
@@ -367,9 +369,8 @@ class GrantPermissionsViewModel(
                 // null ==
                 var detailMessage = RequestMessage.NO_MESSAGE
 
-                if (KotlinUtils.isPhotoPickerPromptEnabled() &&
-                    groupState.group.permGroupName == READ_MEDIA_VISUAL &&
-                    groupState.group.packageInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU) {
+                if (groupState.group.permGroupName == READ_MEDIA_VISUAL &&
+                    shouldShowPhotoPickerPromptForApp(groupState.group)) {
                     // If the USER_SELECTED permission is user fixed and granted, or the app is only
                     // requesting USER_SELECTED, direct straight to photo picker
                     val userPerm = groupState.group.permissions[READ_MEDIA_VISUAL_USER_SELECTED]
@@ -887,7 +888,7 @@ class GrantPermissionsViewModel(
      * ACCESS_MEDIA_LOCATION granted
      */
     private fun isPartialStorageGrant(group: LightAppPermGroup): Boolean {
-        if (!KotlinUtils.isPhotoPickerPromptEnabled() || group.permGroupName != READ_MEDIA_VISUAL) {
+        if (!isPhotoPickerPromptSupported() || group.permGroupName != READ_MEDIA_VISUAL) {
             return false
         }
 
@@ -895,6 +896,18 @@ class GrantPermissionsViewModel(
         return group.isGranted && group.permissions.values.all {
             it.name in partialPerms || (it.name !in partialPerms && !it.isGrantedIncludingAppOp)
         }
+    }
+
+    private fun shouldShowPhotoPickerPromptForApp(group: LightAppPermGroup): Boolean {
+        if (!isPhotoPickerPromptEnabled() ||
+            group.packageInfo.targetSdkVersion < Build.VERSION_CODES.TIRAMISU) {
+            return false
+        }
+        if (group.packageInfo.targetSdkVersion >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return true
+        }
+        val userSelectedPerm = group.permissions[READ_MEDIA_VISUAL_USER_SELECTED] ?: return false
+        return !userSelectedPerm.isImplicit
     }
 
     private fun getStateFromPolicy(perm: String, group: LightAppPermGroup): Int {
