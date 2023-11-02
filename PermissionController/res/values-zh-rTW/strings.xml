@@ -60,6 +60,7 @@
     <string name="app_permissions_breadcrumb" msgid="5136969550489411650">"應用程式"</string>
     <string name="app_permissions" msgid="3369917736607944781">"應用程式權限"</string>
     <string name="unused_apps" msgid="2058057455175955094">"未使用的應用程式"</string>
+    <string name="edit_photos_description" msgid="5540108003480078892">"設定這個應用程式可存取哪些相片"</string>
     <string name="no_unused_apps" msgid="12809387670415295">"沒有未使用的應用程式"</string>
     <string name="zero_unused_apps" msgid="9024448554157499748">"沒有未使用的應用程式"</string>
     <string name="review_permission_decisions" msgid="309559429150613632">"最近的權限決定"</string>
@@ -474,7 +475,7 @@
     <string name="permgrouprequest_storage_q_to_s" msgid="8213701872983685505">"要允許「<xliff:g id="APP_NAME">%1$s</xliff:g>」&lt;b&gt;&lt;/b&gt;存取這部裝置上的&lt;b&gt;相片、影片、音樂和音訊&lt;/b&gt;嗎？"</string>
     <string name="permgrouprequest_storage_pre_q" msgid="168130651144569428">"要允許「<xliff:g id="APP_NAME">%1$s</xliff:g>」&lt;b&gt;&lt;/b&gt;存取這部裝置上的&lt;b&gt;相片、影片、音樂、音訊和其他檔案&lt;/b&gt;嗎？"</string>
     <string name="permgrouprequest_read_media_aural" msgid="2593365397347577812">"要允許「<xliff:g id="APP_NAME">%1$s</xliff:g>」&lt;b&gt;&lt;/b&gt;存取這部裝置上的音樂和音訊嗎？"</string>
-    <string name="permgrouprequest_read_media_visual" msgid="5548780620779729975">"允許「<xliff:g id="APP_NAME">%1$s</xliff:g>」&lt;b&gt;&lt;/b&gt;存取這部裝置上的相片和影片嗎？"</string>
+    <string name="permgrouprequest_read_media_visual" msgid="5548780620779729975">"要允許「<xliff:g id="APP_NAME">%1$s</xliff:g>」&lt;b&gt;&lt;/b&gt;存取這部裝置上的相片和影片嗎？"</string>
     <string name="permgrouprequest_more_photos" msgid="128933814654231321">"要允許「<xliff:g id="APP_NAME">%1$s</xliff:g>」&lt;b&gt;&lt;/b&gt;存取這部裝置上的其他相片和影片嗎？"</string>
     <string name="permgrouprequest_microphone" msgid="2825208549114811299">"要允許「<xliff:g id="APP_NAME">%1$s</xliff:g>」錄音嗎？"</string>
     <string name="permgrouprequestdetail_microphone" msgid="8510456971528228861">"這個應用程式只有在你使用時才能錄音"</string>
