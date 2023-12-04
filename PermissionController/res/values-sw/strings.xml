@@ -34,6 +34,7 @@
     <string name="grant_dialog_button_more_info" msgid="213350268561945193">"Maelezo zaidi"</string>
     <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"Ruhusu zote"</string>
     <string name="grant_dialog_button_always_allow_all" msgid="1719900027660252167">"Ruhusu zote kila wakati"</string>
+    <string name="grant_dialog_button_allow_limited_access" msgid="5713551784422137594">"Ruhusu kufikia baadhi ya vipengele"</string>
     <string name="grant_dialog_button_allow_selected_photos" msgid="5497042471576153842">"Chagua picha na video"</string>
     <string name="grant_dialog_button_allow_more_selected_photos" msgid="5145657877588697709">"Chagua zaidi"</string>
     <string name="grant_dialog_button_dont_select_more" msgid="6643552729129461268">"Usichague zaidi"</string>
@@ -60,6 +61,7 @@
     <string name="app_permissions_breadcrumb" msgid="5136969550489411650">"Programu"</string>
     <string name="app_permissions" msgid="3369917736607944781">"Ruhusa za programu"</string>
     <string name="unused_apps" msgid="2058057455175955094">"Programu zisizotumika"</string>
+    <string name="edit_photos_description" msgid="5540108003480078892">"Badilisha picha ulizochagua za programu hii"</string>
     <string name="no_unused_apps" msgid="12809387670415295">"Hakuna programu zisizotumika"</string>
     <string name="zero_unused_apps" msgid="9024448554157499748">"Hakuna programu zisizotumika"</string>
     <string name="review_permission_decisions" msgid="309559429150613632">"Uamuzi wa ruhusa wa hivi majuzi"</string>
