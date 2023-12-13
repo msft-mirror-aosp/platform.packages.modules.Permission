@@ -34,6 +34,7 @@
     <string name="grant_dialog_button_more_info" msgid="213350268561945193">"Дэлгэрэнгүй мэдээлэл"</string>
     <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"Бүгдийг зөвшөөрөх"</string>
     <string name="grant_dialog_button_always_allow_all" msgid="1719900027660252167">"Бүгдийг үргэлж зөвшөөрөх"</string>
+    <string name="grant_dialog_button_allow_limited_access" msgid="5713551784422137594">"Хязгаарлагдмал хандалтыг зөвшөөрөх"</string>
     <string name="grant_dialog_button_allow_selected_photos" msgid="5497042471576153842">"Зураг болон видеонуудыг сонгох"</string>
     <string name="grant_dialog_button_allow_more_selected_photos" msgid="5145657877588697709">"Илүү ихийг сонгох"</string>
     <string name="grant_dialog_button_dont_select_more" msgid="6643552729129461268">"Нэмж өгөгдөл сонгохгүй"</string>
@@ -60,6 +61,7 @@
     <string name="app_permissions_breadcrumb" msgid="5136969550489411650">"Аппууд"</string>
     <string name="app_permissions" msgid="3369917736607944781">"Аппын зөвшөөрөл"</string>
     <string name="unused_apps" msgid="2058057455175955094">"Ашиглаагүй аппууд"</string>
+    <string name="edit_photos_description" msgid="5540108003480078892">"Энэ аппад сонгосон зургуудыг засна уу"</string>
     <string name="no_unused_apps" msgid="12809387670415295">"Ашиглаагүй апп байхгүй байна"</string>
     <string name="zero_unused_apps" msgid="9024448554157499748">"0 ашиглаагүй апп"</string>
     <string name="review_permission_decisions" msgid="309559429150613632">"Саяхны зөвшөөрлийн шийдвэр"</string>
