@@ -35,7 +35,7 @@
     <string name="grant_dialog_button_deny_anyway" msgid="7225905870668915151">"Ne dovoli kljub temu"</string>
     <string name="grant_dialog_button_dismiss" msgid="1930399742250226393">"Opusti"</string>
     <string name="current_permission_template" msgid="7452035392573329375">"<xliff:g id="CURRENT_PERMISSION_INDEX">%1$s</xliff:g> od <xliff:g id="PERMISSION_COUNT">%2$s</xliff:g>"</string>
-    <string name="permission_warning_template" msgid="2247087781222679458">"Ali dovolite aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; izvesti to dejanje: <xliff:g id="ACTION">%2$s</xliff:g>?"</string>
+    <string name="permission_warning_template" msgid="2247087781222679458">"Dovolite aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; izvesti to dejanje: <xliff:g id="ACTION">%2$s</xliff:g>?"</string>
     <string name="permission_add_background_warning_template" msgid="1812914855915092273">"Želite aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; vedno dovoliti to dejanje: <xliff:g id="ACTION">%2$s</xliff:g>?"</string>
     <string name="allow_permission_foreground_only" msgid="116465816039675404">"Samo med uporabo aplikacije"</string>
     <string name="allow_permission_always" msgid="5194342531206054051">"Vedno"</string>
@@ -103,7 +103,7 @@
     <!-- no translation found for background_access_chooser_dialog_choices:1 (9127301153688725448) -->
     <!-- no translation found for background_access_chooser_dialog_choices:2 (4305536986042401191) -->
     <string name="permission_access_always" msgid="1474641821883823446">"Vedno dovoli"</string>
-    <string name="permission_access_only_foreground" msgid="7801170728159326195">"Dovoli samo med uporabo aplik."</string>
+    <string name="permission_access_only_foreground" msgid="7801170728159326195">"Dovoli samo med uporabo aplikacije"</string>
     <string name="permission_access_never" msgid="4647014230217936900">"Ne dovoli"</string>
     <string name="loading" msgid="4789365003890741082">"Nalaganje …"</string>
     <string name="all_permissions" msgid="6911125611996872522">"Vsa dovoljenja"</string>
@@ -225,7 +225,7 @@
     <string name="last_opened_summary_short" msgid="1646067226191176825">"Nazadnje odprto: <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="app_permission_footer_special_file_access" msgid="1884202176147657788">"Če dovolite upravljanje vseh datotek, lahko ta aplikacija dostopa do vseh datotek, ki so v skupni shrambi v tej napravi ali povezanih napravah za shranjevanje, ter jih ureja in briše. Aplikacija lahko do datotek dostopa brez vaše vednosti."</string>
     <string name="special_file_access_dialog" msgid="583804114020740610">"Ali tej aplikaciji dovolite dostop do datotek, ki so v napravi ali drugih povezanih napravah za shranjevanje, ter njihovo spreminjanje in brisanje? Ta aplikacija lahko do datotek dostopa brez vaše vednosti."</string>
-    <string name="permission_description_summary_generic" msgid="5401399408814903391">"Aplikacije s tem dovoljenjem imajo te možnosti: <xliff:g id="DESCRIPTION">%1$s</xliff:g>."</string>
+    <string name="permission_description_summary_generic" msgid="5401399408814903391">"Aplikacije s tem dovoljenjem lahko izvedejo to dejanje: <xliff:g id="DESCRIPTION">%1$s</xliff:g>."</string>
     <string name="permission_description_summary_activity_recognition" msgid="2652850576497070146">"Aplikacije s tem dovoljenjem lahko dostopajo do podatkov o vaši telesni dejavnosti, na primer hoji, kolesarjenju, vožnji, številu korakov itd."</string>
     <string name="permission_description_summary_calendar" msgid="103329982944411010">"Aplikacije s tem dovoljenjem lahko dostopajo do koledarja."</string>
     <string name="permission_description_summary_call_log" msgid="7321437186317577624">"Aplikacije s tem dovoljenjem lahko berejo dnevnik klicev v telefonu in zapisujejo vanj."</string>
@@ -573,7 +573,7 @@
     <string name="privacy_controls_title" msgid="7605929972256835199">"Nastavitve zasebnosti"</string>
     <string name="camera_toggle_title" msgid="1251201397431837666">"Dostop do fotoaparata"</string>
     <string name="mic_toggle_title" msgid="2649991093496110162">"Dostop do mikrofona"</string>
-    <string name="perm_toggle_description" msgid="7801326363741451379">"Za aplikacije in storitve"</string>
+    <string name="perm_toggle_description" msgid="7801326363741451379">"Za aplikacije in storitve."</string>
     <string name="mic_toggle_description" msgid="9163104307990677157">"Za aplikacije in storitve. Če je ta nastavitev izklopljena, bodo podatki mikrofona morda še vedno deljeni, ko pokličete številko za klic v sili."</string>
     <string name="location_settings_subtitle" msgid="2328360561197430695">"Oglejte si aplikacije in storitve, ki imajo dostop do lokacije."</string>
     <string name="show_clip_access_notification_title" msgid="5168467637351109096">"Pokaži dostop do odložišča"</string>

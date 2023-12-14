@@ -154,6 +154,7 @@
             android:enabled="@bool/is_at_least_t"
             android:exported="true">
             <intent-filter>
+                <action android:name="android.safetycenter.action.CORRECT_SENSOR_PRIVACY"/>
                 <action android:name="android.safetycenter.action.SAFETY_CENTER_ENABLED_CHANGED"/>
                 <action android:name="android.safetycenter.action.REFRESH_SAFETY_SOURCES"/>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
@@ -268,6 +269,18 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity-alias android:name="com.android.permissioncontroller.permission.ui.ManagePermissionsActivityAlias"
+                        android:configChanges="orientation|keyboardHidden|screenSize"
+                        android:label="@string/app_permissions"
+                        android:exported="true"
+                        android:theme="@style/Theme.PermissionController.Settings.FilterTouches"
+                        android:permission="android.permission.LAUNCH_PERMISSION_SETTINGS"
+                        android:targetActivity="com.android.permissioncontroller.permission.ui.ManagePermissionsActivity">
+            <intent-filter android:priority="1">
+                <action android:name="android.settings.APP_PERMISSIONS_SETTINGS"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
 
         <activity android:name="com.android.permissioncontroller.permission.ui.ManagePermissionsActivityTrampoline"
                   android:excludeFromRecents="true"

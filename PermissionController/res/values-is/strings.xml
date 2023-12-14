@@ -122,7 +122,7 @@
     <string name="current_permissions_category" msgid="4292990083585728880">"Núgildandi heimildir"</string>
     <string name="message_staging" msgid="9110563899955511866">"Setur upp forrit…"</string>
     <string name="app_name_unknown" msgid="1319665005754048952">"Óþekkt"</string>
-    <string name="permission_usage_title" msgid="1568233336351734538">"Einkastjórnborð"</string>
+    <string name="permission_usage_title" msgid="1568233336351734538">"Persónuverndarstjórnborð"</string>
     <string name="auto_permission_usage_summary" msgid="7335667266743337075">"Skoða hvaða forrit notuðu heimildir nýlega"</string>
     <string name="permission_group_usage_title" msgid="2595013198075285173">"<xliff:g id="PERMGROUP">%1$s</xliff:g>: notkun"</string>
     <string name="perm_usage_adv_info_title" msgid="3357831829538873708">"Sjá aðrar heimildir"</string>
@@ -225,7 +225,7 @@
     <string name="last_opened_summary_short" msgid="1646067226191176825">"Síðast opnað <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="app_permission_footer_special_file_access" msgid="1884202176147657788">"Ef þú leyfir stjórnun allra skráa getur þetta forrit opnað, breytt og eytt öllum skrám í sameiginlegri geymslu í þessu tæki eða tengdum geymslutækjum. Þetta forrit getur opnað skrár án þess að spyrja þig."</string>
     <string name="special_file_access_dialog" msgid="583804114020740610">"Viltu gefa þessu forriti aðgang að skrám í tækinu eða tengdum geymslutækjum og leyfi til að breyta þeim og eyða? Þetta forrit getur opnað skrár án þess að spyrja þig."</string>
-    <string name="permission_description_summary_generic" msgid="5401399408814903391">"Forrit með þessa heimild <xliff:g id="DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="permission_description_summary_generic" msgid="5401399408814903391">"Forrit með þessa heimild mega <xliff:g id="DESCRIPTION">%1$s</xliff:g>"</string>
     <string name="permission_description_summary_activity_recognition" msgid="2652850576497070146">"Forrit með þessa heimild hafa aðgang að upplýsingum um hreyfingu þína, svo sem göngu, hjólreiðar, akstur, skrefafjölda og fleira"</string>
     <string name="permission_description_summary_calendar" msgid="103329982944411010">"Forrit með þessa heimild hafa aðgang að dagatalinu þínu"</string>
     <string name="permission_description_summary_call_log" msgid="7321437186317577624">"Forrit með þessa heimild geta lesið og skrifað símtalaskrá síma"</string>
@@ -573,7 +573,7 @@
     <string name="privacy_controls_title" msgid="7605929972256835199">"Persónuverndarstillingar"</string>
     <string name="camera_toggle_title" msgid="1251201397431837666">"Aðgangur að myndavél"</string>
     <string name="mic_toggle_title" msgid="2649991093496110162">"Aðgangur að hljóðnema"</string>
-    <string name="perm_toggle_description" msgid="7801326363741451379">"Fyrir forrit og þjónustu"</string>
+    <string name="perm_toggle_description" msgid="7801326363741451379">"Fyrir forrit og þjónustur"</string>
     <string name="mic_toggle_description" msgid="9163104307990677157">"Fyrir forrit og þjónustur. Þegar slökkt er á þessari stillingu verður hljóðnemagögnum þó hugsanlega deilt þegar þú hringir í neyðarnúmer."</string>
     <string name="location_settings_subtitle" msgid="2328360561197430695">"Skoða forrit og þjónustur sem eru með aðgang að staðsetningu"</string>
     <string name="show_clip_access_notification_title" msgid="5168467637351109096">"Sýna aðgang að klippiborði"</string>

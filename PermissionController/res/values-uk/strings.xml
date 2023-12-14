@@ -35,8 +35,8 @@
     <string name="grant_dialog_button_deny_anyway" msgid="7225905870668915151">"Усе одно не дозволяти"</string>
     <string name="grant_dialog_button_dismiss" msgid="1930399742250226393">"Закрити"</string>
     <string name="current_permission_template" msgid="7452035392573329375">"<xliff:g id="CURRENT_PERMISSION_INDEX">%1$s</xliff:g> з <xliff:g id="PERMISSION_COUNT">%2$s</xliff:g>"</string>
-    <string name="permission_warning_template" msgid="2247087781222679458">"Дозволити додатку &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; таке: <xliff:g id="ACTION">%2$s</xliff:g>?"</string>
-    <string name="permission_add_background_warning_template" msgid="1812914855915092273">"Завжди дозволяти додатку &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; таке: <xliff:g id="ACTION">%2$s</xliff:g>?"</string>
+    <string name="permission_warning_template" msgid="2247087781222679458">"Дозволити додатку &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; <xliff:g id="ACTION">%2$s</xliff:g>?"</string>
+    <string name="permission_add_background_warning_template" msgid="1812914855915092273">"Завжди дозволяти додатку &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; <xliff:g id="ACTION">%2$s</xliff:g>?"</string>
     <string name="allow_permission_foreground_only" msgid="116465816039675404">"Лише коли додаток активний"</string>
     <string name="allow_permission_always" msgid="5194342531206054051">"Завжди"</string>
     <string name="deny_permission_deny_and_dont_ask_again" msgid="6106035221490102341">"Не дозволяти й більше не запитувати"</string>
@@ -66,7 +66,7 @@
     <string name="days_ago" msgid="6650359081551335629">"{count,plural, =0{Сьогодні}=1{1 день тому}one{# день тому}few{# дні тому}many{# днів тому}other{# дня тому}}"</string>
     <string name="app_disable_dlg_positive" msgid="7418444149981904940">"Вимкнути додаток"</string>
     <string name="app_disable_dlg_text" msgid="3126943217146120240">"Якщо вимкнути цей додаток, система Android та інші додатки можуть працювати неналежним чином. Важливо: ви не можете видалити цей додаток, оскільки він був попередньо встановлений на пристрої. Вимкнений додаток буде приховано."</string>
-    <string name="app_permission_manager" msgid="3903811137630909550">"Диспетчер дозволів"</string>
+    <string name="app_permission_manager" msgid="3903811137630909550">"Менеджер дозволів"</string>
     <string name="never_ask_again" msgid="4728762438198560329">"Більше не запитувати"</string>
     <string name="no_permissions" msgid="3881676756371148563">"Немає дозволів"</string>
     <string name="additional_permissions" msgid="5801285469338873430">"Додаткові дозволи"</string>
