@@ -119,10 +119,7 @@ class SafetyCenterTestData(context: Context) {
     ): SafetyCenterStatus =
         SafetyCenterStatus.Builder(
                 safetyCenterResourcesApk.getStringByName("overall_severity_level_ok_title"),
-                safetyCenterResourcesApk.getStringByName(
-                    "overall_severity_level_tip_summary",
-                    numTipIssues
-                )
+                getIcuPluralsString("overall_severity_level_tip_summary", numTipIssues)
             )
             .setSeverityLevel(OVERALL_SEVERITY_LEVEL_OK)
             .build()
@@ -136,7 +133,7 @@ class SafetyCenterTestData(context: Context) {
     ): SafetyCenterStatus =
         SafetyCenterStatus.Builder(
                 safetyCenterResourcesApk.getStringByName("overall_severity_level_ok_title"),
-                safetyCenterResourcesApk.getStringByName(
+                getIcuPluralsString(
                     "overall_severity_level_action_taken_summary",
                     numAutomaticIssues
                 )
@@ -167,7 +164,8 @@ class SafetyCenterTestData(context: Context) {
         sourceId: String,
         userId: Int = UserHandle.myUserId(),
         title: CharSequence = "OK",
-        pendingIntent: PendingIntent? = safetySourceTestData.testActivityRedirectPendingIntent
+        pendingIntent: PendingIntent? =
+            safetySourceTestData.createTestActivityRedirectPendingIntent()
     ) =
         SafetyCenterEntry.Builder(entryId(sourceId, userId), title)
             .setSeverityLevel(ENTRY_SEVERITY_LEVEL_UNKNOWN)
@@ -184,7 +182,8 @@ class SafetyCenterTestData(context: Context) {
         sourceId: String,
         userId: Int = UserHandle.myUserId(),
         title: CharSequence = "OK",
-        pendingIntent: PendingIntent? = safetySourceTestData.testActivityRedirectPendingIntent
+        pendingIntent: PendingIntent? =
+            safetySourceTestData.createTestActivityRedirectPendingIntent()
     ) = safetyCenterEntryDefaultBuilder(sourceId, userId, title, pendingIntent).build()
 
     /**
@@ -200,7 +199,9 @@ class SafetyCenterTestData(context: Context) {
         SafetyCenterEntry.Builder(entryId(sourceId, userId), title)
             .setSeverityLevel(ENTRY_SEVERITY_LEVEL_UNSPECIFIED)
             .setSummary("OK")
-            .setPendingIntent(safetySourceTestData.testActivityRedirectPendingIntent)
+            .setPendingIntent(
+                safetySourceTestData.createTestActivityRedirectPendingIntent(explicit = false)
+            )
             .setSeverityUnspecifiedIconType(SEVERITY_UNSPECIFIED_ICON_TYPE_NO_ICON)
 
     /**
@@ -217,7 +218,8 @@ class SafetyCenterTestData(context: Context) {
      */
     fun safetyCenterEntryUnspecified(
         sourceId: String,
-        pendingIntent: PendingIntent? = safetySourceTestData.testActivityRedirectPendingIntent
+        pendingIntent: PendingIntent? =
+            safetySourceTestData.createTestActivityRedirectPendingIntent()
     ) =
         SafetyCenterEntry.Builder(entryId(sourceId), "Unspecified title")
             .setSeverityLevel(ENTRY_SEVERITY_LEVEL_UNSPECIFIED)
@@ -240,7 +242,7 @@ class SafetyCenterTestData(context: Context) {
         SafetyCenterEntry.Builder(entryId(sourceId, userId), title)
             .setSeverityLevel(ENTRY_SEVERITY_LEVEL_OK)
             .setSummary("Ok summary")
-            .setPendingIntent(safetySourceTestData.testActivityRedirectPendingIntent)
+            .setPendingIntent(safetySourceTestData.createTestActivityRedirectPendingIntent())
             .setSeverityUnspecifiedIconType(SEVERITY_UNSPECIFIED_ICON_TYPE_NO_RECOMMENDATION)
 
     /**
@@ -265,7 +267,7 @@ class SafetyCenterTestData(context: Context) {
         SafetyCenterEntry.Builder(entryId(sourceId), "Recommendation title")
             .setSeverityLevel(ENTRY_SEVERITY_LEVEL_RECOMMENDATION)
             .setSummary(summary)
-            .setPendingIntent(safetySourceTestData.testActivityRedirectPendingIntent)
+            .setPendingIntent(safetySourceTestData.createTestActivityRedirectPendingIntent())
             .setSeverityUnspecifiedIconType(SEVERITY_UNSPECIFIED_ICON_TYPE_NO_RECOMMENDATION)
             .build()
 
@@ -277,7 +279,7 @@ class SafetyCenterTestData(context: Context) {
         SafetyCenterEntry.Builder(entryId(sourceId), "Critical title")
             .setSeverityLevel(ENTRY_SEVERITY_LEVEL_CRITICAL_WARNING)
             .setSummary("Critical summary")
-            .setPendingIntent(safetySourceTestData.testActivityRedirectPendingIntent)
+            .setPendingIntent(safetySourceTestData.createTestActivityRedirectPendingIntent())
             .setSeverityUnspecifiedIconType(SEVERITY_UNSPECIFIED_ICON_TYPE_NO_RECOMMENDATION)
             .build()
 
@@ -308,7 +310,7 @@ class SafetyCenterTestData(context: Context) {
                                 userId
                             ),
                             "Review",
-                            safetySourceTestData.testActivityRedirectPendingIntent
+                            safetySourceTestData.createTestActivityRedirectPendingIntent()
                         )
                         .build()
                 )
@@ -348,7 +350,7 @@ class SafetyCenterTestData(context: Context) {
                                 userId
                             ),
                             "See issue",
-                            safetySourceTestData.testActivityRedirectPendingIntent
+                            safetySourceTestData.createTestActivityRedirectPendingIntent()
                         )
                         .apply {
                             if (confirmationDialog && SdkLevel.isAtLeastU()) {
