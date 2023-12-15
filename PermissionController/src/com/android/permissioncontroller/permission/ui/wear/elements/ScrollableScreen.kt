@@ -22,6 +22,7 @@ import android.content.ContextWrapper
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -140,15 +141,20 @@ internal fun Scaffold(
     titleTestTag: String? = null,
     subtitleTestTag: String? = null,
 ) {
+    val initialCenterIndex = 0
+    val scrollContentTopPadding = 32.dp
     val focusRequester = remember { FocusRequester() }
-    val listState = remember { ScalingLazyListState(initialCenterItemIndex = 0) }
+    val listState = remember { ScalingLazyListState(initialCenterItemIndex = initialCenterIndex) }
     val coroutineScope = rememberCoroutineScope()
 
     MaterialTheme {
         Scaffold(
             modifier =
                 Modifier.onRotaryScrollEvent {
-                        coroutineScope.launch { listState.scrollBy(it.verticalScrollPixels) }
+                        coroutineScope.launch {
+                            listState.scrollBy(it.verticalScrollPixels)
+                            listState.animateScrollBy(0f)
+                        }
                         true
                     }
                     .focusRequester(focusRequester)
@@ -157,7 +163,12 @@ internal fun Scaffold(
             timeText = {
                 if (showTimeText && !isLoading) {
                     TimeText(
-                        modifier = Modifier.scrollAway(listState),
+                        modifier =
+                            Modifier.scrollAway(
+                                listState,
+                                initialCenterIndex,
+                                scrollContentTopPadding
+                            ),
                         contentPadding = PaddingValues(15.dp)
                     )
                 }
@@ -175,7 +186,12 @@ internal fun Scaffold(
                         // content.
                         autoCentering = null,
                         contentPadding =
-                            PaddingValues(start = 10.dp, end = 10.dp, top = 32.dp, bottom = 70.dp)
+                            PaddingValues(
+                                start = 10.dp,
+                                end = 10.dp,
+                                top = scrollContentTopPadding,
+                                bottom = 70.dp
+                            )
                     ) {
                         image?.let {
                             val imageModifier = Modifier.size(24.dp)
