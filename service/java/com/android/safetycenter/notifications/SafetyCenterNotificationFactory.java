@@ -84,6 +84,10 @@ final class SafetyCenterNotificationFactory {
             SafetySourceIssue issue,
             SafetySourceIssue.Action action,
             @UserIdInt int userId) {
+        if (action.getSuccessMessage() == null) {
+            return null;
+        }
+
         String channelId = mNotificationChannels.getCreatedChannelId(notificationManager, issue);
         if (channelId == null) {
             return null;
@@ -102,7 +106,8 @@ final class SafetyCenterNotificationFactory {
                         .setContentTitle(action.getSuccessMessage())
                         .setShowWhen(true)
                         .setTimeoutAfter(SUCCESS_NOTIFICATION_TIMEOUT.toMillis())
-                        .setContentIntent(contentIntent);
+                        .setContentIntent(contentIntent)
+                        .setAutoCancel(true);
 
         Integer color = getNotificationColor(SafetySourceData.SEVERITY_LEVEL_INFORMATION);
         if (color != null) {
@@ -168,6 +173,10 @@ final class SafetyCenterNotificationFactory {
             Notification.Action notificationAction =
                     toNotificationAction(issueKey, issueActions.get(i));
             builder.addAction(notificationAction);
+        }
+
+        if (issue.getSeverityLevel() == SafetySourceData.SEVERITY_LEVEL_INFORMATION) {
+            builder.setAutoCancel(true);
         }
 
         return builder.build();

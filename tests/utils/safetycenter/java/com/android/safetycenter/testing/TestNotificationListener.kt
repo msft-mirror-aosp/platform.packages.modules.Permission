@@ -85,7 +85,7 @@ class TestNotificationListener : NotificationListenerService() {
     }
 
     companion object {
-        private const val TAG = "TestNotificationListene"
+        private const val TAG = "SafetyCenterTestNotif"
 
         private val connected = ConditionVariable(false)
         private val disconnected = ConditionVariable(true)
@@ -125,7 +125,10 @@ class TestNotificationListener : NotificationListenerService() {
             count: Int,
             timeout: Duration = TIMEOUT_LONG
         ): List<StatusBarNotificationWithChannel> {
-            return waitForNotificationsToSatisfy(timeout, description = "$count notifications") {
+            return waitForNotificationsToSatisfy(
+                timeout = timeout,
+                description = "$count notifications"
+            ) {
                 it.size == count
             }
         }
@@ -155,11 +158,37 @@ class TestNotificationListener : NotificationListenerService() {
         ): List<StatusBarNotificationWithChannel> {
             val charsList = characteristics.toList()
             return waitForNotificationsToSatisfy(
-                timeout,
+                timeout = timeout,
                 description = "notification(s) matching characteristics $charsList"
             ) {
                 NotificationCharacteristics.areMatching(it, charsList)
             }
+        }
+
+        /**
+         * Waits for a success notification with the given [successMessage] after resolving an
+         * issue.
+         *
+         * Additional assertions can be made on the [StatusBarNotification] using [onNotification].
+         */
+        fun waitForSuccessNotification(
+            successMessage: String,
+            onNotification: (StatusBarNotification) -> Unit = {}
+        ) {
+            val successNotificationWithChannel =
+                waitForSingleNotificationMatching(
+                    NotificationCharacteristics(
+                        successMessage,
+                        "",
+                        actions = emptyList(),
+                    )
+                )
+            val statusBarNotification = successNotificationWithChannel.statusBarNotification
+            onNotification(statusBarNotification)
+            // Cancel the notification directly to speed up the tests as it's only auto-cancelled
+            // after 10 seconds, and the teardown waits for all notifications to be cancelled to
+            // avoid having unrelated notifications leaking between test cases.
+            cancelAndWait(statusBarNotification.key, waitForIssueCache = false)
         }
 
         /**
@@ -180,10 +209,6 @@ class TestNotificationListener : NotificationListenerService() {
             description: String,
             predicate: (List<StatusBarNotificationWithChannel>) -> Boolean
         ): List<StatusBarNotificationWithChannel> {
-            fun formatError(notifs: List<StatusBarNotificationWithChannel>): String {
-                return "Expected: $description, but the actual notifications were: $notifs"
-            }
-
             // First we wait at most timeout for the active notifications to satisfy the given
             // predicate or otherwise we throw:
             val satisfyingNotifications =
@@ -192,7 +217,11 @@ class TestNotificationListener : NotificationListenerService() {
                         waitForNotificationsToSatisfyAsync(predicate)
                     }
                 } catch (e: TimeoutCancellationException) {
-                    throw AssertionError(formatError(getSafetyCenterNotifications()), e)
+                    throw AssertionError(
+                        "Expected: $description, but notifications were " +
+                            "${getSafetyCenterNotifications()} after waiting for $timeout",
+                        e
+                    )
                 }
 
             // Assuming the predicate was satisfied, now we ensure it is not violated for the
@@ -203,7 +232,10 @@ class TestNotificationListener : NotificationListenerService() {
                 }
             if (nonSatisfyingNotifications != null) {
                 // In this case the negated-predicate was satisfied before forAtLeast had elapsed
-                throw AssertionError(formatError(nonSatisfyingNotifications))
+                throw AssertionError(
+                    "Expected: $description to settle, but notifications changed to " +
+                        "$nonSatisfyingNotifications within $forAtLeast"
+                )
             }
 
             return satisfyingNotifications
@@ -271,18 +303,20 @@ class TestNotificationListener : NotificationListenerService() {
         /**
          * Cancels a specific notification and then waits for it to be removed by the notification
          * manager and marked as dismissed in Safety Center, or throws if it has not been removed
-         * within [timeout].
+         * within [TIMEOUT_LONG].
          */
-        fun cancelAndWait(key: String, timeout: Duration = TIMEOUT_LONG) {
+        fun cancelAndWait(key: String, waitForIssueCache: Boolean = true) {
             getInstanceOrThrow().cancelNotification(key)
             waitForNotificationsToSatisfy(
-                timeout,
+                timeout = TIMEOUT_LONG,
                 description = "no notification with the key $key"
             ) { notifications ->
                 notifications.none { it.statusBarNotification.key == key }
             }
 
-            waitForIssueCacheToContainAnyDismissedNotification()
+            if (waitForIssueCache) {
+                waitForIssueCacheToContainAnyDismissedNotification()
+            }
         }
 
         private fun waitForIssueCacheToContainAnyDismissedNotification() {
@@ -349,6 +383,11 @@ class TestNotificationListener : NotificationListenerService() {
         }
 
         private fun StatusBarNotification.isSafetyCenterNotification(): Boolean =
-            packageName == "android" && notification.channelId.startsWith("safety_center")
+            packageName == "android" &&
+                notification.channelId.startsWith("safety_center") &&
+                // Don't consider the grouped system notifications to be a SC notification, in some
+                // scenarios a "ranker_group" notification can remain even when there are no more
+                // notifications associated with the channel. See b/293593539 for more details.
+                tag != "ranker_group"
     }
 }

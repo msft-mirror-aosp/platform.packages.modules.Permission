@@ -34,6 +34,7 @@ import android.safetycenter.SafetyCenterManager.REFRESH_REASON_RESCAN_BUTTON_CLI
 import android.safetycenter.SafetyCenterManager.REFRESH_REASON_SAFETY_CENTER_ENABLED
 import android.safetycenter.SafetySourceData
 import com.android.modules.utils.build.SdkLevel
+import com.android.safetycenter.testing.Coroutines.TEST_TIMEOUT
 import com.android.safetycenter.testing.Coroutines.TIMEOUT_LONG
 import com.android.safetycenter.testing.ShellPermissions.callWithShellPermissionIdentity
 import java.time.Duration
@@ -100,13 +101,6 @@ object SafetyCenterFlags {
             DurationParser()
         )
 
-    /**
-     * Flag that determines whether we should show error entries for sources that timeout when
-     * refreshing them.
-     */
-    private val showErrorEntriesOnTimeoutFlag =
-        Flag("safety_center_show_error_entries_on_timeout", defaultValue = false, BooleanParser())
-
     /** Flag that determines whether we should replace the IconAction of the lock screen source. */
     private val replaceLockScreenIconActionFlag =
         Flag("safety_center_replace_lock_screen_icon_action", defaultValue = true, BooleanParser())
@@ -115,11 +109,16 @@ object SafetyCenterFlags {
      * Flag that determines the time for which a Safety Center refresh is allowed to wait for a
      * source to respond to a refresh request before timing out and marking the refresh as finished,
      * depending on the refresh reason.
+     *
+     * Unlike the production code, this flag is set to [TEST_TIMEOUT] for all refresh reasons by
+     * default for convenience. UI tests typically will set some data manually rather than going
+     * through a full refresh, and we don't want to timeout the refresh and potentially end up with
+     * error entries in this case (as it could lead to flakyness).
      */
     private val refreshSourceTimeoutsFlag =
         Flag(
             "safety_center_refresh_sources_timeouts_millis",
-            defaultValue = getAllRefreshTimeoutsMap(TIMEOUT_LONG),
+            defaultValue = getAllRefreshTimeoutsMap(TEST_TIMEOUT),
             MapParser(IntParser(), DurationParser())
         )
 
@@ -201,6 +200,18 @@ object SafetyCenterFlags {
             "safety_center_issue_category_allowlists",
             defaultValue = emptyMap(),
             MapParser(IntParser(), SetParser(StringParser(), delimiter = "|"))
+        )
+
+    /**
+     * Flag containing a map (a comma separated list of colon separated pairs) where the key is a
+     * Safety Source ID and the value is a vertical-bar-delimited list of Action IDs that should
+     * have their PendingIntent replaced with the source's default PendingIntent.
+     */
+    private val actionsToOverrideWithDefaultIntentFlag =
+        Flag(
+            "safety_center_actions_to_override_with_default_intent",
+            defaultValue = emptyMap(),
+            MapParser(StringParser(), SetParser(StringParser(), delimiter = "|"))
         )
 
     /**
@@ -286,13 +297,6 @@ object SafetyCenterFlags {
             MapParser(StringParser(), SetParser(StringParser(), delimiter = "|"))
         )
 
-    /**
-     * Flag that determines whether background refreshes require charging in
-     * [SafetyCenterBackgroundRefreshJobService]. See [JobInfo.setRequiresCharging] for details.
-     */
-    private val backgroundRefreshRequiresChargingFlag =
-        Flag("safety_center_background_requires_charging", defaultValue = false, BooleanParser())
-
     /** Every Safety Center flag. */
     private val FLAGS: List<Flag<*>> =
         listOf(
@@ -302,7 +306,6 @@ object SafetyCenterFlags {
             notificationsMinDelayFlag,
             immediateNotificationBehaviorIssuesFlag,
             notificationResurfaceIntervalFlag,
-            showErrorEntriesOnTimeoutFlag,
             replaceLockScreenIconActionFlag,
             refreshSourceTimeoutsFlag,
             resolveActionTimeoutFlag,
@@ -312,6 +315,7 @@ object SafetyCenterFlags {
             resurfaceIssueMaxCountsFlag,
             resurfaceIssueDelaysFlag,
             issueCategoryAllowlistsFlag,
+            actionsToOverrideWithDefaultIntentFlag,
             allowedAdditionalPackageCertsFlag,
             backgroundRefreshDeniedSourcesFlag,
             allowStatsdLoggingFlag,
@@ -319,8 +323,7 @@ object SafetyCenterFlags {
             showSubpagesFlag,
             overrideRefreshOnPageOpenSourcesFlag,
             backgroundRefreshIsEnabledFlag,
-            periodicBackgroundRefreshIntervalFlag,
-            backgroundRefreshRequiresChargingFlag
+            periodicBackgroundRefreshIntervalFlag
         )
 
     /** A property that allows getting and setting the [isEnabledFlag]. */
@@ -341,14 +344,11 @@ object SafetyCenterFlags {
     /** A property that allows getting and setting the [notificationResurfaceIntervalFlag]. */
     var notificationResurfaceInterval: Duration by notificationResurfaceIntervalFlag
 
-    /** A property that allows getting and setting the [showErrorEntriesOnTimeoutFlag]. */
-    var showErrorEntriesOnTimeout: Boolean by showErrorEntriesOnTimeoutFlag
-
     /** A property that allows getting and setting the [replaceLockScreenIconActionFlag]. */
     var replaceLockScreenIconAction: Boolean by replaceLockScreenIconActionFlag
 
     /** A property that allows getting and setting the [refreshSourceTimeoutsFlag]. */
-    var refreshTimeouts: Map<Int, Duration> by refreshSourceTimeoutsFlag
+    private var refreshTimeouts: Map<Int, Duration> by refreshSourceTimeoutsFlag
 
     /** A property that allows getting and setting the [resolveActionTimeoutFlag]. */
     var resolveActionTimeout: Duration by resolveActionTimeoutFlag
@@ -371,6 +371,10 @@ object SafetyCenterFlags {
     /** A property that allows getting and setting the [issueCategoryAllowlistsFlag]. */
     var issueCategoryAllowlists: Map<Int, Set<String>> by issueCategoryAllowlistsFlag
 
+    /** A property that allows getting and setting the [actionsToOverrideWithDefaultIntentFlag]. */
+    var actionsToOverrideWithDefaultIntent: Map<String, Set<String>> by
+        actionsToOverrideWithDefaultIntentFlag
+
     var allowedAdditionalPackageCerts: Map<String, Set<String>> by allowedAdditionalPackageCertsFlag
 
     /** A property that allows getting and setting the [backgroundRefreshDeniedSourcesFlag]. */
@@ -384,15 +388,6 @@ object SafetyCenterFlags {
 
     /** A property that allows getting and setting the [overrideRefreshOnPageOpenSourcesFlag]. */
     var overrideRefreshOnPageOpenSources: Set<String> by overrideRefreshOnPageOpenSourcesFlag
-
-    /** A property that allows getting and settings the [backgroundRefreshIsEnabledFlag]. */
-    var backgroundRefreshIsEnabled: Boolean by backgroundRefreshIsEnabledFlag
-
-    /** A property that allows getting and settings the [periodicBackgroundRefreshIntervalFlag]. */
-    var periodicBackgroundRefreshInterval: Duration by periodicBackgroundRefreshIntervalFlag
-
-    /** A property that allows getting and settings the [backgroundRefreshRequiresChargingFlag]. */
-    var backgroundRefreshRequiresCharging: Boolean by backgroundRefreshRequiresChargingFlag
 
     /**
      * Returns a snapshot of all the Safety Center flags.
