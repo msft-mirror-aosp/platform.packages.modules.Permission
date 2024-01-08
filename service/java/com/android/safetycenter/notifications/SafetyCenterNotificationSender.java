@@ -40,6 +40,7 @@ import com.android.modules.utils.build.SdkLevel;
 import com.android.permission.util.UserUtils;
 import com.android.safetycenter.SafetyCenterFlags;
 import com.android.safetycenter.SafetySourceIssueInfo;
+import com.android.safetycenter.SafetySourceIssues;
 import com.android.safetycenter.UserProfileGroup;
 import com.android.safetycenter.data.SafetyCenterDataManager;
 import com.android.safetycenter.internaldata.SafetyCenterIds;
@@ -143,7 +144,8 @@ public final class SafetyCenterNotificationSender {
     public void notifyActionSuccess(
             String sourceId, SafetyEvent safetyEvent, @UserIdInt int userId) {
         if (!SafetyCenterFlags.getNotificationsEnabled()) {
-            // TODO(b/284271124): Decide what to do with existing notifications
+            // TODO(b/284271124): Decide what to do with existing notifications if flag gets
+            // toggled.
             return;
         }
 
@@ -176,12 +178,8 @@ public final class SafetyCenterNotificationSender {
             return;
         }
 
-        SafetySourceIssue.Action successfulAction = null;
-        for (int i = 0; i < notifiedIssue.getActions().size(); i++) {
-            if (notifiedIssue.getActions().get(i).getId().equals(sourceIssueActionId)) {
-                successfulAction = notifiedIssue.getActions().get(i);
-            }
-        }
+        SafetySourceIssue.Action successfulAction =
+                SafetySourceIssues.findAction(notifiedIssue, sourceIssueActionId);
         if (successfulAction == null) {
             Log.w(TAG, "Successful action not found");
             return;
