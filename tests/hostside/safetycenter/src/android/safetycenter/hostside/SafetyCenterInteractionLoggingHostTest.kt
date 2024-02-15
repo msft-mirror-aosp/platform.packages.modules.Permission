@@ -20,31 +20,32 @@ import android.cts.statsdatom.lib.ConfigUtils
 import android.cts.statsdatom.lib.ReportUtils
 import android.safetycenter.hostside.rules.HelperAppRule
 import android.safetycenter.hostside.rules.RequireSafetyCenterRule
+import com.android.compatibility.common.util.ApiLevelUtil
 import com.android.os.AtomsProto.Atom
 import com.android.os.AtomsProto.SafetyCenterInteractionReported
 import com.android.os.AtomsProto.SafetyCenterInteractionReported.Action
+import com.android.os.AtomsProto.SafetyCenterInteractionReported.NavigationSource
 import com.android.os.AtomsProto.SafetyCenterInteractionReported.ViewType
 import com.android.tradefed.testtype.DeviceJUnit4ClassRunner
 import com.android.tradefed.testtype.junit4.BaseHostJUnit4Test
 import com.google.common.truth.Truth.assertThat
+import java.math.BigInteger
+import java.security.MessageDigest
 import org.junit.After
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
 /** Host-side tests for Safety Center statsd logging. */
 @RunWith(DeviceJUnit4ClassRunner::class)
 class SafetyCenterInteractionLoggingHostTest : BaseHostJUnit4Test() {
 
-    private val safetyCenterRule = RequireSafetyCenterRule(this)
-    private val helperAppRule = HelperAppRule(this, HelperApp.APK_NAME, HelperApp.PACKAGE_NAME)
-
-    @Rule
-    @JvmField
-    val rules: RuleChain = RuleChain.outerRule(safetyCenterRule).around(helperAppRule)
+    @get:Rule(order = 1) val safetyCenterRule = RequireSafetyCenterRule(this)
+    @get:Rule(order = 2)
+    val helperAppRule = HelperAppRule(this, HelperApp.APK_NAME, HelperApp.PACKAGE_NAME)
 
     @Before
     fun setUp() {
@@ -70,11 +71,75 @@ class SafetyCenterInteractionLoggingHostTest : BaseHostJUnit4Test() {
 
         val safetyCenterViewedAtoms = getInteractionReportedAtoms(Action.SAFETY_CENTER_VIEWED)
 
-        assertThat(safetyCenterViewedAtoms).isNotEmpty()
+        assertThat(safetyCenterViewedAtoms).hasSize(1)
+        with(safetyCenterViewedAtoms.first()) {
+            assertThat(navigationSource).isEqualTo(NavigationSource.SOURCE_UNKNOWN)
+            assertThat(viewType).isEqualTo(ViewType.FULL)
+        }
+    }
+
+    @Test
+    fun openSafetyCenterQs_recordsSafetyCenterViewedEvent() {
+        helperAppRule.runTest(TEST_CLASS_NAME, "openSafetyCenterQs")
+
+        val safetyCenterViewedAtoms = getInteractionReportedAtoms(Action.SAFETY_CENTER_VIEWED)
+
+        assertThat(safetyCenterViewedAtoms).hasSize(1)
+        with(safetyCenterViewedAtoms.first()) {
+            assertThat(navigationSource).isEqualTo(NavigationSource.QUICK_SETTINGS_TILE)
+            assertThat(viewType).isEqualTo(ViewType.QUICK_SETTINGS)
+        }
+    }
+
+    @Ignore // TODO: b/323269529 - Deflake this test
+    @Test
+    fun openSafetyCenterFullFromQs_recordsViewEventWithCorrectSource() {
+        helperAppRule.runTest(TEST_CLASS_NAME, "openSafetyCenterFullFromQs")
+
+        val safetyCenterViewedAtoms = getInteractionReportedAtoms(Action.SAFETY_CENTER_VIEWED)
+
+        val viewTypesToNavSources =
+            safetyCenterViewedAtoms.associate { Pair(it.viewType, it.navigationSource) }
+        assertThat(viewTypesToNavSources)
+            .containsEntry(ViewType.FULL, NavigationSource.QUICK_SETTINGS_TILE)
+    }
+
+    @Test
+    fun openSafetyCenterWithIssueIntent_recordsViewEventWithAssociatedIssueMetadata() {
+        helperAppRule.runTest(TEST_CLASS_NAME, testMethodName = "openSafetyCenterWithIssueIntent")
+
+        val safetyCenterViewedAtoms = getInteractionReportedAtoms(Action.SAFETY_CENTER_VIEWED)
+
+        assertThat(safetyCenterViewedAtoms).hasSize(1)
+        with(safetyCenterViewedAtoms.first()) {
+            assertThat(navigationSource).isEqualTo(NavigationSource.NOTIFICATION)
+            assertThat(encodedSafetySourceId).isEqualTo(ENCODED_SINGLE_SOURCE_ID)
+            assertThat(encodedIssueTypeId).isEqualTo(ENCODED_ISSUE_TYPE_ID)
+        }
+    }
+
+    @Test
+    fun openSafetyCenterWithNotification_recordsViewEventWithAssociatedIssueMetadata() {
+        assumeAtLeastUpsideDownCake("Safety Center notification APIs require Android U+")
+
+        helperAppRule.runTest(
+            testClassName = ".SafetyCenterNotificationLoggingHelperTests",
+            testMethodName = "openSafetyCenterFromNotification"
+        )
+
+        val safetyCenterViewedAtoms = getInteractionReportedAtoms(Action.SAFETY_CENTER_VIEWED)
+
+        assertThat(safetyCenterViewedAtoms).hasSize(1)
+        with(safetyCenterViewedAtoms.first()) {
+            assertThat(navigationSource).isEqualTo(NavigationSource.NOTIFICATION)
+            assertThat(encodedSafetySourceId).isEqualTo(ENCODED_SINGLE_SOURCE_ID)
+            assertThat(encodedIssueTypeId).isEqualTo(ENCODED_ISSUE_TYPE_ID)
+        }
     }
 
     @Test
     fun sendNotification_recordsNotificationPostedEvent() {
+        assumeAtLeastUpsideDownCake("Safety Center notification APIs require Android U+")
         helperAppRule.runTest(
             testClassName = ".SafetyCenterNotificationLoggingHelperTests",
             testMethodName = "sendNotification"
@@ -89,6 +154,8 @@ class SafetyCenterInteractionLoggingHostTest : BaseHostJUnit4Test() {
 
     @Test
     fun openSubpageFromIntentExtra_recordsEventWithUnknownNavigationSource() {
+        assumeAtLeastUpsideDownCake("Safety Center subpages require Android U+")
+
         helperAppRule.runTest(TEST_CLASS_NAME, testMethodName = "openSubpageFromIntentExtra")
 
         val safetyCenterViewedAtoms = getInteractionReportedAtoms(Action.SAFETY_CENTER_VIEWED)
@@ -96,32 +163,29 @@ class SafetyCenterInteractionLoggingHostTest : BaseHostJUnit4Test() {
         assertThat(safetyCenterViewedAtoms).hasSize(1)
         with(safetyCenterViewedAtoms.first()) {
             assertThat(viewType).isEqualTo(ViewType.SUBPAGE)
-            assertThat(navigationSource)
-                .isEqualTo(SafetyCenterInteractionReported.NavigationSource.SOURCE_UNKNOWN)
+            assertThat(navigationSource).isEqualTo(NavigationSource.SOURCE_UNKNOWN)
             assertThat(sessionId).isNotNull()
         }
     }
 
     @Test
-    @Ignore
-    // TODO(b/278202773): Fix/de-flake this test
     fun openSubpageFromHomepage_recordsEventWithSafetyCenterNavigationSource() {
+        assumeAtLeastUpsideDownCake("Safety Center subpages require Android U+")
+
         helperAppRule.runTest(TEST_CLASS_NAME, testMethodName = "openSubpageFromHomepage")
 
         val safetyCenterViewedAtoms = getInteractionReportedAtoms(Action.SAFETY_CENTER_VIEWED)
+        val subpageViewedEvent = safetyCenterViewedAtoms.find { it.viewType == ViewType.SUBPAGE }
 
-        assertThat(safetyCenterViewedAtoms.map { it.viewType })
-            .containsExactly(ViewType.FULL, ViewType.SUBPAGE, ViewType.FULL)
-            .inOrder()
-        assertThat(safetyCenterViewedAtoms[1].navigationSource)
-            .isEqualTo(SafetyCenterInteractionReported.NavigationSource.SAFETY_CENTER)
+        assertThat(subpageViewedEvent).isNotNull()
+        assertThat(subpageViewedEvent!!.navigationSource).isEqualTo(NavigationSource.SAFETY_CENTER)
         assertThat(safetyCenterViewedAtoms.map { it.sessionId }.distinct()).hasSize(1)
     }
 
     @Test
-    @Ignore
-    // TODO(b/278202773): Fix/de-flake this test
     fun openSubpageFromSettingsSearch_recordsEventWithSettingsNavigationSource() {
+        assumeAtLeastUpsideDownCake("Safety Center subpages require Android U+")
+
         helperAppRule.runTest(TEST_CLASS_NAME, testMethodName = "openSubpageFromSettingsSearch")
 
         val safetyCenterViewedAtoms = getInteractionReportedAtoms(Action.SAFETY_CENTER_VIEWED)
@@ -129,8 +193,7 @@ class SafetyCenterInteractionLoggingHostTest : BaseHostJUnit4Test() {
         assertThat(safetyCenterViewedAtoms).hasSize(1)
         with(safetyCenterViewedAtoms.first()) {
             assertThat(viewType).isEqualTo(ViewType.SUBPAGE)
-            assertThat(navigationSource)
-                .isEqualTo(SafetyCenterInteractionReported.NavigationSource.SETTINGS)
+            assertThat(navigationSource).isEqualTo(NavigationSource.SETTINGS)
             assertThat(sessionId).isNotNull()
         }
     }
@@ -142,7 +205,33 @@ class SafetyCenterInteractionLoggingHostTest : BaseHostJUnit4Test() {
             .mapNotNull { it.atom.safetyCenterInteractionReported }
             .filter { it.action == action }
 
+    private fun assumeAtLeastUpsideDownCake(message: String) {
+        assumeTrue(message, ApiLevelUtil.isAtLeast(device, 34))
+    }
+
     private companion object {
         const val TEST_CLASS_NAME = ".SafetyCenterInteractionLoggingHelperTests"
+
+        // LINT.IfChange(single_source_id)
+        val ENCODED_SINGLE_SOURCE_ID = encodeId("test_single_source_id")
+        // LINT.ThenChange(/tests/utils/safetycenter/java/com/android/safetycenter/testing/SafetyCenterTestConfigs.kt:issue_type_id)
+
+        // LINT.IfChange(issue_type_id)
+        val ENCODED_ISSUE_TYPE_ID = encodeId("issue_type_id")
+        // LINT.ThenChange(/tests/utils/safetycenter/java/com/android/safetycenter/testing/SafetySourceTestData.kt:issue_type_id)
+
+        /**
+         * Encodes a string into an long ID. The ID is a SHA-256 of the string, truncated to 64
+         * bits.
+         */
+        fun encodeId(id: String?): Long {
+            if (id == null) return 0
+
+            val digest = MessageDigest.getInstance("MD5")
+            digest.update(id.toByteArray())
+
+            // Truncate to the size of a long
+            return BigInteger(digest.digest()).toLong()
+        }
     }
 }

@@ -21,6 +21,7 @@ import android.app.role.RoleManager
 import android.os.Handler
 import android.os.Looper
 import android.os.UserHandle
+import android.os.UserManager
 import androidx.lifecycle.LiveData
 import com.android.permissioncontroller.PermissionControllerApplication
 import com.android.permissioncontroller.permission.model.livedatatypes.AppPermGroupUiInfo
@@ -37,8 +38,10 @@ import com.android.permissioncontroller.permission.utils.Utils
 class PermGroupsPackagesUiInfoLiveData(
     private val app: Application,
     private val groupNamesLiveData: LiveData<List<String>>
-) : SmartUpdateMediatorLiveData<
-    @kotlin.jvm.JvmSuppressWildcards Map<String, PermGroupPackagesUiInfo?>>() {
+) :
+    SmartUpdateMediatorLiveData<
+        @kotlin.jvm.JvmSuppressWildcards Map<String, PermGroupPackagesUiInfo?>
+    >() {
     private val SYSTEM_SHELL = "android.app.role.SYSTEM_SHELL"
 
     private val STAGGER_LOAD_TIME_MS = 50L
@@ -54,18 +57,18 @@ class PermGroupsPackagesUiInfoLiveData(
 
     private val handler: Handler = Handler(Looper.getMainLooper())
 
-    /**
-     * Map<permission group name, PermGroupUiLiveDatas>
-     */
-    private val permGroupPackagesLiveDatas = mutableMapOf<String,
-        SinglePermGroupPackagesUiInfoLiveData>()
+    /** Map<permission group name, PermGroupUiLiveDatas> */
+    private val permGroupPackagesLiveDatas =
+        mutableMapOf<String, SinglePermGroupPackagesUiInfoLiveData>()
     private val allPackageData = mutableMapOf<String, PermGroupPackagesUiInfo?>()
 
     private lateinit var groupNames: List<String>
+    private val userManager =
+        Utils.getSystemServiceSafe(app.applicationContext, UserManager::class.java)
 
     init {
         addSource(groupNamesLiveData) {
-            groupNames = it ?: emptyList()
+            groupNames = it
             update()
             getPermGroupPackageLiveDatas()
         }
@@ -78,7 +81,7 @@ class PermGroupsPackagesUiInfoLiveData(
 
     private fun isGranted(grantState: AppPermGroupUiInfo.PermGrantState): Boolean {
         return grantState != AppPermGroupUiInfo.PermGrantState.PERMS_DENIED &&
-                grantState != AppPermGroupUiInfo.PermGrantState.PERMS_ASK
+            grantState != AppPermGroupUiInfo.PermGrantState.PERMS_ASK
     }
 
     private fun createPermGroupPackageUiInfo(
@@ -91,9 +94,19 @@ class PermGroupsPackagesUiInfoLiveData(
         var grantedSystem = 0
         var userInteractedSystem = 0
         var firstGrantedSystemPackageName: String? = null
+        val showInSettingsByUsers = HashMap<UserHandle, Boolean>()
 
         for ((packageUserPair, appPermGroup) in appPermGroups) {
             if (!appPermGroup.shouldShow) {
+                continue
+            }
+
+            if (!showInSettingsByUsers.containsKey(packageUserPair.second)) {
+                showInSettingsByUsers[packageUserPair.second] =
+                    Utils.shouldShowInSettings(packageUserPair.second, userManager)
+            }
+
+            if (showInSettingsByUsers[packageUserPair.second] == false) {
                 continue
             }
 
@@ -118,10 +131,19 @@ class PermGroupsPackagesUiInfoLiveData(
                 }
             }
         }
-        val onlyShellGranted = grantedNonSystem == 0 && grantedSystem == 1 &&
+        val onlyShellGranted =
+            grantedNonSystem == 0 &&
+                grantedSystem == 1 &&
                 isPackageShell(firstGrantedSystemPackageName)
-        return PermGroupPackagesUiInfo(groupName, nonSystem, grantedNonSystem,
-                userInteractedNonSystem, grantedSystem, userInteractedSystem, onlyShellGranted)
+        return PermGroupPackagesUiInfo(
+            groupName,
+            nonSystem,
+            grantedNonSystem,
+            userInteractedNonSystem,
+            grantedSystem,
+            userInteractedSystem,
+            onlyShellGranted
+        )
     }
 
     private fun isPackageShell(packageName: String?): Boolean {
@@ -130,27 +152,30 @@ class PermGroupsPackagesUiInfoLiveData(
         }
 
         // This method is only called at most once per permission group, so no need to cache value
-        val roleManager = Utils.getSystemServiceSafe(PermissionControllerApplication.get(),
-            RoleManager::class.java)
+        val roleManager =
+            Utils.getSystemServiceSafe(
+                PermissionControllerApplication.get(),
+                RoleManager::class.java
+            )
         return roleManager.getRoleHolders(SYSTEM_SHELL).contains(packageName)
     }
 
     override fun onUpdate() {
         /**
-         * Only update when either-
-         * We have a list of groups, and none have loaded their data, or
+         * Only update when either- We have a list of groups, and none have loaded their data, or
          * All packages have loaded their data
          */
         val haveAllLiveDatas = groupNames.all { permGroupPackagesLiveDatas.contains(it) }
         val allInitialized = permGroupPackagesLiveDatas.all { it.value.isInitialized }
         for (groupName in groupNames) {
-            allPackageData[groupName] = if (haveAllLiveDatas && allInitialized) {
-                permGroupPackagesLiveDatas[groupName]?.value?.let { uiInfo ->
-                    createPermGroupPackageUiInfo(groupName, uiInfo)
+            allPackageData[groupName] =
+                if (haveAllLiveDatas && allInitialized) {
+                    permGroupPackagesLiveDatas[groupName]?.value?.let { uiInfo ->
+                        createPermGroupPackageUiInfo(groupName, uiInfo)
+                    }
+                } else {
+                    null
                 }
-            } else {
-                null
-            }
         }
         value = allPackageData.toMap()
     }
@@ -172,7 +197,7 @@ class PermGroupsPackagesUiInfoLiveData(
     private fun addLiveDataDelayed(groupName: String, delayTimeMs: Long) {
         val liveData = SinglePermGroupPackagesUiInfoLiveData[groupName]
         permGroupPackagesLiveDatas[groupName] = liveData
-        handler.postDelayed( { addSource(liveData) { update() } }, delayTimeMs)
+        handler.postDelayed({ addSource(liveData) { update() } }, delayTimeMs)
     }
 
     override fun onActive() {

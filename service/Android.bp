@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package {
+    default_team: "trendy_team_android_permissions",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
@@ -100,6 +101,7 @@ java_sdk_library {
         "modules-utils-backgroundthread",
         "modules-utils-build",
         "modules-utils-os",
+        "role-controller",
         "safety-center-config",
         "safety-center-internal-data",
         "safety-center-pending-intents",
@@ -108,6 +110,8 @@ java_sdk_library {
         "service-permission-shared",
         "service-permission-statsd",
         "service-permission-proto-stream",
+        "android.permission.flags-aconfig-java",
+        "permissions-aconfig-flags-lib",
     ],
     errorprone: {
         javacflags: ["-Xep:GuardedBy:ERROR"],
@@ -122,7 +126,7 @@ java_sdk_library {
         "-Xno-receiver-assertions",
     ],
     lint: {
-        strict_updatability_linting: true,
+        baseline_filename: "lint-baseline.xml",
     },
     min_sdk_version: "30",
     sdk_version: "system_server_current",
@@ -133,18 +137,23 @@ java_sdk_library {
     installable: true,
     permitted_packages: [
         "com.android.access",
+        "com.android.ecm",
         "com.android.permission",
         "com.android.role",
         "com.android.safetycenter",
     ],
+    optimize: {
+        proguard_compatibility: false, // TODO(b/215530220): remove when this is default behavior
+        proguard_flags_files: ["proguard.flags"],
+    },
 }
 
 genrule {
     name: "statslog-service-permission-java-gen",
     tools: ["stats-log-api-gen"],
     cmd: "$(location stats-log-api-gen) --java $(out) --module permissioncontroller" +
-         " --javaPackage com.android.permission" +
-         " --javaClass PermissionStatsLog --minApiLevel 29",
+        " --javaPackage com.android.permission" +
+        " --javaClass PermissionStatsLog --minApiLevel 29",
     out: ["com/android/permission/PermissionStatsLog.java"],
 }
 

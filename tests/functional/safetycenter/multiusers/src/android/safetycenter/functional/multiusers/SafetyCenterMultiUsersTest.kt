@@ -20,9 +20,11 @@ import android.Manifest.permission.INTERACT_ACROSS_USERS
 import android.Manifest.permission.INTERACT_ACROSS_USERS_FULL
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.os.UserHandle
+import android.platform.test.annotations.RequiresFlagsDisabled
+import android.platform.test.annotations.RequiresFlagsEnabled
 import android.safetycenter.SafetyCenterData
+import android.safetycenter.SafetyCenterEntry
 import android.safetycenter.SafetyCenterEntry.ENTRY_SEVERITY_LEVEL_CRITICAL_WARNING
 import android.safetycenter.SafetyCenterEntry.ENTRY_SEVERITY_LEVEL_UNKNOWN
 import android.safetycenter.SafetyCenterEntry.ENTRY_SEVERITY_LEVEL_UNSPECIFIED
@@ -30,32 +32,36 @@ import android.safetycenter.SafetyCenterEntry.SEVERITY_UNSPECIFIED_ICON_TYPE_NO_
 import android.safetycenter.SafetyCenterEntry.SEVERITY_UNSPECIFIED_ICON_TYPE_PRIVACY
 import android.safetycenter.SafetyCenterEntryGroup
 import android.safetycenter.SafetyCenterEntryOrGroup
+import android.safetycenter.SafetyCenterIssue
 import android.safetycenter.SafetyCenterManager
 import android.safetycenter.SafetyCenterStaticEntry
 import android.safetycenter.SafetyCenterStaticEntryGroup
 import android.safetycenter.SafetyEvent
 import android.safetycenter.SafetySourceData
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.LargeTest
 import com.android.bedstead.harrier.BedsteadJUnit4
 import com.android.bedstead.harrier.DeviceState
 import com.android.bedstead.harrier.annotations.EnsureHasAdditionalUser
 import com.android.bedstead.harrier.annotations.EnsureHasCloneProfile
 import com.android.bedstead.harrier.annotations.EnsureHasNoWorkProfile
+import com.android.bedstead.harrier.annotations.EnsureHasPrivateProfile
 import com.android.bedstead.harrier.annotations.EnsureHasWorkProfile
-import com.android.bedstead.harrier.annotations.Postsubmit
 import com.android.bedstead.harrier.annotations.enterprise.EnsureHasDeviceOwner
+import com.android.bedstead.harrier.annotations.enterprise.EnsureHasNoDeviceOwner
 import com.android.bedstead.nene.TestApis
 import com.android.bedstead.nene.types.OptionalBoolean.TRUE
 import com.android.compatibility.common.util.DisableAnimationRule
 import com.android.compatibility.common.util.FreezeRotationRule
-import com.android.safetycenter.resources.SafetyCenterResourcesContext
+import com.android.safetycenter.resources.SafetyCenterResourcesApk
+import com.android.safetycenter.testing.Coroutines.TIMEOUT_SHORT
+import com.android.safetycenter.testing.NotificationCharacteristics
 import com.android.safetycenter.testing.SafetyCenterActivityLauncher.launchSafetyCenterActivity
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.getSafetyCenterDataWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.getSafetySourceDataWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.setSafetySourceDataWithPermission
-import com.android.safetycenter.testing.SafetyCenterFlags.deviceSupportsSafetyCenter
+import com.android.safetycenter.testing.SafetyCenterFlags
 import com.android.safetycenter.testing.SafetyCenterTestConfigs
-import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.ACTION_TEST_ACTIVITY
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.DYNAMIC_BAREBONE_ID
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.DYNAMIC_DISABLED_ID
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.DYNAMIC_GROUP_ID
@@ -76,27 +82,30 @@ import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.STATIC
 import com.android.safetycenter.testing.SafetyCenterTestData
 import com.android.safetycenter.testing.SafetyCenterTestData.Companion.withoutExtras
 import com.android.safetycenter.testing.SafetyCenterTestHelper
+import com.android.safetycenter.testing.SafetyCenterTestRule
 import com.android.safetycenter.testing.SafetySourceTestData
 import com.android.safetycenter.testing.SafetySourceTestData.Companion.EVENT_SOURCE_STATE_CHANGED
+import com.android.safetycenter.testing.SafetySourceTestData.Companion.ISSUE_TYPE_ID
 import com.android.safetycenter.testing.ShellPermissions.callWithShellPermissionIdentity
+import com.android.safetycenter.testing.SupportsSafetyCenterRule
+import com.android.safetycenter.testing.TestNotificationListener
 import com.android.safetycenter.testing.UiTestHelper.waitAllTextDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitAllTextNotDisplayed
 import com.google.common.base.Preconditions.checkState
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.After
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.ClassRule
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
  * Functional tests for our APIs and UI on a device with multiple users. e.g. with a managed or
- * secondary user(s).
+ * additional user(s).
  */
+@LargeTest
 @RunWith(BedsteadJUnit4::class)
 class SafetyCenterMultiUsersTest {
 
@@ -104,70 +113,65 @@ class SafetyCenterMultiUsersTest {
         @JvmField @ClassRule @Rule val deviceState: DeviceState = DeviceState()
     }
 
-    @get:Rule val disableAnimationRule = DisableAnimationRule()
-
-    @get:Rule val freezeRotationRule = FreezeRotationRule()
-
     private val context: Context = ApplicationProvider.getApplicationContext()
-    private val safetyCenterResourcesContext = SafetyCenterResourcesContext.forTests(context)
+    private val safetyCenterResourcesApk = SafetyCenterResourcesApk.forTests(context)
     private val safetyCenterTestHelper = SafetyCenterTestHelper(context)
     private val safetySourceTestData = SafetySourceTestData(context)
     private val safetyCenterTestData = SafetyCenterTestData(context)
     private val safetyCenterTestConfigs = SafetyCenterTestConfigs(context)
     private val safetyCenterManager = context.getSystemService(SafetyCenterManager::class.java)!!
 
-    // JUnit's Assume is not supported in @BeforeClass by the CTS tests runner, so this is used to
-    // manually skip the setup and teardown methods.
-    private val shouldRunTests = context.deviceSupportsSafetyCenter()
     private var inQuietMode = false
 
-    private val primaryProfileOnlyIssues =
-        listOf(
-            safetyCenterTestData.safetyCenterIssueCritical(
-                DYNAMIC_BAREBONE_ID,
-                groupId = DYNAMIC_GROUP_ID
-            ),
-            safetyCenterTestData.safetyCenterIssueCritical(
-                ISSUE_ONLY_BAREBONE_ID,
-                attributionTitle = null,
-                groupId = ISSUE_ONLY_GROUP_ID
-            ),
-            safetyCenterTestData.safetyCenterIssueRecommendation(
-                DYNAMIC_DISABLED_ID,
-                groupId = DYNAMIC_GROUP_ID
-            ),
-            safetyCenterTestData.safetyCenterIssueRecommendation(
-                ISSUE_ONLY_ALL_OPTIONAL_ID,
-                attributionTitle = null,
-                groupId = ISSUE_ONLY_GROUP_ID
-            ),
-            safetyCenterTestData.safetyCenterIssueInformation(
-                DYNAMIC_IN_STATELESS_ID,
-                groupId = MIXED_STATELESS_GROUP_ID
-            ),
-            safetyCenterTestData.safetyCenterIssueInformation(
-                ISSUE_ONLY_IN_STATELESS_ID,
-                groupId = MIXED_STATELESS_GROUP_ID
+    private val primaryProfileOnlyIssues: List<SafetyCenterIssue>
+        get() =
+            listOf(
+                safetyCenterTestData.safetyCenterIssueCritical(
+                    DYNAMIC_BAREBONE_ID,
+                    groupId = DYNAMIC_GROUP_ID
+                ),
+                safetyCenterTestData.safetyCenterIssueCritical(
+                    ISSUE_ONLY_BAREBONE_ID,
+                    attributionTitle = null,
+                    groupId = ISSUE_ONLY_GROUP_ID
+                ),
+                safetyCenterTestData.safetyCenterIssueRecommendation(
+                    DYNAMIC_DISABLED_ID,
+                    groupId = DYNAMIC_GROUP_ID
+                ),
+                safetyCenterTestData.safetyCenterIssueRecommendation(
+                    ISSUE_ONLY_ALL_OPTIONAL_ID,
+                    attributionTitle = null,
+                    groupId = ISSUE_ONLY_GROUP_ID
+                ),
+                safetyCenterTestData.safetyCenterIssueInformation(
+                    DYNAMIC_IN_STATELESS_ID,
+                    groupId = MIXED_STATELESS_GROUP_ID
+                ),
+                safetyCenterTestData.safetyCenterIssueInformation(
+                    ISSUE_ONLY_IN_STATELESS_ID,
+                    groupId = MIXED_STATELESS_GROUP_ID
+                )
             )
-        )
 
-    private val dynamicBareboneDefault =
-        safetyCenterTestData.safetyCenterEntryDefault(DYNAMIC_BAREBONE_ID)
+    private val dynamicBareboneDefault: SafetyCenterEntry
+        get() = safetyCenterTestData.safetyCenterEntryDefault(DYNAMIC_BAREBONE_ID)
 
-    private val dynamicBareboneUpdated =
-        safetyCenterTestData.safetyCenterEntryCritical(DYNAMIC_BAREBONE_ID)
+    private val dynamicBareboneUpdated: SafetyCenterEntry
+        get() = safetyCenterTestData.safetyCenterEntryCritical(DYNAMIC_BAREBONE_ID)
 
-    private val dynamicDisabledDefault =
-        safetyCenterTestData
-            .safetyCenterEntryDefaultBuilder(DYNAMIC_DISABLED_ID)
-            .setPendingIntent(null)
-            .setEnabled(false)
-            .build()
+    private val dynamicDisabledDefault: SafetyCenterEntry
+        get() =
+            safetyCenterTestData
+                .safetyCenterEntryDefaultBuilder(DYNAMIC_DISABLED_ID)
+                .setPendingIntent(null)
+                .setEnabled(false)
+                .build()
 
-    private val dynamicDisabledUpdated =
-        safetyCenterTestData.safetyCenterEntryRecommendation(DYNAMIC_DISABLED_ID)
+    private val dynamicDisabledUpdated: SafetyCenterEntry
+        get() = safetyCenterTestData.safetyCenterEntryRecommendation(DYNAMIC_DISABLED_ID)
 
-    private val dynamicDisabledForWorkDefaultBuilder
+    private val dynamicDisabledForWorkDefaultBuilder: SafetyCenterEntry.Builder
         get() =
             safetyCenterTestData
                 .safetyCenterEntryDefaultBuilder(
@@ -178,25 +182,60 @@ class SafetyCenterMultiUsersTest {
                 .setPendingIntent(null)
                 .setEnabled(false)
 
-    private val dynamicDisabledForWorkDefault
+    private val dynamicDisabledForWorkDefault: SafetyCenterEntry
         get() = dynamicDisabledForWorkDefaultBuilder.build()
 
-    private val dynamicDisabledForWorkPaused
+    private val dynamicDisabledForWorkPausedUpdated: SafetyCenterEntry
         get() =
-            dynamicDisabledForWorkDefaultBuilder
-                // TODO(b/233188021): This needs to use the Enterprise API to override the "work"
-                //  keyword.
-                .setSummary(safetyCenterResourcesContext.getStringByName("work_profile_paused"))
+            safetyCenterTestData
+                .safetyCenterEntryDefaultBuilder(
+                    DYNAMIC_DISABLED_ID,
+                    deviceState.workProfile().id(),
+                    title = "Ok title for Work",
+                    pendingIntent = null
+                )
+                .setSummary(
+                    safetyCenterResourcesApk.getStringByName("work_profile_paused"),
+                )
+                .setSeverityLevel(ENTRY_SEVERITY_LEVEL_UNSPECIFIED)
+                .setEnabled(false)
                 .build()
 
-    private val dynamicDisabledForWorkUpdated
+    private val dynamicDisabledForWorkUpdated: SafetyCenterEntry
         get() = safetyCenterEntryOkForWork(DYNAMIC_DISABLED_ID, deviceState.workProfile().id())
 
-    private val dynamicHiddenUpdated =
-        safetyCenterTestData.safetyCenterEntryUnspecified(DYNAMIC_HIDDEN_ID, pendingIntent = null)
+    private val dynamicHiddenUpdated: SafetyCenterEntry
+        get() =
+            safetyCenterTestData.safetyCenterEntryUnspecified(
+                DYNAMIC_HIDDEN_ID,
+                pendingIntent = null
+            )
 
-    private val dynamicHiddenForWorkUpdated
+    private val dynamicHiddenForWorkUpdated: SafetyCenterEntry
         get() = safetyCenterEntryOkForWork(DYNAMIC_HIDDEN_ID, deviceState.workProfile().id())
+
+    private val dynamicHiddenForWorkPausedUpdated
+        get() =
+            safetyCenterTestData
+                .safetyCenterEntryDefaultBuilder(
+                    DYNAMIC_HIDDEN_ID,
+                    deviceState.workProfile().id(),
+                    title = "Ok title for Work",
+                    pendingIntent = null
+                )
+                .setSummary(
+                    safetyCenterResourcesApk.getStringByName("work_profile_paused"),
+                )
+                .setSeverityLevel(ENTRY_SEVERITY_LEVEL_UNSPECIFIED)
+                .setEnabled(false)
+                .build()
+
+    private val dynamicDisabledForPrivateUpdated: SafetyCenterEntry
+        get() =
+            safetyCenterEntryOkForPrivate(DYNAMIC_DISABLED_ID, deviceState.privateProfile().id())
+
+    private val dynamicHiddenForPrivateUpdated: SafetyCenterEntry
+        get() = safetyCenterEntryOkForPrivate(DYNAMIC_HIDDEN_ID, deviceState.privateProfile().id())
 
     private val staticGroupBuilder =
         SafetyCenterEntryGroup.Builder(STATIC_GROUP_ID, "OK")
@@ -223,7 +262,8 @@ class SafetyCenterMultiUsersTest {
                 )
                 .setPendingIntent(
                     createTestActivityRedirectPendingIntentForUser(
-                        deviceState.workProfile().userHandle()
+                        deviceState.workProfile().userHandle(),
+                        explicit = false
                     )
                 )
 
@@ -233,50 +273,96 @@ class SafetyCenterMultiUsersTest {
     private val staticAllOptionalForWorkPaused
         get() =
             staticAllOptionalForWorkBuilder
-                // TODO(b/233188021): This needs to use the Enterprise API to override the "work"
-                //  keyword.
-                .setSummary(safetyCenterResourcesContext.getStringByName("work_profile_paused"))
+                .setSummary(safetyCenterResourcesApk.getStringByName("work_profile_paused"))
                 .setEnabled(false)
                 .build()
 
-    private val staticEntry =
-        SafetyCenterStaticEntry.Builder("OK")
-            .setSummary("OK")
-            .setPendingIntent(safetySourceTestData.testActivityRedirectPendingIntent)
-            .build()
-
-    private val staticEntryUpdated =
-        SafetyCenterStaticEntry.Builder("Unspecified title")
-            .setSummary("Unspecified summary")
-            .setPendingIntent(safetySourceTestData.testActivityRedirectPendingIntent)
-            .build()
-
-    private val staticEntryForWorkBuilder
+    private val staticAllOptionalForPrivateBuilder
         get() =
-            SafetyCenterStaticEntry.Builder("Paste")
-                .setSummary("OK")
+            safetyCenterTestData
+                .safetyCenterEntryDefaultStaticBuilder(
+                    STATIC_ALL_OPTIONAL_ID,
+                    userId = deviceState.privateProfile().id(),
+                    title = "Unknown"
+                )
                 .setPendingIntent(
                     createTestActivityRedirectPendingIntentForUser(
-                        deviceState.workProfile().userHandle()
+                        deviceState.privateProfile().userHandle(),
+                        explicit = false
                     )
                 )
 
-    private val staticEntryForWork
-        get() = staticEntryForWorkBuilder.build()
+    private val staticAllOptionalForPrivate
+        get() = staticAllOptionalForPrivateBuilder.build()
 
-    private val staticEntryForWorkPaused
+    private fun createStaticEntry(explicit: Boolean = true): SafetyCenterStaticEntry =
+        SafetyCenterStaticEntry.Builder("OK")
+            .setSummary("OK")
+            .setPendingIntent(
+                safetySourceTestData.createTestActivityRedirectPendingIntent(explicit)
+            )
+            .build()
+
+    private val staticEntryUpdated: SafetyCenterStaticEntry
         get() =
-            staticEntryForWorkBuilder
-                // TODO(b/233188021): This needs to use the Enterprise API to override the "work"
-                //  keyword.
-                .setSummary(safetyCenterResourcesContext.getStringByName("work_profile_paused"))
+            SafetyCenterStaticEntry.Builder("Unspecified title")
+                .setSummary("Unspecified summary")
+                .setPendingIntent(safetySourceTestData.createTestActivityRedirectPendingIntent())
                 .build()
 
-    private val staticEntryForWorkUpdated =
-        SafetyCenterStaticEntry.Builder("Unspecified title for Work")
-            .setSummary("Unspecified summary")
-            .setPendingIntent(safetySourceTestData.testActivityRedirectPendingIntent)
+    private fun staticEntryForWorkBuilder(title: CharSequence = "Paste", explicit: Boolean = true) =
+        SafetyCenterStaticEntry.Builder(title)
+            .setSummary("OK")
+            .setPendingIntent(
+                createTestActivityRedirectPendingIntentForUser(
+                    deviceState.workProfile().userHandle(),
+                    explicit
+                )
+            )
+
+    private fun staticEntryForPrivateBuilder(
+        title: CharSequence = "Unknown",
+        explicit: Boolean = true
+    ) =
+        SafetyCenterStaticEntry.Builder(title)
+            .setSummary("OK")
+            .setPendingIntent(
+                createTestActivityRedirectPendingIntentForUser(
+                    deviceState.privateProfile().userHandle(),
+                    explicit
+                )
+            )
+
+    private fun createStaticEntryForWork(explicit: Boolean = true): SafetyCenterStaticEntry =
+        staticEntryForWorkBuilder(explicit = explicit).build()
+
+    private fun createStaticEntryForPrivate(explicit: Boolean = true): SafetyCenterStaticEntry =
+        staticEntryForPrivateBuilder(explicit = explicit).build()
+
+    private fun createStaticEntryForWorkPaused(): SafetyCenterStaticEntry =
+        staticEntryForWorkBuilder(explicit = false)
+            .setSummary(safetyCenterResourcesApk.getStringByName("work_profile_paused"))
             .build()
+
+    private val staticEntryForWorkPausedUpdated: SafetyCenterStaticEntry
+        get() =
+            staticEntryForWorkBuilder(title = "Unspecified title for Work")
+                .setSummary(safetyCenterResourcesApk.getStringByName("work_profile_paused"))
+                .build()
+
+    private val staticEntryForWorkUpdated: SafetyCenterStaticEntry
+        get() =
+            SafetyCenterStaticEntry.Builder("Unspecified title for Work")
+                .setSummary("Unspecified summary")
+                .setPendingIntent(safetySourceTestData.createTestActivityRedirectPendingIntent())
+                .build()
+
+    private val staticEntryForPrivateUpdated: SafetyCenterStaticEntry
+        get() =
+            SafetyCenterStaticEntry.Builder("Unspecified title for Private")
+                .setSummary("Unspecified summary")
+                .setPendingIntent(safetySourceTestData.createTestActivityRedirectPendingIntent())
+                .build()
 
     private val safetyCenterDataForAdditionalUser
         get() =
@@ -298,34 +384,26 @@ class SafetyCenterMultiUsersTest {
                 emptyList()
             )
 
-    @Before
-    fun assumeDeviceSupportsSafetyCenterToRunTests() {
-        assumeTrue(shouldRunTests)
-    }
+    @get:Rule(order = 1) val supportsSafetyCenterRule = SupportsSafetyCenterRule(context)
+    @get:Rule(order = 2)
+    val safetyCenterTestRule =
+        SafetyCenterTestRule(safetyCenterTestHelper, withNotifications = true)
+    @get:Rule(order = 3) val disableAnimationRule = DisableAnimationRule()
+    @get:Rule(order = 4) val freezeRotationRule = FreezeRotationRule()
 
     @Before
-    fun enableSafetyCenterBeforeTest() {
-        if (!shouldRunTests) {
-            return
-        }
-        safetyCenterTestHelper.setup()
+    fun setRefreshTimeoutsBeforeTest() {
+        SafetyCenterFlags.setAllRefreshTimeoutsTo(TIMEOUT_SHORT)
     }
 
     @After
-    fun clearDataAfterTest() {
-        if (!shouldRunTests) {
-            return
-        }
-        safetyCenterTestHelper.reset()
-        resetQuietMode()
+    fun resetQuietModeAfterTest() {
+        setQuietMode(false)
     }
 
     @Test
     @EnsureHasWorkProfile
-    @Ignore
-    // Tests that check the UI takes a lot of time and they might get timeout in the postsubmits.
-    // TODO(b/242999951): Write this test using the APIs instead of checking the UI.
-    fun launchActivity_withProfileOwner_displaysWorkPolicyInfo() {
+    fun getSafetyCenterData_withProfileOwner_hasWorkPolicyInfo() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.workPolicyInfoConfig)
 
         findWorkPolicyInfo()
@@ -333,10 +411,7 @@ class SafetyCenterMultiUsersTest {
 
     @Test
     @EnsureHasDeviceOwner
-    @Ignore
-    // Tests that check the UI takes a lot of time and they might get timeout in the postsubmits.
-    // TODO(b/242999951): Write this test using the APIs instead of checking the UI.
-    fun launchActivity_withDeviceOwner_displaysWorkPolicyInfo() {
+    fun getSafetyCenterData_withDeviceOwner_hasWorkPolicyInfo() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.workPolicyInfoConfig)
 
         findWorkPolicyInfo()
@@ -344,21 +419,24 @@ class SafetyCenterMultiUsersTest {
 
     @Test
     @EnsureHasWorkProfile
-    @Ignore
-    // Tests that check the UI takes a lot of time and they might get timeout in the postsubmits.
-    // TODO(b/242999951): Write this test using the APIs instead of checking the UI.
-    fun launchActivity_withQuietModeEnabled_shouldNotDisplayWorkPolicyInfo() {
+    fun launchActivity_withQuietModeEnabled_hasWorkPolicyInfo() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.workPolicyInfoConfig)
 
-        findWorkPolicyInfo()
         setQuietMode(true)
+
+        findWorkPolicyInfo()
+    }
+
+    @Test
+    @EnsureHasNoWorkProfile
+    @EnsureHasNoDeviceOwner
+    fun launchActivity_withoutWorkProfileOrDeviceOwner_doesntHaveWorkPolicyInfo() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.workPolicyInfoConfig)
+
         context.launchSafetyCenterActivity { waitAllTextNotDisplayed("Your work policy info") }
     }
 
     @Test
-    @Ignore
-    // Test involving toggling of quiet mode are flaky.
-    // TODO(b/237365018): Re-enable them back once we figure out a way to make them stable.
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun getSafetySourceData_withQuietModeEnabled_dataIsNotCleared() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
@@ -381,7 +459,6 @@ class SafetyCenterMultiUsersTest {
 
     @Test
     @EnsureHasAdditionalUser(installInstrumentedApp = TRUE)
-    @Postsubmit(reason = "Test takes too much time to setup")
     fun getSafetySourceData_afterAdditionalUserRemoved_returnsNull() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
         val additionalUserSafetyCenterManager =
@@ -409,7 +486,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun getSafetySourceData_withoutInteractAcrossUserPermission_shouldThrowError() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
@@ -422,7 +498,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun getSafetySourceData_withoutAppInstalledForWorkProfile_shouldReturnNull() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
@@ -444,7 +519,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun getSafetySourceData_withRemovedProfile_shouldReturnNull() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
@@ -466,10 +540,7 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
-    @Ignore
-    // Test involving toggling of quiet mode are flaky.
     fun getSafetySourceData_withProfileInQuietMode_shouldReturnData() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
         val managedSafetyCenterManager =
@@ -490,7 +561,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasNoWorkProfile
     fun getSafetyCenterData_withComplexConfigWithoutWorkProfile_returnsPrimaryDataFromConfig() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.complexAllProfileConfig)
@@ -506,9 +576,7 @@ class SafetyCenterMultiUsersTest {
                         SafetyCenterEntryGroup.Builder(DYNAMIC_GROUP_ID, "OK")
                             .setSeverityLevel(ENTRY_SEVERITY_LEVEL_UNKNOWN)
                             .setSummary(
-                                safetyCenterResourcesContext.getStringByName(
-                                    "group_unknown_summary"
-                                )
+                                safetyCenterResourcesApk.getStringByName("group_unknown_summary")
                             )
                             .setEntries(listOf(dynamicBareboneDefault, dynamicDisabledDefault))
                             .setSeverityUnspecifiedIconType(
@@ -522,13 +590,17 @@ class SafetyCenterMultiUsersTest {
                             .build()
                     )
                 ),
-                listOf(SafetyCenterStaticEntryGroup("OK", listOf(staticEntry, staticEntry)))
+                listOf(
+                    SafetyCenterStaticEntryGroup(
+                        "OK",
+                        listOf(createStaticEntry(), createStaticEntry(explicit = false))
+                    )
+                )
             )
         assertThat(apiSafetyCenterData.withoutExtras()).isEqualTo(safetyCenterDataFromComplexConfig)
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun getSafetyCenterData_withComplexConfigWithoutDataProvided_returnsDataFromConfig() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.complexAllProfileConfig)
@@ -544,9 +616,7 @@ class SafetyCenterMultiUsersTest {
                         SafetyCenterEntryGroup.Builder(DYNAMIC_GROUP_ID, "OK")
                             .setSeverityLevel(ENTRY_SEVERITY_LEVEL_UNKNOWN)
                             .setSummary(
-                                safetyCenterResourcesContext.getStringByName(
-                                    "group_unknown_summary"
-                                )
+                                safetyCenterResourcesApk.getStringByName("group_unknown_summary")
                             )
                             .setEntries(
                                 listOf(
@@ -571,7 +641,12 @@ class SafetyCenterMultiUsersTest {
                 listOf(
                     SafetyCenterStaticEntryGroup(
                         "OK",
-                        listOf(staticEntry, staticEntryForWork, staticEntry, staticEntryForWork)
+                        listOf(
+                            createStaticEntry(),
+                            createStaticEntryForWork(),
+                            createStaticEntry(explicit = false),
+                            createStaticEntryForWork(explicit = false)
+                        )
                     )
                 )
             )
@@ -579,7 +654,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun getSafetyCenterData_withComplexConfigWithPrimaryDataProvided_returnsPrimaryDataProvided() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.complexAllProfileConfig)
@@ -622,9 +696,9 @@ class SafetyCenterMultiUsersTest {
                         "OK",
                         listOf(
                             staticEntryUpdated,
-                            staticEntryForWork,
-                            staticEntry,
-                            staticEntryForWork
+                            createStaticEntryForWork(),
+                            createStaticEntry(explicit = false),
+                            createStaticEntryForWork(explicit = false)
                         )
                     )
                 )
@@ -633,9 +707,8 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
-    fun getSafetyCenterData_withComplexConfigWithAllDataProvided_returnsAllDataProvided() {
+    fun getSafetyCenterData_withComplexConfigWithExtraWorkOnlyWithAllDataProvided_returnsAllDataProvided() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.complexAllProfileConfig)
         updatePrimaryProfileSources()
         updateWorkProfileSources()
@@ -733,8 +806,269 @@ class SafetyCenterMultiUsersTest {
                         listOf(
                             staticEntryUpdated,
                             staticEntryForWorkUpdated,
-                            staticEntry,
-                            staticEntryForWork
+                            createStaticEntry(explicit = false),
+                            createStaticEntryForWork(explicit = false)
+                        )
+                    )
+                )
+            )
+        assertThat(apiSafetyCenterData.withoutExtras()).isEqualTo(safetyCenterDataFromComplexConfig)
+    }
+
+    @Test
+    @RequiresFlagsDisabled(com.android.permission.flags.Flags.FLAG_PRIVATE_PROFILE_SUPPORTED)
+    @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
+    @EnsureHasPrivateProfile(installInstrumentedApp = TRUE)
+    fun getSafetyCenterData_withComplexConfigWithPrivateProfileDisallowedWithAllDataProvided_returnsAllDataProvided() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.complexAllProfileConfig)
+        updatePrimaryProfileSources()
+        updateWorkProfileSources()
+        updatePrivateProfileSources()
+
+        val apiSafetyCenterData = safetyCenterManager.getSafetyCenterDataWithPermission()
+
+        val managedUserId = deviceState.workProfile().id()
+        val safetyCenterDataFromComplexConfig =
+            SafetyCenterData(
+                safetyCenterTestData.safetyCenterStatusCritical(11),
+                listOf(
+                    safetyCenterTestData.safetyCenterIssueCritical(
+                        DYNAMIC_BAREBONE_ID,
+                        groupId = DYNAMIC_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueCritical(
+                        ISSUE_ONLY_BAREBONE_ID,
+                        attributionTitle = null,
+                        groupId = ISSUE_ONLY_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueRecommendation(
+                        DYNAMIC_DISABLED_ID,
+                        groupId = DYNAMIC_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueRecommendation(
+                        ISSUE_ONLY_ALL_OPTIONAL_ID,
+                        attributionTitle = null,
+                        groupId = ISSUE_ONLY_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        DYNAMIC_IN_STATELESS_ID,
+                        groupId = MIXED_STATELESS_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        ISSUE_ONLY_IN_STATELESS_ID,
+                        groupId = MIXED_STATELESS_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        DYNAMIC_DISABLED_ID,
+                        managedUserId,
+                        groupId = DYNAMIC_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        DYNAMIC_HIDDEN_ID,
+                        managedUserId,
+                        groupId = DYNAMIC_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        ISSUE_ONLY_ALL_OPTIONAL_ID,
+                        managedUserId,
+                        attributionTitle = null,
+                        groupId = ISSUE_ONLY_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        DYNAMIC_IN_STATELESS_ID,
+                        managedUserId,
+                        groupId = MIXED_STATELESS_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        ISSUE_ONLY_IN_STATELESS_ID,
+                        managedUserId,
+                        groupId = MIXED_STATELESS_GROUP_ID
+                    )
+                ),
+                listOf(
+                    SafetyCenterEntryOrGroup(
+                        SafetyCenterEntryGroup.Builder(DYNAMIC_GROUP_ID, "OK")
+                            .setSeverityLevel(ENTRY_SEVERITY_LEVEL_CRITICAL_WARNING)
+                            .setSummary("Critical summary")
+                            .setEntries(
+                                listOf(
+                                    dynamicBareboneUpdated,
+                                    dynamicDisabledUpdated,
+                                    dynamicDisabledForWorkUpdated,
+                                    dynamicHiddenUpdated,
+                                    dynamicHiddenForWorkUpdated
+                                )
+                            )
+                            .setSeverityUnspecifiedIconType(
+                                SEVERITY_UNSPECIFIED_ICON_TYPE_NO_RECOMMENDATION
+                            )
+                            .build()
+                    ),
+                    SafetyCenterEntryOrGroup(
+                        staticGroupBuilder
+                            .setEntries(
+                                listOf(staticBarebone, staticAllOptional, staticAllOptionalForWork)
+                            )
+                            .build()
+                    )
+                ),
+                listOf(
+                    SafetyCenterStaticEntryGroup(
+                        "OK",
+                        listOf(
+                            staticEntryUpdated,
+                            staticEntryForWorkUpdated,
+                            createStaticEntry(explicit = false),
+                            createStaticEntryForWork(explicit = false)
+                        )
+                    )
+                )
+            )
+        assertThat(apiSafetyCenterData.withoutExtras()).isEqualTo(safetyCenterDataFromComplexConfig)
+    }
+
+    // TODO(b/286539356) add the os feature flag requirement when available.
+    @Test
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_PRIVATE_PROFILE_SUPPORTED)
+    @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
+    @EnsureHasPrivateProfile(installInstrumentedApp = TRUE)
+    fun getSafetyCenterData_withComplexConfigWithAllDataProvided_returnsAllDataProvided() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.complexAllProfileConfig)
+        updatePrimaryProfileSources()
+        updateWorkProfileSources()
+        updatePrivateProfileSources()
+
+        val apiSafetyCenterData = safetyCenterManager.getSafetyCenterDataWithPermission()
+
+        val managedUserId = deviceState.workProfile().id()
+        val privateProfileId = deviceState.privateProfile().id()
+        val safetyCenterDataFromComplexConfig =
+            SafetyCenterData(
+                safetyCenterTestData.safetyCenterStatusCritical(11),
+                listOf(
+                    safetyCenterTestData.safetyCenterIssueCritical(
+                        DYNAMIC_BAREBONE_ID,
+                        groupId = DYNAMIC_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueCritical(
+                        ISSUE_ONLY_BAREBONE_ID,
+                        attributionTitle = null,
+                        groupId = ISSUE_ONLY_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueRecommendation(
+                        DYNAMIC_DISABLED_ID,
+                        groupId = DYNAMIC_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueRecommendation(
+                        ISSUE_ONLY_ALL_OPTIONAL_ID,
+                        attributionTitle = null,
+                        groupId = ISSUE_ONLY_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        DYNAMIC_IN_STATELESS_ID,
+                        groupId = MIXED_STATELESS_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        ISSUE_ONLY_IN_STATELESS_ID,
+                        groupId = MIXED_STATELESS_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        DYNAMIC_DISABLED_ID,
+                        managedUserId,
+                        groupId = DYNAMIC_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        DYNAMIC_HIDDEN_ID,
+                        managedUserId,
+                        groupId = DYNAMIC_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        ISSUE_ONLY_ALL_OPTIONAL_ID,
+                        managedUserId,
+                        attributionTitle = null,
+                        groupId = ISSUE_ONLY_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        DYNAMIC_IN_STATELESS_ID,
+                        managedUserId,
+                        groupId = MIXED_STATELESS_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        ISSUE_ONLY_IN_STATELESS_ID,
+                        managedUserId,
+                        groupId = MIXED_STATELESS_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        DYNAMIC_DISABLED_ID,
+                        privateProfileId,
+                        groupId = DYNAMIC_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        DYNAMIC_HIDDEN_ID,
+                        privateProfileId,
+                        groupId = DYNAMIC_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        ISSUE_ONLY_ALL_OPTIONAL_ID,
+                        privateProfileId,
+                        attributionTitle = null,
+                        groupId = ISSUE_ONLY_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        DYNAMIC_IN_STATELESS_ID,
+                        privateProfileId,
+                        groupId = MIXED_STATELESS_GROUP_ID
+                    ),
+                    safetyCenterTestData.safetyCenterIssueInformation(
+                        ISSUE_ONLY_IN_STATELESS_ID,
+                        privateProfileId,
+                        groupId = MIXED_STATELESS_GROUP_ID
+                    )
+                ),
+                listOf(
+                    SafetyCenterEntryOrGroup(
+                        SafetyCenterEntryGroup.Builder(DYNAMIC_GROUP_ID, "OK")
+                            .setSeverityLevel(ENTRY_SEVERITY_LEVEL_CRITICAL_WARNING)
+                            .setSummary("Critical summary")
+                            .setEntries(
+                                listOf(
+                                    dynamicBareboneUpdated,
+                                    dynamicDisabledUpdated,
+                                    dynamicDisabledForWorkUpdated,
+                                    dynamicDisabledForPrivateUpdated,
+                                    dynamicHiddenUpdated,
+                                    dynamicHiddenForWorkUpdated,
+                                    dynamicHiddenForPrivateUpdated
+                                )
+                            )
+                            .setSeverityUnspecifiedIconType(
+                                SEVERITY_UNSPECIFIED_ICON_TYPE_NO_RECOMMENDATION
+                            )
+                            .build()
+                    ),
+                    SafetyCenterEntryOrGroup(
+                        staticGroupBuilder
+                            .setEntries(
+                                listOf(
+                                    staticBarebone,
+                                    staticAllOptional,
+                                    staticAllOptionalForWork,
+                                    staticAllOptionalForPrivate
+                                )
+                            )
+                            .build()
+                    )
+                ),
+                listOf(
+                    SafetyCenterStaticEntryGroup(
+                        "OK",
+                        listOf(
+                            staticEntryUpdated,
+                            staticEntryForWorkUpdated,
+                            staticEntryForPrivateUpdated,
+                            createStaticEntry(explicit = false),
+                            createStaticEntryForWork(explicit = false),
+                            createStaticEntryForPrivate(explicit = false)
                         )
                     )
                 )
@@ -744,15 +1078,12 @@ class SafetyCenterMultiUsersTest {
 
     @Test
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
-    @Ignore
-    // Test involving toggling of quiet mode are flaky.
-    // TODO(b/237365018): Re-enable them back once we figure out a way to make them stable.
     fun getSafetyCenterData_withQuietMode_shouldHaveWorkProfilePausedSummaryAndNoWorkIssues() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.complexAllProfileConfig)
         updatePrimaryProfileSources()
         updateWorkProfileSources()
-
         setQuietMode(true)
+
         val apiSafetyCenterData = safetyCenterManager.getSafetyCenterDataWithPermission()
 
         val safetyCenterDataFromComplexConfig =
@@ -768,8 +1099,9 @@ class SafetyCenterMultiUsersTest {
                                 listOf(
                                     dynamicBareboneUpdated,
                                     dynamicDisabledUpdated,
-                                    dynamicDisabledForWorkPaused,
-                                    dynamicHiddenUpdated
+                                    dynamicDisabledForWorkPausedUpdated,
+                                    dynamicHiddenUpdated,
+                                    dynamicHiddenForWorkPausedUpdated,
                                 )
                             )
                             .setSeverityUnspecifiedIconType(
@@ -794,9 +1126,9 @@ class SafetyCenterMultiUsersTest {
                         "OK",
                         listOf(
                             staticEntryUpdated,
-                            staticEntryForWorkPaused,
-                            staticEntry,
-                            staticEntryForWorkPaused
+                            staticEntryForWorkPausedUpdated,
+                            createStaticEntry(explicit = false),
+                            createStaticEntryForWorkPaused()
                         )
                     )
                 )
@@ -807,7 +1139,6 @@ class SafetyCenterMultiUsersTest {
     @Test
     @EnsureHasAdditionalUser(installInstrumentedApp = TRUE)
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
-    @Postsubmit(reason = "Test takes too much time to setup")
     fun getSafetyCenterData_withDataForDifferentUserProfileGroup_shouldBeUnaffected() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
         val dataForPrimaryUser = safetySourceTestData.information
@@ -830,7 +1161,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Ignore // Removing a managed profile causes a refresh, which makes some tests flaky.
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun getSafetyCenterData_afterManagedProfileRemoved_returnsDefaultData() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
@@ -845,9 +1175,7 @@ class SafetyCenterMultiUsersTest {
                         SafetyCenterEntryGroup.Builder(SINGLE_SOURCE_GROUP_ID, "OK")
                             .setSeverityLevel(ENTRY_SEVERITY_LEVEL_UNKNOWN)
                             .setSummary(
-                                safetyCenterResourcesContext.getStringByName(
-                                    "group_unknown_summary"
-                                )
+                                safetyCenterResourcesApk.getStringByName("group_unknown_summary")
                             )
                             .setEntries(
                                 listOf(
@@ -904,8 +1232,80 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_PRIVATE_PROFILE_SUPPORTED)
+    @EnsureHasPrivateProfile(installInstrumentedApp = TRUE)
+    fun getSafetyCenterData_afterPrivateProfileRemoved_returnsDefaultData() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
+        val privateSafetyCenterManager =
+            getSafetyCenterManagerForUser(deviceState.privateProfile().userHandle())
+        val safetyCenterDataWithPrivateProfile =
+            SafetyCenterData(
+                safetyCenterTestData.safetyCenterStatusUnknown,
+                emptyList(),
+                listOf(
+                    SafetyCenterEntryOrGroup(
+                        SafetyCenterEntryGroup.Builder(SINGLE_SOURCE_GROUP_ID, "OK")
+                            .setSeverityLevel(ENTRY_SEVERITY_LEVEL_UNKNOWN)
+                            .setSummary(
+                                safetyCenterResourcesApk.getStringByName("group_unknown_summary")
+                            )
+                            .setEntries(
+                                listOf(
+                                    safetyCenterTestData.safetyCenterEntryDefault(
+                                        SINGLE_SOURCE_ALL_PROFILE_ID
+                                    ),
+                                    safetyCenterTestData.safetyCenterEntryDefault(
+                                        SINGLE_SOURCE_ALL_PROFILE_ID,
+                                        deviceState.privateProfile().id(),
+                                        title = "Unknown",
+                                        pendingIntent =
+                                            createTestActivityRedirectPendingIntentForUser(
+                                                deviceState.privateProfile().userHandle()
+                                            )
+                                    )
+                                )
+                            )
+                            .setSeverityUnspecifiedIconType(
+                                SEVERITY_UNSPECIFIED_ICON_TYPE_NO_RECOMMENDATION
+                            )
+                            .build()
+                    )
+                ),
+                emptyList()
+            )
+
+        checkState(
+            safetyCenterManager.getSafetyCenterDataWithPermission() ==
+                safetyCenterDataWithPrivateProfile
+        )
+        checkState(
+            privateSafetyCenterManager.getSafetyCenterDataWithInteractAcrossUsersPermission() ==
+                safetyCenterDataWithPrivateProfile
+        )
+
+        deviceState.privateProfile().remove()
+
+        val safetyCenterDataForPrimaryUser =
+            SafetyCenterData(
+                safetyCenterTestData.safetyCenterStatusUnknown,
+                emptyList(),
+                listOf(
+                    SafetyCenterEntryOrGroup(
+                        safetyCenterTestData.safetyCenterEntryDefault(SINGLE_SOURCE_ALL_PROFILE_ID)
+                    )
+                ),
+                emptyList()
+            )
+        assertThat(safetyCenterManager.getSafetyCenterDataWithPermission())
+            .isEqualTo(safetyCenterDataForPrimaryUser)
+        assertThat(
+                privateSafetyCenterManager.getSafetyCenterDataWithInteractAcrossUsersPermission()
+            )
+            .isEqualTo(SafetyCenterTestData.DEFAULT)
+    }
+
+    @Test
     @EnsureHasAdditionalUser(installInstrumentedApp = TRUE)
-    @Postsubmit(reason = "Test takes too much time to setup")
     fun getSafetyCenterData_afterAdditionalUserRemoved_returnsDefaultData() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
         val additionalUserSafetyCenterManager =
@@ -926,7 +1326,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun setSafetySourceData_primaryProfileIssueOnlySource_shouldNotBeAbleToSetDataToWorkProfile() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.issueOnlySourceConfig)
@@ -944,7 +1343,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun setSafetySourceData_withoutInteractAcrossUserPermission_shouldThrowError() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
@@ -962,7 +1360,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun setSafetySourceData_withoutAppInstalledForWorkProfile_shouldNoOp() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
@@ -984,7 +1381,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun setSafetySourceData_withRemovedProfile_shouldNoOp() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
@@ -1006,7 +1402,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasCloneProfile(installInstrumentedApp = TRUE)
     fun setSafetySourceData_withUnsupportedProfile_shouldNoOp() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
@@ -1027,10 +1422,7 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
-    @Ignore
-    // Test involving toggling of quiet mode are flaky.
     fun setSafetySourceData_withProfileInQuietMode_shouldSetData() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
         val dataForWork = safetySourceTestData.informationWithIssueForWork
@@ -1051,7 +1443,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun setSafetySourceData_issuesOnlySourceWithWorkProfile_shouldBeAbleToSetData() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.issueOnlySourceAllProfileConfig)
@@ -1079,7 +1470,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun setSafetySourceData_primaryProfileSource_shouldNotBeAbleToSetDataToWorkProfile() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
@@ -1096,7 +1486,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
     fun setSafetySourceData_sourceWithWorkProfile_shouldBeAbleToSetData() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
@@ -1122,7 +1511,32 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
+    @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
+    fun setSafetySourceData_notificationsAllowed_workProfile_sendsNotification() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
+        SafetyCenterFlags.notificationsEnabled = true
+        SafetyCenterFlags.notificationsAllowedSources = setOf(SINGLE_SOURCE_ALL_PROFILE_ID)
+        SafetyCenterFlags.immediateNotificationBehaviorIssues =
+            setOf("$SINGLE_SOURCE_ALL_PROFILE_ID/$ISSUE_TYPE_ID")
+        val dataForWork = safetySourceTestData.informationWithIssueForWork
+        val managedSafetyCenterManager =
+            getSafetyCenterManagerForUser(deviceState.workProfile().userHandle())
+
+        managedSafetyCenterManager.setSafetySourceDataWithInteractAcrossUsersPermission(
+            SINGLE_SOURCE_ALL_PROFILE_ID,
+            dataForWork
+        )
+
+        TestNotificationListener.waitForNotificationsMatching(
+            NotificationCharacteristics(
+                title = "Information issue title",
+                text = "Information issue summary",
+                actions = listOf("Review")
+            )
+        )
+    }
+
+    @Test
     @EnsureHasAdditionalUser(installInstrumentedApp = TRUE)
     fun setSafetySourceData_forStoppedUser_shouldSetData() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
@@ -1144,7 +1558,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasAdditionalUser(installInstrumentedApp = TRUE)
     fun setSafetySourceData_forBothPrimaryAdditionalUser_shouldSetData() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
@@ -1170,7 +1583,6 @@ class SafetyCenterMultiUsersTest {
     }
 
     @Test
-    @Postsubmit(reason = "Test takes too much time to setup")
     @EnsureHasAdditionalUser(installInstrumentedApp = TRUE)
     fun setSafetySourceData_forAdditionalUser_shouldNotAffectDataForPrimaryUser() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
@@ -1190,8 +1602,6 @@ class SafetyCenterMultiUsersTest {
 
     private fun findWorkPolicyInfo() {
         context.launchSafetyCenterActivity {
-            // TODO(b/233188021): This needs to use the Enterprise API to override the "work"
-            //  keyword.
             waitAllTextDisplayed("Your work policy info", "Settings managed by your IT admin")
         }
     }
@@ -1207,11 +1617,14 @@ class SafetyCenterMultiUsersTest {
         }
     }
 
-    private fun createTestActivityRedirectPendingIntentForUser(user: UserHandle): PendingIntent {
+    private fun createTestActivityRedirectPendingIntentForUser(
+        user: UserHandle,
+        explicit: Boolean = true
+    ): PendingIntent {
         return callWithShellPermissionIdentity(INTERACT_ACROSS_USERS) {
             SafetySourceTestData.createRedirectPendingIntent(
                 getContextForUser(user),
-                Intent(ACTION_TEST_ACTIVITY)
+                SafetySourceTestData.createTestActivityIntent(getContextForUser(user), explicit)
             )
         }
     }
@@ -1238,21 +1651,33 @@ class SafetyCenterMultiUsersTest {
             getSafetyCenterDataWithPermission()
         }
 
-    private fun setQuietMode(value: Boolean) {
-        deviceState.workProfile().setQuietMode(value)
-        inQuietMode = value
-    }
-
-    private fun resetQuietMode() {
-        if (!inQuietMode) {
+    private fun setQuietMode(enableQuietMode: Boolean) {
+        if (inQuietMode == enableQuietMode) {
             return
         }
-        setQuietMode(false)
+        if (enableQuietMode) {
+            deviceState.workProfile().setQuietMode(true)
+        } else {
+            // This is needed to ensure the refresh broadcast doesn't leak onto other tests.
+            disableQuietModeAndWaitForRefreshToComplete()
+        }
+        inQuietMode = enableQuietMode
+    }
+
+    private fun disableQuietModeAndWaitForRefreshToComplete() {
+        val listener = safetyCenterTestHelper.addListener()
+        deviceState.workProfile().setQuietMode(false)
+        listener.waitForSafetyCenterRefresh()
     }
 
     private fun safetyCenterEntryOkForWork(sourceId: String, managedUserId: Int) =
         safetyCenterTestData
             .safetyCenterEntryOkBuilder(sourceId, managedUserId, title = "Ok title for Work")
+            .build()
+
+    private fun safetyCenterEntryOkForPrivate(sourceId: String, managedUserId: Int) =
+        safetyCenterTestData
+            .safetyCenterEntryOkBuilder(sourceId, managedUserId, title = "Ok title for Private")
             .build()
 
     private fun updatePrimaryProfileSources() {
@@ -1303,6 +1728,31 @@ class SafetyCenterMultiUsersTest {
             safetySourceTestData.unspecifiedWithIssueForWork
         )
         managedSafetyCenterManager.setSafetySourceDataWithInteractAcrossUsersPermission(
+            ISSUE_ONLY_IN_STATELESS_ID,
+            SafetySourceTestData.issuesOnly(safetySourceTestData.informationIssue)
+        )
+    }
+
+    private fun updatePrivateProfileSources() {
+        val privateSafetyCenterManager =
+            getSafetyCenterManagerForUser(deviceState.privateProfile().userHandle())
+        privateSafetyCenterManager.setSafetySourceDataWithInteractAcrossUsersPermission(
+            DYNAMIC_DISABLED_ID,
+            safetySourceTestData.informationWithIssueForPrivate
+        )
+        privateSafetyCenterManager.setSafetySourceDataWithInteractAcrossUsersPermission(
+            DYNAMIC_HIDDEN_ID,
+            safetySourceTestData.informationWithIssueForPrivate
+        )
+        privateSafetyCenterManager.setSafetySourceDataWithInteractAcrossUsersPermission(
+            ISSUE_ONLY_ALL_OPTIONAL_ID,
+            SafetySourceTestData.issuesOnly(safetySourceTestData.informationIssue)
+        )
+        privateSafetyCenterManager.setSafetySourceDataWithInteractAcrossUsersPermission(
+            DYNAMIC_IN_STATELESS_ID,
+            safetySourceTestData.unspecifiedWithIssueForPrivate
+        )
+        privateSafetyCenterManager.setSafetySourceDataWithInteractAcrossUsersPermission(
             ISSUE_ONLY_IN_STATELESS_ID,
             SafetySourceTestData.issuesOnly(safetySourceTestData.informationIssue)
         )

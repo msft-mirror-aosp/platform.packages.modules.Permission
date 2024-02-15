@@ -34,11 +34,11 @@ import androidx.preference.Preference;
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.permission.utils.CollectionUtils;
 import com.android.permissioncontroller.permission.utils.Utils;
-import com.android.permissioncontroller.role.model.VisibilityMixin;
 import com.android.permissioncontroller.role.ui.TwoTargetPreference;
 import com.android.permissioncontroller.role.utils.UserUtils;
-import com.android.role.controller.behavior.HomeRoleBehavior;
 import com.android.role.controller.model.Role;
+
+import java.util.List;
 
 /***
  * Class for UI behavior of Home role
@@ -48,16 +48,9 @@ public class HomeRoleUiBehavior implements RoleUiBehavior {
     private static final String LOG_TAG = HomeRoleUiBehavior.class.getSimpleName();
 
     @Override
-    public boolean isVisibleAsUser(@NonNull Role role, @NonNull UserHandle user,
-            @NonNull Context context) {
-        return VisibilityMixin.isVisible("config_showDefaultHome", context);
-    }
-
-    @Override
     public void preparePreferenceAsUser(@NonNull Role role, @NonNull TwoTargetPreference preference,
-            @NonNull UserHandle user, @NonNull Context context) {
-        RoleUiBehavior.super.preparePreferenceAsUser(role, preference, user, context);
-
+            @NonNull List<ApplicationInfo> applicationInfos, @NonNull UserHandle user,
+            @NonNull Context context) {
         TwoTargetPreference.OnSecondTargetClickListener listener = null;
         RoleManager roleManager = context.getSystemService(RoleManager.class);
         String packageName = CollectionUtils.firstOrNull(roleManager.getRoleHoldersAsUser(
@@ -84,20 +77,9 @@ public class HomeRoleUiBehavior implements RoleUiBehavior {
     }
 
     @Override
-    public boolean isApplicationVisibleAsUser(@NonNull Role role,
-            @NonNull ApplicationInfo applicationInfo, @NonNull UserHandle user,
-            @NonNull Context context) {
-        // Home is not available for work profile, so we can just use the current user.
-        return !HomeRoleBehavior.isSettingsApplication(applicationInfo, context);
-    }
-
-    @Override
     public void prepareApplicationPreferenceAsUser(@NonNull Role role,
             @NonNull Preference preference, @NonNull ApplicationInfo applicationInfo,
             @NonNull UserHandle user, @NonNull Context context) {
-        RoleUiBehavior.super.prepareApplicationPreferenceAsUser(
-                    role, preference, applicationInfo, user, context);
-
         boolean missingWorkProfileSupport = isMissingWorkProfileSupport(applicationInfo, context);
         if (preference.isEnabled()) {
             preference.setEnabled(!missingWorkProfileSupport);

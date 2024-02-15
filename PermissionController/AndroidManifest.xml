@@ -4,8 +4,8 @@
   xmlns:tools="http://schemas.android.com/tools"
   package="com.android.permissioncontroller"
   coreApp="true"
-  android:versionCode="330000000"
-  android:versionName="33 system image"
+  android:versionCode="350001000"
+  android:versionName="frc_350001000"
 >
 
     <original-package android:name="com.android.permissioncontroller" />
@@ -66,6 +66,8 @@
     <uses-permission android:name="android.permission.START_TASKS_FROM_RECENTS" />
     <uses-permission android:name="android.permission.READ_APP_SPECIFIC_LOCALES" />
     <uses-permission android:name="android.permission.GET_APP_METADATA" />
+    <uses-permission android:name="android.permission.NFC_PREFERRED_PAYMENT_INFO" />
+    <uses-permission android:name="android.permission.MANAGE_ENHANCED_CONFIRMATION_STATES" />
 
     <application android:name="com.android.permissioncontroller.PermissionControllerApplication"
             android:label="@string/app_name"
@@ -270,8 +272,7 @@
                   android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
                   android:visibleToInstantApps="true"
                   android:inheritShowWhenLocked="true"
-                  android:hardwareAccelerated="false"
-                  android:canDisplayOnRemoteDevices="false">
+                  android:canDisplayOnRemoteDevices="@bool/is_at_least_v">
             <intent-filter android:priority="1">
                 <action android:name="android.content.pm.action.REQUEST_PERMISSIONS" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -291,7 +292,7 @@
                   android:visibleToInstantApps="true"
                   android:inheritShowWhenLocked="true"
                   android:hardwareAccelerated="false"
-                  android:canDisplayOnRemoteDevices="false">
+                  android:canDisplayOnRemoteDevices="@bool/is_at_least_v">
         </activity>
 
         <activity android:name="com.android.permissioncontroller.permission.ui.ManagePermissionsActivity"
@@ -399,6 +400,7 @@
         <activity android:name="com.android.permissioncontroller.role.ui.RequestRoleActivity"
                   android:excludeFromRecents="true"
                   android:exported="true"
+                  android:launchMode="singleTop"
                   android:theme="@style/RequestRole.FilterTouches">
             <intent-filter android:priority="1">
                 <action android:name="android.app.role.action.REQUEST_ROLE" />
@@ -472,6 +474,18 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="com.android.permissioncontroller.role.ui.ChangeDefaultCardEmulationActivity"
+            android:enabled="@bool/is_at_least_v"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:exported="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter android:priority="1001">
+                <action android:name="android.nfc.cardemulation.action.ACTION_CHANGE_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <provider android:name="com.android.permissioncontroller.permission.service.PermissionSearchIndexablesProvider"
             android:authorities="com.android.permissioncontroller"
             android:multiprocess="false"
@@ -521,7 +535,7 @@
             </intent-filter>
         </service>
 
-        <service android:name="com.android.permissioncontroller.role.service.RoleControllerServiceImpl"
+        <service android:name="com.android.role.controller.service.RoleControllerServiceImpl"
                  android:exported="true">
             <intent-filter android:priority="1">
                 <action android:name="android.app.role.RoleControllerService"/>
@@ -577,7 +591,7 @@
         </receiver>
 
         <activity android:name="com.android.permissioncontroller.incident.ConfirmationActivity"
-                android:theme="@style/Theme.DeviceDefault.Dialog.NoActionBar.DayNight"
+                android:theme="@style/Theme.PermissionController.IncidentReportDialog"
                 android:exported="false"
                 android:excludeFromRecents="true"
                 android:finishOnCloseSystemDialogs="true"
@@ -593,6 +607,7 @@
             android:name="com.android.permissioncontroller.safetycenter.ui.SafetyCenterActivity"
             android:enabled="@bool/is_at_least_t"
             android:exported="true"
+            android:enableOnBackInvokedCallback="true"
             android:theme="@style/Theme.SafetyCenter">
             <intent-filter android:priority="1">
                 <action android:name="android.intent.action.SAFETY_CENTER"/>
@@ -606,8 +621,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Unexported empty activity for in-process tests -->
-        <activity android:name="android.app.Activity" />
     </application>
 
 </manifest>

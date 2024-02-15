@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package {
+    default_team: "trendy_team_android_permissions",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
@@ -26,6 +27,7 @@ java_library {
     ],
     static_libs: [
         "modules-utils-build_system",
+        "android.permission.flags-aconfig-java",
     ],
     apex_available: [
         "com.android.permission",
@@ -34,4 +36,7 @@ java_library {
     installable: false,
     min_sdk_version: "30",
     sdk_version: "system_current",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }

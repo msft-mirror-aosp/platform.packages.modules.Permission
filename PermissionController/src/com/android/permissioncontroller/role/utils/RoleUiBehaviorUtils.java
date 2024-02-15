@@ -16,20 +16,27 @@
 
 package com.android.permissioncontroller.role.utils;
 
+import android.app.ecm.EnhancedConfirmationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.os.Process;
+import android.content.pm.PackageManager;
 import android.os.UserHandle;
+import android.os.UserManager;
+import android.permission.flags.Flags;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.preference.Preference;
 
-import com.android.permissioncontroller.role.ui.TwoTargetPreference;
+import com.android.modules.utils.build.SdkLevel;
+import com.android.permissioncontroller.role.ui.RestrictionAwarePreference;
+import com.android.permissioncontroller.role.ui.RoleApplicationPreference;
+import com.android.permissioncontroller.role.ui.RolePreference;
 import com.android.permissioncontroller.role.ui.behavior.RoleUiBehavior;
 import com.android.role.controller.model.Role;
+
+import java.util.List;
 
 /**
  * Utility methods for Role UI behavior
@@ -60,30 +67,6 @@ public final class RoleUiBehaviorUtils {
     }
 
     /**
-     * @see RoleUiBehavior#isVisibleAsUser
-     */
-    public static boolean isVisibleAsUser(@NonNull Role role, @NonNull UserHandle user,
-            @NonNull Context context) {
-        RoleUiBehavior uiBehavior = getUiBehavior(role);
-        if (uiBehavior == null) {
-            return role.isVisible();
-        }
-        return role.isVisible() && uiBehavior.isVisibleAsUser(role, user, context);
-    }
-
-    /**
-     * Check whether this role should be visible to user, for current user.
-     *
-     * @param context the `Context` to retrieve system services
-     *
-     * @return whether this role should be visible to user.
-     */
-    public static boolean isVisible(@NonNull Role role, @NonNull Context context) {
-        return isVisibleAsUser(role, Process.myUserHandle(), context);
-    }
-
-
-    /**
      * @see RoleUiBehavior#getManageIntentAsUser
      */
     @Nullable
@@ -100,40 +83,83 @@ public final class RoleUiBehaviorUtils {
      * @see RoleUiBehavior#preparePreferenceAsUser
      */
     public static void preparePreferenceAsUser(@NonNull Role role,
-            @NonNull TwoTargetPreference preference, @NonNull UserHandle user,
-            @NonNull Context context) {
+            @NonNull List<ApplicationInfo> applicationInfos, @NonNull RolePreference preference,
+            @NonNull UserHandle user, @NonNull Context context) {
+        prepareUserRestrictionAwarePreferenceAsUser(role, preference, user, context);
+
         RoleUiBehavior uiBehavior = getUiBehavior(role);
         if (uiBehavior == null) {
             return;
         }
-        uiBehavior.preparePreferenceAsUser(role, preference, user, context);
-    }
-
-    /**
-     * @see RoleUiBehavior#isApplicationVisibleAsUser
-     */
-    public static boolean isApplicationVisibleAsUser(@NonNull Role role,
-            @NonNull ApplicationInfo applicationInfo, @NonNull UserHandle user,
-            @NonNull Context context) {
-        RoleUiBehavior uiBehavior = getUiBehavior(role);
-        if (uiBehavior == null) {
-            return true;
-        }
-        return uiBehavior.isApplicationVisibleAsUser(role, applicationInfo, user, context);
+        uiBehavior.preparePreferenceAsUser(role, preference, applicationInfos, user, context);
     }
 
     /**
      * @see RoleUiBehavior#prepareApplicationPreferenceAsUser
      */
     public static void prepareApplicationPreferenceAsUser(@NonNull Role role,
-            @NonNull Preference preference, @NonNull ApplicationInfo applicationInfo,
-            @NonNull UserHandle user, @NonNull Context context) {
+            @NonNull RoleApplicationPreference preference,
+            @NonNull ApplicationInfo applicationInfo, @NonNull UserHandle user,
+            @NonNull Context context) {
+        prepareUserRestrictionAwarePreferenceAsUser(role, preference, user, context);
+        prepareEnhancedConfirmationRestrictionAwarePreferenceAsUser(role, preference,
+                applicationInfo.packageName, user, context);
         RoleUiBehavior uiBehavior = getUiBehavior(role);
         if (uiBehavior == null) {
             return;
         }
-        uiBehavior.prepareApplicationPreferenceAsUser(role, preference, applicationInfo, user,
+        uiBehavior.prepareApplicationPreferenceAsUser(
+                role, preference.asTwoStatePreference(), applicationInfo, user,
                 context);
+    }
+
+    private static void prepareUserRestrictionAwarePreferenceAsUser(@NonNull Role role,
+            @NonNull RestrictionAwarePreference preference, @NonNull UserHandle user,
+            @NonNull Context context) {
+        if (SdkLevel.isAtLeastU() && role.isExclusive()) {
+            UserManager userManager = context.getSystemService(UserManager.class);
+            boolean hasDisallowConfigDefaultApps = userManager.hasUserRestrictionForUser(
+                    UserManager.DISALLOW_CONFIG_DEFAULT_APPS, user);
+            preference.setUserRestriction(hasDisallowConfigDefaultApps
+                    ? UserManager.DISALLOW_CONFIG_DEFAULT_APPS : null, user);
+        }
+    }
+
+    private static void prepareEnhancedConfirmationRestrictionAwarePreferenceAsUser(
+            @NonNull Role role, @NonNull RestrictionAwarePreference preference,
+            @NonNull String packageName, @NonNull UserHandle user, @NonNull Context context) {
+        if (isEnhancedConfirmationRestrictedAsUser(packageName, role.getName(), user, context)) {
+            preference.setEnhancedConfirmationRestriction(packageName, role.getName(), user);
+        } else {
+            preference.setEnhancedConfirmationRestriction(null, null, user);
+        }
+    }
+
+    /**
+     * This method checks if the package is restricted from a specific role with the given user.
+     *
+     * @param packageName the package name to check for
+     * @param user the user to check for
+     * @param context the {@code Context} to retrieve system services
+     *
+     * @return whether the package is restricted for a role
+     */
+    private static boolean isEnhancedConfirmationRestrictedAsUser(@NonNull String packageName,
+            @NonNull String roleName, @NonNull UserHandle user, @NonNull Context context) {
+        if (SdkLevel.isAtLeastV()
+                && Flags.enhancedConfirmationModeApisEnabled()) {
+            Context userContext = UserUtils.getUserContext(context, user);
+            EnhancedConfirmationManager enhancedConfirmationManager =
+                    userContext.getSystemService(EnhancedConfirmationManager.class);
+            try {
+                if (enhancedConfirmationManager.isRestricted(packageName, roleName)) {
+                    return true;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.w(LOG_TAG, "Cannot find package name:" + packageName, e);
+            }
+        }
+        return false;
     }
 
     /**

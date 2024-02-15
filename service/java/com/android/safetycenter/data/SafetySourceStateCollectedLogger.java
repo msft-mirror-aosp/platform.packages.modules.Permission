@@ -16,10 +16,7 @@
 
 package com.android.safetycenter.data;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import android.annotation.ElapsedRealtimeLong;
-import android.annotation.Nullable;
 import android.content.Context;
 import android.safetycenter.SafetyCenterManager;
 import android.safetycenter.SafetyEvent;
@@ -27,11 +24,12 @@ import android.safetycenter.SafetySourceData;
 import android.safetycenter.SafetySourceIssue;
 import android.safetycenter.SafetySourceStatus;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
-import com.android.permission.util.UserUtils;
 import com.android.safetycenter.SafetySourceIssueInfo;
 import com.android.safetycenter.SafetySourceKey;
+import com.android.safetycenter.UserProfileGroup;
+import com.android.safetycenter.UserProfileGroup.ProfileType;
 import com.android.safetycenter.internaldata.SafetyCenterIssueKey;
 import com.android.safetycenter.logging.SafetyCenterStatsdLogger;
 
@@ -44,7 +42,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  * Collates information from various data-related classes and uses that information to log {@code
  * SafetySourceStateCollected} atoms.
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 final class SafetySourceStateCollectedLogger {
 
@@ -67,13 +64,13 @@ final class SafetySourceStateCollectedLogger {
     /**
      * Writes a SafetySourceStateCollected atom for the given source in response to a stats pull.
      */
-    void writeAutomaticAtom(SafetySourceKey sourceKey, boolean isManagedProfile) {
+    void writeAutomaticAtom(SafetySourceKey sourceKey, @ProfileType int profileType) {
         logSafetySourceStateCollected(
                 sourceKey,
                 mSourceDataRepository.getSafetySourceData(sourceKey),
                 /* refreshReason= */ null,
                 /* sourceDataDiffers= */ false,
-                isManagedProfile,
+                profileType,
                 /* safetyEvent= */ null,
                 mSourceDataRepository.getSafetySourceLastUpdated(sourceKey));
     }
@@ -94,7 +91,7 @@ final class SafetySourceStateCollectedLogger {
                 safetySourceData,
                 refreshReason,
                 sourceDataDiffers,
-                UserUtils.isManagedProfile(userId, mContext),
+                UserProfileGroup.getProfileTypeOfUser(userId, mContext),
                 safetyEvent,
                 /* lastUpdatedElapsedTimeMillis= */ null);
     }
@@ -104,7 +101,7 @@ final class SafetySourceStateCollectedLogger {
             @Nullable SafetySourceData sourceData,
             @Nullable @SafetyCenterManager.RefreshReason Integer refreshReason,
             boolean sourceDataDiffers,
-            boolean isManagedProfile,
+            @ProfileType int profileType,
             @Nullable SafetyEvent safetyEvent,
             @Nullable @ElapsedRealtimeLong Long lastUpdatedElapsedTimeMillis) {
         SafetySourceStatus sourceStatus = sourceData == null ? null : sourceData.getStatus();
@@ -132,10 +129,11 @@ final class SafetySourceStateCollectedLogger {
             }
         }
 
+        Integer severityLevel = maxSeverityLevel > Integer.MIN_VALUE ? maxSeverityLevel : null;
         SafetyCenterStatsdLogger.writeSafetySourceStateCollected(
                 sourceKey.getSourceId(),
-                isManagedProfile,
-                maxSeverityLevel > Integer.MIN_VALUE ? maxSeverityLevel : null,
+                profileType,
+                severityLevel,
                 openIssuesCount,
                 dismissedIssuesCount,
                 getDuplicateCount(sourceKey),

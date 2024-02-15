@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.os.Process;
+import android.os.UserManager;
 import android.provider.Telephony;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
@@ -32,11 +33,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
+import com.android.permissioncontroller.DeviceUtils;
 import com.android.permissioncontroller.PermissionControllerStatsLog;
 import com.android.permissioncontroller.permission.utils.CollectionUtils;
 import com.android.permissioncontroller.role.model.UserDeniedManager;
+import com.android.permissioncontroller.role.ui.wear.WearRequestRoleFragment;
 import com.android.permissioncontroller.role.utils.PackageUtils;
-import com.android.permissioncontroller.role.utils.RoleUiBehaviorUtils;
 import com.android.role.controller.model.Role;
 import com.android.role.controller.model.Roles;
 
@@ -102,7 +104,7 @@ public class RequestRoleActivity extends FragmentActivity {
             return;
         }
 
-        if (!role.isAvailable(this)) {
+        if (!role.isAvailableAsUser(Process.myUserHandle(), this)) {
             Log.e(LOG_TAG, "Role is unavailable: " + mRoleName);
             reportRequestResult(
                     PermissionControllerStatsLog.ROLE_REQUEST_RESULT_REPORTED__RESULT__IGNORED);
@@ -110,7 +112,7 @@ public class RequestRoleActivity extends FragmentActivity {
             return;
         }
 
-        if (!RoleUiBehaviorUtils.isVisible(role, this)) {
+        if (!role.isVisibleAsUser(Process.myUserHandle(), this)) {
             Log.e(LOG_TAG, "Role is invisible: " + mRoleName);
             reportRequestResult(
                     PermissionControllerStatsLog.ROLE_REQUEST_RESULT_REPORTED__RESULT__IGNORED);
@@ -154,7 +156,17 @@ public class RequestRoleActivity extends FragmentActivity {
             return;
         }
 
-        if (!role.isPackageQualified(mPackageName, this)) {
+        UserManager userManager = getSystemService(UserManager.class);
+        if (userManager.hasUserRestriction(UserManager.DISALLOW_CONFIG_DEFAULT_APPS)) {
+            Log.w(LOG_TAG, "Cannot request role due to user restriction"
+                    + " DISALLOW_CONFIG_DEFAULT_APPS, role: " + mRoleName);
+            reportRequestResult(PermissionControllerStatsLog
+                    .ROLE_REQUEST_RESULT_REPORTED__RESULT__IGNORED_USER_RESTRICTION);
+            finish();
+            return;
+        }
+
+        if (!role.isPackageQualifiedAsUser(mPackageName, Process.myUserHandle(), this)) {
             Log.w(LOG_TAG, "Application doesn't qualify for role, role: " + mRoleName
                     + ", package: " + mPackageName);
             reportRequestResult(PermissionControllerStatsLog
@@ -173,10 +185,19 @@ public class RequestRoleActivity extends FragmentActivity {
         }
 
         if (savedInstanceState == null) {
-            RequestRoleFragment fragment = RequestRoleFragment.newInstance(mRoleName, mPackageName);
-            getSupportFragmentManager().beginTransaction()
-                    .add(fragment, null)
-                    .commit();
+            if (DeviceUtils.isWear(this)) {
+                WearRequestRoleFragment fragment = WearRequestRoleFragment.newInstance(
+                        mRoleName, mPackageName);
+                getSupportFragmentManager().beginTransaction()
+                        .add(android.R.id.content, fragment)
+                        .commit();
+            } else {
+                RequestRoleFragment fragment = RequestRoleFragment.newInstance(mRoleName,
+                        mPackageName);
+                getSupportFragmentManager().beginTransaction()
+                        .add(fragment, null)
+                        .commit();
+            }
         }
     }
 
@@ -290,5 +311,12 @@ public class RequestRoleActivity extends FragmentActivity {
             return -1;
         }
         return applicationInfo.uid;
+    }
+
+    @Override
+    protected void onNewIntent(@NonNull Intent intent) {
+        super.onNewIntent(intent);
+
+        Log.w(LOG_TAG, "Ignoring new intent: " + intent);
     }
 }

@@ -15,6 +15,7 @@
 //
 
 package {
+    default_team: "trendy_team_safety_center",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
@@ -41,11 +42,12 @@ android_test {
         "safety-center-pending-intents",
         "safety-center-test-util-lib",
         "modules-utils-build",
-        "truth-prebuilt",
+        "truth",
     ],
     test_suites: [
         "cts",
         "general-tests",
         "mts-permission",
+        "mcts-permission",
     ],
 }

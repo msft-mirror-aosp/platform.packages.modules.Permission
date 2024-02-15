@@ -34,6 +34,7 @@
     <string name="grant_dialog_button_more_info" msgid="213350268561945193">"추가 정보"</string>
     <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"모두 허용"</string>
     <string name="grant_dialog_button_always_allow_all" msgid="1719900027660252167">"항상 모두 허용"</string>
+    <string name="grant_dialog_button_allow_limited_access" msgid="5713551784422137594">"제한된 액세스 허용"</string>
     <string name="grant_dialog_button_allow_selected_photos" msgid="5497042471576153842">"사진 및 동영상 선택"</string>
     <string name="grant_dialog_button_allow_more_selected_photos" msgid="5145657877588697709">"더보기 선택"</string>
     <string name="grant_dialog_button_dont_select_more" msgid="6643552729129461268">"추가 선택 안함"</string>
@@ -60,6 +61,7 @@
     <string name="app_permissions_breadcrumb" msgid="5136969550489411650">"앱"</string>
     <string name="app_permissions" msgid="3369917736607944781">"앱 권한"</string>
     <string name="unused_apps" msgid="2058057455175955094">"사용하지 않는 앱"</string>
+    <string name="edit_photos_description" msgid="5540108003480078892">"이 앱에서 액세스할 수 있는 사진 변경"</string>
     <string name="no_unused_apps" msgid="12809387670415295">"사용하지 않는 앱 없음"</string>
     <string name="zero_unused_apps" msgid="9024448554157499748">"사용하지 않는 앱 0개"</string>
     <string name="review_permission_decisions" msgid="309559429150613632">"최근 권한 결정"</string>
@@ -114,8 +116,6 @@
     <string name="all_permissions" msgid="6911125611996872522">"모든 권한"</string>
     <string name="other_permissions" msgid="2901186127193849594">"다른 앱 기능"</string>
     <string name="permission_request_title" msgid="8790310151025020126">"권한 요청"</string>
-    <string name="wear_not_allowed_dlg_title" msgid="1429467891296932713">"Android Wear"</string>
-    <string name="wear_not_allowed_dlg_text" msgid="512340555334769098">"Wear에서는 설치/제거 작업이 지원되지 않습니다"</string>
     <string name="permission_review_title_template_install" msgid="1284337937156289081">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 액세스하도록 허용할 항목 선택"</string>
     <string name="permission_review_title_template_update" msgid="3232333580548588657">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;이(가) 업데이트되었습니다. 이 앱에서 액세스하도록 허용할 항목을 선택하세요."</string>
     <string name="review_button_cancel" msgid="2191147944056548886">"취소"</string>
@@ -204,7 +204,9 @@
     <string name="auto_revoke_label" msgid="5068393642936571656">"앱이 사용되지 않는 경우 권한 삭제"</string>
     <string name="unused_apps_label" msgid="2595428768404901064">"권한을 삭제하고 여유 공간 확보"</string>
     <string name="unused_apps_label_v2" msgid="7058776770056517980">"사용하지 않을 때 앱 활동 일시중지"</string>
+    <string name="unused_apps_label_v3" msgid="693340578642156657">"사용하지 않는 앱 관리"</string>
     <string name="unused_apps_summary" msgid="8839466950318403115">"권한 제거, 임시 파일 삭제, 알림 중지"</string>
+    <string name="unused_apps_summary_v2" msgid="5011313200815115802">"권한 제거, 임시 파일 삭제, 알림 중지, 앱 보관처리"</string>
     <string name="auto_revoke_summary" msgid="5867548789805911683">"데이터 보호를 위해 몇 개월 동안 앱을 사용하지 않으면 앱의 권한이 삭제됩니다."</string>
     <string name="auto_revoke_summary_with_permissions" msgid="389712086597285013">"데이터 보호를 위해 몇 개월 동안 앱을 사용하지 않으면 다음 권한이 삭제됩니다. <xliff:g id="PERMS">%1$s</xliff:g>"</string>
     <string name="auto_revoked_apps_page_summary" msgid="6594753657893756536">"데이터 보호를 위해 몇 개월 동안 사용하지 않은 앱에서 권한이 삭제되었습니다."</string>
@@ -226,7 +228,7 @@
     <string name="last_opened_summary_short" msgid="1646067226191176825">"마지막 실행 날짜: <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="app_permission_footer_special_file_access" msgid="1884202176147657788">"모든 파일 관리를 허용하면 앱이 이 기기의 공통 저장용량 또는 연결된 저장장치에 있는 모든 파일에 액세스하거나 이러한 파일을 수정, 삭제할 수 있습니다. 앱이 사용자에게 요청하지 않고도 파일에 액세스할 수 있습니다."</string>
     <string name="special_file_access_dialog" msgid="583804114020740610">"앱이 이 기기 또는 연결된 저장장치에 있는 파일에 액세스하거나 이러한 파일을 수정, 삭제하도록 허용하시겠습니까? 앱이 사용자에게 요청하지 않고도 파일에 액세스할 수 있습니다."</string>
-    <string name="permission_description_summary_generic" msgid="5401399408814903391">"이 권한이 있는 앱은 <xliff:g id="DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="permission_description_summary_generic" msgid="5401399408814903391">"이 권한이 있는 앱은 다음 작업을 할 수 있습니다: <xliff:g id="DESCRIPTION">%1$s</xliff:g>"</string>
     <string name="permission_description_summary_activity_recognition" msgid="2652850576497070146">"이 권한이 있는 앱은 걷기, 자전거 타기, 운전, 걸음 수 등 내 신체 활동 정보에 액세스할 수 있습니다."</string>
     <string name="permission_description_summary_calendar" msgid="103329982944411010">"이 권한이 있는 앱은 내 캘린더에 액세스할 수 있습니다."</string>
     <string name="permission_description_summary_call_log" msgid="7321437186317577624">"이 권한이 있는 앱은 전화 통화 기록을 읽고 쓸 수 있습니다."</string>
@@ -349,7 +351,7 @@
     <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"이 앱이 내 화면, 작업, 입력 내용을 보고 작업을 실행하며 디스플레이를 제어할 수 있습니다."</string>
     <string name="role_assistant_label" msgid="4727586018198208128">"기본 디지털 어시스턴트 앱"</string>
     <string name="role_assistant_short_label" msgid="3369003713187703399">"디지털 어시스턴트 앱"</string>
-    <string name="role_assistant_description" msgid="6622458130459922952">"지원 앱은 화면에 표시된 정보에 맞게 도움을 줄 수 있습니다. 일부 앱은 통합된 지원을 제공하기 위해 런처와 음성 입력 서비스를 모두 지원합니다."</string>
+    <string name="role_assistant_description" msgid="6622458130459922952">"지원 앱은 화면에 표시된 정보를 기반으로 도움을 줄 수 있습니다. 일부 앱은 통합된 지원을 제공하기 위해 런처와 음성 입력 서비스를 모두 지원합니다."</string>
     <string name="role_browser_label" msgid="2877796144554070207">"기본 브라우저 앱"</string>
     <string name="role_browser_short_label" msgid="6745009127123292296">"브라우저 앱"</string>
     <string name="role_browser_description" msgid="3465253637499842671">"인터넷에 액세스하고 탭하는 링크를 표시하는 앱"</string>
@@ -401,6 +403,11 @@
     <string name="role_notes_short_label" msgid="8796604147546125285">"메모 앱"</string>
     <string name="role_notes_description" msgid="8496852798616883551">"이 기기에서 메모할 수 있게 해주는 앱"</string>
     <string name="role_notes_search_keywords" msgid="7710756695666744631">"메모"</string>
+    <string name="role_wallet_label" msgid="3719419175656204207">"기본 월렛 앱"</string>
+    <string name="role_wallet_short_label" msgid="6521288403762457452">"월렛 앱"</string>
+    <string name="role_wallet_description" msgid="3726535836165949838">"다양한 형태의 거래에 사용할 수 있도록 월렛 앱에 신용카드 및 포인트 카드, 자동차 키 등을 저장할 수 있습니다."</string>
+    <string name="role_wallet_request_title" msgid="4770217108262737093">"<xliff:g id="APP_NAME">%1$s</xliff:g> 앱을 기본 월렛 앱으로 설정하시겠습니까?"</string>
+    <string name="role_wallet_request_description" msgid="6305487425777483053">"권한 필요 없음"</string>
     <string name="request_role_current_default" msgid="738722892438247184">"현재 기본 앱"</string>
     <string name="request_role_dont_ask_again" msgid="3556017886029520306">"다시 묻지 않음"</string>
     <string name="request_role_set_as_default" msgid="4253949643984172880">"기본 앱으로 설정"</string>
@@ -455,48 +462,75 @@
     <string name="assistant_record_audio_user_sensitive_title" msgid="5532123360322362378">"지원 앱 트리거 감지 표시"</string>
     <string name="assistant_record_audio_user_sensitive_summary" msgid="6482937591816401619">"음성 어시스턴트 활성화를 위해 마이크가 사용되면 상태 표시줄에 아이콘 표시"</string>
     <string name="permgrouprequest_storage_isolated" msgid="4892154224026852295">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 기기의 사진 및 미디어에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_storage_isolated" msgid="5934218468708513375">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 사진과 미디어에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequest_contacts" msgid="8391550064551053695">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 내 연락처에 액세스하도록 허용하시겠습니까?"</string>
-    <string name="permgrouprequest_location" msgid="6990232580121067883">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 내 기기의 위치 정보에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_contacts" msgid="2270563860206654757">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 연락처에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_location" msgid="6990232580121067883">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 이 기기의 위치 정보에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_location" msgid="6641436550953715107">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;의 위치에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequestdetail_location" msgid="2635935335778429894">"앱을 사용할 때만 앱에서 위치에 액세스합니다."</string>
     <string name="permgroupbackgroundrequest_location" msgid="1085680897265734809">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 내 기기의 위치 정보에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_location" msgid="7660465507029650527">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>의 위치에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgroupbackgroundrequestdetail_location" msgid="8021219324989662957">"앱을 사용하고 있지 않을 때도 앱에서 내 위치에 항상 액세스하려고 할 수 있습니다. "<annotation id="link">"설정에서 액세스를 허용"</annotation>"하세요."</string>
     <string name="permgroupupgraderequest_location" msgid="8328408946822691636">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;의 위치 액세스 권한을 변경하시겠습니까?"</string>
+    <string name="permgroupupgraderequest_device_aware_location" msgid="4528266408056426513">"&lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱의 위치 액세스 권한을 변경하시겠습니까?"</string>
     <string name="permgroupupgraderequestdetail_location" msgid="1550899076845189165">"앱을 사용하고 있지 않을 때도 앱에서 내 위치에 항상 액세스하려고 합니다. "<annotation id="link">"설정에서 액세스를 허용"</annotation>"하세요."</string>
     <string name="permgrouprequest_nearby_devices" msgid="2272829282660436700">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 근처에 있는 기기를 찾아 연결하고 기기 간 상대적 위치를 파악하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_nearby_devices" msgid="7919687165848885665">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 근처 기기의 상대 위치를 찾고, 연결하고, 확인하도록 허용하시겠습니까?"</string>
     <string name="permgroupupgraderequestdetail_nearby_devices" msgid="6877531270654738614">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 근처 기기를 찾아 연결하고 기기 간 상대적 위치를 파악하도록 허용하시겠습니까? "<annotation id="link">"설정에서 허용하세요."</annotation></string>
     <string name="permgrouprequest_fineupgrade" msgid="2334242928821697672">"<xliff:g id="APP_NAME">&lt;b&gt;%1$s&lt;/b&gt;</xliff:g>의 위치 정보 액세스 권한을 대략적인 위치에서 정확한 위치로 변경하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_fineupgrade" msgid="3947134846432067176">"&lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 <xliff:g id="APP_NAME">&lt;b&gt;%1$s&lt;/b&gt;</xliff:g> 앱의 위치 액세스를 대략적인 위치에서 정확한 위치로 변경하시겠습니까?"</string>
     <string name="permgrouprequest_coarselocation" msgid="7244605063736425232">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 기기의 대략적인 위치에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_coarselocation" msgid="9001956706241104626">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;의 대략적인 위치에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequest_finelocation_imagetext" msgid="1313062433398914334">"정확한 위치"</string>
     <string name="permgrouprequest_coarselocation_imagetext" msgid="8650605041483025297">"대략적인 위치"</string>
     <string name="permgrouprequest_calendar" msgid="1493150855673603806">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 내 캘린더에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_calendar" msgid="3103987548035171850">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 캘린더에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequest_sms" msgid="5672063688745420991">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 SMS 메시지를 전송하고 보도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_sms" msgid="7212083972999874267">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 SMS 메시지를 전송하고 확인하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequest_storage" msgid="8717773092518621602">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 기기의 사진, 미디어, 파일에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_storage" msgid="872629037299467086">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 사진, 미디어, 파일에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequest_storage_q_to_s" msgid="8213701872983685505">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 기기의 &lt;b&gt;사진, 동영상, 음악, 오디오&lt;/b&gt;에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequest_storage_pre_q" msgid="168130651144569428">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 기기의 &lt;b&gt;사진, 동영상, 음악, 오디오, 기타 파일&lt;/b&gt;에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequest_read_media_aural" msgid="2593365397347577812">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 기기의 음악과 오디오에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_read_media_aural" msgid="3331524384339036668">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 음악과 오디오에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequest_read_media_visual" msgid="5548780620779729975">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 기기의 사진과 동영상에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_read_media_visual" msgid="5492319750632751551">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 사진 및 동영상에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequest_more_photos" msgid="128933814654231321">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 기기에 있는 더 많은 사진과 동영상에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_more_photos" msgid="8946782319103584021">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 더 많은 사진 및 동영상에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequest_microphone" msgid="2825208549114811299">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 오디오를 녹음하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_microphone" msgid="1266843551173029370">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 오디오를 녹음하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequestdetail_microphone" msgid="8510456971528228861">"앱을 사용하고 있는 동안에만 앱에서 오디오를 녹음할 수 있습니다."</string>
     <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 오디오를 녹음하도록 허용하시겠습니까?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_microphone" msgid="4990337225146130185">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 오디오를 녹음하도록 허용하시겠습니까?"</string>
     <string name="permgroupbackgroundrequestdetail_microphone" msgid="553702902263681838">"앱을 사용하고 있지 않을 때도 앱에서 항상 오디오를 녹음하고자 할 수 있습니다. "<annotation id="link">"설정에서 액세스를 허용하세요"</annotation>"."</string>
     <string name="permgroupupgraderequest_microphone" msgid="1362781696161233341">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;의 마이크 액세스 권한을 변경하시겠습니까?"</string>
+    <string name="permgroupupgraderequest_device_aware_microphone" msgid="222471025997100107">"&lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱의 마이크 액세스 권한을 변경하시겠습니까?"</string>
     <string name="permgroupupgraderequestdetail_microphone" msgid="2870497719571464239">"앱을 사용하고 있지 않을 때도 앱에서 항상 오디오를 녹음하려고 합니다. "<annotation id="link">"설정에서 액세스를 허용하세요"</annotation>"."</string>
     <string name="permgrouprequest_activityRecognition" msgid="5415121592794230330">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 내 신체 활동 정보에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_activityRecognition" msgid="3408326850847755759">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 신체 활동에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequest_camera" msgid="5123097035410002594">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 사진을 촬영하고 동영상을 녹화하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_camera" msgid="3525106924487608868">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 사진을 찍고 동영상을 녹화하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequestdetail_camera" msgid="9085323239764667883">"앱을 사용하고 있는 동안에만 앱에서 사진을 촬영하고 동영상을 녹화할 수 있습니다."</string>
     <string name="permgroupbackgroundrequest_camera" msgid="1274286575704213875">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 사진을 촬영하고 동영상을 녹화하도록 허용하시겠습니까?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_camera" msgid="6718286540040964849">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 사진을 찍고 동영상을 녹화하도록 허용하시겠습니까?"</string>
     <string name="permgroupbackgroundrequestdetail_camera" msgid="4458783509089859078">"앱을 사용하고 있지 않을 때도 앱에서 항상 사진을 촬영하고 동영상을 녹화하고자 할 수 있습니다. "<annotation id="link">"설정에서 액세스를 허용하세요"</annotation>"."</string>
     <string name="permgroupupgraderequest_camera" msgid="640758449200241582">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;의 카메라 액세스 권한을 변경하시겠습니까?"</string>
+    <string name="permgroupupgraderequest_device_aware_camera" msgid="4198765626608612156">"&lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱의 카메라 액세스 권한을 변경하시겠습니까?"</string>
     <string name="permgroupupgraderequestdetail_camera" msgid="6642747548010962597">"앱을 사용하고 있지 않을 때도 앱에서 항상 사진을 촬영하고 동영상을 녹화하려고 합니다. "<annotation id="link">"설정에서 액세스를 허용하세요"</annotation>"."</string>
     <string name="permgrouprequest_calllog" msgid="2065327180175371397">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 통화 기록에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_calllog" msgid="735079772627778095">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 통화 기록에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequest_phone" msgid="1829234136997316752">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 전화를 걸고 관리하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_phone" msgid="4389610977195521813">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 전화를 걸고 관리하도록 허용하시겠습니까?"</string>
     <string name="permgrouprequest_sensors" msgid="4397358316850652235">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 생체 신호에 관한 센서 데이터에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_sensors" msgid="1900598688488188225">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 생체 신호에 관한 센서 데이터에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgroupupgraderequestdetail_sensors" msgid="6651914048792092835">"앱이 사용되고 있지 않을 때도 항상 생체 신호 센서 데이터에 액세스하고자 합니다. 권한을 변경하려면 "<annotation id="link">"설정으로 이동"</annotation>"하세요."</string>
     <string name="permgroupbackgroundrequest_sensors" msgid="5661924322018503886">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 생체 신호에 관한 센서 데이터에 액세스하도록 허용하시겠습니까?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_sensors" msgid="7691308331448239716">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 생체 신호에 관한 센서 데이터에 액세스하도록 허용하시겠습니까?"</string>
     <string name="permgroupbackgroundrequestdetail_sensors" msgid="7726767635834043501">"앱을 사용하지 않을 때도 앱이 항상 생체 신호 센서 데이터에 액세스하도록 허용하려면 "<annotation id="link">"설정으로 이동"</annotation>"하세요"</string>
     <string name="permgroupupgraderequest_sensors" msgid="7576527638411370468">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱을 사용하는 중에만 생체 신호 센서 데이터에 액세스하도록 허용하는 설정을 유지하시겠습니까?"</string>
+    <string name="permgroupupgraderequest_device_aware_sensors" msgid="3310667992344623159">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 사용 중일 때 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;의 생체 신호 센서에 액세스하도록 계속 허용하시겠습니까?"</string>
     <string name="permgrouprequest_notifications" msgid="6396739062335106181">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;에서 알림을 보내도록 허용하시겠습니까?"</string>
+    <string name="permgrouprequest_device_aware_notifications" msgid="7307588961166360244">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; 앱이 &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;에서 알림을 보내도록 허용하시겠습니까?"</string>
     <string name="auto_granted_permissions" msgid="6009452264824455892">"관리 대상 권한"</string>
     <string name="auto_granted_location_permission_notification_title" msgid="7570818224669050377">"<xliff:g id="APP_NAME">%1$s</xliff:g> 앱이 위치 액세스 권한을 보유함"</string>
     <string name="auto_granted_permission_notification_body" msgid="5040234389205471318">"조직에서 <xliff:g id="APP_NAME">%1$s</xliff:g> 앱이 내 위치에 액세스하도록 허용했습니다."</string>
@@ -619,4 +653,7 @@
     <string name="safety_label_changes_notification_title" msgid="4479955083472203839">"데이터 공유 업데이트"</string>
     <string name="safety_label_changes_notification_desc" msgid="7808764283266234675">"일부 앱에서 위치 데이터 공유 방법이 변경되었습니다."</string>
     <string name="safety_label_changes_gear_description" msgid="2655887555599138509">"설정"</string>
+    <string name="wear_app_perms_24h_access" msgid="8668121661337328895">"<xliff:g id="TIME_DATE">%1$s</xliff:g>에 액세스함"</string>
+    <string name="wear_app_perms_24h_access_yest" msgid="7069312481704735679">"어제 <xliff:g id="TIME_DATE">%1$s</xliff:g>에 액세스함"</string>
+    <string name="wear_app_perms_7d_access" msgid="4608069019194676432">"<xliff:g id="TIME_DATE_0">%1$s</xliff:g> <xliff:g id="TIME_DATE_1">%2$s</xliff:g>에 액세스함"</string>
 </resources>

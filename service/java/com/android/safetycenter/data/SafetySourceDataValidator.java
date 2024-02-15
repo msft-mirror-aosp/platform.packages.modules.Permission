@@ -16,9 +16,6 @@
 
 package com.android.safetycenter.data;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -29,13 +26,13 @@ import android.safetycenter.SafetySourceStatus;
 import android.safetycenter.config.SafetySource;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import com.android.modules.utils.build.SdkLevel;
-import com.android.permission.util.UserUtils;
 import com.android.safetycenter.SafetyCenterConfigReader;
 import com.android.safetycenter.SafetyCenterFlags;
 import com.android.safetycenter.SafetySources;
+import com.android.safetycenter.UserProfileGroup;
 
 import java.util.List;
 import java.util.Set;
@@ -48,11 +45,10 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * <p>This class isn't thread safe. Thread safety must be handled by the caller.
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 final class SafetySourceDataValidator {
 
-    private static final String TAG = "SafetySourceDataValidator";
+    private static final String TAG = "SafetySourceDataValidat";
 
     private final Context mContext;
     private final SafetyCenterConfigReader mSafetyCenterConfigReader;
@@ -74,9 +70,12 @@ final class SafetySourceDataValidator {
      *
      * @param safetySourceData being set, or {@code null} if retrieving or clearing data, or
      *     reporting an error
+     * @param callerCanAccessAnySource whether we should allow the caller to access any source, or
+     *     restrict them to their own {@code packageName}
      */
     boolean validateRequest(
             @Nullable SafetySourceData safetySourceData,
+            boolean callerCanAccessAnySource,
             String safetySourceId,
             String packageName,
             @UserIdInt int userId) {
@@ -87,18 +86,24 @@ final class SafetySourceDataValidator {
         }
 
         SafetySource safetySource = externalSafetySource.getSafetySource();
-        validateCallingPackage(safetySource, packageName, safetySourceId);
+        if (!callerCanAccessAnySource) {
+            validateCallingPackage(safetySource, packageName, safetySourceId);
+        }
 
-        if (UserUtils.isManagedProfile(userId, mContext)
-                && !SafetySources.supportsManagedProfiles(safetySource)) {
+        @UserProfileGroup.ProfileType int profileType =
+                UserProfileGroup.getProfileTypeOfUser(userId, mContext);
+        if (!SafetySources.supportsProfileType(safetySource, profileType)) {
             throw new IllegalArgumentException(
-                    "Unexpected managed profile request for safety source: " + safetySourceId);
+                    "Unexpected profile type: "
+                            + profileType
+                            + " for safety source: "
+                            + safetySourceId);
         }
 
         boolean retrievingOrClearingData = safetySourceData == null;
         if (retrievingOrClearingData) {
-            return mSafetyCenterConfigReader.isExternalSafetySourceActive(
-                    safetySourceId, packageName);
+            return isExternalSafetySourceActive(
+                    callerCanAccessAnySource, safetySourceId, packageName);
         }
 
         SafetySourceStatus safetySourceStatus = safetySourceData.getStatus();
@@ -110,6 +115,8 @@ final class SafetySourceDataValidator {
         }
 
         if (safetySource.getType() == SafetySource.SAFETY_SOURCE_TYPE_DYNAMIC
+                && safetySource.getInitialDisplayState()
+                        != SafetySource.INITIAL_DISPLAY_STATE_HIDDEN
                 && safetySourceStatus == null) {
             throw new IllegalArgumentException(
                     "Missing status for dynamic safety source: " + safetySourceId);
@@ -164,7 +171,20 @@ final class SafetySourceDataValidator {
             }
         }
 
-        return mSafetyCenterConfigReader.isExternalSafetySourceActive(safetySourceId, packageName);
+        return isExternalSafetySourceActive(callerCanAccessAnySource, safetySourceId, packageName);
+    }
+
+    private boolean isExternalSafetySourceActive(
+            boolean callerCanAccessAnySource, String safetySourceId, String callerPackageName) {
+        boolean isActive =
+                mSafetyCenterConfigReader.isExternalSafetySourceActive(
+                        safetySourceId, callerCanAccessAnySource ? null : callerPackageName);
+        if (!isActive) {
+            Log.i(
+                    TAG,
+                    "Call ignored as safety source " + safetySourceId + " is not currently active");
+        }
+        return isActive;
     }
 
     private void validateCallingPackage(
@@ -192,13 +212,13 @@ final class SafetySourceDataValidator {
                 && !checkCerts(
                         packageName,
                         SafetyCenterFlags.getAdditionalAllowedPackageCerts(packageName))) {
-            Log.e(
+            Log.w(
                     TAG,
-                    "Package "
+                    "Package: "
                             + packageName
-                            + " for source "
+                            + ", for source: "
                             + safetySourceId
-                            + " signed with invalid signature");
+                            + " is signed with invalid signature");
             throw new IllegalArgumentException("Invalid signature for package " + packageName);
         }
     }
@@ -210,7 +230,7 @@ final class SafetySourceDataValidator {
                 byte[] certificate = new Signature(certHash).toByteArray();
                 if (mPackageManager.hasSigningCertificate(
                         packageName, certificate, PackageManager.CERT_INPUT_SHA256)) {
-                    Log.d(TAG, "Package " + packageName + " has expected signature");
+                    Log.v(TAG, "Package: " + packageName + " has expected signature");
                     hasMatchingCert = true;
                 }
             } catch (IllegalArgumentException e) {

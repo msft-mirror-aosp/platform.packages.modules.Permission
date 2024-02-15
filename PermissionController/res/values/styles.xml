@@ -51,7 +51,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
-        <item name="android:paddingTop">18dp</item>
+        <item name="android:paddingTop">24dp</item>
         <item name="android:paddingBottom">24dp</item>
         <item name="android:paddingLeft">24dp</item>
         <item name="android:paddingRight">24dp</item>
@@ -195,6 +195,8 @@
         <item name="android:paddingEnd">16dp</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:background">@drawable/grant_dialog_permission_rationale_background</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:minHeight">48dp</item>
     </style>
 
     <style name="PermissionGrantPermissionRationaleIcon">
@@ -233,15 +235,15 @@
            parent="@style/PermissionGrantButton"></style>
     <style name="PermissionGrantButtonAllowOneTime"
            parent="@style/PermissionGrantButton"></style>
-    <style name="PermissionGrantButtonAllowAll"
-           parent="@style/PermissionGrantButton"></style>
     <style name="PermissionGrantButtonAllowSelected"
            parent="@style/PermissionGrantButton"></style>
-    <style name="PermissionGrantButtonDontAllowMore"
+    <style name="PermissionGrantButtonAllowAll"
            parent="@style/PermissionGrantButton"></style>
     <style name="PermissionGrantButtonDeny"
            parent="@style/PermissionGrantButton"></style>
     <style name="PermissionGrantButtonNoUpgrade"
+           parent="@style/PermissionGrantButton"></style>
+    <style name="PermissionGrantButtonDontAllowMore"
            parent="@style/PermissionGrantButton"></style>
 
     <style name="PermissionGrantButtonAllowMaterial3"
@@ -255,10 +257,6 @@
     <style name="PermissionGrantButtonNoUpgradeMaterial3"
            parent="@style/PermissionGrantButton"></style>
     <style name="PermissionGrantButtonAllowAllMaterial3"
-           parent="@style/PermissionGrantButton"></style>
-    <style name="PermissionGrantButtonAllowSelectedPhotosMaterial3"
-           parent="@style/PermissionGrantButton"></style>
-    <style name="PermissionGrantButtonDontAllowMorePhotosMaterial3"
            parent="@style/PermissionGrantButton"></style>
 
     <!-- END PERMISSION GRANT DIALOG -->

@@ -16,8 +16,6 @@
 
 package com.android.safetycenter.logging;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
 import static com.android.permission.PermissionStatsLog.SAFETY_STATE;
 
 import android.annotation.UserIdInt;
@@ -30,8 +28,6 @@ import android.safetycenter.config.SafetySourcesGroup;
 import android.util.Log;
 import android.util.StatsEvent;
 
-import androidx.annotation.RequiresApi;
-
 import com.android.internal.annotations.GuardedBy;
 import com.android.modules.utils.build.SdkLevel;
 import com.android.permission.PermissionStatsLog;
@@ -42,6 +38,7 @@ import com.android.safetycenter.SafetyCenterFlags;
 import com.android.safetycenter.SafetySourceKey;
 import com.android.safetycenter.SafetySources;
 import com.android.safetycenter.UserProfileGroup;
+import com.android.safetycenter.UserProfileGroup.ProfileType;
 import com.android.safetycenter.data.SafetyCenterDataManager;
 
 import java.util.List;
@@ -56,7 +53,6 @@ import java.util.List;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 public final class SafetyCenterPullAtomCallback implements StatsPullAtomCallback {
 
     private static final String TAG = "SafetyCenterPullAtom";
@@ -93,17 +89,17 @@ public final class SafetyCenterPullAtomCallback implements StatsPullAtomCallback
             return StatsManager.PULL_SKIP;
         }
         if (!SafetyCenterFlags.getSafetyCenterEnabled()) {
-            Log.w(TAG, "Attempt to pull SAFETY_STATE, but Safety Center is disabled");
+            Log.i(TAG, "Attempt to pull SAFETY_STATE, but Safety Center is disabled");
             return StatsManager.PULL_SKIP;
         }
         List<UserProfileGroup> userProfileGroups =
                 UserProfileGroup.getAllUserProfileGroups(mContext);
         synchronized (mApiLock) {
             if (!SafetyCenterFlags.getAllowStatsdLogging()) {
-                Log.w(TAG, "Skipping pulling and writing atoms due to logging being disabled");
+                Log.i(TAG, "Skipping pulling and writing atoms due to logging being disabled");
                 return StatsManager.PULL_SKIP;
             }
-            Log.i(TAG, "Pulling and writing atoms…");
+            Log.d(TAG, "Pulling and writing atoms…");
             for (int i = 0; i < userProfileGroups.size(); i++) {
                 UserProfileGroup userProfileGroup = userProfileGroups.get(i);
                 List<SafetySourcesGroup> loggableGroups =
@@ -111,8 +107,8 @@ public final class SafetyCenterPullAtomCallback implements StatsPullAtomCallback
                 statsEvents.add(
                         createOverallSafetyStateAtomLocked(userProfileGroup, loggableGroups));
                 // The SAFETY_SOURCE_STATE_COLLECTED atoms are written instead of being pulled,
-                // they do not support pull but we want to collect them at the same time as
-                // the above pulled atom.
+                // as they do not support pull. We still want to collect them at the same time as
+                // the above pulled atom, which is why they're written here.
                 writeSafetySourceStateCollectedAtomsLocked(userProfileGroup, loggableGroups);
             }
         }
@@ -154,18 +150,19 @@ public final class SafetyCenterPullAtomCallback implements StatsPullAtomCallback
                     continue;
                 }
 
-                writeSafetySourceStateCollectedAtomLocked(
-                        loggableSource,
-                        userProfileGroup.getProfileParentUserId(),
-                        /* isUserManaged= */ false);
+                for (int profileTypeIdx = 0;
+                        profileTypeIdx < ProfileType.ALL_PROFILE_TYPES.length;
+                        ++profileTypeIdx) {
+                    @ProfileType int profileType = ProfileType.ALL_PROFILE_TYPES[profileTypeIdx];
+                    if (!SafetySources.supportsProfileType(loggableSource, profileType)) {
+                        continue;
+                    }
 
-                if (!SafetySources.supportsManagedProfiles(loggableSource)) {
-                    continue;
-                }
-
-                int[] managedIds = userProfileGroup.getManagedRunningProfilesUserIds();
-                for (int k = 0; k < managedIds.length; k++) {
-                    writeSafetySourceStateCollectedAtomLocked(loggableSource, managedIds[k], true);
+                    int[] profileIds = userProfileGroup.getProfilesOfType(profileType);
+                    for (int profileIdx = 0; profileIdx < profileIds.length; profileIdx++) {
+                        writeSafetySourceStateCollectedAtomLocked(
+                                loggableSource, profileIds[profileIdx], profileType);
+                    }
                 }
             }
         }
@@ -173,8 +170,8 @@ public final class SafetyCenterPullAtomCallback implements StatsPullAtomCallback
 
     @GuardedBy("mApiLock")
     private void writeSafetySourceStateCollectedAtomLocked(
-            SafetySource safetySource, @UserIdInt int userId, boolean isUserManaged) {
+            SafetySource safetySource, @UserIdInt int userId, @ProfileType int profileType) {
         SafetySourceKey sourceKey = SafetySourceKey.of(safetySource.getId(), userId);
-        mDataManager.logSafetySourceStateCollectedAutomatic(sourceKey, isUserManaged);
+        mDataManager.logSafetySourceStateCollectedAutomatic(sourceKey, profileType);
     }
 }

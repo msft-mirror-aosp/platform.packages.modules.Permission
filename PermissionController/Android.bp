@@ -15,6 +15,7 @@
 //
 
 package {
+    default_team: "trendy_team_android_permissions",
     default_applicable_licenses: [
         "packages_modules_Permission_PermissionController_license",
     ],
@@ -37,8 +38,8 @@ genrule {
     name: "statslog-permissioncontroller-java-gen",
     tools: ["stats-log-api-gen"],
     cmd: "$(location stats-log-api-gen) --java $(out) --module permissioncontroller" +
-         " --javaPackage com.android.permissioncontroller" +
-         " --javaClass PermissionControllerStatsLog --minApiLevel 30",
+        " --javaPackage com.android.permissioncontroller" +
+        " --javaClass PermissionControllerStatsLog --minApiLevel 30",
     out: ["com/android/permissioncontroller/PermissionControllerStatsLog.java"],
 }
 
@@ -54,54 +55,48 @@ java_library {
     ],
 }
 
-// File to be included by permission controller app an mocking tests
-filegroup {
-    name: "permissioncontroller-sources",
-    srcs: [
-        "src/**/*.java",
-        "src/**/*.kt",
-        ":permissioncontroller-protos",
-    ],
-}
-
-filegroup {
+java_library {
     name: "permissioncontroller-protos",
+    sdk_version: "system_current",
+    min_sdk_version: "30",
     srcs: [
         "src/**/*.proto",
     ],
+    proto: {
+        type: "lite",
+        include_dirs: ["packages/modules/Permission/PermissionController/src/com/android/permissioncontroller"],
+    },
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.permission",
+    ],
 }
 
-android_app {
-    name: "PermissionController",
-    // Compiling against "module_current" would allow using non-APIs within the permission APEX
-    // boundaries, which may be unsafe because PermissionController is also shipped as a standalone
-    // artifact. See also b/209458854.
+android_library {
+    name: "PermissionController-lib",
     sdk_version: "system_current",
     min_sdk_version: "30",
-    updatable: true,
-    privileged: true,
-    certificate: "platform",
-    rename_resources_package: false,
-    required: ["privapp_allowlist_com.android.permissioncontroller.xml"],
-
-    srcs: [":permissioncontroller-sources"],
+    use_resource_processor: true,
+    manifest: "AndroidManifest-lib.xml",
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
 
     //javacflags: ["-Werror"],
     kotlincflags: [
         "-Werror",
         "-opt-in=kotlinx.coroutines.DelicateCoroutinesApi",
-        "-Xjvm-default=all"
+        "-Xjvm-default=all",
     ],
 
     libs: [
         "android.car-stubs",
-        // Soong fails to automatically add this dependency because all the
-        // *.kt sources are inside a filegroup.
-        "kotlin-annotations",
         "safety-center-annotations",
     ],
 
     static_libs: [
+        "permissioncontroller-protos",
         "iconloader_sc_mainline_prod",
         "com.google.android.material_material",
         "androidx.transition_transition",
@@ -152,18 +147,51 @@ android_app {
         "lottie",
         "safety-label",
         "role-controller",
+        "permissions-aconfig-flags-lib",
+        "android.permission.flags-aconfig-java",
+        "androidx.compose.foundation_foundation",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.runtime_runtime-livedata",
+        "androidx.compose.ui_ui",
+        "androidx.wear.compose_compose-material",
     ],
 
-    proto: {
-        type: "lite",
-        include_dirs: ["packages/modules/Permission/PermissionController/src/com/android/permissioncontroller"],
+    lint: {
+        error_checks: ["Recycle"],
+        baseline_filename: "lint-baseline.xml",
     },
 
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.permission",
+    ],
+
+    // TODO(b/313706381): Remove jarjar once flagging lib is fixed
+    jarjar_rules: "jarjar-rules.txt",
+}
+
+android_app {
+    name: "PermissionController",
+    // Compiling against "module_current" would allow using non-APIs within the permission APEX
+    // boundaries, which may be unsafe because PermissionController is also shipped as a standalone
+    // artifact. See also b/209458854.
+    sdk_version: "system_current",
+    min_sdk_version: "30",
+    updatable: true,
+    privileged: true,
+    certificate: "platform",
+    use_resource_processor: true,
+    rename_resources_package: false,
+    privapp_allowlist: ":privapp_allowlist_com.android.permissioncontroller.xml",
+
+    static_libs: ["PermissionController-lib"],
+
     lint: {
-        strict_updatability_linting: true,
+        error_checks: ["Recycle"],
     },
 
     optimize: {
+        proguard_compatibility: false, // TODO(b/215530220): remove when this is default behavior
         proguard_flags_files: ["proguard.flags"],
     },
 
