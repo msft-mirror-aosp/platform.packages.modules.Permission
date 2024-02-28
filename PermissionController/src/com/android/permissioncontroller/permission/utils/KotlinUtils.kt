@@ -144,9 +144,6 @@ object KotlinUtils {
     /** Whether to show the location indicators. */
     private const val PROPERTY_LOCATION_INDICATORS_ENABLED = "location_indicators_enabled"
 
-    /** Whether location accuracy feature is enabled */
-    private const val PROPERTY_LOCATION_ACCURACY_ENABLED = "location_accuracy_enabled"
-
     /** Whether to show 7-day toggle in privacy hub. */
     private const val PRIVACY_DASHBOARD_7_DAY_TOGGLE = "privacy_dashboard_7_day_toggle"
 
@@ -252,12 +249,7 @@ object KotlinUtils {
     /** Whether the location accuracy feature is enabled */
     @ChecksSdkIntAtLeast(Build.VERSION_CODES.S)
     fun isLocationAccuracyEnabled(): Boolean {
-        return SdkLevel.isAtLeastS() &&
-            DeviceConfig.getBoolean(
-                DeviceConfig.NAMESPACE_PRIVACY,
-                PROPERTY_LOCATION_ACCURACY_ENABLED,
-                true
-            )
+        return SdkLevel.isAtLeastS()
     }
 
     /** Default state of location precision true: default is FINE. false: default is COARSE. */
@@ -1732,16 +1724,17 @@ object KotlinUtils {
 /** Get the [value][LiveData.getValue], suspending until [isInitialized] if not yet so */
 suspend fun <T, LD : LiveData<T>> LD.getInitializedValue(
     observe: LD.(Observer<T>) -> Unit = { observeForever(it) },
-    isInitialized: LD.() -> Boolean = { value != null }
+    isValueInitialized: LD.() -> Boolean = { value != null }
 ): T {
-    return if (isInitialized()) {
-        value!!
+    return if (isValueInitialized()) {
+        @Suppress("UNCHECKED_CAST")
+        value as T
     } else {
         suspendCoroutine { continuation: Continuation<T> ->
             val observer = AtomicReference<Observer<T>>()
             observer.set(
                 Observer { newValue ->
-                    if (isInitialized()) {
+                    if (isValueInitialized()) {
                         GlobalScope.launch(Dispatchers.Main) {
                             observer.getAndSet(null)?.let { observerSnapshot ->
                                 removeObserver(observerSnapshot)
