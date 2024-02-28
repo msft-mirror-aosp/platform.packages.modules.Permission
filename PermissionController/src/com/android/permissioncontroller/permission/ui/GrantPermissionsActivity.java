@@ -55,7 +55,6 @@ import android.text.Spanned;
 import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.util.Pair;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnAttachStateChangeListener;
 import android.view.Window;
@@ -66,7 +65,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import com.android.modules.utils.build.SdkLevel;
@@ -417,7 +415,7 @@ public class GrantPermissionsActivity extends SettingsActivity
             mViewModel.sendDirectlyToSettings(top, info.getGroupName());
             return;
         } else if (info.getOpenPhotoPicker()) {
-            mViewModel.openPhotoPicker(top, GRANTED_USER_SELECTED);
+            mViewModel.openPhotoPicker(top);
             return;
         }
 
@@ -555,26 +553,6 @@ public class GrantPermissionsActivity extends SettingsActivity
         }
     }
 
-    // LINT.IfChange(dispatchTouchEvent)
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        View rootView = getWindow().getDecorView();
-        if (rootView.getTop() != 0) {
-            // We are animating the top view, need to compensate for that in motion events.
-            ev.setLocation(ev.getX(), ev.getY() - rootView.getTop());
-        }
-        final int x = (int) ev.getX();
-        final int y = (int) ev.getY();
-        if ((x < 0) || (y < 0) || (x > (rootView.getWidth())) || (y > (rootView.getHeight()))) {
-            if (MotionEvent.ACTION_DOWN == ev.getAction()) {
-                mViewHandler.onCancelled();
-            }
-            finishAfterTransition();
-        }
-        return super.dispatchTouchEvent(ev);
-    }
-    // LINT.ThenChange(PermissionRationaleActivity.java:dispatchTouchEvent)
-
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -604,16 +582,14 @@ public class GrantPermissionsActivity extends SettingsActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Consumer<Intent> callback = mViewModel.getActivityResultCallback();
-        if (callback == null || (requestCode != APP_PERMISSION_REQUEST_CODE
-                && requestCode != PHOTO_PICKER_REQUEST_CODE)) {
+        if (requestCode != APP_PERMISSION_REQUEST_CODE
+                && requestCode != PHOTO_PICKER_REQUEST_CODE) {
             return;
         }
         if (requestCode == PHOTO_PICKER_REQUEST_CODE) {
             data = new Intent("").putExtra(INTENT_PHOTOS_SELECTED, resultCode == RESULT_OK);
         }
-        callback.accept(data);
-        mViewModel.setActivityResultCallback(null);
+        mViewModel.handleCallback(data, requestCode);
     }
 
     @Override
@@ -633,11 +609,10 @@ public class GrantPermissionsActivity extends SettingsActivity
             mPreMergeShownGroupName = null;
         }
 
-        if (Objects.equals(READ_MEDIA_VISUAL, name)
-                && result == GrantPermissionsViewHandler.GRANTED_USER_SELECTED) {
+        if (Objects.equals(READ_MEDIA_VISUAL, name) && result == GRANTED_USER_SELECTED) {
             // Only the top activity can receive activity results
             Activity top = mFollowerActivities.isEmpty() ? this : mFollowerActivities.get(0);
-            mViewModel.openPhotoPicker(top, result);
+            mViewModel.openPhotoPicker(top);
             logGrantPermissionActivityButtons(name, affectedForegroundPermissions, result);
             return;
         }
