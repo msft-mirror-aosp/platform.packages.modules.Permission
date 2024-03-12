@@ -131,10 +131,15 @@ public class EnhancedConfirmationService extends SystemService {
             PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_MMS);
             PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_WAP_PUSH);
             PROTECTED_SETTINGS.add(Manifest.permission.READ_CELL_BROADCASTS);
+
+            PROTECTED_SETTINGS.add(Manifest.permission.BIND_DEVICE_ADMIN);
             // TODO(b/310654818): Add other explicitly protected runtime permissions
             // App ops
             PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_BIND_ACCESSIBILITY_SERVICE);
             PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_ACCESS_NOTIFICATIONS);
+            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW);
+            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_GET_USAGE_STATS);
+            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_LOADER_USAGE_STATS);
             // Default application roles.
             PROTECTED_SETTINGS.add(RoleManager.ROLE_ASSISTANT);
             PROTECTED_SETTINGS.add(RoleManager.ROLE_BROWSER);
@@ -144,8 +149,6 @@ public class EnhancedConfirmationService extends SystemService {
             PROTECTED_SETTINGS.add(RoleManager.ROLE_HOME);
             PROTECTED_SETTINGS.add(RoleManager.ROLE_SMS);
             PROTECTED_SETTINGS.add(RoleManager.ROLE_WALLET);
-            // Other settings
-            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_BIND_ACCESSIBILITY_SERVICE);
             // TODO(b/310654015): Add other explicitly protected settings
         }
 
@@ -279,10 +282,13 @@ public class EnhancedConfirmationService extends SystemService {
                 return true;
             }
 
+            // If applicable, trust packages installed via non-allowlisted installers
+            if (trustPackagesInstalledViaNonAllowlistedInstallers()) return false;
+
             // ECM doesn't consider a transitive chain of trust for install sources.
             // If this package hasn't been explicitly handled by this point
             // then it is exempt from ECM if the immediate parent is a trusted installer
-            return isAllowlistedInstaller(installSource.getInstallingPackageName());
+            return !isAllowlistedInstaller(installSource.getInstallingPackageName());
         }
 
         private boolean isAllowlistedPackage(String packageName) {
@@ -306,6 +312,10 @@ public class EnhancedConfirmationService extends SystemService {
                 }
             }
             return false;
+        }
+
+        private boolean trustPackagesInstalledViaNonAllowlistedInstallers() {
+            return true; // TODO(b/327469700): Make this configurable
         }
 
         private boolean isPackagePreinstalled(@NonNull String packageName, @UserIdInt int userId) {
