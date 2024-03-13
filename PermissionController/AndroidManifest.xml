@@ -4,8 +4,8 @@
   xmlns:tools="http://schemas.android.com/tools"
   package="com.android.permissioncontroller"
   coreApp="true"
-  android:versionCode="350004000"
-  android:versionName="frc_350004000"
+  android:versionCode="350005000"
+  android:versionName="frc_350005000"
 >
 
     <original-package android:name="com.android.permissioncontroller" />
@@ -487,7 +487,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.android.permissioncontroller.role.ui.ChangeDefaultCardEmulationActivity"
+        <activity android:name="com.android.permissioncontroller.role.ui.v35.ChangeDefaultCardEmulationActivity"
             android:enabled="@bool/is_at_least_v"
             android:excludeFromRecents="true"
             android:noHistory="true"
