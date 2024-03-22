@@ -4,8 +4,8 @@
   xmlns:tools="http://schemas.android.com/tools"
   package="com.android.permissioncontroller"
   coreApp="true"
-  android:versionCode="350008000"
-  android:versionName="frc_350008000"
+  android:versionCode="350009000"
+  android:versionName="frc_350009000"
 >
 
     <original-package android:name="com.android.permissioncontroller" />
@@ -290,8 +290,8 @@
             android:enabled="@bool/is_at_least_v">
         </activity>
 
-        <activity android:name="com.android.permissioncontroller.ecm.EnhancedConfirmationDialog"
-            android:theme="@style/GrantPermissions.FilterTouches"
+        <activity android:name="com.android.permissioncontroller.ecm.EnhancedConfirmationDialogActivity"
+            android:theme="@style/Theme.EnhancedConfirmationDialog.FilterTouches"
             android:excludeFromRecents="true"
             android:exported="true"
             android:launchMode="singleTop"
