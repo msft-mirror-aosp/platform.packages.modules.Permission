@@ -4,8 +4,8 @@
   xmlns:tools="http://schemas.android.com/tools"
   package="com.android.permissioncontroller"
   coreApp="true"
-  android:versionCode="350010000"
-  android:versionName="frc_350010000"
+  android:versionCode="350011000"
+  android:versionName="frc_350011000"
 >
 
     <original-package android:name="com.android.permissioncontroller" />
@@ -53,7 +53,6 @@
     <uses-permission android:name="android.permission.START_VIEW_PERMISSION_USAGE" />
     <uses-permission android:name="android.permission.MANAGE_APP_HIBERNATION" />
     <uses-permission android:name="android.permission.MANAGE_SENSOR_PRIVACY" />
-    <uses-permission android:name="android.permission.OBSERVE_SENSOR_PRIVACY" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.MANAGE_SAFETY_CENTER" />
