@@ -349,8 +349,8 @@
     <string name="accessibility_service_dialog_title_multiple" msgid="5527879210683548175">"အများသုံးစွဲနိုင်မှုဆိုင်ရာ အက်ပ် <xliff:g id="NUM_SERVICES">%s</xliff:g> ခုက သင့်စက်ပစ္စည်းကို အပြည့်အဝ အသုံးပြုခွင့်ရှိသည်"</string>
     <string name="accessibility_service_dialog_bottom_text_single" msgid="1128666197822205958">"<xliff:g id="SERVICE_NAME">%s</xliff:g> သည် သင်၏ မျက်နှာပြင်၊ လုပ်ဆောင်ချက်များ၊ ထည့်သွင်းမှုများကို ကြည့်နိုင်ပြီး လုပ်ဆောင်ချက်များကို ဆောင်ရွက်နိုင်သည့်အပြင် မျက်နှာပြင်သမှုကိုလည်း ထိန်းချုပ်နိုင်သည်။"</string>
     <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"ဤအက်ပ်များက သင်၏ မျက်နှာပြင်၊ လုပ်ဆောင်ချက်များ၊ ထည့်သွင်းမှုများကို ကြည့်နိုင်ပြီး လုပ်ဆောင်ချက်များကို ဆောင်ရွက်နိုင်သည့်အပြင် မျက်နှာပြင်ပြသမှုကိုလည်း ထိန်းချုပ်နိုင်သည်။"</string>
-    <string name="role_assistant_label" msgid="4727586018198208128">"မူလဒစ်ဂျစ်တယ် Assistant အက်ပ်"</string>
-    <string name="role_assistant_short_label" msgid="3369003713187703399">"ဒစ်ဂျစ်တယ် Assistant အက်ပ်"</string>
+    <string name="role_assistant_label" msgid="4727586018198208128">"မူရင်း ဒစ်ဂျစ်တယ်အထောက်အကူ အက်ပ်"</string>
+    <string name="role_assistant_short_label" msgid="3369003713187703399">"ဒစ်ဂျစ်တယ်အထောက်အကူ အက်ပ်"</string>
     <string name="role_assistant_description" msgid="6622458130459922952">"အကူအညီအက်ပ်များသည် သင်ကြည့်နေသည့် မျက်နှာပြင်မှ အချက်အလက်ကို အခြေခံ၍ ပံ့ပိုးပေးနိုင်ပါသည်။ ဘက်စုံ အထောက်အကူပေးနိုင်ရန်အတွက် အချို့အက်ပ်များသည် စဖွင့်စနစ်နှင့် အသံဖြင့်ထည့်သွင်းဝန်ဆောင်မှု နှစ်ခုလုံးကို ပံ့ပိုးပါသည်။"</string>
     <string name="role_browser_label" msgid="2877796144554070207">"မူရင်း ဘရောင်ဇာအက်ပ်"</string>
     <string name="role_browser_short_label" msgid="6745009127123292296">"ဘရောင်ဇာ အက်ပ်"</string>
@@ -458,7 +458,7 @@
     <string name="assistant_record_audio_user_sensitive_summary" msgid="6482937591816401619">"အသံအကူအညီ စတင်ရန် မိုက်ခရိုဖုန်းအသုံးပြုသည့်အခါ သင်္ကေတကို အခြေအနေဘားတွင် ပြပါ"</string>
     <string name="permgrouprequest_storage_isolated" msgid="4892154224026852295">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; အား သင့်စက်ပေါ်ရှိ ဓာတ်ပုံနှင့် မီဒီယာဖိုင်များ ဝင်သုံးခွင့်ပေးလိုပါသလား။"</string>
     <string name="permgrouprequest_contacts" msgid="8391550064551053695">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; အား သင်၏အဆက်အသွယ်များကို သုံးခွင့်ပေးလိုပါသလား။"</string>
-    <string name="permgrouprequest_location" msgid="6990232580121067883">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; အား ဤစက်ပစ္စည်း၏တည်နေရာကို သုံးခွင့်ပေးလိုပါသလား။"</string>
+    <string name="permgrouprequest_location" msgid="6990232580121067883">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; အား ဤစက်ပစ္စည်း၏တည်နေရာကို သုံးခွင့်ပေးမလား။"</string>
     <string name="permgrouprequestdetail_location" msgid="2635935335778429894">"အက်ပ်ကိုအသုံးပြုသည့် အချိန်တွင်သာ ၎င်းကတည်နေရာကို အသုံးပြုခွင့်ရပါမည်"</string>
     <string name="permgroupbackgroundrequest_location" msgid="1085680897265734809">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; အား ဤစက်ပစ္စည်း၏တည်နေရာကို သုံးခွင့်ပေးလိုပါသလား။"</string>
     <string name="permgroupbackgroundrequestdetail_location" msgid="8021219324989662957">"သင် အသုံးမပြုနေလျှင်တောင်မှ ဤအက်ပ်က သင့်တည်နေရာကို သုံးခွင့်ရနေပါမည်။ "<annotation id="link">"ဆက်တင်များတွင် ခွင့်ပြုပါ။"</annotation></string>
@@ -480,14 +480,14 @@
     <string name="permgrouprequest_more_photos" msgid="128933814654231321">"ဤစက်ရှိ နောက်ထပ်ဓာတ်ပုံနှင့် ဗီဒီယိုများကို &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; အား သုံးခွင့်ပေးမလား။"</string>
     <string name="permgrouprequest_microphone" msgid="2825208549114811299">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; ကို အသံဖမ်းယူခွင့် ပေးလိုပါသလား။"</string>
     <string name="permgrouprequestdetail_microphone" msgid="8510456971528228861">"ဤအက်ပ်ကို အသုံးပြုနေသည့် အချိန်တွင်သာ ၎င်းက အသံဖမ်းနိုင်သည်။"</string>
-    <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; ကို အသံဖမ်းခွင့် ပေးလိုပါသလား။"</string>
+    <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; ကို အသံဖမ်းခွင့် ပေးမလား။"</string>
     <string name="permgroupbackgroundrequestdetail_microphone" msgid="553702902263681838">"ဤအက်ပ်ကို သင်အသုံးမပြုနေလျှင်ပင် ၎င်းက တစ်ချိန်လုံး အသံဖမ်းယူလိုသည်။ "<annotation id="link">"ဆက်တင်များတွင် ခွင့်ပြုပါ။"</annotation></string>
     <string name="permgroupupgraderequest_microphone" msgid="1362781696161233341">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&amp;gt အတွက် မိုက်ခရိုဖုန်း အသုံးပြုခွင့် ပြောင်းမလား။"</string>
     <string name="permgroupupgraderequestdetail_microphone" msgid="2870497719571464239">"ဤအက်ပ်ကို သင်အသုံးမပြုနေလျှင်ပင် ၎င်းက တစ်ချိန်လုံး အသံဖမ်းလိုသည်။ "<annotation id="link">"ဆက်တင်များတွင် ခွင့်ပြုပါ။"</annotation></string>
     <string name="permgrouprequest_activityRecognition" msgid="5415121592794230330">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; အား သင့်ကိုယ်ခန္ဓာလှုပ်ရှားမှုကို  ဝင်ကြည့်ခွင့် ပေးလိုပါသလား။"</string>
-    <string name="permgrouprequest_camera" msgid="5123097035410002594">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; အား ဓာတ်ပုံနှင့် ဗီဒီယိုရိုက်ကူးခွင့် ပေးလိုပါသလား။"</string>
+    <string name="permgrouprequest_camera" msgid="5123097035410002594">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; အား ဓာတ်ပုံနှင့် ဗီဒီယိုရိုက်ကူးခွင့် ပေးမလား။"</string>
     <string name="permgrouprequestdetail_camera" msgid="9085323239764667883">"ဤအက်ပ်ကို အသုံးပြုနေသည့် အချိန်တွင်သာ ၎င်းက ဓာတ်ပုံနှင့် ဗီဒီယိုများကို ရိုက်ကူးနိုင်သည်။"</string>
-    <string name="permgroupbackgroundrequest_camera" msgid="1274286575704213875">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; ကို ဓာတ်ပုံနှင့် ဗီဒီယိုရိုက်ကူးခွင့် ပေးလိုပါသလား။"</string>
+    <string name="permgroupbackgroundrequest_camera" msgid="1274286575704213875">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; ကို ဓာတ်ပုံနှင့် ဗီဒီယိုရိုက်ကူးခွင့် ပေးမလား။"</string>
     <string name="permgroupbackgroundrequestdetail_camera" msgid="4458783509089859078">"ဤအက်ပ်ကို သင်အသုံးမပြုနေလျှင်ပင် ၎င်းက ဓာတ်ပုံနှင့် ဗီဒီယိုများကို တစ်ချိန်လုံး ရိုက်ကူးလိုသည်။ "<annotation id="link">"ဆက်တင်များတွင် ခွင့်ပြုပါ။"</annotation></string>
     <string name="permgroupupgraderequest_camera" msgid="640758449200241582">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&amp;gt အတွက် ကင်မရာအသုံးပြုခွင့် ပြောင်းမလား။"</string>
     <string name="permgroupupgraderequestdetail_camera" msgid="6642747548010962597">"ဤအက်ပ်ကို သင်အသုံးမပြုနေလျှင်ပင် ၎င်းက ဓာတ်ပုံနှင့် ဗီဒီယိုများကို တစ်ချိန်လုံး ရိုက်ကူးလိုသည်။ "<annotation id="link">"ဆက်တင်များတွင် ခွင့်ပြုပါ။"</annotation></string>

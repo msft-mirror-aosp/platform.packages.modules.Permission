@@ -351,7 +351,7 @@
     <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"Diese Apps können deinen Bildschirm, deine Aktionen und deine Eingaben sehen, Aktionen ausführen und den Bildschirm steuern."</string>
     <string name="role_assistant_label" msgid="4727586018198208128">"Standard-App digit. Assistent"</string>
     <string name="role_assistant_short_label" msgid="3369003713187703399">"App für digitalen Assistenten"</string>
-    <string name="role_assistant_description" msgid="6622458130459922952">"Assistent-Apps können dir bei bestimmten Dingen helfen. Dazu greifen sie auf die Informationen zu, die aktuell auf deinem Bildschirm angezeigt werden. Damit sie dir eine umfassende Hilfe sind, unterstützen einige Apps sowohl Launcher- als auch Spracheingabedienste."</string>
+    <string name="role_assistant_description" msgid="6622458130459922952">"Assistent-Apps können dir bei bestimmten Dingen helfen. Dazu greifen sie auf die Informationen zu, die aktuell auf deinem Bildschirm angezeigt werden. Einige Apps unterstützen sowohl Launcher- als auch Spracheingabedienste."</string>
     <string name="role_browser_label" msgid="2877796144554070207">"Standard-Browser-App"</string>
     <string name="role_browser_short_label" msgid="6745009127123292296">"Browser-App"</string>
     <string name="role_browser_description" msgid="3465253637499842671">"Apps, mit denen du auf das Internet zugreifen kannst und die die entsprechende Seite öffnen, wenn du auf einen Link tippst"</string>
@@ -582,7 +582,7 @@
     <string name="camera_toggle_title" msgid="1251201397431837666">"Kamerazugriff"</string>
     <string name="mic_toggle_title" msgid="2649991093496110162">"Mikrofonzugriff"</string>
     <string name="perm_toggle_description" msgid="7801326363741451379">"Für Apps und Dienste"</string>
-    <string name="mic_toggle_description" msgid="9163104307990677157">"Für Apps und Dienste. Wenn diese Einstellung deaktiviert ist, können Mikrofondaten dennoch freigegeben werden, wenn du den Notruf wählst."</string>
+    <string name="mic_toggle_description" msgid="9163104307990677157">"Für Apps und Dienste. Wenn du eine Notrufnummer wählst, können Mikrofondaten weitergegeben werden, auch wenn diese Berechtigung deaktiviert ist."</string>
     <string name="location_settings_subtitle" msgid="2328360561197430695">"Apps und Dienste sehen, die Zugriff auf diesen Standort haben"</string>
     <string name="show_clip_access_notification_title" msgid="5168467637351109096">"Zugriff auf Zwischenablage anzeigen"</string>
     <string name="show_clip_access_notification_summary" msgid="3532020182782112687">"Eine Meldung wird angezeigt, wenn Apps auf Text, Bilder oder andere Inhalte zugreifen, die du kopiert hast"</string>
