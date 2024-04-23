@@ -37,8 +37,8 @@ import static com.android.permissioncontroller.permission.ui.GrantPermissionsVie
 import static com.android.permissioncontroller.permission.ui.model.GrantPermissionsViewModel.APP_PERMISSION_REQUEST_CODE;
 import static com.android.permissioncontroller.permission.ui.model.GrantPermissionsViewModel.ECM_REQUEST_CODE;
 import static com.android.permissioncontroller.permission.ui.model.GrantPermissionsViewModel.PHOTO_PICKER_REQUEST_CODE;
-import static com.android.permissioncontroller.permission.utils.MultiDeviceUtils.isDeviceAwarePermissionSupported;
 import static com.android.permissioncontroller.permission.utils.Utils.getRequestMessage;
+import static com.android.permissioncontroller.permission.utils.v35.MultiDeviceUtils.isDeviceAwarePermissionSupported;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -77,6 +77,7 @@ import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.core.util.Preconditions;
 
@@ -93,9 +94,9 @@ import com.android.permissioncontroller.permission.ui.model.Prompt;
 import com.android.permissioncontroller.permission.ui.wear.GrantPermissionsWearViewHandler;
 import com.android.permissioncontroller.permission.utils.ContextCompat;
 import com.android.permissioncontroller.permission.utils.KotlinUtils;
-import com.android.permissioncontroller.permission.utils.MultiDeviceUtils;
 import com.android.permissioncontroller.permission.utils.PermissionMapping;
 import com.android.permissioncontroller.permission.utils.Utils;
+import com.android.permissioncontroller.permission.utils.v35.MultiDeviceUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -539,6 +540,7 @@ public class GrantPermissionsActivity extends SettingsActivity
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private boolean isPermissionEcmRestricted(EnhancedConfirmationManager ecm,
             String requestedPermission, String packageName) {
         try {
@@ -548,6 +550,7 @@ public class GrantPermissionsActivity extends SettingsActivity
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private boolean wasEcmDialogAlreadyShown(EnhancedConfirmationManager ecm,
             String packageName) {
         try {
@@ -881,10 +884,12 @@ public class GrantPermissionsActivity extends SettingsActivity
         super.onSaveInstanceState(outState);
 
         if (SdkLevel.isAtLeastV() && Flags.enhancedConfirmationModeApisEnabled()) {
-            outState.putStringArrayList(KEY_RESTRICTED_REQUESTED_PERMISSIONS, new ArrayList<>(
-                    mRestrictedRequestedPermissionGroups));
-            outState.putStringArrayList(KEY_UNRESTRICTED_REQUESTED_PERMISSIONS, new ArrayList<>(
-                    mUnrestrictedRequestedPermissions));
+            outState.putStringArrayList(KEY_RESTRICTED_REQUESTED_PERMISSIONS,
+                    mRestrictedRequestedPermissionGroups != null ? new ArrayList<>(
+                            mRestrictedRequestedPermissionGroups) : null);
+            outState.putStringArrayList(KEY_UNRESTRICTED_REQUESTED_PERMISSIONS,
+                    mUnrestrictedRequestedPermissions != null ? new ArrayList<>(
+                            mUnrestrictedRequestedPermissions) : null);
             outState.putStringArray(KEY_ORIGINAL_REQUESTED_PERMISSIONS,
                     mOriginalRequestedPermissions);
         }

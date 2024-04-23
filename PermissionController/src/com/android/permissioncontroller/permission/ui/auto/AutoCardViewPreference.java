@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package com.android.permissioncontroller.permission.domain.model
+package com.android.permissioncontroller.permission.ui.auto;
 
-/** This data class stores all data accesses (derived from app ops) for a package and user. */
-data class PackagePermissionGroupUsageModel(
-    val packageName: String,
-    /** Permission group and recent usage time in milliseconds since the epoch */
-    val usages: Map<String, Long>,
-    val userId: Int
-)
+import android.content.Context;
+
+import com.android.car.ui.preference.CarUiPreference;
+import com.android.permissioncontroller.R;
+
+/**
+ * A Preference representing a banner message represented as a CardView
+ */
+public class AutoCardViewPreference extends CarUiPreference {
+
+    public AutoCardViewPreference(Context context) {
+        super(context);
+        this.setLayoutResource(R.layout.car_warning_banner_preference_card);
+    }
+}

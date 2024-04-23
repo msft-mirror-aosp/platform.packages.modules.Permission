@@ -205,9 +205,9 @@
     <string name="auto_revoke_label" msgid="5068393642936571656">"Ukloni dopuštenja ako se aplikacija ne upotrebljava"</string>
     <string name="unused_apps_label" msgid="2595428768404901064">"Ukloni dopuštenja i oslobodi prostor"</string>
     <string name="unused_apps_label_v2" msgid="7058776770056517980">"Pauziraj aktivnosti u aplikacijama ako se ne koriste"</string>
-    <string name="unused_apps_label_v3" msgid="693340578642156657">"Upravljajte nekorištenom aplikacijom"</string>
+    <string name="unused_apps_label_v3" msgid="693340578642156657">"Upravljaj aplikacijom koja se ne koristi"</string>
     <string name="unused_apps_summary" msgid="8839466950318403115">"Uklonite dopuštenja, izbrišite privremene datoteke i zaustavite obavijesti"</string>
-    <string name="unused_apps_summary_v2" msgid="5011313200815115802">"Uklonite dopuštenja, izbrišite privremene datoteke, zaustavite obavijesti i arhivirajte aplikaciju"</string>
+    <string name="unused_apps_summary_v2" msgid="5011313200815115802">"Uklanjaju se dopuštenja, brišu privremene datoteke, zaustavljaju obavijesti i aplikacija se arhivira"</string>
     <string name="auto_revoke_summary" msgid="5867548789805911683">"Kako bi se vaši podaci zaštitili, dopuštenja za ovu aplikaciju uklonit će se ako se aplikacija ne upotrebljava nekoliko mjeseci."</string>
     <string name="auto_revoke_summary_with_permissions" msgid="389712086597285013">"Kako bi se vaši podaci zaštitili, ako se aplikacija ne upotrebljava nekoliko mjeseci, uklonit će se sljedeća dopuštenja: <xliff:g id="PERMS">%1$s</xliff:g>"</string>
     <string name="auto_revoked_apps_page_summary" msgid="6594753657893756536">"Radi zaštite vaših podataka uklonjena su dopuštenja aplikacijama koje nekoliko mjeseci niste upotrebljavali."</string>
@@ -351,9 +351,9 @@
     <string name="accessibility_service_dialog_title_multiple" msgid="5527879210683548175">"Aplikacije pristupačnosti (njih <xliff:g id="NUM_SERVICES">%s</xliff:g>) s potpunim pristupom vašem uređaju"</string>
     <string name="accessibility_service_dialog_bottom_text_single" msgid="1128666197822205958">"<xliff:g id="SERVICE_NAME">%s</xliff:g> može vidjeti vaš zaslon, radnje i unose, izvršavati radnje i upravljati zaslonom."</string>
     <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"Te aplikacije mogu vidjeti vaš zaslon, radnje i unose, izvršavati radnje i upravljati zaslonom."</string>
-    <string name="role_assistant_label" msgid="4727586018198208128">"Zadana apl. digital. asistenta"</string>
+    <string name="role_assistant_label" msgid="4727586018198208128">"Zadana aplikacija digitalnog asistenta"</string>
     <string name="role_assistant_short_label" msgid="3369003713187703399">"Apl. digitalnog asistenta"</string>
-    <string name="role_assistant_description" msgid="6622458130459922952">"Aplikacije pomoćnika mogu vam pomoći na temelju podataka s prikazanog zaslona. Neke aplikacije podržavaju pokretač i usluge glasovnog unosa kako bi vam pružile integriranu pomoć."</string>
+    <string name="role_assistant_description" msgid="6622458130459922952">"Aplikacije za pomoć služe se podacima koji se prikazuju na zaslonu. Neke aplikacije podržavaju pokretač i usluge glasovnog unosa kako bi vam pružile integriranu pomoć."</string>
     <string name="role_browser_label" msgid="2877796144554070207">"Zadana aplikacija preglednika"</string>
     <string name="role_browser_short_label" msgid="6745009127123292296">"Aplikacija preglednika"</string>
     <string name="role_browser_description" msgid="3465253637499842671">"Aplikacije koje vam omogućuju pristup internetu i prikazuju veze koje dodirnete"</string>
@@ -377,7 +377,7 @@
     <string name="role_emergency_request_title" msgid="8469579020654348567">"Želite li postaviti aplikaciju <xliff:g id="APP_NAME">%1$s</xliff:g> kao zadanu aplikaciju za hitne slučajeve?"</string>
     <string name="role_emergency_request_description" msgid="131645948770262850">"Nije potrebno nijedno dopuštenje"</string>
     <string name="role_emergency_search_keywords" msgid="1920007722599213358">"hitni slučaj"</string>
-    <string name="role_home_label" msgid="3871847846649769412">"Zadana aplik. početnog zaslona"</string>
+    <string name="role_home_label" msgid="3871847846649769412">"Zadana aplikacija početnog zaslona"</string>
     <string name="role_home_short_label" msgid="8544733747952272337">"Aplikacija početnog zaslona"</string>
     <string name="role_home_description" msgid="7997371519626556675">"Aplikacije, poznate i kao pokretači, koje zamjenjuju početne zaslone na vašem Android uređaju i pružaju vam pristup sadržajima i značajkama na njemu"</string>
     <string name="role_home_request_title" msgid="738136983453341081">"Želite li postaviti aplikaciju <xliff:g id="APP_NAME">%1$s</xliff:g> kao zadanu aplikaciju početnog zaslona?"</string>
@@ -407,7 +407,7 @@
     <string name="role_notes_search_keywords" msgid="7710756695666744631">"napomene"</string>
     <string name="role_wallet_label" msgid="3719419175656204207">"Zadana aplikacija za novčanik"</string>
     <string name="role_wallet_short_label" msgid="6521288403762457452">"Aplikacija za novčanik"</string>
-    <string name="role_wallet_description" msgid="3726535836165949838">"Aplikacije za novčanik mogu pohraniti vaše kreditne kartice i kartice vjernosti, automobilske ključeve i druge stvari kako bi vam razne vrste transakcija bile praktičnije."</string>
+    <string name="role_wallet_description" msgid="3726535836165949838">"Aplikacije za novčanik mogu pohranjivati vaše kreditne kartice i kartice vjernosti, automobilske ključeve i druge stvari te vam pomoći s različitim transakcijama."</string>
     <string name="role_wallet_request_title" msgid="4770217108262737093">"Želite li aplikaciju <xliff:g id="APP_NAME">%1$s</xliff:g> postaviti kao zadanu aplikaciju za novčanik?"</string>
     <string name="role_wallet_request_description" msgid="6305487425777483053">"Dopuštenja nisu potrebna"</string>
     <string name="request_role_current_default" msgid="738722892438247184">"Trenutačna zadana"</string>
@@ -435,6 +435,7 @@
     <string name="default_apps_more" msgid="4078194675848858093">"Više zadanih aplikacija"</string>
     <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"Otvaranje veza"</string>
     <string name="default_apps_for_work" msgid="4970308943596201811">"Zadano za posao"</string>
+    <string name="default_apps_for_private_profile" msgid="2022024112144880785">"Zadano za privatni prostor"</string>
     <string name="default_app_none" msgid="9084592086808194457">"Nijedna"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(Zadana postavka sustava)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"Nema aplikacija"</string>
@@ -548,6 +549,7 @@
     <string name="privdash_label_none" msgid="5991866260360484858">"Nijedno"</string>
     <string name="privdash_label_24h" msgid="1512532123865375319">"Posljednja\n24 sata"</string>
     <string name="privdash_label_7d" msgid="5645301995348656931">"U posljednjih\n7 dana"</string>
+    <string name="privdash_usage_percent" msgid="6893824766124414127">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> <xliff:g id="PERCENT">%2$d</xliff:g> posto"</string>
     <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"Aplikaciju <xliff:g id="APP_NAME">%1$s</xliff:g> štiti Android. Budući da se vaši podaci obrađuju na ovom uređaju, upotreba dopuštenja te aplikacije ne prikazuje se na traci statusa ni na vašoj nadzornoj ploči za privatnost."</string>
     <string name="exempt_info_label" msgid="6286190981253476699">"Aplikaciju <xliff:g id="APP_NAME">%1$s</xliff:g> štiti Android. Budući da se vaši podaci obrađuju na ovom uređaju, upotreba dopuštenja te aplikacije ne prikazuje se na vašoj nadzornoj ploči za privatnost."</string>
     <string name="blocked_camera_title" msgid="1128510551791284384">"Kamera uređaja je blokirana"</string>
@@ -556,6 +558,16 @@
     <string name="blocked_sensor_summary" msgid="4443707628305027375">"Za aplikacije i usluge"</string>
     <string name="blocked_mic_summary" msgid="8960466941528458347">"Podaci mikrofona i dalje se mogu dijeliti kad pozovete broj hitne službe."</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"Promijeni"</string>
+    <!-- no translation found for automotive_blocked_camera_title (6142362431548829416) -->
+    <skip />
+    <!-- no translation found for automotive_blocked_infotainment_app_summary (8217099645064950860) -->
+    <skip />
+    <!-- no translation found for automotive_blocked_required_app_summary (8591513745681168088) -->
+    <skip />
+    <!-- no translation found for automotive_required_app_title (2992168288249988735) -->
+    <skip />
+    <!-- no translation found for automotive_required_app_summary (6514902316658090465) -->
+    <skip />
     <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"Sigurnost i privatnost"</string>
     <string name="safety_center_rescan_button" msgid="4517514567809409596">"Skeniranje uređaja"</string>
     <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"Odbaci"</string>
@@ -660,22 +672,15 @@
     <string name="wear_app_perms_7d_access" msgid="4608069019194676432">"Pristupljeno: <xliff:g id="TIME_DATE_0">%1$s</xliff:g> <xliff:g id="TIME_DATE_1">%2$s</xliff:g>"</string>
     <string name="test_otp_msg" msgid="7559110574222727550">"Vaša jednokratna zaporka je 132435"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Ograničena postavka"</string>
-    <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Radi vaše sigurnosti ova je postavka trenutačno nedostupna."</string>
-    <!-- no translation found for enhanced_confirmation_dialog_title_permission (2149144789394238266) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_permission (3150778951946468945) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_role (1737023798483772780) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_role (6369601947905234551) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_settings_default (1858092969721041576) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_settings_default (6911632348359332981) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Radi vaše sigurnosti ova postavka trenutačno nije dostupna."</string>
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Aplikaciji je odbijen pristup dopuštenju <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Aplikacija je zatražila pristup dopuštenju za osjetljive podatke koje može ugroziti vaše osobne i financijske podatke.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Moguće je da aplikacija neće pravilno funkcionirati bez tog ograničenog dopuštenja. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Saznajte kako omogućiti pristup&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Aplikaciji je odbijen pristup da prema zadanim postavkama bude <xliff:g id="ROLE_NAME">%1$s</xliff:g>"</string>
+    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"Aplikacija je zatražila pristup dopuštenjima za osjetljive podatke koja mogu ugroziti vaše osobne i financijske podatke.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Moguće je da aplikacija neće pravilno funkcionirati bez tih ograničenih dopuštenja. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Saznajte kako omogućiti pristup&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"Aplikaciji je odbijen pristup"</string>
+    <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"Pristup tom dopuštenju može ugroziti vaše osobne i financijske podatke.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Moguće je da aplikacija neće pravilno funkcionirati bez tog ograničenog dopuštenja. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Saznajte kako omogućiti pristup&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"Saznajte više"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_ok (8560373821598619924) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"U redu"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Upit za dopuštenje je spriječen"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Aplikacija zahtijeva dodatna dopuštenja, no dopuštenja se ne mogu odobriti u sesiji streaminga. Dopuštenje najprije odobrite na telefonu."</string>
 </resources>

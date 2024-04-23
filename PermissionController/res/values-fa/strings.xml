@@ -435,6 +435,7 @@
     <string name="default_apps_more" msgid="4078194675848858093">"سایر پیش‌فرض‌ها"</string>
     <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"باز کردن پیوندها"</string>
     <string name="default_apps_for_work" msgid="4970308943596201811">"پیش‌فرض برای کار"</string>
+    <string name="default_apps_for_private_profile" msgid="2022024112144880785">"برنامه‌های پیش‌فرض برای فضای خصوصی"</string>
     <string name="default_app_none" msgid="9084592086808194457">"هیچ‌کدام"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(پیش‌فرض سیستم)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"برنامه‌ای موجود نیست"</string>
@@ -548,6 +549,7 @@
     <string name="privdash_label_none" msgid="5991866260360484858">"هیچ‌کدام"</string>
     <string name="privdash_label_24h" msgid="1512532123865375319">"۲۴\nساعت گذشته"</string>
     <string name="privdash_label_7d" msgid="5645301995348656931">"۷ روز\nگذشته"</string>
+    <string name="privdash_usage_percent" msgid="6893824766124414127">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> <xliff:g id="PERCENT">%2$d</xliff:g> درصد"</string>
     <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"‏<xliff:g id="APP_NAME">%1$s</xliff:g> تحت حفاظت Android است. چون داده‌هایتان در این دستگاه پردازش می‌شود، استفاده این برنامه از اجازه در نوار وضعیت یا داشبورد حریم خصوصی‌تان نشان داده نمی‌شود."</string>
     <string name="exempt_info_label" msgid="6286190981253476699">"‏<xliff:g id="APP_NAME">%1$s</xliff:g> تحت حفاظت Android است. چون داده‌هایتان در این دستگاه پردازش می‌شود، استفاده این برنامه از اجازه در داشبورد حریم خصوصی‌تان نشان داده نمی‌شود."</string>
     <string name="blocked_camera_title" msgid="1128510551791284384">"دوربین دستگاه مسدود شده است"</string>
@@ -556,6 +558,11 @@
     <string name="blocked_sensor_summary" msgid="4443707628305027375">"برای برنامه‌ها و سرویس‌ها"</string>
     <string name="blocked_mic_summary" msgid="8960466941528458347">"هنگام تماس با شماره‌های اضطراری، ممکن است همچنان داده‌های میکروفون هم‌رسانی شود."</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"تغییر"</string>
+    <string name="automotive_blocked_camera_title" msgid="6142362431548829416">"دسترسی به دوربین خاموش است"</string>
+    <string name="automotive_blocked_infotainment_app_summary" msgid="8217099645064950860">"برای برنامه‌های اطلاعات-سرگرمی"</string>
+    <string name="automotive_blocked_required_app_summary" msgid="8591513745681168088">"برای برنامه‌های الزامی"</string>
+    <string name="automotive_required_app_title" msgid="2992168288249988735">"این برنامه الزامی است"</string>
+    <string name="automotive_required_app_summary" msgid="6514902316658090465">"سازنده خودرو این برنامه را الزامی کرده است"</string>
     <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"امنیت و حریم خصوصی"</string>
     <string name="safety_center_rescan_button" msgid="4517514567809409596">"اسکن کردن دستگاه"</string>
     <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"رد کردن"</string>
@@ -661,21 +668,14 @@
     <string name="test_otp_msg" msgid="7559110574222727550">"گذرواژه یکبارمصرف شما 132435 است"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"تنظیم محدودشده"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"برای حفظ امنیت شما، درحال‌حاضر این تنظیم دردسترس نیست."</string>
-    <!-- no translation found for enhanced_confirmation_dialog_title_permission (2149144789394238266) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_permission (3150778951946468945) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_role (1737023798483772780) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_role (6369601947905234551) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_settings_default (1858092969721041576) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_settings_default (6911632348359332981) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"درخواست برنامه برای دسترسی به <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> رد شد"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"‏این برنامه درخواست دسترسی به اجازه‌ای حساس را داشته است که می‌تواند اطلاعات شخصی و مالی‌تان را درمعرض خطر قرار دهد.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ممکن است برنامه بدون این اجازه محدودشده به‌درستی کار نکند. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;با نحوه اعطای دسترسی آشنا شوید&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"درخواست دسترسی برنامه برای تبدیل شدن به <xliff:g id="ROLE_NAME">%1$s</xliff:g> پیش‌فرض رد شد"</string>
+    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"‏این برنامه درخواست دسترسی به اجازه‌های حساسی را داشته است که می‌تواند اطلاعات شخصی و مالی‌تان را درمعرض خطر قرار دهد.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ممکن است برنامه بدون این اجازه‌های محدودشده به‌درستی کار نکند. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;با نحوه اعطای دسترسی آشنا شوید&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"درخواست دسترسی برنامه رد شد"</string>
+    <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"‏اعطای این اجازه می‌تواند اطلاعات شخصی و مالی‌تان را درمعرض خطر قرار دهد.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ممکن است برنامه بدون این اجازه محدودشده به‌درستی کار نکند. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;با نحوه اعطای دسترسی آشنا شوید&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"بیشتر بدانید"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_ok (8560373821598619924) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"بسیارخوب"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"درخواست اجازه رد شد"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"این برنامه درخواست اجازه‌های اضافی دارد، اما امکان دادن این اجازه‌ها در جلسه جاری‌سازی وجود ندارد. ابتدا اجازه را در تلفنتان اعطا کنید."</string>
 </resources>

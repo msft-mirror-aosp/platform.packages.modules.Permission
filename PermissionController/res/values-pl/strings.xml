@@ -72,7 +72,7 @@
     <string name="denied_permission_decision" msgid="5308961501779563781">"Odmówiono aplikacji <xliff:g id="APP_NAME">%1$s</xliff:g> dostępu do: <xliff:g id="PERMISSION_NAME">%2$s</xliff:g>"</string>
     <string name="days_ago" msgid="6650359081551335629">"{count,plural, =0{Dzisiaj}=1{1 dzień temu}few{# dni temu}many{# dni temu}other{# dnia temu}}"</string>
     <string name="app_disable_dlg_positive" msgid="7418444149981904940">"Wyłącz aplikację"</string>
-    <string name="app_disable_dlg_text" msgid="3126943217146120240">"Jeśli wyłączysz tę aplikację, Android i inne aplikacje mogą działać nieprawidłowo. Pamiętaj, że nie możesz usunąć tej aplikacji, bo została ona fabrycznie zainstalowana na Twoim urządzeniu. Wyłączone aplikacje są ukrywane na urządzeniu."</string>
+    <string name="app_disable_dlg_text" msgid="3126943217146120240">"Jeśli wyłączysz tę aplikację, Android i inne aplikacje mogą działać nieprawidłowo. Pamiętaj, że nie możesz usunąć tej aplikacji, bo została ona fabrycznie zainstalowana na Twoim urządzeniu. Wyłączona aplikacja zostanie ukryta na urządzeniu."</string>
     <string name="app_permission_manager" msgid="3903811137630909550">"Menedżer uprawnień"</string>
     <string name="never_ask_again" msgid="4728762438198560329">"Nie pytaj ponownie"</string>
     <string name="no_permissions" msgid="3881676756371148563">"Brak uprawnień"</string>
@@ -407,7 +407,7 @@
     <string name="role_notes_search_keywords" msgid="7710756695666744631">"notatki"</string>
     <string name="role_wallet_label" msgid="3719419175656204207">"Domyślna aplikacja portfela"</string>
     <string name="role_wallet_short_label" msgid="6521288403762457452">"Aplikacja portfela cyfrowego"</string>
-    <string name="role_wallet_description" msgid="3726535836165949838">"Aby ułatwić sobie wykonywanie różny form transakcji, w aplikacjach portfeli cyfrowych można przechowywać karty kredytowe i lojalnościowe, kluczyki do samochodu i inne rzeczy."</string>
+    <string name="role_wallet_description" msgid="3726535836165949838">"Aby ułatwić sobie wykonywanie różny form transakcji, w aplikacjach portfeli cyfrowych można przechowywać karty kredytowe i lojalnościowe, kluczyki do samochodu i inne rzeczy."</string>
     <string name="role_wallet_request_title" msgid="4770217108262737093">"Ustawić aplikację <xliff:g id="APP_NAME">%1$s</xliff:g> jako domyślną aplikację portfela cyfrowego?"</string>
     <string name="role_wallet_request_description" msgid="6305487425777483053">"Nie potrzebuje uprawnień"</string>
     <string name="request_role_current_default" msgid="738722892438247184">"Bieżąca aplikacja domyślna"</string>
@@ -435,6 +435,7 @@
     <string name="default_apps_more" msgid="4078194675848858093">"Więcej ustawień domyślnych"</string>
     <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"Otwieranie linków"</string>
     <string name="default_apps_for_work" msgid="4970308943596201811">"Domyślne do pracy"</string>
+    <string name="default_apps_for_private_profile" msgid="2022024112144880785">"Domyślne dla przestrzeni prywatnej"</string>
     <string name="default_app_none" msgid="9084592086808194457">"Brak"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(Domyślna aplikacja systemowa)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"Brak aplikacji"</string>
@@ -548,6 +549,7 @@
     <string name="privdash_label_none" msgid="5991866260360484858">"Brak"</string>
     <string name="privdash_label_24h" msgid="1512532123865375319">"Ostatnie\n24 godziny"</string>
     <string name="privdash_label_7d" msgid="5645301995348656931">"Ostatnie\n7 dni"</string>
+    <string name="privdash_usage_percent" msgid="6893824766124414127">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> <xliff:g id="PERCENT">%2$d</xliff:g> procent"</string>
     <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"Aplikacja <xliff:g id="APP_NAME">%1$s</xliff:g> jest chroniona przez Androida. Ponieważ Twoje dane są przetwarzane na tym urządzeniu, używanie uprawnień przez tę aplikację nie jest wyświetlane na pasku stanu w panelu prywatności."</string>
     <string name="exempt_info_label" msgid="6286190981253476699">"Aplikacja <xliff:g id="APP_NAME">%1$s</xliff:g> jest chroniona przez Androida. Ponieważ Twoje dane są przetwarzane na tym urządzeniu, używanie uprawnień przez tę aplikację nie jest wyświetlane w panelu prywatności."</string>
     <string name="blocked_camera_title" msgid="1128510551791284384">"Aparat urządzenia jest zablokowany"</string>
@@ -556,6 +558,16 @@
     <string name="blocked_sensor_summary" msgid="4443707628305027375">"dla aplikacji i usług"</string>
     <string name="blocked_mic_summary" msgid="8960466941528458347">"Dane z mikrofonu mogą być udostępniane, kiedy dzwonisz na numer alarmowy."</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"Zmień"</string>
+    <!-- no translation found for automotive_blocked_camera_title (6142362431548829416) -->
+    <skip />
+    <!-- no translation found for automotive_blocked_infotainment_app_summary (8217099645064950860) -->
+    <skip />
+    <!-- no translation found for automotive_blocked_required_app_summary (8591513745681168088) -->
+    <skip />
+    <!-- no translation found for automotive_required_app_title (2992168288249988735) -->
+    <skip />
+    <!-- no translation found for automotive_required_app_summary (6514902316658090465) -->
+    <skip />
     <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"Bezpieczeństwo i prywatność"</string>
     <string name="safety_center_rescan_button" msgid="4517514567809409596">"Przeskanuj urządzenie"</string>
     <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"Odrzuć"</string>
@@ -661,21 +673,14 @@
     <string name="test_otp_msg" msgid="7559110574222727550">"Twoje hasło jednorazowe to 132435"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Ustawienie z ograniczonym dostępem"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Ze względów bezpieczeństwa to ustawienie jest obecnie niedostępne."</string>
-    <!-- no translation found for enhanced_confirmation_dialog_title_permission (2149144789394238266) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_permission (3150778951946468945) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_role (1737023798483772780) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_role (6369601947905234551) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_settings_default (1858092969721041576) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_settings_default (6911632348359332981) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Aplikacja nie otrzymała dostępu do uprawnień <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Aplikacja wymaga dostępu do uprawnień newralgicznych, co może zagrażać Twoim danym osobowym i informacjom finansowym.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Możliwe, że bez tego uprawnienia z ograniczeniami aplikacja nie będzie działać poprawnie. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Jak zezwolić na dostęp&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Aplikacja nie otrzymała dostępu jako domyślna <xliff:g id="ROLE_NAME">%1$s</xliff:g>"</string>
+    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"Aplikacja wymaga dostępu do uprawnień newralgicznych, co może zagrażać Twoim danym osobowym i informacjom finansowym.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Możliwe, że bez tego uprawnienia z ograniczeniami aplikacja nie będzie działać poprawnie. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Jak zezwolić na dostęp&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"Aplikacja nie otrzymała dostępu"</string>
+    <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"Dostęp do tych uprawnień może zagrażać Twoim danym osobowym i informacjom finansowym.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Możliwe, że bez tych uprawnień z ograniczeniami aplikacja nie będzie działać poprawnie. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Jak zezwolić na dostęp&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"Więcej informacji"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_ok (8560373821598619924) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"OK"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Prośba o uprawnienia została zablokowana"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Ta aplikacja prosi o dodatkowe uprawnienia, ale nie można ich przyznać w trakcie sesji strumieniowania. Najpierw przyznaj te uprawnienia na telefonie."</string>
 </resources>

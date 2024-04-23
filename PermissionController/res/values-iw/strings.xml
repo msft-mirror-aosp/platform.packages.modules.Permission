@@ -435,6 +435,7 @@
     <string name="default_apps_more" msgid="4078194675848858093">"עוד ברירות מחדל"</string>
     <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"פתיחת קישורים"</string>
     <string name="default_apps_for_work" msgid="4970308943596201811">"ברירת מחדל לעבודה"</string>
+    <string name="default_apps_for_private_profile" msgid="2022024112144880785">"ברירת מחדל עבור המרחב הפרטי"</string>
     <string name="default_app_none" msgid="9084592086808194457">"ללא"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(ברירת מחדל של המערכת)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"אין אפליקציות"</string>
@@ -548,6 +549,7 @@
     <string name="privdash_label_none" msgid="5991866260360484858">"ללא"</string>
     <string name="privdash_label_24h" msgid="1512532123865375319">"ב-24 השעות\nהאחרונות"</string>
     <string name="privdash_label_7d" msgid="5645301995348656931">"ב-7 הימים\nהאחרונים"</string>
+    <string name="privdash_usage_percent" msgid="6893824766124414127">"‫<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> <xliff:g id="PERCENT">%2$d</xliff:g> אחוזים"</string>
     <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"‏האפליקציה <xliff:g id="APP_NAME">%1$s</xliff:g> מוגנת על ידי Android. השימוש של האפליקציה הזו בהרשאות לא מוצג בשורת הסטטוס או במרכז הבקרה להגדרות הפרטיות כי הנתונים שלך מעובדים במכשיר הזה."</string>
     <string name="exempt_info_label" msgid="6286190981253476699">"‏האפליקציה <xliff:g id="APP_NAME">%1$s</xliff:g> מוגנת על ידי Android. השימוש של האפליקציה הזו בהרשאות לא מוצג במרכז הבקרה להגדרות הפרטיות כי הנתונים שלך מעובדים במכשיר הזה."</string>
     <string name="blocked_camera_title" msgid="1128510551791284384">"המצלמה במכשיר חסומה"</string>
@@ -556,6 +558,11 @@
     <string name="blocked_sensor_summary" msgid="4443707628305027375">"לאפליקציות ולשירותים"</string>
     <string name="blocked_mic_summary" msgid="8960466941528458347">"יכול להיות שהנתונים מהמיקרופון ישותפו בכל זאת בשיחה עם מספר חירום."</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"שינוי"</string>
+    <string name="automotive_blocked_camera_title" msgid="6142362431548829416">"הגישה למצלמה מושבתת"</string>
+    <string name="automotive_blocked_infotainment_app_summary" msgid="8217099645064950860">"לאפליקציות מידע ובידור"</string>
+    <string name="automotive_blocked_required_app_summary" msgid="8591513745681168088">"לאפליקציות נדרשות"</string>
+    <string name="automotive_required_app_title" msgid="2992168288249988735">"האפליקציה הזו נדרשת"</string>
+    <string name="automotive_required_app_summary" msgid="6514902316658090465">"האפליקציה הזו נדרשת על ידי יצרן הרכב"</string>
     <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"אבטחה ופרטיות"</string>
     <string name="safety_center_rescan_button" msgid="4517514567809409596">"סריקת המכשיר"</string>
     <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"סגירה"</string>
@@ -661,21 +668,14 @@
     <string name="test_otp_msg" msgid="7559110574222727550">"הסיסמה החד-פעמית שלך היא 132435"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"הגדרה מוגבלת"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"מטעמי אבטחה, ההגדרה הזו לא זמינה כרגע."</string>
-    <!-- no translation found for enhanced_confirmation_dialog_title_permission (2149144789394238266) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_permission (3150778951946468945) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_role (1737023798483772780) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_role (6369601947905234551) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_settings_default (1858092969721041576) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_settings_default (6911632348359332981) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"בקשת הגישה של האפליקציה ל<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> נדחתה"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"‏האפליקציה ביקשה הרשאת גישה למידע רגיש שעלולה לסכן את המידע האישי והפיננסי שלך.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>יכול להיות שהאפליקציה לא תעבוד כמו שצריך ללא ההרשאה המוגבלת הזו. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;מידע נוסף על מתן גישה להרשאות&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"בקשת הגישה של האפליקציה לשמש כברירת המחדל של <xliff:g id="ROLE_NAME">%1$s</xliff:g> נדחתה"</string>
+    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"‏האפליקציה ביקשה הרשאת גישה למידע רגיש שעלולה לסכן את המידע האישי והפיננסי שלך.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>יכול להיות שהאפליקציה לא תעבוד כמו שצריך ללא ההרשאות המוגבלות האלו. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;מידע נוסף על מתן גישה להרשאות&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"בקשת הגישה של האפליקציה נדחתה"</string>
+    <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"‏מתן גישה להרשאה הזו עלול לסכן את המידע האישי והפיננסי שלך.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>יכול להיות שהאפליקציה לא תעבוד כמו שצריך ללא ההרשאה המוגבלת הזו. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;מידע נוסף על מתן גישה להרשאות&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"מידע נוסף"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_ok (8560373821598619924) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"הבנתי"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"בקשת ההרשאה בוטלה"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"האפליקציה הזו מבקשת הרשאות נוספות, אבל אי אפשר לתת הרשאות בזמן פעילות של סטרימינג. צריך לתת את ההרשאה קודם בטלפון."</string>
 </resources>

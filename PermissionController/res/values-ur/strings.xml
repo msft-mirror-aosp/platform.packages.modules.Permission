@@ -435,6 +435,7 @@
     <string name="default_apps_more" msgid="4078194675848858093">"مزید ڈیفالٹس"</string>
     <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"شروعاتی لنکس"</string>
     <string name="default_apps_for_work" msgid="4970308943596201811">"کام کیلئے ڈیفالٹ"</string>
+    <string name="default_apps_for_private_profile" msgid="2022024112144880785">"پرائیویٹ اسپیس کے لیے ڈیفالٹ"</string>
     <string name="default_app_none" msgid="9084592086808194457">"کوئی نہیں"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(سسٹم ڈیفالٹ)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"کوئی ایپس نہیں ہیں"</string>
@@ -548,6 +549,7 @@
     <string name="privdash_label_none" msgid="5991866260360484858">"کوئی نہیں"</string>
     <string name="privdash_label_24h" msgid="1512532123865375319">"گزشتہ\n24 گھنٹے"</string>
     <string name="privdash_label_7d" msgid="5645301995348656931">"گزشتہ\n7 دن"</string>
+    <string name="privdash_usage_percent" msgid="6893824766124414127">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> <xliff:g id="PERCENT">%2$d</xliff:g> فیصد"</string>
     <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"‏‫Android <xliff:g id="APP_NAME">%1$s</xliff:g> کے ساتھ تحفظ یافتہ ہے۔ کیونکہ آپ کے ڈیٹا پر اس آلے پر کارروائی کی جاتی ہے، اس ایپ کی اجازت کا استعمال اسٹیٹس بار یا آپ کے پرائیویسی ڈیش بورڈ پر دکھائی نہیں دیتا ہے۔"</string>
     <string name="exempt_info_label" msgid="6286190981253476699">"‏Android <xliff:g id="APP_NAME">%1$s</xliff:g> کے ساتھ تحفظ یافتہ ہے۔ کیونکہ آپ کے ڈیٹا پر اس آلے پر کارروائی کی جاتی ہے، اس ایپ کی اجازت کا استعمال آپ کے پرائیویسی ڈیش بورڈ پر دکھائی نہیں دیتا ہے۔"</string>
     <string name="blocked_camera_title" msgid="1128510551791284384">"آلے کا کیمرا مسدود ہے"</string>
@@ -556,6 +558,16 @@
     <string name="blocked_sensor_summary" msgid="4443707628305027375">"ایپس اور سروسز کے لیے"</string>
     <string name="blocked_mic_summary" msgid="8960466941528458347">"جب آپ ایمرجنسی نمبر پر کال کرتے ہیں تو مائیکروفون کے ڈیٹا کا اب بھی اشتراک کیا جا سکتا ہے۔"</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"تبدیل کریں"</string>
+    <!-- no translation found for automotive_blocked_camera_title (6142362431548829416) -->
+    <skip />
+    <!-- no translation found for automotive_blocked_infotainment_app_summary (8217099645064950860) -->
+    <skip />
+    <!-- no translation found for automotive_blocked_required_app_summary (8591513745681168088) -->
+    <skip />
+    <!-- no translation found for automotive_required_app_title (2992168288249988735) -->
+    <skip />
+    <!-- no translation found for automotive_required_app_summary (6514902316658090465) -->
+    <skip />
     <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"سیکیورٹی اور رازداری"</string>
     <string name="safety_center_rescan_button" msgid="4517514567809409596">"آلہ اسکین کریں"</string>
     <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"برخاست کریں"</string>
@@ -661,21 +673,14 @@
     <string name="test_otp_msg" msgid="7559110574222727550">"آپ کا ایک وقتی پاس ورڈ 132435 ہے"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"محدود ترتیب"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"آپ کی سیکیورٹی کیلئے، یہ ترتیب فی الحال دستیاب نہیں ہے۔"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_title_permission (2149144789394238266) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_permission (3150778951946468945) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_role (1737023798483772780) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_role (6369601947905234551) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_settings_default (1858092969721041576) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_settings_default (6911632348359332981) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> تک ایپ کی رسائی کو مسترد کر دیا گیا"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"‏ایپ نے ایک حساس اجازت تک رسائی کی درخواست کی ہے جو آپ کی ذاتی اور مالی معلومات کو خطرے میں ڈال سکتی ہے۔<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>یہ ممکن ہے کہ اس محدود اجازت کے بغیر ایپ ٹھیک سے کام نہ کرے۔ &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;رسائی کی اجازت دینے کا طریقہ جانیں&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"ڈیفالٹ <xliff:g id="ROLE_NAME">%1$s</xliff:g> ہونے کے لیے ایپ کی رسائی کو مسترد کر دیا گیا"</string>
+    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"‏ایپ نے حساس اجازتوں تک رسائی کی درخواست کی ہے جو آپ کی ذاتی اور مالی معلومات کو خطرے میں ڈال سکتی ہیں۔<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>یہ ممکن ہے کہ ان محدود اجازتوں کے بغیر ایپ ٹھیک سے کام نہ کرے۔ &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;رسائی کی اجازت دینے کا طریقہ جانیں&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"ایپ کی رسائی کو مسترد کر دیا گیا"</string>
+    <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"‏اس اجازت تک رسائی آپ کی ذاتی اور مالی معلومات کو خطرے میں ڈال سکتی ہے۔<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>یہ ممکن ہے کہ اس محدود اجازت کے بغیر ایپ ٹھیک سے کام نہ کرے۔ &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;رسائی کی اجازت دینے کا طریقہ جانیں&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"مزید جانیں"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_ok (8560373821598619924) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"ٹھیک ہے"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"اجازت کی درخواست مسترد کر دی گئی"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"یہ ایپ اضافی اجازتوں کی درخواست کر رہی ہے، لیکن سلسلہ بندی کے سیشن میں اجازتیں نہیں دی جا سکتیں۔ پہلے اپنے فون پر اجازت دیں۔"</string>
 </resources>

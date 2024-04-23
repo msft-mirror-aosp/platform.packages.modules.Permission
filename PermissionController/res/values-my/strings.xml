@@ -435,13 +435,14 @@
     <string name="default_apps_more" msgid="4078194675848858093">"နောက်ထပ် မူရင်းများ"</string>
     <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"လင့်ခ်များကို ဖွင့်ခြင်း"</string>
     <string name="default_apps_for_work" msgid="4970308943596201811">"အလုပ်အတွက် မူရင်း"</string>
+    <string name="default_apps_for_private_profile" msgid="2022024112144880785">"သီးသန့်နေရာအတွက် မူလအက်ပ်များ"</string>
     <string name="default_app_none" msgid="9084592086808194457">"မရှိ"</string>
-    <string name="default_app_system_default" msgid="6218386768175513760">"(စနစ်မူလ)"</string>
+    <string name="default_app_system_default" msgid="6218386768175513760">"(စနစ်မူရင်း)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"အက်ပ် မရှိပါ"</string>
     <string name="car_default_app_selected" msgid="5416420830430644174">"ရွေးထားသည်"</string>
     <string name="car_default_app_selected_with_info" msgid="1932204186080593500">"ရွေးထားသည် - <xliff:g id="ADDITIONAL_INFO">%1$s</xliff:g>"</string>
-    <string name="special_app_access_search_keyword" msgid="8032347212290774210">"အထူးအက်ပ်များ ဝင်သုံးခွင့်"</string>
-    <string name="special_app_access" msgid="5019319067120213797">"အထူးအက်ပ်များ သုံးခွင့်ရှိသည်"</string>
+    <string name="special_app_access_search_keyword" msgid="8032347212290774210">"အက်ပ် အထူးအသုံးပြုခွင့်"</string>
+    <string name="special_app_access" msgid="5019319067120213797">"အက်ပ် အထူးအသုံးပြုခွင့်"</string>
     <string name="no_special_app_access" msgid="6950277571805106247">"အထူးအက်ပ်များ သုံးခွင့်မရှိပါ"</string>
     <string name="special_app_access_no_apps" msgid="4102911722787886970">"အက်ပ် မရှိပါ"</string>
     <string name="home_missing_work_profile_support" msgid="1756855847669387977">"အလုပ်ပရိုဖိုင်ကို မပံ့ပိုးပါ"</string>
@@ -548,6 +549,7 @@
     <string name="privdash_label_none" msgid="5991866260360484858">"မရှိ"</string>
     <string name="privdash_label_24h" msgid="1512532123865375319">"ပြီးခဲ့သော\n၂၄ နာရီ"</string>
     <string name="privdash_label_7d" msgid="5645301995348656931">"ပြီးခဲ့သည့်\n၇ ရက်"</string>
+    <string name="privdash_usage_percent" msgid="6893824766124414127">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> <xliff:g id="PERCENT">%2$d</xliff:g> ရာခိုင်နှုန်း"</string>
     <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"<xliff:g id="APP_NAME">%1$s</xliff:g> ကို Android က ကာကွယ်ထားသည်။ သင့်ဒေတာကို ဤစက်ပစ္စည်းပေါ်တွင် စီမံသောကြောင့် ဤအက်ပ်၏ ခွင့်ပြုချက်အသုံးပြုမှုကို အခြေအနေပြဘား (သို့) သင့်ကိုယ်ရေးအချက်အလက် လုံခြုံမှု ဒက်ရှ်ဘုတ်ပေါ်တွင် မပြပါ။"</string>
     <string name="exempt_info_label" msgid="6286190981253476699">"<xliff:g id="APP_NAME">%1$s</xliff:g> ကို Android က ကာကွယ်ထားသည်။ သင့်ဒေတာကို ဤစက်ပစ္စည်းပေါ်တွင် စီမံသောကြောင့် ဤအက်ပ်၏ ခွင့်ပြုချက်အသုံးပြုမှုကို သင့်ကိုယ်ရေးအချက်အလက် လုံခြုံမှု ဒက်ရှ်ဘုတ်ပေါ်တွင် မပြပါ။"</string>
     <string name="blocked_camera_title" msgid="1128510551791284384">"စက်ကင်မရာကို ပိတ်ထားသည်"</string>
@@ -556,6 +558,11 @@
     <string name="blocked_sensor_summary" msgid="4443707628305027375">"အက်ပ်နှင့် ဝန်ဆောင်မှုများအတွက်"</string>
     <string name="blocked_mic_summary" msgid="8960466941528458347">"အရေးပေါ် နံပါတ်ကို သင်ခေါ်ဆိုချိန်တွင် မိုက်ခရိုဖုန်းဒေတာကို မျှဝေနိုင်သေးသည်။"</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"ပြောင်းရန်"</string>
+    <string name="automotive_blocked_camera_title" msgid="6142362431548829416">"ကင်မရာသုံးခွင့် ပိတ်ထားသည်"</string>
+    <string name="automotive_blocked_infotainment_app_summary" msgid="8217099645064950860">"သတင်းနှင့်ဖျော်ဖြေရေး အက်ပ်များအတွက်"</string>
+    <string name="automotive_blocked_required_app_summary" msgid="8591513745681168088">"လိုအပ်သောအက်ပ်များအတွက်"</string>
+    <string name="automotive_required_app_title" msgid="2992168288249988735">"ဤအက်ပ်ကို လိုအပ်သည်"</string>
+    <string name="automotive_required_app_summary" msgid="6514902316658090465">"သင့်ကားထုတ်လုပ်သူက ဤအက်ပ်ကို လိုအပ်သည်"</string>
     <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"လုံခြုံရေးနှင့် ကိုယ်ရေးဒေတာ"</string>
     <string name="safety_center_rescan_button" msgid="4517514567809409596">"စက်ကိုစစ်ဆေးရန်"</string>
     <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"ပယ်ရန်"</string>
@@ -661,21 +668,14 @@
     <string name="test_otp_msg" msgid="7559110574222727550">"သင့်တစ်ခါသုံး စကားဝှက်သည် 132435 ဖြစ်သည်"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"ကန့်သတ်ဆက်တင်"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"သင့်လုံခြုံရေးအတွက် ဤဆက်တင်ကို လောလောဆယ် မရနိုင်ပါ။"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_title_permission (2149144789394238266) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_permission (3150778951946468945) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_role (1737023798483772780) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_role (6369601947905234551) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_settings_default (1858092969721041576) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_settings_default (6911632348359332981) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"အက်ပ်ကို <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> သုံးခွင့် ငြင်းပယ်ထားသည်"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"အက်ပ်သည် သင်၏ ပုဂ္ဂိုလ်ရေးနှင့် ငွေကြေးဆိုင်ရာ အချက်အလက်များကို အန္တရာယ်ဖြစ်စေနိုင်သော သတိထားရမည့် ခွင့်ပြုချက်သုံးရန် တောင်းဆိုထားသည်။<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>အက်ပ်သည် ဤကန့်သတ်ထားသော ခွင့်ပြုချက်မရှိပါက ကောင်းစွာမလုပ်ဆောင်ခြင်း ဖြစ်နိုင်သည်။ &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;သုံးခွင့်ပြုနည်းကို လေ့လာရန်&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"အက်ပ်အား မူရင်း <xliff:g id="ROLE_NAME">%1$s</xliff:g> အဖြစ် လုပ်ဆောင်ခွင့် ငြင်းပယ်ထားသည်"</string>
+    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"အက်ပ်သည် သင်၏ ပုဂ္ဂိုလ်ရေးနှင့် ငွေကြေးဆိုင်ရာ အချက်အလက်များကို အန္တရာယ်ဖြစ်စေနိုင်သော သတိထားရမည့် ခွင့်ပြုချက်များသုံးရန် တောင်းဆိုထားသည်။<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>အက်ပ်သည် ဤကန့်သတ်ထားသော ခွင့်ပြုချက်များမရှိပါက ကောင်းစွာမလုပ်ဆောင်ခြင်း ဖြစ်နိုင်သည်။ &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;သုံးခွင့်ပြုနည်းကို လေ့လာရန်&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"အက်ပ်ကို သုံးခွင့် ငြင်းပယ်ထားသည်"</string>
+    <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"ဤခွင့်ပြုချက်သုံးခြင်းသည် သင်၏ ပုဂ္ဂိုလ်ရေးနှင့် ငွေကြေးဆိုင်ရာ အချက်အလက်များကို အန္တရာယ်ဖြစ်စေနိုင်သည်။<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>အက်ပ်သည် ဤကန့်သတ်ထားသော ခွင့်ပြုချက်မရှိပါက ကောင်းစွာမလုပ်ဆောင်ခြင်း ဖြစ်နိုင်သည်။ &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;သုံးခွင့်ပြုနည်းကို လေ့လာရန်&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"ပိုမိုလေ့လာရန်"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_ok (8560373821598619924) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"OK"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"ခွင့်ပြုချက်တောင်းဆိုမှု ပိတ်ထားသည်"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"ဤအက်ပ်သည် နောက်ထပ်ခွင့်ပြုချက်များကို တောင်းဆိုနေသော်လည်း တိုက်ရိုက်လွှင့်စက်ရှင်တွင် ခွင့်ပြုချက်များ ပေး၍မရပါ။ သင့်ဖုန်းတွင် ဦးစွာ ခွင့်ပြုချက်ပေးပါ။"</string>
 </resources>

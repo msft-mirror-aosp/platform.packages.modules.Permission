@@ -435,6 +435,7 @@
     <string name="default_apps_more" msgid="4078194675848858093">"ຄ່າເລີ່ມຕົ້ນເພີ່ມເຕີມ"</string>
     <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"ການເປີດລິ້ງ"</string>
     <string name="default_apps_for_work" msgid="4970308943596201811">"ຄ່າເລີ່ມຕົ້ນສຳລັບບ່ອນເຮັດວຽກ"</string>
+    <string name="default_apps_for_private_profile" msgid="2022024112144880785">"ຄ່າເລີ່ມຕົ້ນສຳລັບພື້ນທີ່ສ່ວນບຸກຄົນ"</string>
     <string name="default_app_none" msgid="9084592086808194457">"ບໍ່ມີ"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(ຄ່າເລີ່ມຕົ້ນຂອງລະບົບ)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"ບໍ່ມີແອັບ"</string>
@@ -548,6 +549,7 @@
     <string name="privdash_label_none" msgid="5991866260360484858">"ບໍ່ມີ"</string>
     <string name="privdash_label_24h" msgid="1512532123865375319">"24 ຊົ່ວໂມງ\nທີ່ຜ່ານມາ"</string>
     <string name="privdash_label_7d" msgid="5645301995348656931">"7 ມື້\nທີ່ຜ່ານມາ"</string>
+    <string name="privdash_usage_percent" msgid="6893824766124414127">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> <xliff:g id="PERCENT">%2$d</xliff:g> ເປີເຊັນ"</string>
     <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"<xliff:g id="APP_NAME">%1$s</xliff:g> ແມ່ນຖືກປົກປ້ອງໂດຍ Android. ເນື່ອງຈາກຂໍ້ມູນຂອງທ່ານຖືກປະມວນຜົນຢູ່ອຸປະກອນນີ້, ການນຳໃຊ້ການອະນຸຍາດຂອງແອັບນີ້ຈະບໍ່ສະແດງຢູ່ແຖບສະຖານະ ຫຼື ແຜງໜ້າປັດຄວາມເປັນສ່ວນຕົວຂອງທ່ານ."</string>
     <string name="exempt_info_label" msgid="6286190981253476699">"<xliff:g id="APP_NAME">%1$s</xliff:g> ແມ່ນຖືກປົກປ້ອງໂດຍ Android. ເນື່ອງຈາກຂໍ້ມູນຂອງທ່ານຖືກປະມວນຜົນຢູ່ອຸປະກອນນີ້, ການນຳໃຊ້ການອະນຸຍາດຂອງແອັບນີ້ຈະບໍ່ສະແດງຢູ່ແຜງໜ້າປັດຄວາມເປັນສ່ວນຕົວຂອງທ່ານ."</string>
     <string name="blocked_camera_title" msgid="1128510551791284384">"ກ້ອງຖ່າຍຮູບອຸປະກອນຖືກບລັອກໄວ້"</string>
@@ -556,6 +558,11 @@
     <string name="blocked_sensor_summary" msgid="4443707628305027375">"ສຳລັບແອັບ ແລະ ບໍລິການ"</string>
     <string name="blocked_mic_summary" msgid="8960466941528458347">"ຂໍ້ມູນໄມໂຄຣໂຟນອາດຍັງຄົງຖືກແບ່ງປັນໃນເວລາທີ່ທ່ານໂທຫາເບີໂທສຸກເສີນ."</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"ປ່ຽນ"</string>
+    <string name="automotive_blocked_camera_title" msgid="6142362431548829416">"ສິດເຂົ້າເຖິງກ້ອງຖ່າຍຮູບປິດຢູ່"</string>
+    <string name="automotive_blocked_infotainment_app_summary" msgid="8217099645064950860">"ສຳລັບແອັບສາລະບັນເທີງ"</string>
+    <string name="automotive_blocked_required_app_summary" msgid="8591513745681168088">"ສຳລັບແອັບທີ່ຈຳເປັນ"</string>
+    <string name="automotive_required_app_title" msgid="2992168288249988735">"ແອັບນີ້ຈຳເປັນ"</string>
+    <string name="automotive_required_app_summary" msgid="6514902316658090465">"ແອັບນີ້ຈຳເປັນໂດຍຜູ້ຜະລິດລົດຂອງທ່ານ"</string>
     <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"ຄວາມປອດໄພ ແລະ ຄວາມເປັນສ່ວນຕົວ"</string>
     <string name="safety_center_rescan_button" msgid="4517514567809409596">"ສະແກນອຸປະກອນ"</string>
     <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"ປິດໄວ້"</string>
@@ -661,21 +668,14 @@
     <string name="test_otp_msg" msgid="7559110574222727550">"ລະຫັດຜ່ານແບບໃຊ້ໄດ້ເທື່ອດຽວຂອງທ່ານແມ່ນ 132435"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"ການຕັ້ງຄ່າທີ່ຈຳກັດ"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"ເພື່ອຄວາມປອດໄພຂອງທ່ານ, ຕອນນີ້ຈຶ່ງບໍ່ສາມາດໃຊ້ການຕັ້ງຄ່ານີ້ໄດ້."</string>
-    <!-- no translation found for enhanced_confirmation_dialog_title_permission (2149144789394238266) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_permission (3150778951946468945) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_role (1737023798483772780) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_role (6369601947905234551) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_settings_default (1858092969721041576) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_settings_default (6911632348359332981) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"ແອັບຖືກປະຕິເສດສິດເຂົ້າເຖິງຫາ <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"ແອັບໄດ້ຮ້ອງຂໍການສິດເຖິງການອະນຸຍາດທີ່ລະອຽດອ່ອນ ເຊິ່ງສາມາດເຮັດໃຫ້ຂໍ້ມູນສ່ວນຕົວ ແລະ ຂໍ້ມູນການເງິນຂອງທ່ານມີຄວາມສ່ຽງ.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ມັນເປັນໄປໄດ້ວ່າແອັບດັ່ງກ່າວຈະບໍ່ເຮັດວຽກຢ່າງຖືກຕ້ອງໂດຍບໍ່ມີການອະນຸຍາດທີ່ຖືກຈຳກັດໄວ້ນີ້. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;ສຶກສາວິທີອະນຸຍາດສິດເຂົ້າເຖິງ&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"ແອັບຖືກປະຕິເສດສິດເຂົ້າເຖິງໃຫ້ເປັນ <xliff:g id="ROLE_NAME">%1$s</xliff:g> ຄ່າເລີ່ມຕົ້ນ"</string>
+    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"ແອັບໄດ້ຮ້ອງຂໍການສິດເຖິງການອະນຸຍາດທີ່ລະອຽດອ່ອນ ເຊິ່ງສາມາດເຮັດໃຫ້ຂໍ້ມູນສ່ວນຕົວ ແລະ ຂໍ້ມູນການເງິນຂອງທ່ານມີຄວາມສ່ຽງ.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ມັນເປັນໄປໄດ້ວ່າແອັບດັ່ງກ່າວຈະບໍ່ເຮັດວຽກຢ່າງຖືກຕ້ອງໂດຍບໍ່ມີການອະນຸຍາດທີ່ຖືກຈຳກັດໄວ້ເຫຼົ່ານີ້. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;ສຶກສາວິທີອະນຸຍາດສິດເຂົ້າເຖິງ&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"ແອັບຖືກປະຕິເສດສິດເຂົ້າເຖິງ"</string>
+    <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"ເຂົ້າເຖິງການອະນຸຍາດນີ້ສາມາດເຮັດໃຫ້ຂໍ້ມູນສ່ວນຕົວ ແລະ ຂໍ້ມູນການເງິນຂອງທ່ານມີຄວາມສ່ຽງ.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ມັນເປັນໄປໄດ້ວ່າແອັບດັ່ງກ່າວຈະບໍ່ເຮັດວຽກຢ່າງຖືກຕ້ອງໂດຍບໍ່ມີການອະນຸຍາດທີ່ຖືກຈຳກັດໄວ້ນີ້. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;ສຶກສາວິທີອະນຸຍາດສິດເຂົ້າເຖິງ&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"ສຶກສາເພີ່ມເຕີມ"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_ok (8560373821598619924) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"ຕົກລົງ"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"ຄຳຮ້ອງຂໍການອະນຸຍາດຖືກລະງັບ"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"ແອັບນີ້ກຳລັງຮ້ອງຂໍການອະນຸຍາດເພີ່ມເຕີມ, ແຕ່ບໍ່ສາມາດໃຫ້ການອະນຸຍາດໃນເຊດຊັນການສະຕຣີມໄດ້. ກະລຸນາໃຫ້ການອະນຸຍາດໃນໂທລະສັບຂອງທ່ານກ່ອນ."</string>
 </resources>

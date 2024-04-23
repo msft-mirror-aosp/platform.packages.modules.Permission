@@ -406,7 +406,7 @@
     <string name="role_notes_description" msgid="8496852798616883551">"Апликации што ви овозможуваат да запишувате белешки на вашиот уред"</string>
     <string name="role_notes_search_keywords" msgid="7710756695666744631">"белешки"</string>
     <string name="role_wallet_label" msgid="3719419175656204207">"Стандардна аплик. за паричник"</string>
-    <string name="role_wallet_short_label" msgid="6521288403762457452">"Апликација за Wallet"</string>
+    <string name="role_wallet_short_label" msgid="6521288403762457452">"Апликација за паричник"</string>
     <string name="role_wallet_description" msgid="3726535836165949838">"Апликациите за паричник може да ги складираат кредитните и картичките за лојалност, клучевите за автомобилот, како и други работи за олеснување на различните форми на трансакции."</string>
     <string name="role_wallet_request_title" msgid="4770217108262737093">"Да се постави <xliff:g id="APP_NAME">%1$s</xliff:g> како стандардна апликација за Wallet?"</string>
     <string name="role_wallet_request_description" msgid="6305487425777483053">"Не се потребни дозволи"</string>
@@ -435,6 +435,7 @@
     <string name="default_apps_more" msgid="4078194675848858093">"Повеќе поставки"</string>
     <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"За отворање линкови"</string>
     <string name="default_apps_for_work" msgid="4970308943596201811">"Стандардно за работа"</string>
+    <string name="default_apps_for_private_profile" msgid="2022024112144880785">"Стандардно за „Приватен простор“"</string>
     <string name="default_app_none" msgid="9084592086808194457">"Нема"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(Стандардно за системот)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"Нема апликации"</string>
@@ -548,6 +549,7 @@
     <string name="privdash_label_none" msgid="5991866260360484858">"Ништо"</string>
     <string name="privdash_label_24h" msgid="1512532123865375319">"Минатите\n24 часа"</string>
     <string name="privdash_label_7d" msgid="5645301995348656931">"Изминатите\n7 дена"</string>
+    <string name="privdash_usage_percent" msgid="6893824766124414127">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>: <xliff:g id="PERCENT">%2$d</xliff:g> процент"</string>
     <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"<xliff:g id="APP_NAME">%1$s</xliff:g> е заштитена од Android. Бидејќи вашите податоци се обработуваат на уредов, користењето на дозволата на апликацијава не е прикажано на лентата за статус или вашата контролна табла за приватност."</string>
     <string name="exempt_info_label" msgid="6286190981253476699">"<xliff:g id="APP_NAME">%1$s</xliff:g> е заштитена од Android. Бидејќи вашите податоци се обработуваат на уредов, користењето на дозволата на апликацијава не е прикажано на вашата контролна табла за приватност."</string>
     <string name="blocked_camera_title" msgid="1128510551791284384">"Камерата на уредот е блокирана"</string>
@@ -556,6 +558,11 @@
     <string name="blocked_sensor_summary" msgid="4443707628305027375">"За апликации и услуги"</string>
     <string name="blocked_mic_summary" msgid="8960466941528458347">"Податоците за микрофонот може сепак да се споделат кога се јавувате на бројот за итни случаи."</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"Измени"</string>
+    <string name="automotive_blocked_camera_title" msgid="6142362431548829416">"Пристапот до камерата е исклучен"</string>
+    <string name="automotive_blocked_infotainment_app_summary" msgid="8217099645064950860">"За апликации за информации и забава"</string>
+    <string name="automotive_blocked_required_app_summary" msgid="8591513745681168088">"За задолжителните апликации"</string>
+    <string name="automotive_required_app_title" msgid="2992168288249988735">"Апликацијава е задолжителна"</string>
+    <string name="automotive_required_app_summary" msgid="6514902316658090465">"Апликацијава ја бара производителот на вашиот автомобил"</string>
     <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"Безбедност и приватност"</string>
     <string name="safety_center_rescan_button" msgid="4517514567809409596">"Скенирај го уредот"</string>
     <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"Отфрли"</string>
@@ -661,21 +668,14 @@
     <string name="test_otp_msg" msgid="7559110574222727550">"Вашата еднократна лозинка е 132435"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Ограничена поставка"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"За ваша безбедност, поставкава е недостапна во моментов."</string>
-    <!-- no translation found for enhanced_confirmation_dialog_title_permission (2149144789394238266) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_permission (3150778951946468945) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_role (1737023798483772780) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_role (6369601947905234551) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_settings_default (1858092969721041576) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_settings_default (6911632348359332981) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Барањето за пристап на апликацијата до <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> е одбиено"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Апликацијата побара пристап до дозвола за чувствителни податоци што може да ја загрози безбедноста на вашите лични и финансиски податоци.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Можно е апликацијата да не функционира правилно без ограниченава дозвола. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Дознајте повеќе како да дозволите пристап&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Барањето на апликацијата да биде стандарднa <xliff:g id="ROLE_NAME">%1$s</xliff:g> е одбиено"</string>
+    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"Апликацијата побара пристап до дозволи за чувствителни податоци што може да ја загрози безбедноста на вашите лични и финансиски податоци.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Можно е апликацијата да не функционира правилно без ограничениве дозволи. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Дознајте повеќе како да дозволите пристап&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"Барањето за пристап на апликацијата е одбиено"</string>
+    <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"Пристапот до дозволава може да ја загрози безбедноста на вашите лични и финансиски податоци.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Можно е апликацијата да не функционира правилно без ограниченава дозвола. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Дознајте повеќе како да дозволите пристап&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"Дознајте повеќе"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_ok (8560373821598619924) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"Во ред"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Барањето за дозвола е потиснато"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Апликацијава бара дополнителни дозволи, но нив не може да ги доделите во сесија за стриминг. Прво доделете ја дозволата на вашиот телефон."</string>
 </resources>

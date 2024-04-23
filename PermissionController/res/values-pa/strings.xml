@@ -72,7 +72,7 @@
     <string name="denied_permission_decision" msgid="5308961501779563781">"ਤੁਸੀਂ <xliff:g id="APP_NAME">%1$s</xliff:g> ਦੀ <xliff:g id="PERMISSION_NAME">%2$s</xliff:g> ਤੱਕ ਪਹੁੰਚ ਨੂੰ ਅਸਵੀਕਾਰ ਕੀਤਾ"</string>
     <string name="days_ago" msgid="6650359081551335629">"{count,plural, =0{ਅੱਜ}=1{1 ਦਿਨ ਪਹਿਲਾਂ}other{# ਦਿਨ ਪਹਿਲਾਂ}}"</string>
     <string name="app_disable_dlg_positive" msgid="7418444149981904940">"ਐਪ ਨੂੰ ਬੰਦ ਕਰੋ"</string>
-    <string name="app_disable_dlg_text" msgid="3126943217146120240">"ਜੇ ਤੁਸੀਂ ਇਸ ਐਪ ਨੂੰ ਬੰਦ ਕਰਦੇ ਹੋ, ਤਾਂ ਹੋ ਸਕਦਾ ਹੈ ਕਿ Android ਅਤੇ ਹੋਰ ਐਪਾਂ ਉਸ ਤਰ੍ਹਾਂ ਕੰਮ ਨਾ ਕਰਨ ਜਿਵੇਂ ਇਹਨਾਂ ਤੋਂ ਉਮੀਦ ਕੀਤੀ ਜਾਂਦੀ ਹੈ। ਧਿਆਨ ਵਿੱਚ ਰੱਖੋ, ਤੁਹਾਡੇ ਡੀਵਾਈਸ ਵਿੱਚ ਇਹ ਐਪ ਪਹਿਲਾਂ ਤੋਂ ਸਥਾਪਤ ਮਿਲੀ ਹੋਣ ਕਰਕੇ ਤੁਸੀਂ ਇਸ ਨੂੰ ਮਿਟਾ ਨਹੀਂ ਸਕਦੇ। ਬੰਦ ਕਰਕੇ, ਤੁਸੀਂ ਆਪਣੇ ਡੀਵਾਈਸ \'ਤੇ ਇਹ ਐਪ ਬੰਦ ਕਰ ਅਤੇ ਲੁਕਾ ਰਹੇ ਹੋ।"</string>
+    <string name="app_disable_dlg_text" msgid="3126943217146120240">"ਜੇ ਤੁਸੀਂ ਇਸ ਐਪ ਨੂੰ ਬੰਦ ਕਰਦੇ ਹੋ, ਤਾਂ ਹੋ ਸਕਦਾ ਹੈ ਕਿ Android ਅਤੇ ਹੋਰ ਐਪਾਂ ਉਸ ਤਰ੍ਹਾਂ ਕੰਮ ਨਾ ਕਰਨ ਜਿਵੇਂ ਇਨ੍ਹਾਂ ਤੋਂ ਉਮੀਦ ਕੀਤੀ ਜਾਂਦੀ ਹੈ। ਧਿਆਨ ਵਿੱਚ ਰੱਖੋ, ਤੁਹਾਡੇ ਡੀਵਾਈਸ ਵਿੱਚ ਇਹ ਐਪ ਪਹਿਲਾਂ ਤੋਂ ਸਥਾਪਤ ਮਿਲੀ ਹੋਣ ਕਰਕੇ ਤੁਸੀਂ ਇਸ ਨੂੰ ਮਿਟਾ ਨਹੀਂ ਸਕਦੇ। ਇਸਨੂੰ ਬੰਦ ਕਰਨ \'ਤੇ, ਇਹ ਐਪ ਬੰਦ ਹੋ ਜਾਵੇਗੀ ਅਤੇ ਤੁਹਾਡੇ ਡੀਵਾਈਸ \'ਤੇ ਦਿਖਾਈ ਨਹੀਂ ਦੇਵੇਗੀ।"</string>
     <string name="app_permission_manager" msgid="3903811137630909550">"ਇਜਾਜ਼ਤ ਪ੍ਰਬੰਧਕ"</string>
     <string name="never_ask_again" msgid="4728762438198560329">"ਦੁਬਾਰਾ ਨਾ ਪੁੱਛੋ"</string>
     <string name="no_permissions" msgid="3881676756371148563">"ਕੋਈ ਇਜਾਜ਼ਤਾਂ ਨਹੀਂ"</string>
@@ -163,7 +163,7 @@
     <string name="permission_usage_bar_chart_title_last_minute" msgid="820450867183487607">"ਪਿਛਲੇ 1 ਮਿੰਟ ਵਿੱਚ ਇਜਾਜ਼ਤ ਵਰਤੋਂ"</string>
     <string name="permission_usage_preference_summary_not_used_in_past_n_days" msgid="4771868094611359651">"{count,plural, =1{ਪਿਛਲੇ # ਦਿਨ ਵਿੱਚ ਨਹੀਂ ਵਰਤੀ ਗਈ}one{ਪਿਛਲੇ # ਦਿਨ ਵਿੱਚ ਨਹੀਂ ਵਰਤੀ ਗਈ}other{ਪਿਛਲੇ # ਦਿਨਾਂ ਵਿੱਚ ਨਹੀਂ ਵਰਤੀ ਗਈ}}"</string>
     <string name="permission_usage_preference_summary_not_used_in_past_n_hours" msgid="3828973177433435742">"{count,plural, =1{ਪਿਛਲੇ # ਘੰਟੇ ਵਿੱਚ ਨਹੀਂ ਵਰਤੀ ਗਈ}one{ਪਿਛਲੇ # ਘੰਟੇ ਵਿੱਚ ਨਹੀਂ ਵਰਤੀ ਗਈ}other{ਪਿਛਲੇ # ਘੰਟਿਆਂ ਵਿੱਚ ਨਹੀਂ ਵਰਤੀ ਗਈ}}"</string>
-    <string name="permission_usage_preference_label" msgid="8343167938128676378">"{count,plural, =1{1 ਐਪ ਵੱਲੋਂ ਇਜਾਜ਼ਤਾਂ ਵਰਤੀਆਂ ਗਈਆਂ}one{# ਐਪ ਵੱਲੋਂ ਇਜਾਜ਼ਤਾਂ ਵਰਤੀਆਂ ਗਈਆਂ}other{# ਐਪਾਂ ਵੱਲੋਂ ਇਜਾਜ਼ਤਾਂ ਵਰਤੀਆਂ ਗਈਆਂ}}"</string>
+    <string name="permission_usage_preference_label" msgid="8343167938128676378">"{count,plural, =1{ਇਜਾਜ਼ਤ 1 ਐਪ ਵੱਲੋਂ ਵਰਤੀ ਗਈ}one{ਇਜਾਜ਼ਤ # ਐਪ ਵੱਲੋਂ ਵਰਤੀ ਗਈ}other{ਇਜਾਜ਼ਤ # ਐਪਾਂ ਵੱਲੋਂ ਵਰਤੀ ਗਈ}}"</string>
     <string name="permission_usage_view_details" msgid="6675335735468752787">"ਸਭ ਡੈਸ਼ਬੋਰਡ ਵਿੱਚ ਦੇਖੋ"</string>
     <string name="app_permission_usage_filter_label" msgid="7182861154638631550">"ਇਸ ਮੁਤਾਬਕ ਫਿਲਟਰ ਕੀਤਾ ਗਿਆ: <xliff:g id="PERM">%1$s</xliff:g>"</string>
     <string name="app_permission_usage_remove_filter" msgid="2926157607436428207">"ਫਿਲਟਰ ਹਟਾਓ"</string>
@@ -353,7 +353,7 @@
     <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"ਇਹ ਐਪਾਂ ਤੁਹਾਡੀ ਸਕ੍ਰੀਨ, ਕਾਰਵਾਈਆਂ ਅਤੇ ਇਨਪੁੱਟਾਂ ਨੂੰ ਦੇਖ ਸਕਦੀਆਂ ਹਨ, ਕਾਰਵਾਈਆਂ ਕਰ ਸਕਦੀਆਂ ਹਨ ਅਤੇ ਡਿਸਪਲੇ ਕੰਟਰੋਲ ਕਰ ਸਕਦੀਆਂ ਹਨ।"</string>
     <string name="role_assistant_label" msgid="4727586018198208128">"ਪੂਰਵ-ਨਿਰਧਾਰਿਤ ਡਿਜੀਟਲ ਸਹਾਇਕ ਐਪ"</string>
     <string name="role_assistant_short_label" msgid="3369003713187703399">"ਡਿਜੀਟਲ ਸਹਾਇਕ ਐਪ"</string>
-    <string name="role_assistant_description" msgid="6622458130459922952">"ਸਹਾਇਕ ਐਪਾਂ ਤੁਹਾਡੇ ਵੱਲੋਂ ਦੇਖੀ ਜਾਂਦੀ ਸਕ੍ਰੀਨ ਤੋਂ ਪ੍ਰਾਪਤ ਜਾਣਕਾਰੀ ਦੇ ਆਧਾਰ \'ਤੇ ਤੁਹਾਡੀ ਮਦਦ ਕਰ ਸਕਦੀਆਂ ਹਨ। ਕੁਝ ਐਪਾਂ ਤੁਹਾਨੂੰ ਏਕੀਕ੍ਰਿਤ ਸਹਾਇਤਾ ਦੇਣ ਲਈ ਲਾਂਚਰ ਅਤੇ ਵੌਇਸ ਇਨਪੁੱਟ ਸੇਵਾਵਾਂ ਦੋਵਾਂ ਦਾ ਸਮਰਥਨ ਕਰਦੇ ਹਨ।"</string>
+    <string name="role_assistant_description" msgid="6622458130459922952">"ਸਹਾਇਕ ਐਪਾਂ ਤੁਹਾਡੇ ਵੱਲੋਂ ਦੇਖੀ ਜਾਂਦੀ ਸਕ੍ਰੀਨ ਤੋਂ ਪ੍ਰਾਪਤ ਜਾਣਕਾਰੀ ਦੇ ਆਧਾਰ \'ਤੇ ਤੁਹਾਡੀ ਮਦਦ ਕਰ ਸਕਦੀਆਂ ਹਨ। ਕੁਝ ਐਪਾਂ ਤੁਹਾਨੂੰ ਏਕੀਕ੍ਰਿਤ ਸਹਾਇਤਾ ਦੇਣ ਲਈ ਲਾਂਚਰ ਅਤੇ ਵੌਇਸ ਇਨਪੁੱਟ ਸੇਵਾਵਾਂ ਦੋਵਾਂ ਦਾ ਸਮਰਥਨ ਕਰਦੀਆਂ ਹਨ।"</string>
     <string name="role_browser_label" msgid="2877796144554070207">"ਪੂਰਵ-ਨਿਰਧਾਰਿਤ ਬ੍ਰਾਊਜ਼ਰ ਐਪ"</string>
     <string name="role_browser_short_label" msgid="6745009127123292296">"ਬ੍ਰਾਊਜ਼ਰ ਐਪ"</string>
     <string name="role_browser_description" msgid="3465253637499842671">"ਐਪਾਂ ਜੋ ਤੁਹਾਨੂੰ ਇੰਟਰਨੈੱਟ ਤੱਕ ਪਹੁੰਚ ਕਰਨ ਦਿੰਦੀਆਂ ਹਨ ਅਤੇ ਤੁਹਾਡੇ ਵੱਲੋਂ ਟੈਪ ਕੀਤੇ ਲਿੰਕ ਦਿਖਾਉਂਦੀਆਂ ਹਨ"</string>
@@ -435,6 +435,7 @@
     <string name="default_apps_more" msgid="4078194675848858093">"ਹੋਰ ਪੂਰਵ-ਨਿਰਧਾਰਤ"</string>
     <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"ਖੁੱਲ੍ਹਣ ਵਾਲੇ ਲਿੰਕ"</string>
     <string name="default_apps_for_work" msgid="4970308943596201811">"ਕੰਮ ਲਈ ਪੂਰਵ-ਨਿਰਧਾਰਤ"</string>
+    <string name="default_apps_for_private_profile" msgid="2022024112144880785">"ਪ੍ਰਾਈਵੇਟ ਸਪੇਸ ਲਈ ਪੂਰਵ-ਨਿਰਧਾਰਿਤ"</string>
     <string name="default_app_none" msgid="9084592086808194457">"ਕੋਈ ਨਹੀਂ"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(ਸਿਸਟਮ ਪੂਰਵ-ਨਿਰਧਾਰਿਤ)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"ਕੋਈ ਐਪਾਂ ਨਹੀਂ"</string>
@@ -548,6 +549,7 @@
     <string name="privdash_label_none" msgid="5991866260360484858">"ਕੋਈ ਨਹੀਂ"</string>
     <string name="privdash_label_24h" msgid="1512532123865375319">"ਪਿਛਲੇ\n24 ਘੰਟੇ"</string>
     <string name="privdash_label_7d" msgid="5645301995348656931">"ਪਿਛਲੇ\n7 ਦਿਨ"</string>
+    <string name="privdash_usage_percent" msgid="6893824766124414127">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> <xliff:g id="PERCENT">%2$d</xliff:g> ਫ਼ੀਸਦ"</string>
     <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"<xliff:g id="APP_NAME">%1$s</xliff:g> ਨੂੰ Android ਨਾਲ ਸੁਰੱਖਿਅਤ ਕੀਤਾ ਗਿਆ ਹੈ। ਕਿਉਂਕਿ ਇਸ ਡੀਵਾਈਸ \'ਤੇ ਤੁਹਾਡੇ ਡਾਟੇ \'ਤੇ ਪ੍ਰਕਿਰਿਆ ਕੀਤੀ ਜਾਂਦੀ ਹੈ, ਇਸ ਲਈ ਇਸ ਐਪ ਦੀ ਇਜਾਜ਼ਤ ਸੰਬੰਧੀ ਵਰਤੋਂ ਬਾਰੇ ਜਾਣਕਾਰੀ ਸਥਿਤੀ ਪੱਟੀ ਜਾਂ ਤੁਹਾਡੇ ਪਰਦੇਦਾਰੀ ਸੰਬੰਧੀ ਡੈਸ਼ਬੋਰਡ \'ਤੇ ਨਹੀਂ ਦਿਸਦੀ।"</string>
     <string name="exempt_info_label" msgid="6286190981253476699">"<xliff:g id="APP_NAME">%1$s</xliff:g> ਨੂੰ Android ਨਾਲ ਸੁਰੱਖਿਅਤ ਕੀਤਾ ਗਿਆ ਹੈ। ਕਿਉਂਕਿ ਇਸ ਡੀਵਾਈਸ \'ਤੇ ਤੁਹਾਡੇ ਡਾਟੇ \'ਤੇ ਪ੍ਰਕਿਰਿਆ ਕੀਤੀ ਜਾਂਦੀ ਹੈ, ਇਸ ਲਈ ਇਸ ਐਪ ਦੀ ਇਜਾਜ਼ਤ ਸੰਬੰਧੀ ਵਰਤੋਂ ਬਾਰੇ ਜਾਣਕਾਰੀ ਤੁਹਾਡੇ ਪਰਦੇਦਾਰੀ ਸੰਬੰਧੀ ਡੈਸ਼ਬੋਰਡ \'ਤੇ ਨਹੀਂ ਦਿਸਦੀ।"</string>
     <string name="blocked_camera_title" msgid="1128510551791284384">"ਡੀਵਾਈਸ ਦੇ ਕੈਮਰੇ ਨੂੰ ਬਲਾਕ ਕੀਤਾ ਗਿਆ ਹੈ"</string>
@@ -556,6 +558,16 @@
     <string name="blocked_sensor_summary" msgid="4443707628305027375">"ਐਪਾਂ ਅਤੇ ਸੇਵਾਵਾਂ ਲਈ"</string>
     <string name="blocked_mic_summary" msgid="8960466941528458347">"ਜਦੋਂ ਤੁਸੀਂ ਐਮਰਜੈਂਸੀ ਨੰਬਰ \'ਤੇ ਕਾਲ ਕਰਦੇ ਹੋ ਤਾਂ ਸ਼ਾਇਦ ਮਾਈਕ੍ਰੋਫ਼ੋਨ ਡਾਟਾ ਹਾਲੇ ਵੀ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਸਕਦਾ ਹੈ।"</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"ਬਦਲੋ"</string>
+    <!-- no translation found for automotive_blocked_camera_title (6142362431548829416) -->
+    <skip />
+    <!-- no translation found for automotive_blocked_infotainment_app_summary (8217099645064950860) -->
+    <skip />
+    <!-- no translation found for automotive_blocked_required_app_summary (8591513745681168088) -->
+    <skip />
+    <!-- no translation found for automotive_required_app_title (2992168288249988735) -->
+    <skip />
+    <!-- no translation found for automotive_required_app_summary (6514902316658090465) -->
+    <skip />
     <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"ਸੁਰੱਖਿਆ ਅਤੇ ਪਰਦੇਦਾਰੀ"</string>
     <string name="safety_center_rescan_button" msgid="4517514567809409596">"ਡੀਵਾਈਸ ਨੂੰ ਸਕੈਨ ਕਰੋ"</string>
     <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"ਖਾਰਜ ਕਰੋ"</string>
@@ -661,21 +673,14 @@
     <string name="test_otp_msg" msgid="7559110574222727550">"ਤੁਹਾਡਾ ਇਕਹਰੀ-ਵਰਤੋਂ ਪਾਸਵਰਡ 132435 ਹੈ"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"ਪ੍ਰਤਿਬੰਧਿਤ ਸੈਟਿੰਗਾਂ"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"ਤੁਹਾਡੀ ਸੁਰੱਖਿਆ ਲਈ, ਫ਼ਿਲਹਾਲ ਇਹ ਸੈਟਿੰਗ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_title_permission (2149144789394238266) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_permission (3150778951946468945) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_role (1737023798483772780) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_role (6369601947905234551) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_settings_default (1858092969721041576) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_settings_default (6911632348359332981) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"ਐਪ ਨੂੰ <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> ਤੱਕ ਪਹੁੰਚ ਕਰਨ ਦੀ ਆਗਿਆ ਨਹੀਂ ਦਿੱਤੀ ਗਈ"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"ਐਪ ਨੇ ਸੰਵੇਦਨਸ਼ੀਲ ਇਜਾਜ਼ਤ ਤੱਕ ਪਹੁੰਚ ਦੀ ਬੇਨਤੀ ਕੀਤੀ ਹੈ, ਜਿਸ ਨਾਲ ਤੁਹਾਡੀ ਨਿੱਜੀ ਅਤੇ ਵਿੱਤੀ ਜਾਣਕਾਰੀ ਜੋਖਮ ਵਿੱਚ ਪੈ ਸਕਦੀ ਹੈ।<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ਇਹ ਸੰਭਵ ਹੈ, ਕਿ ਐਪ ਇਸ ਪ੍ਰਤਿਬੰਧਿਤ ਇਜਾਜ਼ਤ ਤੋਂ ਬਿਨਾਂ ਸਹੀ ਢੰਗ ਨਾਲ ਕੰਮ ਨਾ ਕਰੇ। &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;ਪਹੁੰਚ ਕਰਨ ਦੀ ਆਗਿਆ ਦੇਣ ਦੇ ਤਰੀਕੇ ਬਾਰੇ ਜਾਣੋ&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"ਐਪ ਨੂੰ ਪੂਰਵ-ਨਿਰਧਾਰਿਤ <xliff:g id="ROLE_NAME">%1$s</xliff:g> ਤੱਕ ਪਹੁੰਚ ਕਰਨ ਦੀ ਆਗਿਆ ਨਹੀਂ ਦਿੱਤੀ ਗਈ"</string>
+    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"ਐਪ ਨੇ ਸੰਵੇਦਨਸ਼ੀਲ ਇਜਾਜ਼ਤਾਂ ਤੱਕ ਪਹੁੰਚ ਦੀ ਬੇਨਤੀ ਕੀਤੀ ਹੈ, ਜਿਸ ਨਾਲ ਤੁਹਾਡੀ ਨਿੱਜੀ ਅਤੇ ਵਿੱਤੀ ਜਾਣਕਾਰੀ ਜੋਖਮ ਵਿੱਚ ਪੈ ਸਕਦੀ ਹੈ।<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ਇਹ ਸੰਭਵ ਹੈ, ਕਿ ਐਪ ਇਨ੍ਹਾਂ ਪ੍ਰਤਿਬੰਧਿਤ ਇਜਾਜ਼ਤਾਂ ਤੋਂ ਬਿਨਾਂ ਸਹੀ ਢੰਗ ਨਾਲ ਕੰਮ ਨਾ ਕਰੇ। &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;ਪਹੁੰਚ ਕਰਨ ਦੀ ਆਗਿਆ ਦੇਣ ਦੇ ਤਰੀਕੇ ਬਾਰੇ ਜਾਣੋ&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"ਐਪ ਨੂੰ ਪਹੁੰਚ ਕਰਨ ਦੀ ਆਗਿਆ ਨਹੀਂ ਦਿੱਤੀ ਗਈ"</string>
+    <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"ਇਸ ਇਜਾਜ਼ਤ ਲਈ ਪਹੁੰਚ ਦੇਣ ਨਾਲ ਤੁਹਾਡੀ ਨਿੱਜੀ ਅਤੇ ਵਿੱਤੀ ਜਾਣਕਾਰੀ ਜੋਖਮ ਵਿੱਚ ਪੈ ਸਕਦੀ ਹੈ।<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ਇਹ ਸੰਭਵ ਹੈ, ਕਿ ਐਪ ਇਸ ਪ੍ਰਤਿਬੰਧਿਤ ਇਜਾਜ਼ਤ ਤੋਂ ਬਿਨਾਂ ਸਹੀ ਢੰਗ ਨਾਲ ਕੰਮ ਨਾ ਕਰੇ। &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;ਪਹੁੰਚ ਕਰਨ ਦੀ ਆਗਿਆ ਦੇਣ ਦੇ ਤਰੀਕੇ ਬਾਰੇ ਜਾਣੋ&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"ਹੋਰ ਜਾਣੋ"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_ok (8560373821598619924) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"ਠੀਕ ਹੈ"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"ਇਜਾਜ਼ਤ ਸੰਬੰਧੀ ਬੇਨਤੀ ਨੂੰ ਰੋਕਿਆ ਗਿਆ"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"ਇਹ ਐਪ ਵਧੀਕ ਇਜਾਜ਼ਤਾਂ ਦੀ ਬੇਨਤੀ ਕਰ ਰਹੀ ਹੈ, ਪਰ ਸਟ੍ਰੀਮਿੰਗ ਸੈਸ਼ਨ ਵਿੱਚ ਇਜਾਜ਼ਤਾਂ ਨਹੀਂ ਦਿੱਤੀਆਂ ਜਾ ਸਕਦੀਆਂ। ਪਹਿਲਾਂ ਆਪਣੇ ਫ਼ੋਨ \'ਤੇ ਇਜਾਜ਼ਤ ਦਿਓ।"</string>
 </resources>

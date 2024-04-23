@@ -435,6 +435,7 @@
     <string name="default_apps_more" msgid="4078194675848858093">"Higit pang default"</string>
     <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"Pagbubukas ng mga link"</string>
     <string name="default_apps_for_work" msgid="4970308943596201811">"Default para sa trabaho"</string>
+    <string name="default_apps_for_private_profile" msgid="2022024112144880785">"Default para sa pribadong space"</string>
     <string name="default_app_none" msgid="9084592086808194457">"Wala"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(Default ng system)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"Walang app"</string>
@@ -548,6 +549,7 @@
     <string name="privdash_label_none" msgid="5991866260360484858">"Wala"</string>
     <string name="privdash_label_24h" msgid="1512532123865375319">"Nakalipas\nna 24 oras"</string>
     <string name="privdash_label_7d" msgid="5645301995348656931">"Nakalipas na\n7 araw"</string>
+    <string name="privdash_usage_percent" msgid="6893824766124414127">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> <xliff:g id="PERCENT">%2$d</xliff:g> (na) porsyento"</string>
     <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"Protektado ng Android ang <xliff:g id="APP_NAME">%1$s</xliff:g>. Dahil pinoproseso sa device na ito ang iyong data, hindi ipinapakita sa status bar o sa privacy dashboard mo ang paggamit ng pahintulot ng app na ito."</string>
     <string name="exempt_info_label" msgid="6286190981253476699">"Protektado ng Android ang <xliff:g id="APP_NAME">%1$s</xliff:g>. Dahil pinoproseso sa device na ito ang iyong data, hindi ipinapakita sa privacy dashboard mo ang paggamit ng pahintulot ng app na ito."</string>
     <string name="blocked_camera_title" msgid="1128510551791284384">"Naka-block ang camera ng device"</string>
@@ -556,6 +558,11 @@
     <string name="blocked_sensor_summary" msgid="4443707628305027375">"Para sa mga app at serbisyo"</string>
     <string name="blocked_mic_summary" msgid="8960466941528458347">"Posible pa ring ibahagi ang data ng mikropono kapag tumawag ka sa isang pang-emergency na numero."</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"Baguhin"</string>
+    <string name="automotive_blocked_camera_title" msgid="6142362431548829416">"Naka-off ang access sa camera"</string>
+    <string name="automotive_blocked_infotainment_app_summary" msgid="8217099645064950860">"Para sa mga infotainment app"</string>
+    <string name="automotive_blocked_required_app_summary" msgid="8591513745681168088">"Para sa mga kinakailangang app"</string>
+    <string name="automotive_required_app_title" msgid="2992168288249988735">"Kinakailangan ang app na ito"</string>
+    <string name="automotive_required_app_summary" msgid="6514902316658090465">"Kinakailangan ng manufacturer ng iyong sasakyan ang app na ito"</string>
     <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"Seguridad at privacy"</string>
     <string name="safety_center_rescan_button" msgid="4517514567809409596">"I-scan ang device"</string>
     <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"I-dismiss"</string>
@@ -661,21 +668,14 @@
     <string name="test_otp_msg" msgid="7559110574222727550">"Ang iyong pang-isang beses na password ay 132435"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Pinaghihigpitang setting"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Para sa iyong seguridad, hindi available ang setting na ito sa ngayon."</string>
-    <!-- no translation found for enhanced_confirmation_dialog_title_permission (2149144789394238266) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_permission (3150778951946468945) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_role (1737023798483772780) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_role (6369601947905234551) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_title_settings_default (1858092969721041576) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_dialog_desc_settings_default (6911632348359332981) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Tinanggihan ang access ng appp sa <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Humiling ang app ng access sa pahintulot sa sensitibong impormasyon na posibleng maglagay ng iyong personal at pinansyal na impormasyon sa panganib.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Posibleng hindi gumana nang maayos ang app kung wala ang pinaghihigpitang pahintulot na ito. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Alamin kung paano payagan ang pag-access&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Tinanggihan ang access ng app na maging default na <xliff:g id="ROLE_NAME">%1$s</xliff:g>"</string>
+    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"Humiling ang app ng access sa mga pahintulot sa sensitibong impormasyon na posibleng maglagay ng iyong personal at pinansyal na impormasyon sa panganib.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Posibleng hindi gumana nang maayos ang app kung wala ang mga pinaghihigpitang pahintulot na ito. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Alamin kung paano payagan ang pag-access&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"Tinanggihan ang access ng app"</string>
+    <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"Puwedeng ilagay sa panganib ng pag-access sa pahintulot na ito ang iyong personal at pinansyal na impormasyon.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Posibleng hindi gumana nang maayos ang app kung wala ang pinaghihigpitang pahintulot na ito. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Alamin kung paano payagan ang pag-access&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"Matuto pa"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_ok (8560373821598619924) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"OK"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Pinigilan ang kahilingan sa pahintulot"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Humihingi ang app na ito ng dagdag na pahintulot, pero hindi puwedeng ibigay ang mga pahintulot sa isang session ng streaming. Ibigay muna ang pahintulot sa iyong telepono."</string>
 </resources>

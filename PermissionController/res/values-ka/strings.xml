@@ -435,6 +435,7 @@
     <string name="default_apps_more" msgid="4078194675848858093">"მეტი ნაგულისხმევი"</string>
     <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"ბმულების გახსნა"</string>
     <string name="default_apps_for_work" msgid="4970308943596201811">"ნაგულისხმევი სამსახურისთვის"</string>
+    <string name="default_apps_for_private_profile" msgid="2022024112144880785">"კერძო სივრცისთვის ნაგულისხმევი აპები"</string>
     <string name="default_app_none" msgid="9084592086808194457">"არცერთი"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(სისტემის ნაგულისხმევი)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"აპები არ არის"</string>
@@ -548,6 +549,7 @@
     <string name="privdash_label_none" msgid="5991866260360484858">"არცერთი"</string>
     <string name="privdash_label_24h" msgid="1512532123865375319">"გასული\n24 საათი"</string>
     <string name="privdash_label_7d" msgid="5645301995348656931">\n"ბოლო 7 დღე"</string>
+    <string name="privdash_usage_percent" msgid="6893824766124414127">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> <xliff:g id="PERCENT">%2$d</xliff:g> პროცენტი"</string>
     <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"<xliff:g id="APP_NAME">%1$s</xliff:g>-ს იცავს Android. ვინაიდან თქვენი მონაცემები მუშავდება ამ მოწყობილობაზე, ამ აპის ნებართვის გამოყენება არ აისახება სტატუსის ზოლში ან კონფიდენციალურობის საინფორმაციო დაფაზე."</string>
     <string name="exempt_info_label" msgid="6286190981253476699">"<xliff:g id="APP_NAME">%1$s</xliff:g>-ს იცავს Android. ვინაიდან თქვენი მონაცემები მუშავდება ამ მოწყობილობაზე, ამ აპის ნებართვის გამოყენება არ აისახება კონფიდენციალურობის საინფორმაციო დაფაზე."</string>
     <string name="blocked_camera_title" msgid="1128510551791284384">"მოწყობილობის კამერა დაბლოკილია"</string>
@@ -556,6 +558,16 @@
     <string name="blocked_sensor_summary" msgid="4443707628305027375">"აპებისა და სერვისებისთვის"</string>
     <string name="blocked_mic_summary" msgid="8960466941528458347">"მიკროფონის მონაცემები, შესაძლოა, მაინც გაზიარდეს გადაუდებელი დახმარების სამსახურის ნომერზე დარეკვისას."</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"შეცვლა"</string>
+    <!-- no translation found for automotive_blocked_camera_title (6142362431548829416) -->
+    <skip />
+    <!-- no translation found for automotive_blocked_infotainment_app_summary (8217099645064950860) -->
+    <skip />
+    <!-- no translation found for automotive_blocked_required_app_summary (8591513745681168088) -->
+    <skip />
+    <!-- no translation found for automotive_required_app_title (2992168288249988735) -->
+    <skip />
+    <!-- no translation found for automotive_required_app_summary (6514902316658090465) -->
+    <skip />
     <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"უსაფრთხ. და კონფიდენციალურობა"</string>
     <string name="safety_center_rescan_button" msgid="4517514567809409596">"მოწყობილობის სკანირება"</string>
     <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"უარყოფა"</string>
@@ -668,8 +680,7 @@
     <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"აპისთვის წვდომა უარყოფილია"</string>
     <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"ამ ნებართვაზე წვდომა თქვენს პირად და ფინანსურ ინფორმაციას საფრთხის ქვეშ აყენებს.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>შესაძლოა აპმა ამ შეზღუდული ნებართვის გარეშე სათანადოდ ვერ იმუშაოს. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;შეიტყვეთ მეტი ნებართვის დაშვების შესახებ&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"შეიტყვეთ მეტი"</string>
-    <!-- no translation found for enhanced_confirmation_dialog_ok (8560373821598619924) -->
-    <skip />
+    <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"კარგი"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"ნებართვის მოთხოვნა შეჩერებულია"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"ეს აპი დამატებით ნებართვებს მოითხოვს, მაგრამ ნებართვების მიცემა შეუძლებელია სტრიმინგის სესიაში. თავდაპირველად მიანიჭეთ ნებართვა ტელეფონზე."</string>
 </resources>
