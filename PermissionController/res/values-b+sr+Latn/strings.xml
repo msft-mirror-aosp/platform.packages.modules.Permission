@@ -375,7 +375,7 @@
     <string name="role_emergency_request_title" msgid="8469579020654348567">"Želite li da podesite <xliff:g id="APP_NAME">%1$s</xliff:g> kao podrazumevanu aplikaciju za hitne slučajeve?"</string>
     <string name="role_emergency_request_description" msgid="131645948770262850">"Nije potrebna nijedna dozvola"</string>
     <string name="role_emergency_search_keywords" msgid="1920007722599213358">"u hitnom slučaju"</string>
-    <string name="role_home_label" msgid="3871847846649769412">"Podraz. apl. početne stranice"</string>
+    <string name="role_home_label" msgid="3871847846649769412">"Podrazumevana apl. početne stranice"</string>
     <string name="role_home_short_label" msgid="8544733747952272337">"Aplikacija početne stranice"</string>
     <string name="role_home_description" msgid="7997371519626556675">"Aplikacije koje se često zovu pokretači i zamenjuju početne ekrane na Android uređaju i pružaju pristup sadržaju i funkcijama na uređaju"</string>
     <string name="role_home_request_title" msgid="738136983453341081">"Želite li da podesite <xliff:g id="APP_NAME">%1$s</xliff:g> kao podrazumevanu aplikaciju početne stranice?"</string>
@@ -387,13 +387,13 @@
     <string name="role_call_redirection_request_title" msgid="2816244455003562925">"Želite li da podesite <xliff:g id="APP_NAME">%1$s</xliff:g> kao podrazumevanu aplikaciju za preusmeravanje poziva?"</string>
     <string name="role_call_redirection_request_description" msgid="3118895714178527164">"Nije potrebna nijedna dozvola"</string>
     <string name="role_call_screening_label" msgid="883935222060878724">"Aplikacija za ID pozivaoca i nepoželjne poruke"</string>
-    <string name="role_call_screening_short_label" msgid="2048465565063130834">"Apl. za ID poz. i nepož. poz."</string>
+    <string name="role_call_screening_short_label" msgid="2048465565063130834">"ID pozivaoca i nepoželjni pozivi"</string>
     <string name="role_call_screening_description" msgid="2349431420497468981">"Aplikacije koje vam omogućavaju da identifikujete pozive, blokirate nepoželjne i automatizovane pozive i neželjene brojeve"</string>
     <string name="role_call_screening_request_title" msgid="7358309224566977290">"Želite li da podesite <xliff:g id="APP_NAME">%1$s</xliff:g> kao podrazumevanu aplikaciju za ID pozivaoca i nepoželjne poruke?"</string>
     <string name="role_call_screening_request_description" msgid="7338511921032446006">"Nije potrebna nijedna dozvola"</string>
     <string name="role_automotive_navigation_label" msgid="2701890757955474751">"Podrazumevana aplikacija za navigaciju"</string>
     <string name="role_automotive_navigation_short_label" msgid="5165823092506922457">"Aplikacija za navigaciju"</string>
-    <string name="role_automotive_navigation_description" msgid="7834601873792870134">"Aplikacije koje mogu da pružaju pretragu zanimljivih mesta i detaljnu pomoć pri navigaciji"</string>
+    <string name="role_automotive_navigation_description" msgid="7834601873792870134">"Aplikacije koje mogu da pružaju pretragu tačaka od interesa i detaljnu pomoć pri navigaciji"</string>
     <string name="role_automotive_navigation_request_title" msgid="7525693151489384300">"Želite da podesite aplikaciju <xliff:g id="APP_NAME">%1$s</xliff:g> kao podrazumevanu aplikaciju za navigaciju?"</string>
     <string name="role_automotive_navigation_request_description" msgid="7073023813249245540">"Nije potrebna nijedna dozvola"</string>
     <string name="role_watch_description" msgid="267003778693177779">"<xliff:g id="APP_NAME">%1$s</xliff:g> će dobiti dozvolu za interakciju sa obaveštenjima i pristup dozvolama za telefon, SMS poruke, kontakte i kalendar."</string>
@@ -438,7 +438,7 @@
     <string name="no_special_app_access" msgid="6950277571805106247">"Nema posebnog pristupa apl."</string>
     <string name="special_app_access_no_apps" msgid="4102911722787886970">"Nema aplikacija"</string>
     <string name="home_missing_work_profile_support" msgid="1756855847669387977">"Ne podržava poslovni profil"</string>
-    <string name="encryption_unaware_confirmation_message" msgid="8274491794636402484">"Napomena: Ako restartujete uređaj i podesili ste zaključavanje ekrana, ova aplikacija ne može da se pokrene dok ne otključate uređaj."</string>
+    <string name="encryption_unaware_confirmation_message" msgid="8274491794636402484">"Napomena: Ako restartujete uređaj i podesili ste otključavanje ekrana, ova aplikacija ne može da se pokrene dok ne otključate uređaj."</string>
     <string name="assistant_confirmation_message" msgid="7476540402884416212">"Pomoćnik će moći da čita informacije o aplikacijama koje se koriste u sistemu, uključujući informacije vidljive na ekranu ili kojima može da se pristupa u okviru aplikacija."</string>
     <string name="incident_report_channel_name" msgid="3144954065936288440">"Deljenje podataka o otklanjanju grešaka"</string>
     <string name="incident_report_notification_title" msgid="4635984625656519773">"Delite detaljne podatke za otklanjanje grešaka?"</string>
@@ -485,7 +485,7 @@
     <string name="permgroupupgraderequest_microphone" msgid="1362781696161233341">"Želite da promenite pristup mikrofonu za aplikaciju &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;?"</string>
     <string name="permgroupupgraderequestdetail_microphone" msgid="2870497719571464239">"Ova aplikacija želi da snima zvuk sve vreme, čak i kada ne koristite aplikaciju. "<annotation id="link">"Dozvolite u podešavanjima."</annotation></string>
     <string name="permgrouprequest_activityRecognition" msgid="5415121592794230330">"Želite li da dozvolite da &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; pristupa fizičkim aktivnostima?"</string>
-    <string name="permgrouprequest_camera" msgid="5123097035410002594">"Želite da dozvolite da &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; snima slike i video snimke?"</string>
+    <string name="permgrouprequest_camera" msgid="5123097035410002594">"Želite da dozvolite da &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; snima slike i video?"</string>
     <string name="permgrouprequestdetail_camera" msgid="9085323239764667883">"Aplikacija će moći da snima slike i video snimke samo dok koristite aplikaciju"</string>
     <string name="permgroupbackgroundrequest_camera" msgid="1274286575704213875">"Želite da dozvolite da &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; snima slike i video snimke?"</string>
     <string name="permgroupbackgroundrequestdetail_camera" msgid="4458783509089859078">"Ova aplikacija možda želi da snima slike i video snimke sve vreme, čak i kada ne koristite aplikaciju. "<annotation id="link">"Dozvolite u podešavanjima."</annotation></string>

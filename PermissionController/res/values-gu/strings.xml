@@ -583,7 +583,7 @@
     <string name="mic_toggle_title" msgid="2649991093496110162">"માઇક્રોફોનનો ઍક્સેસ"</string>
     <string name="perm_toggle_description" msgid="7801326363741451379">"ઍપ અને સેવાઓ માટે"</string>
     <string name="mic_toggle_description" msgid="9163104307990677157">"ઍપ અને સેવાઓ માટે. આ સેટિંગ બંધ હોવા છતાં પણ, જ્યારે તમે ઇમર્જન્સી નંબર પર કૉલ કરો ત્યારે કદાચ માઇક્રોફોનનો ડેટા શેર કરવામાં આવી શકે."</string>
-    <string name="location_settings_subtitle" msgid="2328360561197430695">"સ્થાનનો ઍક્સેસ ધરાવતી ઍપ અને તેની સેવાઓ જુઓ"</string>
+    <string name="location_settings_subtitle" msgid="2328360561197430695">"લોકેશનનો ઍક્સેસ ધરાવતી ઍપ અને તેની સેવાઓ જુઓ"</string>
     <string name="show_clip_access_notification_title" msgid="5168467637351109096">"ક્લિપબોર્ડનો ઍક્સેસ બતાવો"</string>
     <string name="show_clip_access_notification_summary" msgid="3532020182782112687">"જ્યારે ઍપ તમે કૉપિ કરેલી ટેક્સ્ટ, છબીઓ કે અન્ય કન્ટેન્ટનો ઍક્સેસ કરે, ત્યારે મેસેજ બતાવો"</string>
     <string name="show_password_title" msgid="2877269286984684659">"પાસવર્ડ બતાવો"</string>
@@ -610,7 +610,7 @@
     <string name="app_location_permission_rationale_title" msgid="925420340572401350">"લોકેશન ડેટા શેર કરવામાં આવી શકે છે"</string>
     <string name="app_location_permission_rationale_subtitle" msgid="6986985722752868692">"આ ઍપ દ્વારા જણાવવામાં આવ્યું છે કે તે ત્રીજા પક્ષો સાથે તમારો લોકેશન ડેટા શેર કરી શકે છે"</string>
     <string name="data_sharing_updates_title" msgid="7996933386875213859">"લોકેશન માટે ડેટા શેરિંગ સંબંધિત અપડેટ"</string>
-    <string name="data_sharing_updates_summary" msgid="764113985772233889">"તે ઍપનું રિવ્યૂ કરો જેમણે તમારા લોકેશન ડેટાને શેર કરવાની રીત બદલી છે"</string>
+    <string name="data_sharing_updates_summary" msgid="764113985772233889">"તે ઍપનો રિવ્યૂ કરો જેમણે તમારા લોકેશન ડેટાને શેર કરવાની રીત બદલી છે"</string>
     <string name="data_sharing_updates_subtitle" msgid="6311537708950632329">"આ ઍપ દ્વારા તમારા લોકેશન ડેટાને શેર કરવાની રીત બદલવામાં આવી હોઈ શકે છે. તેઓએ તેને પહેલાં શેર કર્યો ન હોય એવું બની શકે છે અથવા હવે તેને જાહેરાત અથવા માર્કેટિંગ હેતુઓ માટે શેર કરી શકે છે."</string>
     <string name="data_sharing_updates_footer_message" msgid="1582711655172892107">"આ ઍપના ડેવલપરે ડેટા શેરિંગના તેમના નિયમો વિશે ઍપ સ્ટોરને માહિતી પૂરી પાડી છે. સમય જતાં કદાચ તેઓ તેને અપડેટ કરી શકે છે.\n\nતમારી ઍપનું વર્ઝન, તેનો ઉપયોગ, ઉપયોગ કરવાનો પ્રદેશ અને તમારી ઉંમરના આધારે ડેટા શેરિંગના નિયમો કદાચ અલગ-અલગ હોઈ શકે છે."</string>
     <string name="learn_about_data_sharing" msgid="4200480587079488045">"ડેટા શેરિંગ વિશે જાણો"</string>
