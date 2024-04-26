@@ -32,7 +32,7 @@
     <string name="grant_dialog_button_no_upgrade" msgid="8344732743633736625">"Mantener \"Mientras la aplicación se esté usando\""</string>
     <string name="grant_dialog_button_no_upgrade_one_time" msgid="5125892775684968694">"Mantener \"Solo esta vez\""</string>
     <string name="grant_dialog_button_more_info" msgid="213350268561945193">"Más información"</string>
-    <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"Permitir todos"</string>
+    <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"Permitir acceso a todos"</string>
     <string name="grant_dialog_button_always_allow_all" msgid="1719900027660252167">"Permitir todos siempre"</string>
     <string name="grant_dialog_button_allow_limited_access" msgid="5713551784422137594">"Permitir acceso limitado"</string>
     <string name="grant_dialog_button_allow_selected_photos" msgid="5497042471576153842">"Seleccionar fotos y vídeos"</string>
@@ -349,7 +349,7 @@
     <string name="accessibility_service_dialog_title_multiple" msgid="5527879210683548175">"<xliff:g id="NUM_SERVICES">%s</xliff:g> aplicaciones de accesibilidad tienen acceso completo a tu dispositivo"</string>
     <string name="accessibility_service_dialog_bottom_text_single" msgid="1128666197822205958">"<xliff:g id="SERVICE_NAME">%s</xliff:g> puede ver tu pantalla, lo que haces y lo que introduces; realizar acciones; y controlar la pantalla."</string>
     <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"Estas aplicaciones pueden ver tu pantalla, lo que haces y lo que introduces; realizar acciones; y controlar la pantalla."</string>
-    <string name="role_assistant_label" msgid="4727586018198208128">"Asistente predeterminado"</string>
+    <string name="role_assistant_label" msgid="4727586018198208128">"Aplicación de asistente digital predeterminada"</string>
     <string name="role_assistant_short_label" msgid="3369003713187703399">"Asistente digital"</string>
     <string name="role_assistant_description" msgid="6622458130459922952">"Las aplicaciones de asistencia te ayudan según la información que aparezca en la pantalla. Algunas aplicaciones admiten tanto el menú de aplicaciones como los servicios de entrada de voz para ofrecerte asistencia integrada."</string>
     <string name="role_browser_label" msgid="2877796144554070207">"Aplicación de navegador predeterminada"</string>
