@@ -40,7 +40,7 @@ import java.util.Set;
 /**
  * Represents the current list of pending records.
  */
-class PendingList {
+public class PendingList {
     private static final String TAG = "PermissionController.incident";
 
     /**
@@ -297,6 +297,7 @@ class PendingList {
         /**
          * Get the sort key for the order of our notifications.
          */
+        @SuppressWarnings("JavaUtilDate")
         private String getSortKey(long timestamp) {
             return sDateFormatter.format(new Date(timestamp));
         }

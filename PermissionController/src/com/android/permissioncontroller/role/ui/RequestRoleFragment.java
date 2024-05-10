@@ -52,10 +52,10 @@ import com.android.permissioncontroller.PermissionControllerStatsLog;
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.permission.utils.PackageRemovalMonitor;
 import com.android.permissioncontroller.permission.utils.Utils;
-import com.android.permissioncontroller.role.model.Role;
-import com.android.permissioncontroller.role.model.Roles;
 import com.android.permissioncontroller.role.model.UserDeniedManager;
 import com.android.permissioncontroller.role.utils.PackageUtils;
+import com.android.role.controller.model.Role;
+import com.android.role.controller.model.Roles;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -457,7 +457,7 @@ public class RequestRoleFragment extends DialogFragment {
     static void reportRequestResult(int requestingUid, String requestingPackageName,
             String roleName, int qualifyingCount, int currentUid, String currentPackageName,
             int grantedAnotherUid, String grantedAnotherPackageName, int result) {
-        Log.v(LOG_TAG, "Role request result"
+        Log.i(LOG_TAG, "Role request result"
                 + " requestingUid=" + requestingUid
                 + " requestingPackageName=" + requestingPackageName
                 + " roleName=" + roleName

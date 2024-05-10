@@ -23,24 +23,25 @@ import android.content.pm.PackageManager
 import android.os.Process
 import android.os.Process.INVALID_UID
 import android.os.UserHandle
-
 import com.android.permissioncontroller.PermissionControllerApplication
 import com.android.permissioncontroller.permission.model.livedatatypes.UidSensitivityState
 import com.android.permissioncontroller.permission.utils.KotlinUtils
+import com.android.permissioncontroller.permission.utils.PermissionMapping
 import com.android.permissioncontroller.permission.utils.Utils
-import kotlinx.coroutines.Job
 import java.lang.IllegalArgumentException
+import kotlinx.coroutines.Job
 
 /**
- * Live data of the user sensitivity of either one uid, or all uids that belong to a user.
- * Maps <uid, user sensitive state>
+ * Live data of the user sensitivity of either one uid, or all uids that belong to a user. Maps
+ * <uid, user sensitive state>
  *
  * @param app The current application
  * @param uid The uid whose user sensitivity we would like to observer, or INVALID_UID if we want
- * all uids for a user
+ *   all uids for a user
  * @param user The user for whom we want the uid/s
  */
-class UserSensitivityLiveData private constructor(
+class UserSensitivityLiveData
+private constructor(
     private val app: Application,
     private val uid: Int,
     private val user: UserHandle
@@ -59,12 +60,8 @@ class UserSensitivityLiveData private constructor(
         }
 
         if (getAllUids) {
-            addSource(userPackageInfosLiveData) {
-                update()
-            }
-            addSource(LauncherPackagesLiveData) {
-                update()
-            }
+            addSource(userPackageInfosLiveData) { update() }
+            addSource(LauncherPackagesLiveData) { update() }
         } else {
             update()
         }
@@ -75,10 +72,10 @@ class UserSensitivityLiveData private constructor(
         if (!getAllUids) {
             val uidHasPackages = getAndObservePackageLiveDatas()
 
-            if (!uidHasPackages || packageLiveDatas.all {
-                    it.value.isInitialized &&
-                        it.value.value == null
-                }) {
+            if (
+                !uidHasPackages ||
+                    packageLiveDatas.all { it.value.isInitialized && it.value.value == null }
+            ) {
                 packageLiveDatas.clear()
                 invalidateSingle(uid to user)
                 postValue(null)
@@ -87,11 +84,12 @@ class UserSensitivityLiveData private constructor(
                 return
             }
         }
-        val pkgs = if (getAllUids) {
-            userPackageInfosLiveData.value ?: return
-        } else {
-            packageLiveDatas.mapNotNull { it.value.value }
-        }
+        val pkgs =
+            if (getAllUids) {
+                userPackageInfosLiveData.value ?: return
+            } else {
+                packageLiveDatas.mapNotNull { it.value.value }
+            }
         if (job.isCancelled) {
             return
         }
@@ -100,21 +98,23 @@ class UserSensitivityLiveData private constructor(
         val sensitiveStatePerUid = mutableMapOf<Int, UidSensitivityState>()
 
         // TODO ntmyren: Figure out how to get custom runtime permissions in a less costly manner
-        val runtimePerms = Utils.getRuntimePlatformPermissionNames()
+        val runtimePerms = PermissionMapping.getRuntimePlatformPermissionNames()
 
         for (pkg in pkgs) {
             // sensitivityState for one uid
-            val userSensitiveState = sensitiveStatePerUid.getOrPut(pkg.uid) {
-                UidSensitivityState(mutableSetOf(), mutableMapOf())
-            }
+            val userSensitiveState =
+                sensitiveStatePerUid.getOrPut(pkg.uid) {
+                    UidSensitivityState(mutableSetOf(), mutableMapOf())
+                }
             userSensitiveState.packages.add(pkg)
 
-            val pkgHasLauncherIcon = if (getAllUids) {
-                // The launcher packages set will only be null when it is uninitialized.
-                LauncherPackagesLiveData.value?.contains(pkg.packageName) ?: return
-            } else {
-                KotlinUtils.packageHasLaunchIntent(context, pkg.packageName)
-            }
+            val pkgHasLauncherIcon =
+                if (getAllUids) {
+                    // The launcher packages set will only be null when it is uninitialized.
+                    LauncherPackagesLiveData.value?.contains(pkg.packageName) ?: return
+                } else {
+                    KotlinUtils.packageHasLaunchIntent(context, pkg.packageName)
+                }
             val pkgIsSystemApp = pkg.appFlags and ApplicationInfo.FLAG_SYSTEM != 0
             // Iterate through all runtime perms, setting their keys
             for (perm in pkg.requestedPermissions.intersect(runtimePerms)) {
@@ -124,18 +124,20 @@ class UserSensitivityLiveData private constructor(
                  * - the permission is not pre-granted, or
                  * - the package is not a system app (i.e. not preinstalled)
                  */
-                var flags = if (pkgIsSystemApp && !pkgHasLauncherIcon) {
-                    val permGrantedByDefault = pm.getPermissionFlags(perm, pkg.packageName,
-                        user) and PackageManager.FLAG_PERMISSION_GRANTED_BY_DEFAULT != 0
+                var flags =
+                    if (pkgIsSystemApp && !pkgHasLauncherIcon) {
+                        val permGrantedByDefault =
+                            pm.getPermissionFlags(perm, pkg.packageName, user) and
+                                PackageManager.FLAG_PERMISSION_GRANTED_BY_DEFAULT != 0
 
-                    if (permGrantedByDefault) {
-                        0
+                        if (permGrantedByDefault) {
+                            0
+                        } else {
+                            PackageManager.FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED
+                        }
                     } else {
-                        PackageManager.FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED
+                        Utils.FLAGS_ALWAYS_USER_SENSITIVE
                     }
-                } else {
-                    Utils.FLAGS_ALWAYS_USER_SENSITIVE
-                }
 
                 /*
                  * If two packages share a UID there can be two cases:
@@ -146,11 +148,12 @@ class UserSensitivityLiveData private constructor(
                  */
                 val previousFlags = userSensitiveState.permStates[perm]
                 if (previousFlags != null) {
-                    flags = if (pkg.uid < Process.FIRST_APPLICATION_UID) {
-                        flags and previousFlags
-                    } else {
-                        flags or previousFlags
-                    }
+                    flags =
+                        if (pkg.uid < Process.FIRST_APPLICATION_UID) {
+                            flags and previousFlags
+                        } else {
+                            flags or previousFlags
+                        }
                 }
 
                 userSensitiveState.permStates[perm] = flags
@@ -172,13 +175,17 @@ class UserSensitivityLiveData private constructor(
 
     /**
      * Repository for a UserSensitivityLiveData
-     * <p> Key value is a pair of int uid (INVALID_UID for all uids), and UserHandle,
-     * value is its corresponding LiveData.
+     *
+     * <p> Key value is a pair of int uid (INVALID_UID for all uids), and UserHandle, value is its
+     * corresponding LiveData.
      */
     companion object : DataRepository<Pair<Int, UserHandle>, UserSensitivityLiveData>() {
         override fun newValue(key: Pair<Int, UserHandle>): UserSensitivityLiveData {
-            return UserSensitivityLiveData(PermissionControllerApplication.get(), key.first,
-                key.second)
+            return UserSensitivityLiveData(
+                PermissionControllerApplication.get(),
+                key.first,
+                key.second
+            )
         }
 
         /**
@@ -186,7 +193,6 @@ class UserSensitivityLiveData private constructor(
          * throw an exception if the uid is INVALID_UID.
          *
          * @param uid The uid for which we want the liveData
-         *
          * @return The liveData associated with the given UID
          */
         operator fun get(uid: Int): UserSensitivityLiveData {
@@ -200,7 +206,6 @@ class UserSensitivityLiveData private constructor(
          * Gets a liveData for a user, which will track all uids under
          *
          * @param user The user for whom we want the liveData
-         *
          * @return The liveData associated with that user, for all uids
          */
         operator fun get(user: UserHandle): UserSensitivityLiveData {

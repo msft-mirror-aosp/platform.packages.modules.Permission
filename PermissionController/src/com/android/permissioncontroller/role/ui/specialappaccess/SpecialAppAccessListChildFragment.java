@@ -32,10 +32,11 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
 
-import com.android.permissioncontroller.role.model.Role;
-import com.android.permissioncontroller.role.model.Roles;
 import com.android.permissioncontroller.role.ui.RoleItem;
-import com.android.permissioncontroller.role.ui.TwoTargetPreference;
+import com.android.permissioncontroller.role.ui.RolePreference;
+import com.android.permissioncontroller.role.utils.RoleUiBehaviorUtils;
+import com.android.role.controller.model.Role;
+import com.android.role.controller.model.Roles;
 
 import java.util.List;
 
@@ -101,19 +102,22 @@ public class SpecialAppAccessListChildFragment<PF extends PreferenceFragmentComp
             RoleItem roleItem = roleItems.get(i);
 
             Role role = roleItem.getRole();
-            Preference preference = oldPreferences.get(role.getName());
-            if (preference == null) {
-                preference = (Preference) preferenceFragment.createPreference(context);
+            RolePreference rolePreference = (RolePreference) oldPreferences.get(role.getName());
+            Preference preference;
+            if (rolePreference == null) {
+                rolePreference = preferenceFragment.createPreference(context);
+                preference = rolePreference.asPreference();
                 preference.setKey(role.getName());
                 preference.setIconSpaceReserved(true);
                 preference.setTitle(role.getShortLabelResource());
                 preference.setPersistent(false);
                 preference.setOnPreferenceClickListener(this);
+            } else {
+                preference = rolePreference.asPreference();
             }
-
-            role.preparePreferenceAsUser((TwoTargetPreference) preference, Process.myUserHandle(),
+            RoleUiBehaviorUtils.preparePreferenceAsUser(role, rolePreference,
+                    Process.myUserHandle(),
                     context);
-
             preferenceScreen.addPreference(preference);
         }
 
@@ -126,7 +130,7 @@ public class SpecialAppAccessListChildFragment<PF extends PreferenceFragmentComp
         Context context = requireContext();
         Role role = Roles.get(context).get(roleName);
         UserHandle user = Process.myUserHandle();
-        Intent intent = role.getManageIntentAsUser(user, context);
+        Intent intent = RoleUiBehaviorUtils.getManageIntentAsUser(role, user, context);
         if (intent == null) {
             intent = SpecialAppAccessActivity.createIntent(roleName, context);
         }
@@ -153,7 +157,7 @@ public class SpecialAppAccessListChildFragment<PF extends PreferenceFragmentComp
          * @return a new preference for a special app access
          */
         @NonNull
-        TwoTargetPreference createPreference(@NonNull Context context);
+        RolePreference createPreference(@NonNull Context context);
 
         /**
          * Callback when changes have been made to the {@link PreferenceScreen} of the parent

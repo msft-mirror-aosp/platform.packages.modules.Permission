@@ -34,14 +34,18 @@ import static android.Manifest.permission_group.STORAGE;
 import static android.app.AppOpsManager.MODE_ALLOWED;
 import static android.app.AppOpsManager.OPSTR_LEGACY_STORAGE;
 import static android.content.Context.MODE_PRIVATE;
+import static android.content.Intent.EXTRA_PACKAGE_NAME;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_RESTRICTION_INSTALLER_EXEMPT;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_RESTRICTION_SYSTEM_EXEMPT;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_RESTRICTION_UPGRADE_EXEMPT;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_USER_SENSITIVE_WHEN_DENIED;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED;
 import static android.content.pm.PackageManager.MATCH_SYSTEM_ONLY;
+import static android.health.connect.HealthConnectManager.ACTION_MANAGE_HEALTH_PERMISSIONS;
+import static android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP;
 import static android.os.UserHandle.myUserId;
 
+import static com.android.permissioncontroller.Constants.EXTRA_SESSION_ID;
 import static com.android.permissioncontroller.Constants.INVALID_SESSION_ID;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
@@ -52,6 +56,7 @@ import android.app.Application;
 import android.app.admin.DevicePolicyManager;
 import android.app.role.RoleManager;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -65,11 +70,14 @@ import android.content.pm.PermissionInfo;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.SensorPrivacyManager;
+import android.health.connect.HealthConnectManager;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Parcelable;
-import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.DeviceConfig;
@@ -78,12 +86,13 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.ArrayMap;
-import android.util.ArraySet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.ChecksSdkIntAtLeast;
+import androidx.annotation.ColorRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -102,19 +111,18 @@ import com.android.permissioncontroller.permission.model.AppPermissionGroup;
 import com.android.permissioncontroller.permission.model.livedatatypes.LightAppPermGroup;
 import com.android.permissioncontroller.permission.model.livedatatypes.LightPackageInfo;
 
+import kotlin.Triple;
+
 import java.lang.annotation.Retention;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
-
-import kotlin.Triple;
 
 public final class Utils {
 
@@ -128,19 +136,6 @@ public final class Utils {
     public static final int LAST_7D_SENSOR = 4;
     public static final int LAST_7D_CONTENT_PROVIDER = 5;
     public static final int NOT_IN_LAST_7D = 6;
-
-    private static final List<String> SENSOR_DATA_PERMISSIONS = List.of(
-            Manifest.permission_group.LOCATION,
-            Manifest.permission_group.CAMERA,
-            Manifest.permission_group.MICROPHONE
-    );
-
-    public static final List<String> STORAGE_SUPERGROUP_PERMISSIONS =
-            !SdkLevel.isAtLeastT() ? List.of() : List.of(
-                    Manifest.permission_group.STORAGE,
-                    Manifest.permission_group.READ_MEDIA_AURAL,
-                    Manifest.permission_group.READ_MEDIA_VISUAL
-            );
 
     private static final String LOG_TAG = "Utils";
 
@@ -163,8 +158,9 @@ public final class Utils {
     /** Whether or not app hibernation is enabled on the device **/
     public static final String PROPERTY_APP_HIBERNATION_ENABLED = "app_hibernation_enabled";
 
-    /** Whether to show the Permissions Hub. */
-    private static final String PROPERTY_PERMISSIONS_HUB_ENABLED = "permissions_hub_enabled";
+    /** Whether the system exempt from hibernation is enabled on the device **/
+    public static final String PROPERTY_SYSTEM_EXEMPT_HIBERNATION_ENABLED =
+            "system_exempt_hibernation_enabled";
 
     /** The timeout for one-time permissions */
     private static final String PROPERTY_ONE_TIME_PERMISSIONS_TIMEOUT_MILLIS =
@@ -174,20 +170,25 @@ public final class Utils {
     private static final String PROPERTY_ONE_TIME_PERMISSIONS_KILLED_DELAY_MILLIS =
             "one_time_permissions_killed_delay_millis";
 
-    /** Whether to show location access check notifications. */
-    private static final String PROPERTY_LOCATION_ACCESS_CHECK_ENABLED =
-            "location_access_check_enabled";
+    /** Whether to show health permission in various permission controller UIs. */
+    private static final String PROPERTY_HEALTH_PERMISSION_UI_ENABLED =
+            "health_permission_ui_enabled";
+
 
     /** How frequently to check permission event store to scrub old data */
     public static final String PROPERTY_PERMISSION_EVENTS_CHECK_OLD_FREQUENCY_MILLIS =
             "permission_events_check_old_frequency_millis";
 
-    /** The time an app needs to be unused in order to be hibernated */
+    /**
+     * Whether to store the exact time for permission changes. Only for use in tests and should
+     * not be modified in prod.
+     */
+    public static final String PROPERTY_PERMISSION_CHANGES_STORE_EXACT_TIME =
+            "permission_changes_store_exact_time";
+
+    /** The max amount of time permission data can stay in the storage before being scrubbed */
     public static final String PROPERTY_PERMISSION_DECISIONS_MAX_DATA_AGE_MILLIS =
             "permission_decisions_max_data_age_millis";
-
-    /** Whether or not warning banner is displayed when device sensors are off **/
-    public static final String PROPERTY_WARNING_BANNER_DISPLAY_ENABLED = "warning_banner_enabled";
 
     /** All permission whitelists. */
     public static final int FLAGS_PERMISSION_WHITELIST_ALL =
@@ -212,20 +213,14 @@ public final class Utils {
      */
     public static final long ONE_TIME_PERMISSIONS_KILLED_DELAY_MILLIS = 5 * 1000;
 
-    /** Mapping permission -> group for all dangerous platform permissions */
-    private static final ArrayMap<String, String> PLATFORM_PERMISSIONS;
-
-    /** Mapping group -> permissions for all dangerous platform permissions */
-    private static final ArrayMap<String, ArrayList<String>> PLATFORM_PERMISSION_GROUPS;
-
-    /** Set of groups that will be able to receive one-time grant */
-    private static final ArraySet<String> ONE_TIME_PERMISSION_GROUPS;
-
     private static final ArrayMap<String, Integer> PERM_GROUP_REQUEST_RES;
+    private static final ArrayMap<String, Integer> PERM_GROUP_REQUEST_DEVICE_AWARE_RES;
     private static final ArrayMap<String, Integer> PERM_GROUP_REQUEST_DETAIL_RES;
     private static final ArrayMap<String, Integer> PERM_GROUP_BACKGROUND_REQUEST_RES;
+    private static final ArrayMap<String, Integer> PERM_GROUP_BACKGROUND_REQUEST_DEVICE_AWARE_RES;
     private static final ArrayMap<String, Integer> PERM_GROUP_BACKGROUND_REQUEST_DETAIL_RES;
     private static final ArrayMap<String, Integer> PERM_GROUP_UPGRADE_REQUEST_RES;
+    private static final ArrayMap<String, Integer> PERM_GROUP_UPGRADE_REQUEST_DEVICE_AWARE_RES;
     private static final ArrayMap<String, Integer> PERM_GROUP_UPGRADE_REQUEST_DETAIL_RES;
 
     /** Permission -> Sensor codes */
@@ -238,8 +233,6 @@ public final class Utils {
     public static final int FLAGS_ALWAYS_USER_SENSITIVE =
             FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED
                     | FLAG_PERMISSION_USER_SENSITIVE_WHEN_DENIED;
-
-    private static final String SYSTEM_PKG = "android";
 
     private static final String SYSTEM_AMBIENT_AUDIO_INTELLIGENCE =
             "android.app.role.SYSTEM_AMBIENT_AUDIO_INTELLIGENCE";
@@ -265,102 +258,6 @@ public final class Utils {
     };
 
     static {
-        PLATFORM_PERMISSIONS = new ArrayMap<>();
-
-        PLATFORM_PERMISSIONS.put(Manifest.permission.READ_CONTACTS, CONTACTS);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.WRITE_CONTACTS, CONTACTS);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.GET_ACCOUNTS, CONTACTS);
-
-        PLATFORM_PERMISSIONS.put(Manifest.permission.READ_CALENDAR, CALENDAR);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.WRITE_CALENDAR, CALENDAR);
-
-        PLATFORM_PERMISSIONS.put(Manifest.permission.SEND_SMS, SMS);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.RECEIVE_SMS, SMS);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.READ_SMS, SMS);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.RECEIVE_MMS, SMS);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.RECEIVE_WAP_PUSH, SMS);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.READ_CELL_BROADCASTS, SMS);
-
-        // If permissions are added to the Storage group, they must be added to the
-        // STORAGE_PERMISSIONS list in PermissionManagerService in frameworks/base
-        PLATFORM_PERMISSIONS.put(Manifest.permission.READ_EXTERNAL_STORAGE, STORAGE);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, STORAGE);
-        if (!SdkLevel.isAtLeastT()) {
-            PLATFORM_PERMISSIONS.put(Manifest.permission.ACCESS_MEDIA_LOCATION, STORAGE);
-        }
-
-        if (SdkLevel.isAtLeastT()) {
-            PLATFORM_PERMISSIONS.put(Manifest.permission.READ_MEDIA_AUDIO, READ_MEDIA_AURAL);
-            PLATFORM_PERMISSIONS.put(Manifest.permission.READ_MEDIA_IMAGES, READ_MEDIA_VISUAL);
-            PLATFORM_PERMISSIONS.put(Manifest.permission.READ_MEDIA_VIDEO, READ_MEDIA_VISUAL);
-            PLATFORM_PERMISSIONS.put(Manifest.permission.ACCESS_MEDIA_LOCATION, READ_MEDIA_VISUAL);
-        }
-
-        PLATFORM_PERMISSIONS.put(Manifest.permission.ACCESS_FINE_LOCATION, LOCATION);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.ACCESS_COARSE_LOCATION, LOCATION);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.ACCESS_BACKGROUND_LOCATION, LOCATION);
-
-        if (SdkLevel.isAtLeastS()) {
-            PLATFORM_PERMISSIONS.put(Manifest.permission.BLUETOOTH_ADVERTISE, NEARBY_DEVICES);
-            PLATFORM_PERMISSIONS.put(Manifest.permission.BLUETOOTH_CONNECT, NEARBY_DEVICES);
-            PLATFORM_PERMISSIONS.put(Manifest.permission.BLUETOOTH_SCAN, NEARBY_DEVICES);
-            PLATFORM_PERMISSIONS.put(Manifest.permission.UWB_RANGING, NEARBY_DEVICES);
-        }
-        if (SdkLevel.isAtLeastT()) {
-            PLATFORM_PERMISSIONS.put(Manifest.permission.NEARBY_WIFI_DEVICES, NEARBY_DEVICES);
-        }
-
-        PLATFORM_PERMISSIONS.put(Manifest.permission.READ_CALL_LOG, CALL_LOG);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.WRITE_CALL_LOG, CALL_LOG);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.PROCESS_OUTGOING_CALLS, CALL_LOG);
-
-        PLATFORM_PERMISSIONS.put(Manifest.permission.READ_PHONE_STATE, PHONE);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.READ_PHONE_NUMBERS, PHONE);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.CALL_PHONE, PHONE);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.ADD_VOICEMAIL, PHONE);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.USE_SIP, PHONE);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.ANSWER_PHONE_CALLS, PHONE);
-        PLATFORM_PERMISSIONS.put(Manifest.permission.ACCEPT_HANDOVER, PHONE);
-
-        PLATFORM_PERMISSIONS.put(Manifest.permission.RECORD_AUDIO, MICROPHONE);
-        if (SdkLevel.isAtLeastS()) {
-            PLATFORM_PERMISSIONS.put(Manifest.permission.RECORD_BACKGROUND_AUDIO, MICROPHONE);
-        }
-
-        PLATFORM_PERMISSIONS.put(Manifest.permission.ACTIVITY_RECOGNITION, ACTIVITY_RECOGNITION);
-
-        PLATFORM_PERMISSIONS.put(Manifest.permission.CAMERA, CAMERA);
-        if (SdkLevel.isAtLeastS()) {
-            PLATFORM_PERMISSIONS.put(Manifest.permission.BACKGROUND_CAMERA, CAMERA);
-        }
-
-        PLATFORM_PERMISSIONS.put(Manifest.permission.BODY_SENSORS, SENSORS);
-
-        if (SdkLevel.isAtLeastT()) {
-            PLATFORM_PERMISSIONS.put(Manifest.permission.POST_NOTIFICATIONS, NOTIFICATIONS);
-            PLATFORM_PERMISSIONS.put(Manifest.permission.BODY_SENSORS_BACKGROUND, SENSORS);
-        }
-
-        PLATFORM_PERMISSION_GROUPS = new ArrayMap<>();
-        int numPlatformPermissions = PLATFORM_PERMISSIONS.size();
-        for (int i = 0; i < numPlatformPermissions; i++) {
-            String permission = PLATFORM_PERMISSIONS.keyAt(i);
-            String permissionGroup = PLATFORM_PERMISSIONS.valueAt(i);
-
-            ArrayList<String> permissionsOfThisGroup = PLATFORM_PERMISSION_GROUPS.get(
-                    permissionGroup);
-            if (permissionsOfThisGroup == null) {
-                permissionsOfThisGroup = new ArrayList<>();
-                PLATFORM_PERMISSION_GROUPS.put(permissionGroup, permissionsOfThisGroup);
-            }
-
-            permissionsOfThisGroup.add(permission);
-        }
-
-        ONE_TIME_PERMISSION_GROUPS = new ArraySet<>();
-        ONE_TIME_PERMISSION_GROUPS.add(LOCATION);
-        ONE_TIME_PERMISSION_GROUPS.add(CAMERA);
-        ONE_TIME_PERMISSION_GROUPS.add(MICROPHONE);
 
         PERM_GROUP_REQUEST_RES = new ArrayMap<>();
         PERM_GROUP_REQUEST_RES.put(CONTACTS, R.string.permgrouprequest_contacts);
@@ -380,6 +277,38 @@ public final class Utils {
         PERM_GROUP_REQUEST_RES.put(SENSORS, R.string.permgrouprequest_sensors);
         PERM_GROUP_REQUEST_RES.put(NOTIFICATIONS, R.string.permgrouprequest_notifications);
 
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES = new ArrayMap<>();
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(CONTACTS,
+                R.string.permgrouprequest_device_aware_contacts);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(LOCATION,
+                R.string.permgrouprequest_device_aware_location);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(NEARBY_DEVICES,
+                R.string.permgrouprequest_device_aware_nearby_devices);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(CALENDAR,
+                R.string.permgrouprequest_device_aware_calendar);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(SMS, R.string.permgrouprequest_device_aware_sms);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(STORAGE,
+                R.string.permgrouprequest_device_aware_storage);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(READ_MEDIA_AURAL,
+                R.string.permgrouprequest_device_aware_read_media_aural);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(READ_MEDIA_VISUAL,
+                R.string.permgrouprequest_device_aware_read_media_visual);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(MICROPHONE,
+                R.string.permgrouprequest_device_aware_microphone);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES
+                .put(ACTIVITY_RECOGNITION,
+                        R.string.permgrouprequest_device_aware_activityRecognition);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(CAMERA,
+                R.string.permgrouprequest_device_aware_camera);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(CALL_LOG,
+                R.string.permgrouprequest_device_aware_calllog);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(PHONE,
+                R.string.permgrouprequest_device_aware_phone);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(SENSORS,
+                R.string.permgrouprequest_device_aware_sensors);
+        PERM_GROUP_REQUEST_DEVICE_AWARE_RES.put(NOTIFICATIONS,
+                R.string.permgrouprequest_device_aware_notifications);
+
         PERM_GROUP_REQUEST_DETAIL_RES = new ArrayMap<>();
         PERM_GROUP_REQUEST_DETAIL_RES.put(LOCATION, R.string.permgrouprequestdetail_location);
         PERM_GROUP_REQUEST_DETAIL_RES.put(MICROPHONE, R.string.permgrouprequestdetail_microphone);
@@ -394,6 +323,16 @@ public final class Utils {
                 .put(CAMERA, R.string.permgroupbackgroundrequest_camera);
         PERM_GROUP_BACKGROUND_REQUEST_RES
                 .put(SENSORS, R.string.permgroupbackgroundrequest_sensors);
+
+        PERM_GROUP_BACKGROUND_REQUEST_DEVICE_AWARE_RES = new ArrayMap<>();
+        PERM_GROUP_BACKGROUND_REQUEST_DEVICE_AWARE_RES
+                .put(LOCATION, R.string.permgroupbackgroundrequest_device_aware_location);
+        PERM_GROUP_BACKGROUND_REQUEST_DEVICE_AWARE_RES
+                .put(MICROPHONE, R.string.permgroupbackgroundrequest_device_aware_microphone);
+        PERM_GROUP_BACKGROUND_REQUEST_DEVICE_AWARE_RES
+                .put(CAMERA, R.string.permgroupbackgroundrequest_device_aware_camera);
+        PERM_GROUP_BACKGROUND_REQUEST_DEVICE_AWARE_RES
+                .put(SENSORS, R.string.permgroupbackgroundrequest_device_aware_sensors);
 
         PERM_GROUP_BACKGROUND_REQUEST_DETAIL_RES = new ArrayMap<>();
         PERM_GROUP_BACKGROUND_REQUEST_DETAIL_RES
@@ -410,6 +349,16 @@ public final class Utils {
         PERM_GROUP_UPGRADE_REQUEST_RES.put(MICROPHONE, R.string.permgroupupgraderequest_microphone);
         PERM_GROUP_UPGRADE_REQUEST_RES.put(CAMERA, R.string.permgroupupgraderequest_camera);
         PERM_GROUP_UPGRADE_REQUEST_RES.put(SENSORS, R.string.permgroupupgraderequest_sensors);
+
+        PERM_GROUP_UPGRADE_REQUEST_DEVICE_AWARE_RES = new ArrayMap<>();
+        PERM_GROUP_UPGRADE_REQUEST_DEVICE_AWARE_RES.put(LOCATION,
+                R.string.permgroupupgraderequest_device_aware_location);
+        PERM_GROUP_UPGRADE_REQUEST_DEVICE_AWARE_RES.put(MICROPHONE,
+                R.string.permgroupupgraderequest_device_aware_microphone);
+        PERM_GROUP_UPGRADE_REQUEST_DEVICE_AWARE_RES.put(CAMERA,
+                R.string.permgroupupgraderequest_device_aware_camera);
+        PERM_GROUP_UPGRADE_REQUEST_DEVICE_AWARE_RES.put(SENSORS,
+                R.string.permgroupupgraderequest_device_aware_sensors);
 
         PERM_GROUP_UPGRADE_REQUEST_DETAIL_RES = new ArrayMap<>();
         PERM_GROUP_UPGRADE_REQUEST_DETAIL_RES
@@ -449,20 +398,19 @@ public final class Utils {
      * Creates and caches a PackageContext for the requested user, or returns the previously cached
      * value. The package of the PackageContext is the application's package.
      *
-     * @param app The currently running application
+     * @param context The context of the currently running application
      * @param user The desired user for the context
      *
      * @return The generated or cached Context for the requested user
      *
-     * @throws PackageManager.NameNotFoundException If the app has no package name attached
+     * @throws RuntimeException If the app has no package name attached, which should never happen
      */
-    public static @NonNull Context getUserContext(Application app, UserHandle user) throws
-            PackageManager.NameNotFoundException {
+    public static @NonNull Context getUserContext(Context context, UserHandle user) {
         if (!sUserContexts.containsKey(user)) {
-            sUserContexts.put(user, app.getApplicationContext()
-                    .createPackageContextAsUser(app.getPackageName(), 0, user));
+            sUserContexts.put(user, context.getApplicationContext()
+                    .createContextAsUser(user, 0));
         }
-        return sUserContexts.get(user);
+        return Preconditions.checkNotNull(sUserContexts.get(user));
     }
 
     /**
@@ -518,81 +466,6 @@ public final class Utils {
     }
 
     /**
-     * Get permission group a platform permission belongs to, or null if the permission is not a
-     * platform permission.
-     *
-     * @param permission the permission to resolve
-     *
-     * @return The group the permission belongs to
-     */
-    public static @Nullable String getGroupOfPlatformPermission(@NonNull String permission) {
-        return PLATFORM_PERMISSIONS.get(permission);
-    }
-
-    /**
-     * Get name of the permission group a permission belongs to.
-     *
-     * @param permission the {@link PermissionInfo info} of the permission to resolve
-     *
-     * @return The group the permission belongs to
-     */
-    public static @Nullable String getGroupOfPermission(@NonNull PermissionInfo permission) {
-        String groupName = Utils.getGroupOfPlatformPermission(permission.name);
-        if (groupName == null) {
-            groupName = permission.group;
-        }
-
-        return groupName;
-    }
-
-    /**
-     * Get the names for all platform permissions belonging to a group.
-     *
-     * @param group the group
-     *
-     * @return The permission names  or an empty list if the
-     *         group is not does not have platform runtime permissions
-     */
-    public static @NonNull List<String> getPlatformPermissionNamesOfGroup(@NonNull String group) {
-        final ArrayList<String> permissions = PLATFORM_PERMISSION_GROUPS.get(group);
-        return (permissions != null) ? permissions : Collections.emptyList();
-    }
-
-    /**
-     * Get the {@link PermissionInfo infos} for all platform permissions belonging to a group.
-     *
-     * @param pm    Package manager to use to resolve permission infos
-     * @param group the group
-     *
-     * @return The infos for platform permissions belonging to the group or an empty list if the
-     *         group is not does not have platform runtime permissions
-     */
-    public static @NonNull List<PermissionInfo> getPlatformPermissionsOfGroup(
-            @NonNull PackageManager pm, @NonNull String group) {
-        ArrayList<PermissionInfo> permInfos = new ArrayList<>();
-
-        ArrayList<String> permissions = PLATFORM_PERMISSION_GROUPS.get(group);
-        if (permissions == null) {
-            return Collections.emptyList();
-        }
-
-        int numPermissions = permissions.size();
-        for (int i = 0; i < numPermissions; i++) {
-            String permName = permissions.get(i);
-            PermissionInfo permInfo;
-            try {
-                permInfo = pm.getPermissionInfo(permName, 0);
-            } catch (PackageManager.NameNotFoundException e) {
-                throw new IllegalStateException(permName + " not defined by platform", e);
-            }
-
-            permInfos.add(permInfo);
-        }
-
-        return permInfos;
-    }
-
-    /**
      * Get the {@link PermissionInfo infos} for all permission infos belonging to a group.
      *
      * @param pm    Package manager to use to resolve permission infos
@@ -605,7 +478,7 @@ public final class Utils {
             @NonNull PackageManager pm, @NonNull String group)
             throws PackageManager.NameNotFoundException {
         List<PermissionInfo> permissions = pm.queryPermissionsByGroup(group, 0);
-        permissions.addAll(getPlatformPermissionsOfGroup(pm, group));
+        permissions.addAll(PermissionMapping.getPlatformPermissionsOfGroup(pm, group));
 
         /*
          * If the undefined group is requested, the package manager will return all platform
@@ -615,7 +488,8 @@ public final class Utils {
         if (group.equals(Manifest.permission_group.UNDEFINED)) {
             List<PermissionInfo> undefinedPerms = new ArrayList<>();
             for (PermissionInfo permissionInfo : permissions) {
-                String permGroup = getGroupOfPlatformPermission(permissionInfo.name);
+                String permGroup =
+                        PermissionMapping.getGroupOfPlatformPermission(permissionInfo.name);
                 if (permGroup == null || permGroup.equals(Manifest.permission_group.UNDEFINED)) {
                     undefinedPerms.add(permissionInfo);
                 }
@@ -640,7 +514,7 @@ public final class Utils {
             @NonNull PackageManager pm, @NonNull String group)
             throws PackageManager.NameNotFoundException {
         List<PermissionInfo> permissions = pm.queryPermissionsByGroup(group, 0);
-        permissions.addAll(getPlatformPermissionsOfGroup(pm, group));
+        permissions.addAll(PermissionMapping.getPlatformPermissionsOfGroup(pm, group));
 
         List<PermissionInfo> installedRuntime = new ArrayList<>();
         for (PermissionInfo permissionInfo: permissions) {
@@ -659,7 +533,8 @@ public final class Utils {
         if (group.equals(Manifest.permission_group.UNDEFINED)) {
             List<PermissionInfo> undefinedPerms = new ArrayList<>();
             for (PermissionInfo permissionInfo : installedRuntime) {
-                String permGroup = getGroupOfPlatformPermission(permissionInfo.name);
+                String permGroup =
+                        PermissionMapping.getGroupOfPlatformPermission(permissionInfo.name);
                 if (permGroup == null || permGroup.equals(Manifest.permission_group.UNDEFINED)) {
                     undefinedPerms.add(permissionInfo);
                 }
@@ -776,37 +651,6 @@ public final class Utils {
         }
     }
 
-    public static boolean isModernPermissionGroup(String name) {
-        return PLATFORM_PERMISSION_GROUPS.containsKey(name);
-    }
-
-    /**
-     * Get the names of the platform permission groups.
-     *
-     * @return the names of the platform permission groups.
-     */
-    public static List<String> getPlatformPermissionGroups() {
-        return new ArrayList<>(PLATFORM_PERMISSION_GROUPS.keySet());
-    }
-
-    /**
-     * Get the names of the runtime platform permissions
-     *
-     * @return the names of the runtime platform permissions.
-     */
-    public static List<String> getRuntimePlatformPermissionNames() {
-        return new ArrayList<>(PLATFORM_PERMISSIONS.keySet());
-    }
-
-    /**
-     * Is the permissions a platform runtime permission
-     *
-     * @return the names of the runtime platform permissions.
-     */
-    public static boolean isRuntimePlatformPermission(@NonNull String permission) {
-        return PLATFORM_PERMISSIONS.containsKey(permission);
-    }
-
     /**
      * Should UI show this permission.
      *
@@ -824,7 +668,7 @@ public final class Utils {
         final boolean isPlatformPermission = group.getDeclaringPackage().equals(OS_PKG);
         // Show legacy permissions only if the user chose that.
         if (isPlatformPermission
-                && !Utils.isModernPermissionGroup(group.getName())) {
+                && !PermissionMapping.isPlatformPermissionGroup(group.getName())) {
             return false;
         }
         return true;
@@ -843,8 +687,17 @@ public final class Utils {
         return applyTint(context, context.getDrawable(iconResId), attr);
     }
 
-    public static List<ApplicationInfo> getAllInstalledApplications(Context context) {
-        return context.getPackageManager().getInstalledApplications(0);
+    /**
+     * Get the color resource id based on the attribute
+     *
+     * @return Resource id for the color
+     */
+    @ColorRes
+    public static int getColorResId(Context context, int attr) {
+        Theme theme = context.getTheme();
+        TypedValue typedValue = new TypedValue();
+        theme.resolveAttribute(attr, typedValue, true);
+        return typedValue.resourceId;
     }
 
     /**
@@ -892,11 +745,16 @@ public final class Utils {
      * @param groupName The name of the permission group
      * @param context A context to resolve resources
      * @param requestRes The resource id of the grant request message
-     *
      * @return The formatted message to be used as title when granting permissions
      */
-    public static CharSequence getRequestMessage(CharSequence appLabel, String packageName,
-            String groupName, Context context, @StringRes int requestRes) {
+    @NonNull
+    public static CharSequence getRequestMessage(
+            @NonNull String appLabel,
+            @NonNull String packageName,
+            @NonNull String groupName,
+            @NonNull Context context,
+            @StringRes int requestRes) {
+        String escapedAppLabel = Html.escapeHtml(appLabel);
 
         boolean isIsolatedStorage;
         try {
@@ -906,15 +764,76 @@ public final class Utils {
         }
         if (groupName.equals(STORAGE) && isIsolatedStorage) {
             return Html.fromHtml(
-                    String.format(context.getResources().getConfiguration().getLocales().get(0),
+                    String.format(
+                            context.getResources().getConfiguration().getLocales().get(0),
                             context.getString(R.string.permgrouprequest_storage_isolated),
-                            appLabel), 0);
+                            escapedAppLabel),
+                    0);
         } else if (requestRes != 0) {
-            return Html.fromHtml(context.getResources().getString(requestRes, appLabel), 0);
+            return Html.fromHtml(context.getResources().getString(requestRes, escapedAppLabel), 0);
         }
 
-        return Html.fromHtml(context.getString(R.string.permission_warning_template, appLabel,
-                loadGroupDescription(context, groupName, context.getPackageManager())), 0);
+        return Html.fromHtml(
+                context.getString(
+                        R.string.permission_warning_template,
+                        escapedAppLabel,
+                        loadGroupDescription(context, groupName, context.getPackageManager())),
+                0);
+    }
+
+    /**
+     * Get the message shown to grant a permission group to an app.
+     *
+     * @param appLabel The label of the app
+     * @param packageName The package name of the app
+     * @param groupName The name of the permission group
+     * @param context A context to resolve resources
+     * @param requestRes The resource id of the grant request message
+     * @return The formatted message to be used as title when granting permissions
+     */
+    @NonNull
+    public static CharSequence getRequestMessage(
+            @NonNull String appLabel,
+            @NonNull String packageName,
+            @NonNull String groupName,
+            @NonNull String deviceLabel,
+            @NonNull Context context,
+            Boolean isDeviceAwareMessage,
+            @StringRes int requestRes) {
+        if (!isDeviceAwareMessage) {
+            return getRequestMessage(appLabel, packageName, groupName, context, requestRes);
+        }
+        String escapedAppLabel = Html.escapeHtml(appLabel);
+
+        boolean isIsolatedStorage;
+        try {
+            isIsolatedStorage = !isNonIsolatedStorage(context, packageName);
+        } catch (NameNotFoundException e) {
+            isIsolatedStorage = false;
+        }
+        if (groupName.equals(STORAGE) && isIsolatedStorage) {
+            String escapedDeviceLabel = Html.escapeHtml(deviceLabel);
+            return Html.fromHtml(
+                    String.format(
+                            context.getResources().getConfiguration().getLocales().get(0),
+                            context.getString(
+                                    R.string.permgrouprequest_device_aware_storage_isolated),
+                            escapedAppLabel,
+                            escapedDeviceLabel),
+                    0);
+
+        } else if (requestRes != 0) {
+            String escapedDeviceLabel = Html.escapeHtml(deviceLabel);
+            return Html.fromHtml(context.getResources().getString(requestRes, escapedAppLabel,
+                    escapedDeviceLabel), 0);
+        }
+
+        return Html.fromHtml(
+                context.getString(
+                        R.string.permission_warning_template,
+                        escapedAppLabel,
+                        loadGroupDescription(context, groupName, context.getPackageManager())),
+                0);
     }
 
     private static CharSequence loadGroupDescription(Context context, String groupName,
@@ -968,12 +887,7 @@ public final class Utils {
         }
         int targetSdkVersion = pkg.getTargetSdkVersion();
         PermissionControllerApplication app = PermissionControllerApplication.get();
-        Context context = null;
-        try {
-            context = Utils.getUserContext(app, UserHandle.getUserHandleForUid(pkg.getUid()));
-        } catch (NameNotFoundException e) {
-            return true;
-        }
+        Context context = Utils.getUserContext(app, UserHandle.getUserHandleForUid(pkg.getUid()));
         AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);
         if (appOpsManager == null) {
             return true;
@@ -1037,8 +951,9 @@ public final class Utils {
         if (context.getPackageManager().resolveActivity(intent, 0) == null) {
             return;
         }
-        MenuItem searchItem = menu.add(Menu.NONE, Menu.NONE, Menu.NONE, R.string.search_menu);
-        searchItem.setIcon(R.drawable.ic_search_24dp);
+        MenuItem searchItem = menu.add(Menu.NONE, Menu.NONE, Menu.NONE,
+                com.android.settingslib.search.widget.R.string.search_menu);
+        searchItem.setIcon(com.android.settingslib.search.widget.R.drawable.ic_search_24dp);
         searchItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         searchItem.setOnMenuItemClickListener(item -> {
             try {
@@ -1062,12 +977,9 @@ public final class Utils {
             @NonNull ApplicationInfo appInfo) {
         UserHandle user = UserHandle.getUserHandleForUid(appInfo.uid);
         try (IconFactory iconFactory = IconFactory.obtain(context)) {
-            return iconFactory.createBadgedIconBitmap(
-                    appInfo.loadUnbadgedIcon(context.getPackageManager()),
-                    new IconFactory.IconOptions()
-                            .setShrinkNonAdaptiveIcons(false)
-                            .setUser(user))
-                    .newIcon(context);
+            Bitmap iconBmp = iconFactory.createBadgedIconBitmap(
+                    appInfo.loadUnbadgedIcon(context.getPackageManager()), user, false).icon;
+            return new BitmapDrawable(context.getResources(), iconBmp);
         }
     }
 
@@ -1119,13 +1031,83 @@ public final class Utils {
     }
 
     /**
-     * Whether the Location Access Check is enabled.
-     *
-     * @return {@code true} iff the Location Access Check is enabled.
+     * Whether we should show health permissions as platform permissions in the various
+     * permission controller UI.
      */
-    public static boolean isLocationAccessCheckEnabled() {
-        return DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
-                PROPERTY_LOCATION_ACCESS_CHECK_ENABLED, true);
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
+    public static boolean isHealthPermissionUiEnabled() {
+        final long token = Binder.clearCallingIdentity();
+        try {
+            return SdkLevel.isAtLeastU()
+                    && DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_PRIVACY,
+                    PROPERTY_HEALTH_PERMISSION_UI_ENABLED, true);
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
+    }
+
+    /**
+     * Returns true if the group name passed is that of the Platform health group.
+     * @param permGroupName name of the group that needs to be checked.
+     */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public static Boolean isHealthPermissionGroup(String permGroupName) {
+        return SdkLevel.isAtLeastU() && HEALTH_PERMISSION_GROUP.equals(permGroupName);
+    }
+
+    /**
+     * Return whether health permission setting entry should be shown or not
+     *
+     * Should not show Health permissions preference if the package doesn't handle
+     * VIEW_PERMISSION_USAGE_INTENT.
+     *
+     * Will show if above is true AND permission is already granted.
+     *
+     * @param packageInfo the {@link PackageInfo} app which uses the permission
+     * @param permGroupName the health permission group name to show
+     * @return {@code TRUE} iff health permission should be shown
+     */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public static Boolean shouldShowHealthPermission(LightPackageInfo packageInfo,
+            String permGroupName) {
+        if (!isHealthPermissionGroup(permGroupName)) {
+            return false;
+        }
+
+        PermissionControllerApplication app = PermissionControllerApplication.get();
+        PackageManager pm = app.getPackageManager();
+        Context context = getUserContext(app, UserHandle.getUserHandleForUid(packageInfo.getUid()));
+
+        List<PermissionInfo> permissions = new ArrayList<>();
+        try {
+            permissions.addAll(getPermissionInfosForGroup(pm, permGroupName));
+        } catch (NameNotFoundException e) {
+            Log.e(LOG_TAG, "No permissions found for permission group " + permGroupName);
+            return false;
+        }
+
+        // Check in permission is already granted as we should not hide it in the UX at that point.
+        List<String> grantedPermissions = packageInfo.getGrantedPermissions();
+        for (PermissionInfo permission : permissions) {
+            boolean isCurrentlyGranted = grantedPermissions.contains(permission.name);
+            if (isCurrentlyGranted) {
+                Log.d(LOG_TAG, "At least one Health permission group permission is granted, "
+                        + "show permission group entry");
+                return true;
+            }
+        }
+
+        Intent viewUsageIntent = new Intent(Intent.ACTION_VIEW_PERMISSION_USAGE);
+        viewUsageIntent.addCategory(HealthConnectManager.CATEGORY_HEALTH_PERMISSIONS);
+        viewUsageIntent.setPackage(packageInfo.getPackageName());
+
+        ResolveInfo resolveInfo = pm.resolveActivity(viewUsageIntent, PackageManager.MATCH_ALL);
+        if (resolveInfo == null) {
+            Log.e(LOG_TAG, "Package that asks for Health permission must also handle "
+                    + "VIEW_PERMISSION_USAGE_INTENT.");
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -1194,21 +1176,26 @@ public final class Utils {
     }
 
     /**
-     * Whether the permission group supports one-time
-     * @param permissionGroup The permission group to check
-     * @return {@code true} iff the group supports one-time
-     */
-    public static boolean supportsOneTimeGrant(String permissionGroup) {
-        return ONE_TIME_PERMISSION_GROUPS.contains(permissionGroup);
-    }
-
-    /**
      * The resource id for the request message for a permission group
      * @param groupName Permission group name
      * @return The id or 0 if the permission group doesn't exist or have a message
      */
     public static int getRequest(String groupName) {
-        return PERM_GROUP_REQUEST_RES.getOrDefault(groupName, 0);
+        return getRequest(groupName, false);
+    }
+
+    /**
+     * The resource id for the request message for a permission group for a specific device
+     *
+     * @param groupName Permission group name
+     * @return The id or 0 if the permission group doesn't exist or have a message
+     */
+    public static int getRequest(String groupName, Boolean isDeviceAwareMessage) {
+        if (isDeviceAwareMessage) {
+            return PERM_GROUP_REQUEST_DEVICE_AWARE_RES.getOrDefault(groupName, 0);
+        } else {
+            return PERM_GROUP_REQUEST_RES.getOrDefault(groupName, 0);
+        }
     }
 
     /**
@@ -1226,7 +1213,22 @@ public final class Utils {
      * @return The id or 0 if the permission group doesn't exist or have a message
      */
     public static int getBackgroundRequest(String groupName) {
-        return PERM_GROUP_BACKGROUND_REQUEST_RES.getOrDefault(groupName, 0);
+        return getBackgroundRequest(groupName, false);
+    }
+
+    /**
+     * The resource id for the background request message for a permission group for a specific
+     * device
+     *
+     * @param groupName Permission group name
+     * @return The id or 0 if the permission group doesn't exist or have a message
+     */
+    public static int getBackgroundRequest(String groupName, Boolean isDeviceAwareMessage) {
+        if (isDeviceAwareMessage) {
+            return PERM_GROUP_BACKGROUND_REQUEST_DEVICE_AWARE_RES.getOrDefault(groupName, 0);
+        } else {
+            return PERM_GROUP_BACKGROUND_REQUEST_RES.getOrDefault(groupName, 0);
+        }
     }
 
     /**
@@ -1244,7 +1246,21 @@ public final class Utils {
      * @return The id or 0 if the permission group doesn't exist or have a message
      */
     public static int getUpgradeRequest(String groupName) {
-        return PERM_GROUP_UPGRADE_REQUEST_RES.getOrDefault(groupName, 0);
+        return getUpgradeRequest(groupName, false);
+    }
+
+    /**
+     * The resource id for the upgrade request message for a permission group for a specific device.
+     *
+     * @param groupName Permission group name
+     * @return The id or 0 if the permission group doesn't exist or have a message
+     */
+    public static int getUpgradeRequest(String groupName, Boolean isDeviceAwareMessage) {
+        if (isDeviceAwareMessage) {
+            return PERM_GROUP_UPGRADE_REQUEST_DEVICE_AWARE_RES.getOrDefault(groupName, 0);
+        } else {
+            return PERM_GROUP_UPGRADE_REQUEST_RES.getOrDefault(groupName, 0);
+        }
     }
 
     /**
@@ -1257,35 +1273,42 @@ public final class Utils {
     }
 
     /**
-     * Checks whether a package has an active one-time permission according to the system server's
-     * flags
+     * The resource id for the fine location request message for a specific device
      *
-     * @param context the {@code Context} to retrieve {@code PackageManager}
-     * @param packageName The package to check for
-     * @return Whether a package has an active one-time permission
+     * @return The id
      */
-    public static boolean hasOneTimePermissions(Context context, String packageName) {
-        String[] permissions;
-        PackageManager pm = context.getPackageManager();
-        try {
-            permissions = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
-                    .requestedPermissions;
-        } catch (NameNotFoundException e) {
-            Log.w(LOG_TAG, "Checking for one-time permissions in nonexistent package");
-            return false;
+    public static int getFineLocationRequest(Boolean isDeviceAwareMessage) {
+        if (isDeviceAwareMessage) {
+            return R.string.permgrouprequest_device_aware_fineupgrade;
+        } else {
+            return R.string.permgrouprequest_fineupgrade;
         }
-        if (permissions == null) {
-            return false;
+    }
+
+    /**
+     * The resource id for the coarse location request message for a specific device
+     *
+     * @return The id
+     */
+    public static int getCoarseLocationRequest(Boolean isDeviceAwareMessage) {
+        if (isDeviceAwareMessage) {
+            return R.string.permgrouprequest_device_aware_coarselocation;
+        } else {
+            return R.string.permgrouprequest_coarselocation;
         }
-        for (String permissionName : permissions) {
-            if ((pm.getPermissionFlags(permissionName, packageName, Process.myUserHandle())
-                    & PackageManager.FLAG_PERMISSION_ONE_TIME) != 0
-                    && pm.checkPermission(permissionName, packageName)
-                    == PackageManager.PERMISSION_GRANTED) {
-                return true;
-            }
+    }
+
+    /**
+     * The resource id for the get more photos request message for a specific device
+     *
+     * @return The id
+     */
+    public static int getMorePhotosRequest(Boolean isDeviceAwareMessage) {
+        if (isDeviceAwareMessage) {
+            return R.string.permgrouprequest_device_aware_more_photos;
+        } else {
+            return R.string.permgrouprequest_more_photos;
         }
-        return false;
     }
 
     /**
@@ -1297,6 +1320,20 @@ public final class Utils {
         long sessionId = INVALID_SESSION_ID;
         while (sessionId == INVALID_SESSION_ID) {
             sessionId = new Random().nextLong();
+        }
+        return sessionId;
+    }
+
+    /**
+     * Retrieves an existing session ID from the given intent or generates a new one if none is
+     * present.
+     *
+     * @return A valid session ID.
+     */
+    public static long getOrGenerateSessionId(Intent intent) {
+        long sessionId = intent.getLongExtra(EXTRA_SESSION_ID, INVALID_SESSION_ID);
+        if (sessionId == INVALID_SESSION_ID) {
+            sessionId = getValidSessionId();
         }
         return sessionId;
     }
@@ -1330,7 +1367,18 @@ public final class Utils {
         // In android TV, parental control accounts are managed profiles
         return !userManager.getEnabledProfiles().contains(user)
                 || (userManager.isManagedProfile(user.getIdentifier())
-                && !DeviceUtils.isTelevision(app));
+                    && !DeviceUtils.isTelevision(app));
+    }
+
+    /**
+     * Determines if a given user ID belongs to a managed profile user.
+     * @param userId The user ID to check
+     * @return true if the user is a managed profile
+     */
+    public static boolean isUserManagedProfile(int userId) {
+        return PermissionControllerApplication.get()
+                .getSystemService(UserManager.class)
+                .isManagedProfile(userId);
     }
 
     /**
@@ -1339,7 +1387,7 @@ public final class Utils {
     public static Set<String> getExemptedPackages(@NonNull RoleManager roleManager) {
         Set<String> exemptedPackages = new HashSet<>();
 
-        exemptedPackages.add(SYSTEM_PKG);
+        exemptedPackages.add(OS_PKG);
         for (int i = 0; i < EXEMPTED_ROLES.length; i++) {
             exemptedPackages.addAll(roleManager.getRoleHolders(EXEMPTED_ROLES[i]));
         }
@@ -1378,7 +1426,7 @@ public final class Utils {
             lastAccessDateFormatted = DateFormat.getDateFormat(context)
                     .format(lastAccessTime);
 
-            if (!SENSOR_DATA_PERMISSIONS.contains(groupName)) {
+            if (!PermissionMapping.SENSOR_DATA_PERMISSIONS.contains(groupName)) {
                 // For content providers we show either the last access is within
                 // past 24 hours or past 7 days
                 lastAccessType = isLastAccessWithinPast24h
@@ -1426,13 +1474,33 @@ public final class Utils {
     }
 
     /**
+     * Navigate to health connect settings for all apps
+     * @param context The current Context
+     */
+    public static void navigateToHealthConnectSettings(@NonNull Context context) {
+        Intent healthConnectIntent = new Intent(ACTION_MANAGE_HEALTH_PERMISSIONS);
+        context.startActivity(healthConnectIntent);
+    }
+
+    /**
+     * Navigate to health connect settings for an app
+     * @param context The current Context
+     * @param packageName The package's health connect settings to navigate to
+     */
+    public static void navigateToAppHealthConnectSettings(@NonNull Context context,
+            @NonNull String packageName, @NonNull UserHandle user) {
+        Intent appHealthConnectIntent = new Intent(ACTION_MANAGE_HEALTH_PERMISSIONS);
+        appHealthConnectIntent.putExtra(EXTRA_PACKAGE_NAME, packageName);
+        appHealthConnectIntent.putExtra(Intent.EXTRA_USER, user);
+        context.startActivity(appHealthConnectIntent);
+    }
+
+    /**
      * Returns if a card should be shown if the sensor is blocked
      **/
     public static boolean shouldDisplayCardIfBlocked(@NonNull String permissionGroupName) {
-        return DeviceConfig.getBoolean(
-                DeviceConfig.NAMESPACE_PRIVACY, PROPERTY_WARNING_BANNER_DISPLAY_ENABLED, true) && (
-                CAMERA.equals(permissionGroupName) || MICROPHONE.equals(permissionGroupName)
-                        || LOCATION.equals(permissionGroupName));
+        return CAMERA.equals(permissionGroupName) || MICROPHONE.equals(permissionGroupName)
+                || LOCATION.equals(permissionGroupName);
     }
 
     /**
@@ -1490,5 +1558,33 @@ public final class Utils {
         DevicePolicyManager dpm = getSystemServiceSafe(context, DevicePolicyManager.class);
         return  dpm.getResources().getString(updatableStringId, () -> context.getString(
                 defaultStringId, formatArgs), formatArgs);
+    }
+
+    /**
+     * Get {@link PackageInfo} for this ComponentName.
+     *
+     * @param context The current Context
+     * @param component component to get package info for
+     * @return The package info
+     *
+     * @throws PackageManager.NameNotFoundException if package does not exist
+     */
+    @NonNull
+    public static PackageInfo getPackageInfoForComponentName(@NonNull Context context,
+            @NonNull ComponentName component) throws PackageManager.NameNotFoundException {
+        return context.getPackageManager().getPackageInfo(component.getPackageName(), 0);
+    }
+
+    /**
+     * Return the label to use for this application.
+     *
+     * @param context The current Context
+     * @param applicationInfo The {@link ApplicationInfo} of the application to get the label of.
+     * @return the label associated with this application, or its name if there is no label.
+     */
+    @NonNull
+    public static String getApplicationLabel(@NonNull Context context,
+            @NonNull ApplicationInfo applicationInfo) {
+        return context.getPackageManager().getApplicationLabel(applicationInfo).toString();
     }
 }

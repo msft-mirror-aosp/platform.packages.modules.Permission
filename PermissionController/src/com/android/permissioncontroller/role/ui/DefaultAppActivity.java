@@ -29,10 +29,11 @@ import androidx.fragment.app.Fragment;
 
 import com.android.permissioncontroller.DeviceUtils;
 import com.android.permissioncontroller.R;
-import com.android.permissioncontroller.role.model.Role;
-import com.android.permissioncontroller.role.model.Roles;
 import com.android.permissioncontroller.role.ui.auto.AutoDefaultAppFragment;
 import com.android.permissioncontroller.role.ui.handheld.HandheldDefaultAppFragment;
+import com.android.permissioncontroller.role.ui.wear.WearDefaultAppFragment;
+import com.android.role.controller.model.Role;
+import com.android.role.controller.model.Roles;
 
 /**
  * Activity for a default app.
@@ -86,6 +87,7 @@ public class DefaultAppActivity extends SettingsActivity {
             finish();
             return;
         }
+
         if (!role.isVisibleAsUser(user, this)) {
             Log.e(LOG_TAG, "Role is invisible: " + roleName);
             finish();
@@ -96,6 +98,8 @@ public class DefaultAppActivity extends SettingsActivity {
             Fragment fragment;
             if (DeviceUtils.isAuto(this)) {
                 fragment = AutoDefaultAppFragment.newInstance(roleName, user);
+            } else if (DeviceUtils.isWear(this)) {
+                fragment = WearDefaultAppFragment.Companion.newInstance(roleName, user);
             } else {
                 fragment = HandheldDefaultAppFragment.newInstance(roleName, user);
             }

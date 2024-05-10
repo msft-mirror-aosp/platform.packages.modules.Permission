@@ -34,7 +34,6 @@ import static com.android.permissioncontroller.permission.ui.GrantPermissionsVie
 import static com.android.permissioncontroller.permission.ui.ManagePermissionsActivity.EXTRA_CALLER_NAME;
 import static com.android.permissioncontroller.permission.ui.ManagePermissionsActivity.EXTRA_RESULT_PERMISSION_INTERACTED;
 import static com.android.permissioncontroller.permission.ui.ManagePermissionsActivity.EXTRA_RESULT_PERMISSION_RESULT;
-import static com.android.permissioncontroller.permission.ui.handheld.UtilsKt.pressBack;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -67,13 +66,13 @@ import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.permission.data.FullStoragePermissionAppsLiveData.FullStoragePackageState;
 import com.android.permissioncontroller.permission.model.AppPermissionGroup;
 import com.android.permissioncontroller.permission.model.AppPermissions;
-import com.android.permissioncontroller.permission.ui.AdvancedConfirmDialogArgs;
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler;
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel;
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonState;
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType;
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ChangeRequest;
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModelFactory;
+import com.android.permissioncontroller.permission.ui.v33.AdvancedConfirmDialogArgs;
 import com.android.permissioncontroller.permission.utils.KotlinUtils;
 import com.android.permissioncontroller.permission.utils.Utils;
 
@@ -272,7 +271,7 @@ public class AppPermissionFragment extends SettingsWithHeader
 
     private void setRadioButtonsState(Map<ButtonType, ButtonState> states) {
         if (states == null && mViewModel.getButtonStateLiveData().isInitialized()) {
-            pressBack(this);
+            getFragmentManager().popBackStack();
             Log.w(LOG_TAG, "invalid package " + mPackageName + " or perm group "
                     + mPermGroupName);
             Toast.makeText(
@@ -290,7 +289,7 @@ public class AppPermissionFragment extends SettingsWithHeader
         });
         mAllowAlwaysButton.setOnPreferenceClickListener((v) -> {
             if (mIsStorageGroup) {
-                showConfirmDialog(ChangeRequest.GRANT_All_FILE_ACCESS,
+                showConfirmDialog(ChangeRequest.GRANT_ALL_FILE_ACCESS,
                         R.string.special_file_access_dialog, -1, false);
             } else {
                 mViewModel.requestChange(false, this, this, ChangeRequest.GRANT_BOTH,
@@ -465,7 +464,7 @@ public class AppPermissionFragment extends SettingsWithHeader
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AppPermissionFragment fragment = (AppPermissionFragment) getTargetFragment();
             boolean isGrantFileAccess = getArguments().getSerializable(CHANGE_REQUEST)
-                    == ChangeRequest.GRANT_All_FILE_ACCESS;
+                    == ChangeRequest.GRANT_ALL_FILE_ACCESS;
             int positiveButtonStringResId = R.string.grant_dialog_button_deny_anyway;
             if (isGrantFileAccess) {
                 positiveButtonStringResId = R.string.grant_dialog_button_allow;
@@ -504,6 +503,9 @@ public class AppPermissionFragment extends SettingsWithHeader
         AlertDialog.Builder b = new AlertDialog.Builder(getContext())
                 .setIcon(args.getIconId())
                 .setMessage(args.getMessageId())
+                .setOnCancelListener((DialogInterface dialog) -> {
+                    setRadioButtonsState(mViewModel.getButtonStateLiveData().getValue());
+                })
                 .setNegativeButton(args.getNegativeButtonTextId(),
                         (DialogInterface dialog, int which) -> {
                             setRadioButtonsState(mViewModel.getButtonStateLiveData().getValue());

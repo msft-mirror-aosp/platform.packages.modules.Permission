@@ -18,9 +18,9 @@ package com.android.permissioncontroller.permissionui.ui.handheld
 
 import android.Manifest.permission.CAMERA
 import android.content.Intent
-import android.support.test.uiautomator.By
+import androidx.test.uiautomator.By
 import com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity
-import com.android.compatibility.common.util.UiAutomatorUtils.waitFindObject
+import com.android.compatibility.common.util.UiAutomatorUtils2.waitFindObject
 import com.android.permissioncontroller.permissionui.PermissionHub2Test
 import com.android.permissioncontroller.permissionui.ui.CAMERA_TEST_APP_LABEL
 import com.android.permissioncontroller.permissionui.ui.grantTestAppPermission
@@ -30,9 +30,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-/**
- * Simple tests for {@link ReviewOngoingUsageFragment}
- */
+/** Simple tests for {@link ReviewOngoingUsageFragment} */
 class ReviewOngoingUsageFragmentTest : PermissionHub2Test() {
 
     @Before
@@ -46,14 +44,15 @@ class ReviewOngoingUsageFragmentTest : PermissionHub2Test() {
     @Test
     fun cameraAccessShouldBeShown() {
         runWithShellPermissionIdentity {
-            context.startActivity(Intent(Intent.ACTION_REVIEW_ONGOING_PERMISSION_USAGE).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            })
+            context.startActivity(
+                Intent(Intent.ACTION_REVIEW_ONGOING_PERMISSION_USAGE).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            )
         }
 
         waitFindObject(By.textContains(CAMERA_TEST_APP_LABEL)).click()
     }
 
-    @After
-    fun cleanUp() = uninstallTestApps()
+    @After fun cleanUp() = uninstallTestApps()
 }

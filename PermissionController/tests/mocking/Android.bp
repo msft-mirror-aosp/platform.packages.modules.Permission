@@ -15,6 +15,7 @@
 //
 
 package {
+    default_team: "trendy_team_android_permissions",
     // See: http://go/android-license-faq
     // A large-scale-change added 'default_applicable_licenses' to import
     // all of the 'license_kinds' from "packages_modules_Permission_PermissionController_license"
@@ -33,25 +34,28 @@ android_test {
     min_sdk_version: "30",
 
     resource_dirs: [
-        "main_res",
         "test_res",
     ],
 
     srcs: [
-        ":permissioncontroller-sources",
-
         "src/**/*.kt",
     ],
 
     libs: [
         "android.test.base",
         "android.test.runner",
+        "safety-center-annotations",
     ],
 
     static_libs: [
-        "iconloader",
+        "PermissionController-lib",
+        "iconloader_sc_mainline_prod",
         "com.google.android.material_material",
         "androidx.transition_transition",
+        "androidx.compose.foundation_foundation",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.runtime_runtime-livedata",
+        "androidx.compose.ui_ui",
         "androidx-constraintlayout_constraintlayout",
         "androidx.core_core",
         "androidx.media_media",
@@ -66,6 +70,7 @@ android_test {
         "androidx.leanback_leanback-preference",
         "androidx.lifecycle_lifecycle-extensions",
         "androidx.lifecycle_lifecycle-common-java8",
+        "androidx.wear.compose_compose-material",
         "kotlin-stdlib",
         "kotlinx-coroutines-android",
         "androidx.navigation_navigation-common-ktx",
@@ -85,6 +90,8 @@ android_test {
         "SettingsLibFooterPreference",
         "SettingsLibSelectorWithWidgetPreference",
         "SettingsLibTwoTargetPreference",
+        "SettingsLibActivityEmbedding",
+        "SettingsLibIllustrationPreference",
         "androidx.annotation_annotation",
         "permissioncontroller-statsd",
         // The PermissionController build file includes android.car-stubs in its libs dependency
@@ -104,6 +111,14 @@ android_test {
         "libprotobuf-java-lite",
         "SettingsLibUtils",
         "modules-utils-build_system",
+        "safety-center-internal-data",
+        "safety-center-pending-intents",
+        "safety-center-resources-lib",
+        "safety-label",
+        "role-controller",
+        "lottie",
+        "permissions-flags-lib",
+        "android.permission.flags-aconfig-java",
 
         "androidx.test.rules",
         "androidx.test.ext.truth",
@@ -118,12 +133,10 @@ android_test {
     ],
     compile_multilib: "both",
 
-    aaptflags: ["--custom-package com.android.permissioncontroller"],
-
     test_suites: [
         "device-tests",
         "mts-permission",
     ],
 
-    kotlincflags: ["-Xjvm-default=enable"],
+    kotlincflags: ["-Xjvm-default=all"],
 }

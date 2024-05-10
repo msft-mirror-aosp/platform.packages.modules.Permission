@@ -36,10 +36,10 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.permission.model.livedatatypes.LightAppPermGroup;
-import com.android.permissioncontroller.permission.ui.model.v33.ReviewPermissionsViewModel;
-import com.android.permissioncontroller.permission.ui.model.v33.ReviewPermissionsViewModel.PermissionSummary;
-import com.android.permissioncontroller.permission.ui.model.v33.ReviewPermissionsViewModel.PermissionTarget;
-import com.android.permissioncontroller.permission.ui.model.v33.ReviewPermissionsViewModel.SummaryMessage;
+import com.android.permissioncontroller.permission.ui.model.ReviewPermissionsViewModel;
+import com.android.permissioncontroller.permission.ui.model.ReviewPermissionsViewModel.PermissionSummary;
+import com.android.permissioncontroller.permission.ui.model.ReviewPermissionsViewModel.PermissionTarget;
+import com.android.permissioncontroller.permission.ui.model.ReviewPermissionsViewModel.SummaryMessage;
 import com.android.permissioncontroller.permission.utils.LocationUtils;
 import com.android.permissioncontroller.permission.utils.Utils;
 import com.android.settingslib.RestrictedLockUtils;
@@ -162,7 +162,8 @@ class PermissionPreference extends MultiTargetSwitchPreference {
 
         if (mViewModel.isFixedOrForegroundDisabled(mGroup)) {
             if (admin != null) {
-                setWidgetLayoutResource(R.layout.restricted_icon);
+                setWidgetLayoutResource(
+                        com.android.settingslib.widget.restricted.R.layout.restricted_icon);
 
                 setOnPreferenceClickListener((v) -> {
                     RestrictedLockUtils.sendShowAdminSupportDetailsIntent(getContext(), admin);
@@ -303,9 +304,9 @@ class PermissionPreference extends MultiTargetSwitchPreference {
     int getResource(SummaryMessage summary) {
         switch (summary) {
             case DISABLED_BY_ADMIN:
-                return R.string.disabled_by_admin;
+                return com.android.settingslib.widget.restricted.R.string.disabled_by_admin;
             case ENABLED_BY_ADMIN:
-                return R.string.enabled_by_admin;
+                return com.android.settingslib.widget.restricted.R.string.enabled_by_admin;
             case ENABLED_SYSTEM_FIXED:
                 return R.string.permission_summary_enabled_system_fixed;
             case ENFORCED_BY_POLICY:

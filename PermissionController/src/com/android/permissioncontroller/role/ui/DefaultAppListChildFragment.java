@@ -40,8 +40,9 @@ import androidx.preference.PreferenceScreen;
 
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.permission.utils.Utils;
-import com.android.permissioncontroller.role.model.Role;
-import com.android.permissioncontroller.role.model.Roles;
+import com.android.permissioncontroller.role.utils.RoleUiBehaviorUtils;
+import com.android.role.controller.model.Role;
+import com.android.role.controller.model.Roles;
 
 import java.util.List;
 import java.util.Objects;
@@ -166,15 +167,19 @@ public class DefaultAppListChildFragment<PF extends PreferenceFragmentCompat
             RoleItem roleItem = roleItems.get(i);
 
             Role role = roleItem.getRole();
-            Preference preference = oldPreferences.get(role.getName());
-            if (preference == null) {
-                preference = (Preference) preferenceFragment.createPreference();
+            RolePreference rolePreference = (RolePreference) oldPreferences.get(role.getName());
+            Preference preference;
+            if (rolePreference == null) {
+                rolePreference = preferenceFragment.createPreference();
+                preference = rolePreference.asPreference();
                 preference.setKey(role.getName());
                 preference.setIconSpaceReserved(true);
                 preference.setTitle(role.getShortLabelResource());
                 preference.setPersistent(false);
                 preference.setOnPreferenceClickListener(listener);
                 preference.getExtras().putParcelable(Intent.EXTRA_USER, user);
+            } else {
+                preference = rolePreference.asPreference();
             }
 
             List<ApplicationInfo> holderApplicationInfos = roleItem.getHolderApplicationInfos();
@@ -186,8 +191,7 @@ public class DefaultAppListChildFragment<PF extends PreferenceFragmentCompat
                 preference.setIcon(Utils.getBadgedIcon(context, holderApplicationInfo));
                 preference.setSummary(Utils.getAppLabel(holderApplicationInfo, context));
             }
-            role.preparePreferenceAsUser((TwoTargetPreference) preference, user, context);
-
+            RoleUiBehaviorUtils.preparePreferenceAsUser(role, rolePreference, user, context);
             preferenceGroup.addPreference(preference);
         }
     }
@@ -198,7 +202,7 @@ public class DefaultAppListChildFragment<PF extends PreferenceFragmentCompat
         Context context = requireContext();
         Role role = Roles.get(context).get(roleName);
         UserHandle user = preference.getExtras().getParcelable(Intent.EXTRA_USER);
-        Intent intent = role.getManageIntentAsUser(user, context);
+        Intent intent = RoleUiBehaviorUtils.getManageIntentAsUser(role, user, context);
         if (intent == null) {
             intent = DefaultAppActivity.createIntent(roleName, user, context);
         }
@@ -282,7 +286,7 @@ public class DefaultAppListChildFragment<PF extends PreferenceFragmentCompat
          * @return a new preference for a default app
          */
         @NonNull
-        TwoTargetPreference createPreference();
+        RolePreference createPreference();
 
         /**
          * Callback when changes have been made to the {@link PreferenceScreen} of the parent

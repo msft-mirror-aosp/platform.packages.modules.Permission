@@ -20,9 +20,15 @@ package android.os;
 public final class Build {
     private Build() {}
 
-    /** Stub class to used in the Safety Center config files. */
+    /** Stub class used in the Safety Center config code. */
     public static final class VERSION_CODES {
-        /** Constant used in the Safety Center config files. */
-        public static final int TIRAMISU = 10000;
+        /** Constant used in the Safety Center config code. */
+        public static final int TIRAMISU = 33;
+
+        /** Constant used in the Safety Center config code. */
+        public static final int UPSIDE_DOWN_CAKE = 34;
+
+        /** Constant used in the Safety Center config code. */
+        public static final int VANILLA_ICE_CREAM = 35;
     }
 }

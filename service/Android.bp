@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package {
+    default_team: "trendy_team_android_permissions",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
@@ -20,30 +21,23 @@ filegroup {
     name: "service-permission-java-sources",
     srcs: [
         "java/**/*.java",
-        // Exclude Kotlin sources for T.
-        //"java/**/*.kt",
+        "java/**/*.kt",
     ],
     path: "java",
     visibility: ["//visibility:private"],
 }
 
-filegroup {
-    name: "service-permission-streaming-proto-sources",
-    srcs: [
-        "proto/role_service.proto",
-    ],
-    visibility: ["//frameworks/base"],
-}
-
 java_library {
-    name: "service-permission-streaming-proto-java-gen",
+    name: "service-permission-proto-stream",
     proto: {
         type: "stream",
         include_dirs: [
             "external/protobuf/src",
         ],
     },
-    srcs: [":service-permission-streaming-proto-sources"],
+    srcs: [
+        "proto/role_service.proto",
+    ],
     installable: false,
     min_sdk_version: "30",
     sdk_version: "system_server_current",
@@ -51,6 +45,9 @@ java_library {
         "com.android.permission",
         "test_com.android.permission",
     ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
 
 java_library {
@@ -58,6 +55,8 @@ java_library {
     srcs: [":service-permission-shared-srcs"],
     libs: [
         "framework-annotations-lib",
+    ],
+    static_libs: [
         "framework-permission-s-shared",
     ],
     apex_available: [
@@ -67,6 +66,9 @@ java_library {
     installable: false,
     min_sdk_version: "30",
     sdk_version: "system_server_current",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
 
 java_sdk_library {
@@ -78,7 +80,7 @@ java_sdk_library {
     impl_library_visibility: [
         "//frameworks/base/apex/permission/tests",
         "//frameworks/base/services/tests/mockingservicestests",
-        "//frameworks/base/services/tests/servicestests",
+        "//frameworks/base/services/tests/PackageManagerServiceTests/server",
         "//packages/modules/Permission/tests/apex",
     ],
     srcs: [
@@ -92,25 +94,37 @@ java_sdk_library {
         //"framework-permission",
         "framework-permission-s.impl",
         "framework-permission-s-shared",
+        "framework-statsd.stubs.module_lib",
+        "jsr305",
 
         // Soong fails to automatically add this dependency because all the
         // *.kt sources are inside a filegroup.
-        // Exclude Kotlin sources for T.
-        //"kotlin-annotations",
+        "kotlin-annotations",
+        "safety-center-annotations",
     ],
     static_libs: [
-        // Exclude Kotlin sources for T.
-        //"kotlin-stdlib",
+        "kotlin-stdlib",
         "modules-utils-backgroundthread",
+        "modules-utils-build",
         "modules-utils-os",
+        "role-controller",
         "safety-center-config",
+        "safety-center-internal-data",
+        "safety-center-pending-intents",
+        "safety-center-persistence",
         "safety-center-resources-lib",
         "service-permission-shared",
-        "service-permission-streaming-proto-java-gen",
+        "service-permission-statsd",
+        "service-permission-proto-stream",
+        "android.permission.flags-aconfig-java",
     ],
+    errorprone: {
+        javacflags: ["-Xep:GuardedBy:ERROR"],
+    },
     exclude_kotlinc_generated_files: true,
-    jarjar_rules: ":permission-jarjar-rules",
+    jarjar_rules: "jarjar-rules.txt",
     kotlincflags: [
+        "-Werror",
         "-Xjvm-default=all",
         "-Xno-call-assertions",
         "-Xno-param-assertions",
@@ -118,6 +132,7 @@ java_sdk_library {
     ],
     lint: {
         strict_updatability_linting: true,
+        baseline_filename: "lint-baseline.xml",
     },
     min_sdk_version: "30",
     sdk_version: "system_server_current",
@@ -132,4 +147,36 @@ java_sdk_library {
         "com.android.role",
         "com.android.safetycenter",
     ],
+    optimize: {
+        proguard_compatibility: false, // TODO(b/215530220): remove when this is default behavior
+        proguard_flags_files: ["proguard.flags"],
+    },
+}
+
+genrule {
+    name: "statslog-service-permission-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module permissioncontroller" +
+        " --javaPackage com.android.permission" +
+        " --javaClass PermissionStatsLog --minApiLevel 29",
+    out: ["com/android/permission/PermissionStatsLog.java"],
+}
+
+java_library {
+    name: "service-permission-statsd",
+    srcs: [
+        ":statslog-service-permission-java-gen",
+    ],
+    libs: [
+        "androidx.annotation_annotation",
+        "framework-statsd.stubs.module_lib",
+    ],
+    apex_available: [
+        "com.android.permission",
+    ],
+    min_sdk_version: "30",
+    sdk_version: "system_server_current",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }

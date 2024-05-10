@@ -55,11 +55,11 @@ import androidx.preference.TwoStatePreference;
 import com.android.car.ui.AlertDialogBuilder;
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.auto.AutoSettingsFrameFragment;
-import com.android.permissioncontroller.permission.ui.AdvancedConfirmDialogArgs;
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler;
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel;
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ChangeRequest;
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModelFactory;
+import com.android.permissioncontroller.permission.ui.v33.AdvancedConfirmDialogArgs;
 import com.android.permissioncontroller.permission.utils.KotlinUtils;
 import com.android.permissioncontroller.permission.utils.PackageRemovalMonitor;
 import com.android.settingslib.RestrictedLockUtils;
@@ -382,8 +382,9 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
     private static class SelectedPermissionPreference extends TwoStatePreference {
 
         SelectedPermissionPreference(Context context) {
-            super(context, null, TypedArrayUtils.getAttr(context, R.attr.preferenceStyle,
-                    android.R.attr.preferenceStyle));
+            super(context, null,
+                    TypedArrayUtils.getAttr(context, androidx.preference.R.attr.preferenceStyle,
+                            android.R.attr.preferenceStyle));
             setPersistent(false);
             setLayoutResource(R.layout.car_radio_button_preference);
             setWidgetLayoutResource(R.layout.radio_button_preference_widget);
@@ -418,7 +419,7 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
             // TODO(b/229024576): This code is duplicated, refactor ConfirmDialog for easier
             // NFF sharing
             boolean isGrantFileAccess = getArguments().getSerializable(CHANGE_REQUEST)
-                    == ChangeRequest.GRANT_All_FILE_ACCESS;
+                    == ChangeRequest.GRANT_ALL_FILE_ACCESS;
             boolean isGrantStorageSupergroup = getArguments().getSerializable(CHANGE_REQUEST)
                     == ChangeRequest.GRANT_STORAGE_SUPERGROUP;
             int positiveButtonStringResId = R.string.grant_dialog_button_deny_anyway;
@@ -461,6 +462,9 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
         AlertDialog.Builder b = new AlertDialog.Builder(getContext())
                 .setIcon(args.getIconId())
                 .setMessage(args.getMessageId())
+                .setOnCancelListener((DialogInterface dialog) -> {
+                    setRadioButtonsState(mViewModel.getButtonStateLiveData().getValue());
+                })
                 .setNegativeButton(args.getNegativeButtonTextId(),
                         (DialogInterface dialog, int which) -> {
                             setRadioButtonsState(mViewModel.getButtonStateLiveData().getValue());

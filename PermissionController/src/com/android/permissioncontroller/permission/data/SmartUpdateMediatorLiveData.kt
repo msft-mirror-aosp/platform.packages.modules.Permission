@@ -31,26 +31,18 @@ import kotlinx.coroutines.launch
 
 /**
  * A MediatorLiveData which tracks how long it has been inactive, compares new values before setting
- * its value (avoiding unnecessary updates), and can calculate the set difference between a list
- * and a map (used when determining whether or not to add a LiveData as a source).
+ * its value (avoiding unnecessary updates), and can calculate the set difference between a list and
+ * a map (used when determining whether or not to add a LiveData as a source).
  *
  * @param isStaticVal Whether or not this LiveData value is expected to change
  */
-abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean = false)
-    : MediatorLiveData<T>(), DataRepository.InactiveTimekeeper {
+abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean = false) :
+    MediatorLiveData<T>(), DataRepository.InactiveTimekeeper {
 
     companion object {
-        const val DEBUG_UPDATES = false
+        const val DEBUG = false
         val LOG_TAG = SmartUpdateMediatorLiveData::class.java.simpleName
     }
-
-    /**
-     * Boolean, whether or not the value of this uiDataLiveData has been explicitly set yet.
-     * Differentiates between "null value because liveData is new" and "null value because
-     * liveData is invalid"
-     */
-    var isInitialized = false
-        private set
 
     /**
      * Boolean, whether or not this liveData has a stale value or not. Every time the liveData goes
@@ -61,14 +53,11 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
 
     private val sources = mutableListOf<SmartUpdateMediatorLiveData<*>>()
 
-    private val stacktraceExceptionMessage = "Caller of coroutine"
-
     @MainThread
     override fun setValue(newValue: T?) {
         ensureMainThread()
 
         if (!isInitialized) {
-            isInitialized = true
             // If we have received an invalid value, and this is the first time we are set,
             // notify observers.
             if (newValue == null) {
@@ -97,7 +86,7 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
      */
     @MainThread
     fun update() {
-        if (DEBUG_UPDATES) {
+        if (DEBUG) {
             Log.i(LOG_TAG, "update ${javaClass.simpleName} ${shortStackTrace()}")
         }
 
@@ -107,8 +96,7 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
         onUpdate()
     }
 
-    @MainThread
-    protected abstract fun onUpdate()
+    @MainThread protected abstract fun onUpdate()
 
     override var timeWentInactive: Long? = System.nanoTime()
 
@@ -118,7 +106,6 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
      *
      * @param valOne The first T to be compared
      * @param valTwo The second T to be compared
-     *
      * @return True if the two values are different, false otherwise
      */
     protected open fun valueNotEqual(valOne: T?, valTwo: T?): Boolean {
@@ -126,16 +113,19 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
     }
 
     override fun <S : Any?> addSource(source: LiveData<S>, onChanged: Observer<in S>) {
-        addSourceWithError(source, onChanged)
+        addSourceWithStackTraceAttribution(source, onChanged)
     }
 
-    private fun <S : Any?> addSourceWithError(
+    private fun <S : Any?> addSourceWithStackTraceAttribution(
         source: LiveData<S>,
-        onChanged: Observer<in S>,
-        e: IllegalStateException? = null
+        onChanged: Observer<in S>
     ) {
-        // Get the stacktrace of the call to addSource, so it isn't lost in any errors
-        val exception = e ?: IllegalStateException(stacktraceExceptionMessage)
+        val stackTrace =
+            if (DEBUG) {
+                IllegalStateException().stackTrace
+            } else {
+                null
+            }
 
         GlobalScope.launch(Main.immediate) {
             if (source is SmartUpdateMediatorLiveData) {
@@ -146,8 +136,11 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
             }
             try {
                 super.addSource(source, onChanged)
-            } catch (other: IllegalStateException) {
-                throw other.apply { initCause(exception) }
+            } catch (ex: IllegalStateException) {
+                if (DEBUG) {
+                    ex.stackTrace = stackTrace!!
+                }
+                throw ex
             }
         }
     }
@@ -170,8 +163,7 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
      * @param have The map of livedatas we currently have as sources
      * @param getLiveDataFun A function to turn a key into a liveData
      * @param onUpdateFun An optional function which will update differently based on different
-     * LiveDatas. If blank, will simply call update.
-     *
+     *   LiveDatas. If blank, will simply call update.
      * @return a pair of (all keys added, all keys removed)
      */
     fun <K, V : LiveData<*>> setSourcesToDifference(
@@ -179,7 +171,7 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
         have: MutableMap<K, V>,
         getLiveDataFun: (K) -> V,
         onUpdateFun: ((K) -> Unit)? = null
-    ) : Pair<Set<K>, Set<K>>{
+    ): Pair<Set<K>, Set<K>> {
         // Ensure the map is correct when method returns
         val (toAdd, toRemove) = KotlinUtils.getMapAndListDifferences(desired, have)
         for (key in toAdd) {
@@ -187,8 +179,6 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
         }
 
         val removed = toRemove.map { have.remove(it) }.toMutableList()
-
-        val stackTraceException = java.lang.IllegalStateException(stacktraceExceptionMessage)
 
         GlobalScope.launch(Main.immediate) {
             // If any state got out of sorts before this coroutine ran, correct it
@@ -204,14 +194,15 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
                 val liveData = getLiveDataFun(key)
                 // Should be a no op, but there is a slight possibility it isn't
                 have[key] = liveData
-                val observer = Observer<Any> {
-                    if (onUpdateFun != null) {
-                        onUpdateFun(key)
-                    } else {
-                        update()
+                val observer =
+                    Observer<Any?> {
+                        if (onUpdateFun != null) {
+                            onUpdateFun(key)
+                        } else {
+                            update()
+                        }
                     }
-                }
-                addSourceWithError(liveData, observer, stackTraceException)
+                addSourceWithStackTraceAttribution(liveData, observer)
             }
         }
         return toAdd to toRemove
@@ -221,8 +212,11 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
         timeWentInactive = null
         // If this is not an async livedata, and we have sources, and all sources are non-stale,
         // force update our value
-        if (sources.isNotEmpty() && sources.all { !it.isStale } &&
-            this !is SmartAsyncMediatorLiveData<T>) {
+        if (
+            sources.isNotEmpty() &&
+                sources.all { !it.isStale } &&
+                this !is SmartAsyncMediatorLiveData<T>
+        ) {
             update()
         }
         super.onActive()
@@ -250,6 +244,7 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
                     update()
                 }
             },
-            isInitialized = { isInitialized && (staleOk || !isStale) })
+            isValueInitialized = { isInitialized && (staleOk || !isStale) }
+        )
     }
 }

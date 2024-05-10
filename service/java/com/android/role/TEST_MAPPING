@@ -1,10 +1,10 @@
 {
     "presubmit": [
         {
-            "name": "CtsStatsdHostTestCases",
+            "name": "CtsAppSecurityHostTestCases",
             "options": [
                 {
-                    "include-filter": "android.cts.statsd.atom.UidAtomTests#testRoleHolder"
+                    "include-filter": "android.appsecurity.cts.StatsdAppSecurityAtomTest#testRoleHolder"
                 }
             ]
         },
@@ -13,6 +13,50 @@
             "options": [
                 {
                     "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        }
+    ],
+    "mainline-presubmit": [
+        {
+            "name": "CtsRoleTestCases[com.google.android.permission.apex]",
+            "options": [
+                // TODO(b/238677748): These two tests currently fails on R base image
+                {
+                    "exclude-filter": "android.app.role.cts.RoleManagerTest#openDefaultAppListThenIsNotDefaultAppInList"
+                },
+                {
+                    "exclude-filter": "android.app.role.cts.RoleManagerTest#removeSmsRoleHolderThenPermissionIsRevoked"
+                },
+                {
+                    "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        }
+    ],
+    "postsubmit": [
+        {
+            "name": "CtsAppSecurityHostTestCases",
+            "options": [
+                {
+                    "include-filter": "android.appsecurity.cts.StatsdAppSecurityAtomTest#testRoleHolder"
+                }
+            ]
+        },
+        {
+            "name": "CtsRoleTestCases"
+        }
+    ],
+    "mainline-postsubmit": [
+        {
+            "name": "CtsRoleTestCases[com.google.android.permission.apex]",
+            "options": [
+                // TODO(b/238677748): These two tests currently fails on R base image
+                {
+                    "exclude-filter": "android.app.role.cts.RoleManagerTest#openDefaultAppListThenIsNotDefaultAppInList"
+                },
+                {
+                    "exclude-filter": "android.app.role.cts.RoleManagerTest#removeSmsRoleHolderThenPermissionIsRevoked"
                 }
             ]
         }

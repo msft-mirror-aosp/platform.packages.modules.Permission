@@ -21,36 +21,32 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import com.android.modules.utils.build.SdkLevel
 import com.android.permissioncontroller.PermissionControllerApplication
+import com.android.permissioncontroller.permission.data.v34.LightInstallSourceInfoLiveData
+import com.android.permissioncontroller.permission.data.v34.SafetyLabelInfoLiveData
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-/**
- * Listens for package additions, replacements, and removals, and notifies listeners.
- */
+/** Listens for package additions, replacements, and removals, and notifies listeners. */
 object PackageBroadcastReceiver : BroadcastReceiver() {
 
     private val app: Application = PermissionControllerApplication.get()
-    private val intentFilter = IntentFilter(Intent.ACTION_PACKAGE_ADDED).apply {
-        addAction(Intent.ACTION_PACKAGE_REMOVED)
-        addAction(Intent.ACTION_PACKAGE_REPLACED)
-        addAction(Intent.ACTION_PACKAGE_CHANGED)
-        addDataScheme("package")
-    }
+    private val intentFilter =
+        IntentFilter(Intent.ACTION_PACKAGE_ADDED).apply {
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
+            addAction(Intent.ACTION_PACKAGE_CHANGED)
+            addDataScheme("package")
+        }
 
-    /**
-     * Map<packageName, callbacks listenening to package>
-     */
+    /** Map<packageName, callbacks listenening to package> */
     private val changeCallbacks = mutableMapOf<String, MutableSet<PackageBroadcastListener>>()
-    /**
-     * A list of listener IDs, which listen to all package additions, changes, and removals.
-     */
+    /** A list of listener IDs, which listen to all package additions, changes, and removals. */
     private val allCallbacks = mutableSetOf<PackageBroadcastListener>()
 
-    /**
-     * Add a callback which will be notified when the specified packaged is changed or removed.
-     */
+    /** Add a callback which will be notified when the specified packaged is changed or removed. */
     fun addChangeCallback(packageName: String, listener: PackageBroadcastListener) {
         GlobalScope.launch(Main.immediate) {
             val wasEmpty = hasNoListeners()
@@ -58,8 +54,12 @@ object PackageBroadcastReceiver : BroadcastReceiver() {
             changeCallbacks.getOrPut(packageName, { mutableSetOf() }).add(listener)
 
             if (wasEmpty) {
-                app.applicationContext.registerReceiverForAllUsers(this@PackageBroadcastReceiver,
-                        intentFilter, null, null)
+                app.applicationContext.registerReceiverForAllUsers(
+                    this@PackageBroadcastReceiver,
+                    intentFilter,
+                    null,
+                    null
+                )
             }
         }
     }
@@ -77,8 +77,12 @@ object PackageBroadcastReceiver : BroadcastReceiver() {
             allCallbacks.add(listener)
 
             if (wasEmpty) {
-                app.applicationContext.registerReceiverForAllUsers(this@PackageBroadcastReceiver,
-                        intentFilter, null, null)
+                app.applicationContext.registerReceiverForAllUsers(
+                    this@PackageBroadcastReceiver,
+                    intentFilter,
+                    null,
+                    null
+                )
             }
         }
     }
@@ -161,12 +165,14 @@ object PackageBroadcastReceiver : BroadcastReceiver() {
             HibernationSettingStateLiveData.invalidateAllForPackage(packageName)
             LightAppPermGroupLiveData.invalidateAllForPackage(packageName)
             AppPermGroupUiInfoLiveData.invalidateAllForPackage(packageName)
+            if (SdkLevel.isAtLeastU()) {
+                SafetyLabelInfoLiveData.invalidateAllForPackage(packageName)
+                LightInstallSourceInfoLiveData.invalidateAllForPackage(packageName)
+            }
         }
     }
 
-    /**
-     * A listener interface for objects desiring to be notified of package broadcasts.
-     */
+    /** A listener interface for objects desiring to be notified of package broadcasts. */
     interface PackageBroadcastListener {
         /**
          * To be called when a specific package has been changed, or when any package has been

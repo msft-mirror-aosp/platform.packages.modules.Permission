@@ -36,9 +36,11 @@ import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
 
 import com.android.permissioncontroller.permission.utils.Utils;
-import com.android.permissioncontroller.role.model.Role;
-import com.android.permissioncontroller.role.model.Roles;
 import com.android.permissioncontroller.role.ui.ManageRoleHolderStateLiveData;
+import com.android.permissioncontroller.role.ui.RoleApplicationPreference;
+import com.android.permissioncontroller.role.utils.RoleUiBehaviorUtils;
+import com.android.role.controller.model.Role;
+import com.android.role.controller.model.Roles;
 
 import java.util.List;
 
@@ -142,9 +144,12 @@ public class SpecialAppAccessChildFragment<PF extends PreferenceFragmentCompat
 
             String key = qualifyingApplicationInfo.packageName + '_'
                     + qualifyingApplicationInfo.uid;
-            TwoStatePreference preference = (TwoStatePreference) oldPreferences.get(key);
-            if (preference == null) {
-                preference = preferenceFragment.createApplicationPreference();
+            RoleApplicationPreference roleApplicationPreference =
+                    (RoleApplicationPreference) oldPreferences.get(key);
+            TwoStatePreference preference;
+            if (roleApplicationPreference == null) {
+                roleApplicationPreference = preferenceFragment.createApplicationPreference();
+                preference = roleApplicationPreference.asTwoStatePreference();
                 preference.setKey(key);
                 preference.setIcon(Utils.getBadgedIcon(context, qualifyingApplicationInfo));
                 preference.setTitle(Utils.getFullAppLabel(qualifyingApplicationInfo, context));
@@ -153,13 +158,14 @@ public class SpecialAppAccessChildFragment<PF extends PreferenceFragmentCompat
                 preference.setOnPreferenceClickListener(this);
                 preference.getExtras().putParcelable(PREFERENCE_EXTRA_APPLICATION_INFO,
                         qualifyingApplicationInfo);
+            } else {
+                preference = roleApplicationPreference.asTwoStatePreference();
             }
 
             preference.setChecked(isHolderPackage);
             UserHandle user = UserHandle.getUserHandleForUid(qualifyingApplicationInfo.uid);
-            mRole.prepareApplicationPreferenceAsUser(preference, qualifyingApplicationInfo, user,
-                    context);
-
+            RoleUiBehaviorUtils.prepareApplicationPreferenceAsUser(mRole, roleApplicationPreference,
+                    qualifyingApplicationInfo, user, context);
             preferenceScreen.addPreference(preference);
         }
 
@@ -228,7 +234,7 @@ public class SpecialAppAccessChildFragment<PF extends PreferenceFragmentCompat
          * @return a new preference for an application
          */
         @NonNull
-        TwoStatePreference createApplicationPreference();
+        RoleApplicationPreference createApplicationPreference();
 
         /**
          * Create a new preference for the footer.

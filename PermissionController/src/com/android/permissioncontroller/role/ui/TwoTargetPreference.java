@@ -18,6 +18,7 @@ package com.android.permissioncontroller.role.ui;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.preference.Preference;
 
 /**
  * {@link androidx.preference.Preference} with the widget layout as a separate target.
@@ -36,6 +37,11 @@ public interface TwoTargetPreference {
      * @param listener the listener
      */
     void setOnSecondTargetClickListener(@Nullable OnSecondTargetClickListener listener);
+
+    /**
+     * Return this preference as {@link Preference}.
+     */
+    Preference asPreference();
 
     /**
      * Listener for second target click.

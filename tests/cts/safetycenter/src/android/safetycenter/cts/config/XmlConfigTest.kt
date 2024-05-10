@@ -19,39 +19,39 @@ package android.safetycenter.cts.config
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.ResolveInfoFlags
-import android.os.Build.VERSION_CODES.TIRAMISU
-import android.safetycenter.config.SafetySource
-import android.safetycenter.cts.testing.SafetyCenterFlags.deviceSupportsSafetyCenter
+import android.safetycenter.SafetyCenterManager
+import android.safetycenter.config.SafetySource.SAFETY_SOURCE_TYPE_ISSUE_ONLY
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import com.android.safetycenter.config.SafetyCenterConfigParser
-import com.android.safetycenter.resources.SafetyCenterResourcesContext
+import com.android.safetycenter.resources.SafetyCenterResourcesApk
+import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.getSafetyCenterConfigWithPermission
+import com.android.safetycenter.testing.SafetyCenterTestHelper
+import com.android.safetycenter.testing.SafetyCenterTestRule
+import com.android.safetycenter.testing.SupportsSafetyCenterRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Assume.assumeTrue
-import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+/** CTS tests for the Safety Center XML config file. */
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = TIRAMISU, codeName = "Tiramisu")
 class XmlConfigTest {
     private val context: Context = getApplicationContext()
-    private val safetyCenterContext = SafetyCenterResourcesContext(context)
+    private val safetyCenterResourcesApk = SafetyCenterResourcesApk.forTests(context)
+    private val safetyCenterManager = context.getSystemService(SafetyCenterManager::class.java)!!
 
-    @Before
-    fun assumeDeviceSupportsSafetyCenterToRunTests() {
-        assumeTrue(context.deviceSupportsSafetyCenter())
-    }
+    @get:Rule(order = 1) val supportsSafetyCenterRule = SupportsSafetyCenterRule(context)
+    @get:Rule(order = 2)
+    val safetyCenterTestRule = SafetyCenterTestRule(SafetyCenterTestHelper(context))
 
     @Test
     fun safetyCenterConfigResource_validConfig() {
-        // Assert that the parser validates the Safety Center config without throwing any exception
-        assertThat(
-                SafetyCenterConfigParser.parseXmlResource(
-                    safetyCenterContext.safetyCenterConfig!!, safetyCenterContext.resources!!))
-            .isNotNull()
+        val parsedSafetyCenterConfig = parseXmlConfig()
+        val safetyCenterConfig = safetyCenterManager.getSafetyCenterConfigWithPermission()
+
+        assertThat(parsedSafetyCenterConfig).isEqualTo(safetyCenterConfig)
     }
 
     @Test
@@ -71,25 +71,29 @@ class XmlConfigTest {
     }
 
     private fun assertThatIntentResolves(intentAction: String) {
-        val pm = safetyCenterContext.packageManager
+        val pm = context.packageManager
         assertWithMessage("Intent '%s' cannot be resolved.", intentAction)
             .that(pm.queryIntentActivities(Intent(intentAction), ResolveInfoFlags.of(0)))
             .isNotEmpty()
     }
 
     private fun isIntentInConfig(intentAction: String): Boolean {
-        val safetyCenterConfig =
-            SafetyCenterConfigParser.parseXmlResource(
-                safetyCenterContext.safetyCenterConfig!!, safetyCenterContext.resources!!)
-        return safetyCenterConfig.safetySourcesGroups.any { safetySourceGroup ->
-            safetySourceGroup.safetySources
-                .filter { it.type != SafetySource.SAFETY_SOURCE_TYPE_ISSUE_ONLY }
-                .any { it.intentAction == intentAction }
-        }
+        val safetyCenterConfig = parseXmlConfig()
+        return safetyCenterConfig.safetySourcesGroups
+            .flatMap { it.safetySources }
+            .filter { it.type != SAFETY_SOURCE_TYPE_ISSUE_ONLY }
+            .any { it.intentAction == intentAction }
     }
 
+    private fun parseXmlConfig() =
+        SafetyCenterConfigParser.parseXmlResource(
+            safetyCenterResourcesApk.safetyCenterConfig!!,
+            safetyCenterResourcesApk.resources
+        )
+
     companion object {
-        private const val ADVANCED_PRIVACY_INTENT_STRING = "android.settings.PRIVACY_ADVANCED_SETTINGS"
+        private const val ADVANCED_PRIVACY_INTENT_STRING =
+            "android.settings.PRIVACY_ADVANCED_SETTINGS"
         private const val PRIVACY_CONTROLS_INTENT_STRING = "android.settings.PRIVACY_CONTROLS"
     }
 }

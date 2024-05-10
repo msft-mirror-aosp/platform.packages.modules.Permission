@@ -21,8 +21,8 @@ import android.content.pm.PackageManager
 import android.util.Log
 import com.android.permissioncontroller.PermissionControllerApplication
 import com.android.permissioncontroller.permission.model.livedatatypes.LightPermInfo
+import com.android.permissioncontroller.permission.utils.PermissionMapping.isRuntimePlatformPermission
 import com.android.permissioncontroller.permission.utils.Utils.OS_PKG
-import com.android.permissioncontroller.permission.utils.Utils.isRuntimePlatformPermission
 import kotlinx.coroutines.Job
 
 /**
@@ -31,11 +31,9 @@ import kotlinx.coroutines.Job
  * @param app current Application
  * @param permissionName name of the permission this LiveData will watch for mode changes for
  */
-class LightPermInfoLiveData private constructor(
-    private val app: Application,
-    private val permissionName: String
-) : SmartAsyncMediatorLiveData<LightPermInfo>(),
-    PackageBroadcastReceiver.PackageBroadcastListener {
+class LightPermInfoLiveData
+private constructor(private val app: Application, private val permissionName: String) :
+    SmartAsyncMediatorLiveData<LightPermInfo>(), PackageBroadcastReceiver.PackageBroadcastListener {
 
     private val LOG_TAG = LightPermInfoLiveData::class.java.simpleName
 
@@ -46,8 +44,10 @@ class LightPermInfoLiveData private constructor(
      * Callback from the PackageBroadcastReceiver.
      *
      * <p>Package updates might change permission properties
+     *
+     * Note: packageName is unused.
      */
-    override fun onPackageUpdate(ignored: String) {
+    override fun onPackageUpdate(packageName: String) {
         updateAsync()
     }
 
@@ -65,13 +65,14 @@ class LightPermInfoLiveData private constructor(
             return
         }
 
-        val newValue = try {
-            LightPermInfo(app.packageManager.getPermissionInfo(permissionName, 0))
-        } catch (e: PackageManager.NameNotFoundException) {
-            Log.w(LOG_TAG, "Permission \"$permissionName\" not found")
-            invalidateSingle(permissionName)
-            null
-        }
+        val newValue =
+            try {
+                LightPermInfo(app.packageManager.getPermissionInfo(permissionName, 0))
+            } catch (e: PackageManager.NameNotFoundException) {
+                Log.w(LOG_TAG, "Permission \"$permissionName\" not found")
+                invalidateSingle(permissionName)
+                null
+            }
 
         if (isImmutable()) {
             stopListeningForChanges()
@@ -80,9 +81,7 @@ class LightPermInfoLiveData private constructor(
         postValue(newValue)
     }
 
-    /**
-     * @return if the permission state can never change
-     */
+    /** @return if the permission state can never change */
     private fun isImmutable(): Boolean {
         // The os package never changes
         value?.let {
@@ -95,9 +94,7 @@ class LightPermInfoLiveData private constructor(
         return isRuntimePlatformPermission(permissionName)
     }
 
-    /**
-     * Start listing for changes to this permission if needed
-     */
+    /** Start listing for changes to this permission if needed */
     private fun startListeningForChanges() {
         if (!isListeningForChanges && !isImmutable()) {
             isListeningForChanges = true
@@ -105,9 +102,7 @@ class LightPermInfoLiveData private constructor(
         }
     }
 
-    /**
-     * Stop listing for changes to this permission
-     */
+    /** Stop listing for changes to this permission */
     private fun stopListeningForChanges() {
         if (isListeningForChanges) {
             PackageBroadcastReceiver.removeAllCallback(this)

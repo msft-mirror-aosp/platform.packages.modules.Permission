@@ -19,10 +19,11 @@ package com.android.permissioncontroller.permission.ui.model
 import android.Manifest
 import android.app.Application
 import android.content.Intent
+import android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import androidx.navigation.fragment.findNavController
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.data.PermGroupsPackagesLiveData
@@ -36,20 +37,16 @@ import com.android.permissioncontroller.permission.utils.navigateSafe
 /**
  * A ViewModel for the ManageStandardPermissionsFragment. Provides a LiveData which watches over all
  * platform permission groups, and sends async updates when these groups have changes. It also
- * provides a liveData which watches the custom permission groups of the system, and provides
- * a list of group names.
+ * provides a liveData which watches the custom permission groups of the system, and provides a list
+ * of group names.
+ *
  * @param app The current application of the fragment
  */
-class ManageStandardPermissionsViewModel(
-    private val app: Application
-) : AndroidViewModel(app) {
+class ManageStandardPermissionsViewModel(private val app: Application) : AndroidViewModel(app) {
 
-    val uiDataLiveData = PermGroupsPackagesUiInfoLiveData(app,
-        StandardPermGroupNamesLiveData)
+    val uiDataLiveData = PermGroupsPackagesUiInfoLiveData(app, StandardPermGroupNamesLiveData)
     val numCustomPermGroups = NumCustomPermGroupsWithPackagesLiveData()
-    val numAutoRevoked = Transformations.map(unusedAutoRevokePackagesLiveData) {
-        it?.size ?: 0
-    }
+    val numAutoRevoked = unusedAutoRevokePackagesLiveData.map { it?.size ?: 0 }
 
     /**
      * Navigate to the Custom Permissions screen
@@ -73,6 +70,10 @@ class ManageStandardPermissionsViewModel(
             Utils.navigateToNotificationSettings(fragment.context!!)
             return
         }
+        if (Utils.isHealthPermissionUiEnabled() && groupName == HEALTH_PERMISSION_GROUP) {
+            Utils.navigateToHealthConnectSettings(fragment.context!!)
+            return
+        }
         fragment.findNavController().navigateSafe(R.id.manage_to_perm_apps, args)
     }
 
@@ -85,15 +86,12 @@ class ManageStandardPermissionsViewModel(
  * A LiveData which tracks the number of custom permission groups that are used by at least one
  * package
  */
-class NumCustomPermGroupsWithPackagesLiveData() :
-    SmartUpdateMediatorLiveData<Int>() {
+class NumCustomPermGroupsWithPackagesLiveData() : SmartUpdateMediatorLiveData<Int>() {
 
     private val customPermGroupPackages = PermGroupsPackagesLiveData.get(customGroups = true)
 
     init {
-        addSource(customPermGroupPackages) {
-            update()
-        }
+        addSource(customPermGroupPackages) { update() }
     }
 
     override fun onUpdate() {
