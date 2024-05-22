@@ -39,11 +39,14 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
+import androidx.test.uiautomator.Until
 import com.android.compatibility.common.util.SystemUtil.eventually
 import com.android.compatibility.common.util.UiAutomatorUtils2
 import com.android.modules.utils.build.SdkLevel
+import com.android.setupwizardlib.util.WizardManagerHelper
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -57,7 +60,6 @@ import org.junit.runner.RunWith
 class AppPermissionsTest {
     private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
     private val defaultDeviceContext = instrumentation.targetContext
-    private val TAG = AppPermissionsTest::class.java.simpleName
 
     @get:Rule
     var virtualDeviceRule =
@@ -75,6 +77,8 @@ class AppPermissionsTest {
     private val permissionManager =
         defaultDeviceContext.getSystemService(PermissionManager::class.java)!!
 
+    private val TAG = AppPermissionsTest::class.java.simpleName
+
     @Before
     fun setup() {
         assumeTrue(SdkLevel.isAtLeastV())
@@ -84,7 +88,6 @@ class AppPermissionsTest {
         assumeTrue(isCddCompliantScreenSize())
 
         PackageManagementUtils.installPackage(APP_APK_PATH_STREAMING)
-        assertTrue(isPackageInstalled())
 
         val virtualDeviceManager =
             defaultDeviceContext.getSystemService(VirtualDeviceManager::class.java)!!
@@ -119,14 +122,6 @@ class AppPermissionsTest {
 
         openAppPermissionsScreen()
 
-        val expectedGrantInfoMap =
-            mapOf(
-                "Allowed" to listOf(externalDeviceCameraText),
-                "Ask every time" to emptyList(),
-                "Not allowed" to listOf("Camera")
-            )
-        assertEquals(expectedGrantInfoMap, getGrantInfoMap())
-
         clickPermissionItem(externalDeviceCameraText)
 
         verifyPermissionMessage()
@@ -136,6 +131,15 @@ class AppPermissionsTest {
             askChecked = false,
             denyChecked = false
         )
+
+        UiAutomatorUtils2.getUiDevice().pressBack()
+        val expectedGrantInfoMap =
+            mapOf(
+                "Allowed" to listOf(externalDeviceCameraText),
+                "Ask every time" to emptyList(),
+                "Not allowed" to listOf("Camera")
+            )
+        assertEquals(expectedGrantInfoMap, getGrantInfoMap())
     }
 
     @RequiresFlagsEnabled(
@@ -383,6 +387,17 @@ class AppPermissionsTest {
     }
 
     private fun openAppPermissionsScreen() {
+        Log.d(TAG, "Waiting for device provision...")
+        eventually(
+            {
+                assertTrue(
+                    "Timed out waiting for device provision to complete",
+                    WizardManagerHelper.isDeviceProvisioned(defaultDeviceContext)
+                )
+            },
+            40_000
+        )
+
         val intent =
             Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                 data = Uri.fromParts("package", APP_PACKAGE_NAME, null)
@@ -391,13 +406,21 @@ class AppPermissionsTest {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             }
 
-        eventually(
-            {
-                instrumentation.context.startActivity(intent)
-                UiAutomatorUtils2.waitFindObject(By.text("Permissions"), 12_000).click()
-            },
-            20_000
-        )
+        Log.d(TAG, "Launching intent=${Settings.ACTION_APPLICATION_DETAILS_SETTINGS}")
+        defaultDeviceContext.startActivity(intent)
+
+        Log.d(TAG, "Waiting for App info to show up...")
+        val appInfo =
+            UiAutomatorUtils2.getUiDevice().wait(Until.findObject(By.text("App info")), 10000)
+        assertNotNull(appInfo)
+
+        Log.d(TAG, "Waiting for Permissions to show up...")
+        val permissions =
+            UiAutomatorUtils2.getUiDevice().wait(Until.findObject(By.text("Permissions")), 10000)
+        assertNotNull(permissions)
+
+        Log.d(TAG, "Clicking on Permissions")
+        permissions.click()
     }
 
     private fun getScrollableRecyclerView(): UiScrollable {
@@ -424,23 +447,6 @@ class AppPermissionsTest {
             DEVICE_AWARE_PERMISSION,
             persistentDeviceId
         )
-
-    private fun isPackageInstalled(): Boolean {
-        try {
-            instrumentation.context.packageManager.getPackageInfo(APP_PACKAGE_NAME, 0)
-            return true
-        } catch (e: PackageManager.NameNotFoundException) {
-            // Re-installing the package as a retry mechanism.
-            Log.e(TAG, "Package=$APP_PACKAGE_NAME not found, retrying the installation")
-            PackageManagementUtils.installPackage(APP_APK_PATH_STREAMING)
-        }
-        return try {
-            instrumentation.context.packageManager.getPackageInfo(APP_PACKAGE_NAME, 0)
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
-    }
 
     private fun getPermState(): Map<String, PermissionManager.PermissionState> =
         permissionManager.getAllPermissionStates(APP_PACKAGE_NAME, persistentDeviceId)
