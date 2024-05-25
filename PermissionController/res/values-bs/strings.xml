@@ -29,7 +29,7 @@
     <string name="app_not_found_dlg_title" msgid="6029482906093859756">"Aplikacija nije pronađena"</string>
     <string name="grant_dialog_button_deny" msgid="88262611492697192">"Nemoj dozvoliti"</string>
     <string name="grant_dialog_button_deny_and_dont_ask_again" msgid="1748925431574312595">"Nemoj dozvoliti i ne pitaj ponovo"</string>
-    <string name="grant_dialog_button_no_upgrade" msgid="8344732743633736625">"Zadrži “Kada se aplikacija koristi”"</string>
+    <string name="grant_dialog_button_no_upgrade" msgid="8344732743633736625">"Zadrži “Dok se aplikacija koristi”"</string>
     <string name="grant_dialog_button_no_upgrade_one_time" msgid="5125892775684968694">"Zadrži “Samo ovaj put”"</string>
     <string name="grant_dialog_button_more_info" msgid="213350268561945193">"Više informacija"</string>
     <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"Dozvoli sve"</string>
@@ -368,7 +368,7 @@
     <string name="role_sms_description" msgid="3424020199148153513">"Aplikacije koje vam omogućavaju korištenje broja telefona za slanje i primanje kratkih SMS-ova, fotografija, videozapisa i drugog"</string>
     <string name="role_sms_request_title" msgid="7953552109601185602">"Postaviti aplikaciju <xliff:g id="APP_NAME">%1$s</xliff:g> kao zadanu aplikaciju za SMS?"</string>
     <string name="role_sms_request_description" msgid="2691004766132144886">"Ova aplikacija će dobiti pristup vašoj Kameri, Kontaktima, Fajlovima i medijima, Mikrofonu, Telefonu i SMS-u"</string>
-    <string name="role_sms_search_keywords" msgid="8022048144395047352">"SMS, slanje SMS-ova, poruke, slanje poruka"</string>
+    <string name="role_sms_search_keywords" msgid="8022048144395047352">"poruka, slanje poruka, poruke, razmjena poruka"</string>
     <string name="role_emergency_label" msgid="7028825857206842366">"Zadana apl. za hitne situacije"</string>
     <string name="role_emergency_short_label" msgid="2388431453335350348">"Aplikacija za hitne situacije"</string>
     <string name="role_emergency_description" msgid="5051840234887686630">"Aplikacije koje vam omogućavaju da zabilježite svoje zdravstvene podatke i omogućite hitnim službama da im pristupe; da primate upozorenja o jakom nevremenu i katastrofama; da obavijestite druge kada vam je potrebna pomoć"</string>
@@ -470,7 +470,7 @@
     <string name="permgrouprequest_coarselocation" msgid="7244605063736425232">"Dozvoliti aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; da pristupa približnoj lokaciji ovog uređaja?"</string>
     <string name="permgrouprequest_finelocation_imagetext" msgid="1313062433398914334">"Tačno"</string>
     <string name="permgrouprequest_coarselocation_imagetext" msgid="8650605041483025297">"Približno"</string>
-    <string name="permgrouprequest_calendar" msgid="1493150855673603806">"Dozvoliti aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; da pristupi vašem kalendaru?"</string>
+    <string name="permgrouprequest_calendar" msgid="1493150855673603806">"Dozvoliti aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; da pristupa vašem kalendaru?"</string>
     <string name="permgrouprequest_sms" msgid="5672063688745420991">"Dozvoliti aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; da šalje i pregleda SMS poruke?"</string>
     <string name="permgrouprequest_storage" msgid="8717773092518621602">"Dozvoliti aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; da pristupa fotografijama, medijima i fajlovima na vašem uređaju?"</string>
     <string name="permgrouprequest_storage_q_to_s" msgid="8213701872983685505">"Dozvoliti da &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; pristupa &lt;b&gt;foto/video/muzičkim/audio fajlovima&lt;/b&gt; na ovom uređaju?"</string>
