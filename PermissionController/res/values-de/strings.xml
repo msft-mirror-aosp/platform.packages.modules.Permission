@@ -32,7 +32,7 @@
     <string name="grant_dialog_button_no_upgrade" msgid="8344732743633736625">"„Wenn die App verwendet wird“ beibehalten"</string>
     <string name="grant_dialog_button_no_upgrade_one_time" msgid="5125892775684968694">"\"Nur dieses Mal\" aktiviert lassen"</string>
     <string name="grant_dialog_button_more_info" msgid="213350268561945193">"Weitere Infos"</string>
-    <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"Vollen Zugriff erlauben"</string>
+    <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"Vollen Zugriff zulassen"</string>
     <string name="grant_dialog_button_always_allow_all" msgid="1719900027660252167">"Immer vollen Zugriff erlauben"</string>
     <string name="grant_dialog_button_allow_limited_access" msgid="5713551784422137594">"Eingeschränkten Zugriff zulassen"</string>
     <string name="grant_dialog_button_allow_selected_photos" msgid="5497042471576153842">"Fotos und Videos auswählen"</string>
@@ -429,7 +429,7 @@
     <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"Links öffnen"</string>
     <string name="default_apps_for_work" msgid="4970308943596201811">"Standard-Apps für Arbeit"</string>
     <string name="default_app_none" msgid="9084592086808194457">"Keine"</string>
-    <string name="default_app_system_default" msgid="6218386768175513760">"(System-Standardeinstellung)"</string>
+    <string name="default_app_system_default" msgid="6218386768175513760">"(System-Standard­einstellung)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"Keine Apps"</string>
     <string name="car_default_app_selected" msgid="5416420830430644174">"Ausgewählt"</string>
     <string name="car_default_app_selected_with_info" msgid="1932204186080593500">"Ausgewählt – <xliff:g id="ADDITIONAL_INFO">%1$s</xliff:g>"</string>
@@ -457,7 +457,7 @@
     <string name="assistant_record_audio_user_sensitive_title" msgid="5532123360322362378">"Auslösererkennung für Assistenten anzeigen"</string>
     <string name="assistant_record_audio_user_sensitive_summary" msgid="6482937591816401619">"Symbol in der Statusleiste anzeigen, wenn das Mikrofon verwendet wird, um den Sprachassistenten zu aktivieren"</string>
     <string name="permgrouprequest_storage_isolated" msgid="4892154224026852295">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; erlauben, auf Fotos und Medien auf deinem Gerät zuzugreifen?"</string>
-    <string name="permgrouprequest_contacts" msgid="8391550064551053695">"„<xliff:g id="APP_NAME">%1$s</xliff:g>“ erlauben, auf deine Kontakte zuzugreifen?"</string>
+    <string name="permgrouprequest_contacts" msgid="8391550064551053695">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; erlauben, auf deine Kontakte zuzugreifen?"</string>
     <string name="permgrouprequest_location" msgid="6990232580121067883">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; erlauben, den Gerätestandort abzurufen?"</string>
     <string name="permgrouprequestdetail_location" msgid="2635935335778429894">"Die App hat nur Zugriff auf den Gerätestandort, solange du sie verwendest"</string>
     <string name="permgroupbackgroundrequest_location" msgid="1085680897265734809">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; erlauben, den Gerätestandort abzurufen?"</string>
