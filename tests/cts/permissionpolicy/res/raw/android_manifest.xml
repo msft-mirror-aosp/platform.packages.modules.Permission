@@ -580,6 +580,7 @@
 
     <protected-broadcast android:name="android.app.action.KEYGUARD_PRIVATE_NOTIFICATIONS_CHANGED" />
     <protected-broadcast android:name="NotificationManagerService.TIMEOUT" />
+    <protected-broadcast android:name="com.android.server.notification.TimeToLiveHelper" />
     <protected-broadcast android:name="NotificationHistoryDatabase.CLEANUP" />
     <protected-broadcast android:name="ScheduleConditionProvider.EVALUATE" />
     <protected-broadcast android:name="EventConditionProvider.EVALUATE" />
@@ -2285,6 +2286,11 @@
     <permission android:name="android.permission.THREAD_NETWORK_PRIVILEGED"
                 android:protectionLevel="signature|privileged" />
 
+    <!-- @hide Allows access to Thread network APIs or shell commands ("cmd thread_network") which
+        are only for testing. -->
+    <permission android:name="android.permission.THREAD_NETWORK_TESTING"
+                android:protectionLevel="signature" />
+
     <!-- #SystemApi @hide Allows an app to bypass Private DNS.
          <p>Not for use by third-party applications.
          TODO: publish as system API in next API release. -->
@@ -2590,6 +2596,13 @@
          @hide
     -->
     <permission android:name="android.permission.VIBRATE_ALWAYS_ON"
+        android:protectionLevel="signature" />
+
+    <!-- Allows access to system-only haptic feedback constants.
+         <p>Protection level: signature
+         @hide
+    -->
+    <permission android:name="android.permission.VIBRATE_SYSTEM_CONSTANTS"
         android:protectionLevel="signature" />
 
     <!-- @SystemApi Allows access to the vibrator state.
@@ -3241,7 +3254,7 @@
 
     <!-- @SystemApi @hide Allows privileged applications to get details about hidden profile
         users.
-        @FlaggedApi("android.multiuser.flags.enable_permission_to_access_hidden_profiles") -->
+        @FlaggedApi("android.multiuser.enable_permission_to_access_hidden_profiles") -->
     <permission
         android:name="android.permission.ACCESS_HIDDEN_PROFILES_FULL"
         android:protectionLevel="signature|privileged" />
@@ -3887,6 +3900,13 @@
             permissions across all users on the device.-->
     <permission android:name="android.permission.MANAGE_DEVICE_POLICY_ACROSS_USERS_FULL"
                 android:protectionLevel="internal|role" />
+
+    <!-- Allows the holder to manage and retrieve max storage limit for admin policies. This
+        permission is only grantable on rooted devices.
+        @TestAPI
+        @hide -->
+    <permission android:name="android.permission.MANAGE_DEVICE_POLICY_STORAGE_LIMIT"
+                android:protectionLevel="internal" />
 
     <!-- Allows an application to access EnhancedConfirmationManager.
         @SystemApi
@@ -4676,6 +4696,11 @@
          @hide @TestApi -->
     <permission android:name="android.permission.REQUEST_UNIQUE_ID_ATTESTATION"
          android:protectionLevel="signature" />
+
+    <!-- Allows the caller to bind with Remote Key Provisioning service.
+         @hide -->
+    <permission android:name="android.permission.BIND_RKP_SERVICE"
+                android:protectionLevel="signature" />
 
     <!-- Allows an application to get enabled credential manager providers.
          @hide -->
@@ -6184,7 +6209,7 @@
           @hide
           @removed -->
     <permission android:name="android.permission.CAPTURE_SECURE_VIDEO_OUTPUT"
-        android:protectionLevel="signature" />
+        android:protectionLevel="signature|role" />
 
     <!-- Allows an application to know what content is playing and control its playback.
          <p>Not for use by third-party applications due to privacy of media consumption</p>  -->
@@ -7506,16 +7531,6 @@
     <permission android:name="android.permission.RECEIVE_SANDBOX_TRIGGER_AUDIO"
                 android:protectionLevel="signature|privileged|appop" />
 
-    <!-- @SystemApi Required for the privileged assistant apps targeting
-         {@link android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM}
-         that receive training data from a sandboxed {@link HotwordDetectionService} or
-         {@link VisualQueryDetectionService}.
-         <p>Protection level: internal|appop
-         @FlaggedApi("android.permission.flags.voice_activation_permission_apis")
-         @hide -->
-    <permission android:name="android.permission.RECEIVE_SANDBOXED_DETECTION_TRAINING_DATA"
-                android:protectionLevel="internal|appop" />
-
     <!-- @SystemApi Allows requesting the framework broadcast the
          {@link Intent#ACTION_DEVICE_CUSTOMIZATION_READY} intent.
          @hide -->
@@ -7979,16 +7994,6 @@
     <permission android:name="android.permission.RUN_USER_INITIATED_JOBS"
                 android:protectionLevel="normal"/>
 
-    <!-- @FlaggedApi("android.app.job.backup_jobs_exemption")
-         Gives applications with a <b>major use case</b> of backing-up or syncing content increased
-         job execution allowance in order to complete the related work. The jobs must have a valid
-         content URI trigger and network constraint set.
-         <p>This is a special access permission that can be revoked by the system or the user.
-         <p>Protection level: signature|privileged|appop
-     -->
-    <permission android:name="android.permission.RUN_BACKUP_JOBS"
-                android:protectionLevel="signature|privileged|appop"/>
-
     <!-- Allows an app access to the installer provided app metadata.
         @SystemApi
         @hide
@@ -8164,6 +8169,24 @@
         @hide
     -->
     <permission android:name="android.permission.EMERGENCY_INSTALL_PACKAGES"
+                android:protectionLevel="signature|privileged"/>
+
+    <!-- Allows internal applications to override screen timeout temporarily
+        <p>Protection level: signature
+        <p>Not for use by third-party applications.
+        @FlaggedApi("com.android.server.power.feature.flags.enable_early_screen_timeout_detector")
+        @hide
+    -->
+    <permission android:name="android.permission.SCREEN_TIMEOUT_OVERRIDE"
+                android:protectionLevel="signature" />
+
+    <!-- @SystemApi
+        @FlaggedApi("android.security.fsverity_api")
+        Allows app to setup fs-verity through FileIntegrityManager.
+        <p>Protection level: signature|privileged
+        @hide
+    -->
+    <permission android:name="android.permission.SETUP_FSVERITY"
                 android:protectionLevel="signature|privileged"/>
 
     <!-- Attribution for Geofencing service. -->

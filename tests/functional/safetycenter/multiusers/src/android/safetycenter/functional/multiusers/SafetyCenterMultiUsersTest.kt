@@ -23,6 +23,7 @@ import android.content.Context
 import android.os.UserHandle
 import android.platform.test.annotations.RequiresFlagsDisabled
 import android.platform.test.annotations.RequiresFlagsEnabled
+import android.platform.test.flag.junit.DeviceFlagsValueProvider
 import android.safetycenter.SafetyCenterData
 import android.safetycenter.SafetyCenterEntry
 import android.safetycenter.SafetyCenterEntry.ENTRY_SEVERITY_LEVEL_CRITICAL_WARNING
@@ -44,11 +45,11 @@ import com.android.bedstead.harrier.BedsteadJUnit4
 import com.android.bedstead.harrier.DeviceState
 import com.android.bedstead.harrier.annotations.EnsureHasAdditionalUser
 import com.android.bedstead.harrier.annotations.EnsureHasCloneProfile
-import com.android.bedstead.harrier.annotations.EnsureHasNoWorkProfile
+import com.android.bedstead.enterprise.annotations.EnsureHasNoWorkProfile
 import com.android.bedstead.harrier.annotations.EnsureHasPrivateProfile
-import com.android.bedstead.harrier.annotations.EnsureHasWorkProfile
-import com.android.bedstead.harrier.annotations.enterprise.EnsureHasDeviceOwner
-import com.android.bedstead.harrier.annotations.enterprise.EnsureHasNoDeviceOwner
+import com.android.bedstead.enterprise.annotations.EnsureHasWorkProfile
+import com.android.bedstead.enterprise.annotations.EnsureHasDeviceOwner
+import com.android.bedstead.enterprise.annotations.EnsureHasNoDeviceOwner
 import com.android.bedstead.nene.TestApis
 import com.android.bedstead.nene.types.OptionalBoolean.TRUE
 import com.android.compatibility.common.util.DisableAnimationRule
@@ -112,6 +113,8 @@ class SafetyCenterMultiUsersTest {
     companion object {
         @JvmField @ClassRule @Rule val deviceState: DeviceState = DeviceState()
     }
+
+    @Rule @JvmField val mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val safetyCenterResourcesApk = SafetyCenterResourcesApk.forTests(context)

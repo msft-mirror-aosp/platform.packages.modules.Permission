@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION", "LongLogTag")
 
 package com.android.permissioncontroller.permission.utils
 
@@ -46,8 +46,6 @@ import android.content.pm.PackageManager.FLAG_PERMISSION_ONE_TIME
 import android.content.pm.PackageManager.FLAG_PERMISSION_REVIEW_REQUIRED
 import android.content.pm.PackageManager.FLAG_PERMISSION_REVOKED_COMPAT
 import android.content.pm.PackageManager.FLAG_PERMISSION_USER_FIXED
-import android.content.pm.PackageManager.FLAG_PERMISSION_USER_SENSITIVE_WHEN_DENIED
-import android.content.pm.PackageManager.FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED
 import android.content.pm.PackageManager.FLAG_PERMISSION_USER_SET
 import android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE
 import android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE
@@ -121,13 +119,6 @@ object KotlinUtils {
             FLAG_PERMISSION_ONE_TIME or
             FLAG_PERMISSION_REVIEW_REQUIRED or
             FLAG_PERMISSION_AUTO_REVOKED
-
-    private const val DEVICE_AWARE_PERMISSION_FLAG_MASK =
-        FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED or
-            FLAG_PERMISSION_USER_SENSITIVE_WHEN_DENIED or
-            FLAG_PERMISSION_ONE_TIME or
-            FLAG_PERMISSION_USER_SET or
-            FLAG_PERMISSION_USER_FIXED
 
     private const val KILL_REASON_APP_OP_CHANGE = "Permission related app op changed"
     private const val SAFETY_PROTECTION_RESOURCES_ENABLED = "safety_protection_enabled"
@@ -647,6 +638,7 @@ object KotlinUtils {
         }
     }
 
+    @Suppress("MissingPermission")
     fun openPhotoPickerForApp(
         activity: Activity,
         uid: Int,
@@ -938,46 +930,6 @@ object KotlinUtils {
     }
 
     /**
-     * Grants external device permissions to the specified package. Permissions will be extracted
-     * from the group name.
-     *
-     * @param app The current application
-     * @param persistentDeviceId The external device identifier
-     * @param packageName Name of the package to which permission needs to granted
-     * @param permissions Permissions that needs to be granted
-     * @param userSet Whether to mark the permission as user set
-     *
-     * TODO: b/328839130: This method is meant to use it on External Devices and on Device Aware
-     *   permissions only. It does not follow the default device implementation because of the
-     *   LightAppPermGroup requirement. The data class LightAppPermGroup is not available for
-     *   external devices at present, hence the implementation differs.
-     */
-    @JvmStatic
-    @ChecksSdkIntAtLeast(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    fun grantRuntimePermissionsWithPersistentDeviceId(
-        app: Application,
-        persistentDeviceId: String,
-        packageName: String,
-        permissions: Set<String>,
-        userSet: Boolean
-    ) {
-        if (!SdkLevel.isAtLeastV() || MultiDeviceUtils.isDefaultDeviceId(persistentDeviceId)) {
-            return
-        }
-        permissions
-            .filter { MultiDeviceUtils.isPermissionDeviceAware(it) }
-            .forEach { permission ->
-                grantRuntimePermissionWithPersistentDeviceId(
-                    app,
-                    persistentDeviceId,
-                    packageName,
-                    permission,
-                    userSet
-                )
-            }
-    }
-
-    /**
      * Grants a single runtime permission
      *
      * @param app The current application
@@ -991,6 +943,7 @@ object KotlinUtils {
      * @return a LightPermission and boolean pair <permission with updated state (or the original
      *   state, if it wasn't changed), should kill app>
      */
+    @Suppress("MissingPermission")
     private fun grantRuntimePermission(
         app: Application,
         perm: LightPermission,
@@ -1121,49 +1074,6 @@ object KotlinUtils {
     }
 
     /**
-     * Grants the external device permission to the specified package
-     *
-     * @param app The current application
-     * @param persistentDeviceId The external device identifier
-     * @param packageName Name of the package to which permission needs to granted
-     * @param permission Permission that needs to be granted
-     * @param userSet Whether to mark the permission as user set
-     *
-     * TODO: b/328839130: This method is meant to use it on External Devices and on Device Aware
-     *   permissions only. It does not follow the default device implementation because of the
-     *   LightAppPermGroup requirement. The data class LightAppPermGroup is not available for
-     *   external devices at present, hence the implementation differs.
-     */
-    @JvmStatic
-    @ChecksSdkIntAtLeast(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    private fun grantRuntimePermissionWithPersistentDeviceId(
-        app: Application,
-        persistentDeviceId: String,
-        packageName: String,
-        permission: String,
-        userSet: Boolean
-    ) {
-        if (!SdkLevel.isAtLeastV() || MultiDeviceUtils.isDefaultDeviceId(persistentDeviceId)) {
-            return
-        }
-        val permissionManager = app.getSystemService(PermissionManager::class.java)!!
-        var newFlag =
-            FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED or
-                FLAG_PERMISSION_USER_SENSITIVE_WHEN_DENIED
-        if (userSet) {
-            newFlag = newFlag or FLAG_PERMISSION_USER_SET
-        }
-        permissionManager.updatePermissionFlags(
-            packageName,
-            permission,
-            persistentDeviceId,
-            DEVICE_AWARE_PERMISSION_FLAG_MASK,
-            newFlag
-        )
-        permissionManager.grantRuntimePermission(packageName, permission, persistentDeviceId)
-    }
-
-    /**
      * Revoke all foreground runtime permissions of a LightAppPermGroup
      *
      * <p>This also disallows all app ops for permissions that have app ops.
@@ -1228,6 +1138,7 @@ object KotlinUtils {
         )
     }
 
+    @Suppress("MissingPermission")
     private fun revokeRuntimePermissions(
         app: Application,
         group: LightAppPermGroup,
@@ -1287,52 +1198,6 @@ object KotlinUtils {
     }
 
     /**
-     * Revokes the external device permissions from the specified package. Permissions will be
-     * extracted from the group name.
-     *
-     * @param app The current application
-     * @param persistentDeviceId The external device identifier
-     * @param packageName Name of the package to which permission needs to revoked
-     * @param permissions Permissions that needs to be revoked
-     * @param userSet Whether to mark the permission as user set
-     * @param oneTime Whether this is a one-time permission grant permissions
-     * @param reason The reason for the revoke, or {@code null} for unspecified
-     *
-     * TODO: b/328839130: This method is meant to use it on External Devices and on Device Aware
-     *   permissions only. It does not follow the default device implementation because of the
-     *   LightAppPermGroup requirement. The data class LightAppPermGroup is not available for
-     *   external devices at present, hence the implementation differs.
-     */
-    @JvmStatic
-    @ChecksSdkIntAtLeast(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    fun revokeRuntimePermissionsWithPersistentDeviceId(
-        app: Application,
-        persistentDeviceId: String,
-        packageName: String,
-        permissions: Set<String>,
-        userSet: Boolean,
-        oneTime: Boolean,
-        reason: String? = null
-    ) {
-        if (!SdkLevel.isAtLeastV() || MultiDeviceUtils.isDefaultDeviceId(persistentDeviceId)) {
-            return
-        }
-        permissions
-            .filter { MultiDeviceUtils.isPermissionDeviceAware(it) }
-            .forEach { permission ->
-                revokeRuntimePermissionWithPersistentDeviceId(
-                    app,
-                    persistentDeviceId,
-                    packageName,
-                    permission,
-                    userSet,
-                    oneTime,
-                    reason
-                )
-            }
-    }
-
-    /**
      * Revoke background permissions
      *
      * @param context context
@@ -1369,6 +1234,7 @@ object KotlinUtils {
      * @param group Optional, the current app permission group we are examining
      * @return true if any permission in the package is granted for one time, false otherwise
      */
+    @Suppress("MissingPermission")
     private fun anyPermsOfPackageOneTimeGranted(
         app: Application,
         packageInfo: LightPackageInfo,
@@ -1405,6 +1271,7 @@ object KotlinUtils {
      * @return a LightPermission and boolean pair <permission with updated state (or the original
      *   state, if it wasn't changed), should kill app>
      */
+    @Suppress("MissingPermission")
     private fun revokeRuntimePermission(
         app: Application,
         perm: LightPermission,
@@ -1518,64 +1385,6 @@ object KotlinUtils {
         val newState = PermState(newFlags, isGranted)
         return LightPermission(perm.pkgInfo, perm.permInfo, newState, perm.foregroundPerms) to
             shouldKill
-    }
-
-    /**
-     * Revokes the external device permission to the specified package.
-     *
-     * @param app The current application
-     * @param persistentDeviceId The external device identifier
-     * @param packageName Name of the package to which permission needs to revoked
-     * @param permission Permission that needs to be revoked
-     * @param userSet Whether to mark the permission as user set
-     * @param oneTime Whether this is a one-time permission grant permissions
-     * @param reason The reason for the revoke, or {@code null} for unspecified
-     *
-     * TODO: b/328839130: This method is meant to use it on External Devices and on Device Aware
-     *   permissions only. It does not follow the default device implementation because of the
-     *   LightAppPermGroup requirement. The data class LightAppPermGroup is not available for
-     *   external devices at present, hence the implementation differs.
-     */
-    @JvmStatic
-    @ChecksSdkIntAtLeast(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    private fun revokeRuntimePermissionWithPersistentDeviceId(
-        app: Application,
-        persistentDeviceId: String,
-        packageName: String,
-        permission: String,
-        userSet: Boolean,
-        oneTime: Boolean,
-        reason: String? = null
-    ) {
-        if (!SdkLevel.isAtLeastV() || MultiDeviceUtils.isDefaultDeviceId(persistentDeviceId)) {
-            return
-        }
-        val permissionManager = app.getSystemService(PermissionManager::class.java)!!
-        var newFlag =
-            FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED or
-                FLAG_PERMISSION_USER_SENSITIVE_WHEN_DENIED
-        if (oneTime) {
-            newFlag = newFlag or FLAG_PERMISSION_ONE_TIME
-        }
-        if (userSet) {
-            newFlag = newFlag or FLAG_PERMISSION_USER_SET
-        }
-        if (isPermissionUserFixed(app, persistentDeviceId, packageName, permission) && !oneTime) {
-            newFlag = newFlag or FLAG_PERMISSION_USER_FIXED
-        }
-        permissionManager.updatePermissionFlags(
-            packageName,
-            permission,
-            persistentDeviceId,
-            DEVICE_AWARE_PERMISSION_FLAG_MASK,
-            newFlag
-        )
-        permissionManager.revokeRuntimePermission(
-            packageName,
-            permission,
-            persistentDeviceId,
-            reason
-        )
     }
 
     private fun Int.setFlag(flagToSet: Int): Int {
@@ -1715,7 +1524,7 @@ object KotlinUtils {
         if (currentMode == mode) {
             return false
         }
-        manager.setUidMode(op, uid, mode)
+        @Suppress("MissingPermission") manager.setUidMode(op, uid, mode)
         return true
     }
 
@@ -1744,6 +1553,7 @@ object KotlinUtils {
      * @return true if the permission denied was POST_NOTIFICATIONS, the app is a backup app, and a
      *   backup restore is in progress, false otherwise
      */
+    @SuppressLint("LongLogTag")
     fun shouldSkipKillOnPermDeny(
         app: Application,
         permission: String,
@@ -1829,10 +1639,13 @@ object KotlinUtils {
                 PackageManager.FLAG_PERMISSION_SELECTED_LOCATION_ACCURACY to true,
                 filterPermissions = listOf(ACCESS_FINE_LOCATION)
             )
+            val fineIsOneTime =
+                group.permissions[Manifest.permission.ACCESS_FINE_LOCATION]?.isOneTime ?: false
             setGroupFlags(
                 app,
                 group,
                 PackageManager.FLAG_PERMISSION_SELECTED_LOCATION_ACCURACY to false,
+                PackageManager.FLAG_PERMISSION_ONE_TIME to fineIsOneTime,
                 filterPermissions = listOf(Manifest.permission.ACCESS_COARSE_LOCATION)
             )
         } else {
@@ -1950,39 +1763,18 @@ object KotlinUtils {
         }
         return NotificationResources(appLabel, smallIcon, color)
     }
-
-    /**
-     * Determines if the permission is UserFixed. This method is for to use with V and above only.
-     * Supports both external and default devices, need to specify persistentDeviceId accordingly.
-     */
-    @ChecksSdkIntAtLeast(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    private fun isPermissionUserFixed(
-        app: Application,
-        persistentDeviceId: String,
-        packageName: String,
-        permission: String
-    ): Boolean {
-        if (!SdkLevel.isAtLeastV()) {
-            return true
-        }
-        val permissionManager = app.getSystemService(PermissionManager::class.java)!!
-        val flags =
-            permissionManager.getPermissionFlags(packageName, permission, persistentDeviceId)
-        return flags and PackageManager.FLAG_PERMISSION_USER_FIXED != 0
-    }
 }
 
 /** Get the [value][LiveData.getValue], suspending until [isInitialized] if not yet so */
 suspend fun <T, LD : LiveData<T>> LD.getInitializedValue(
-    observe: LD.(Observer<T>) -> Unit = { observeForever(it) },
+    observe: LD.(Observer<T?>) -> Unit = { observeForever(it) },
     isValueInitialized: LD.() -> Boolean = { value != null }
-): T {
+): T? {
     return if (isValueInitialized()) {
-        @Suppress("UNCHECKED_CAST")
-        value as T
+        value
     } else {
-        suspendCoroutine { continuation: Continuation<T> ->
-            val observer = AtomicReference<Observer<T>>()
+        suspendCoroutine { continuation: Continuation<T?> ->
+            val observer = AtomicReference<Observer<T?>>()
             observer.set(
                 Observer { newValue ->
                     if (isValueInitialized()) {

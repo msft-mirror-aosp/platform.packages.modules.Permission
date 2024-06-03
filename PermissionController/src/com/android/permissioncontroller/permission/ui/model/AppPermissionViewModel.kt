@@ -21,6 +21,8 @@ import android.Manifest
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+import android.Manifest.permission_group.CAMERA
+import android.Manifest.permission_group.LOCATION
 import android.Manifest.permission_group.READ_MEDIA_VISUAL
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -30,6 +32,9 @@ import android.app.AppOpsManager.MODE_ERRORED
 import android.app.AppOpsManager.OPSTR_MANAGE_EXTERNAL_STORAGE
 import android.app.Application
 import android.content.Intent
+import android.hardware.SensorPrivacyManager
+import android.hardware.SensorPrivacyManager.OnSensorPrivacyChangedListener
+import android.hardware.SensorPrivacyManager.OnSensorPrivacyChangedListener.SensorPrivacyChangedParams
 import android.os.Build
 import android.os.Bundle
 import android.os.UserHandle
@@ -52,10 +57,10 @@ import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.data.FullStoragePermissionAppsLiveData
 import com.android.permissioncontroller.permission.data.FullStoragePermissionAppsLiveData.FullStoragePackageState
 import com.android.permissioncontroller.permission.data.LightAppPermGroupLiveData
-import com.android.permissioncontroller.permission.data.PackagePermissionsExternalDeviceLiveData
 import com.android.permissioncontroller.permission.data.SmartUpdateMediatorLiveData
 import com.android.permissioncontroller.permission.data.get
 import com.android.permissioncontroller.permission.data.v34.SafetyLabelInfoLiveData
+import com.android.permissioncontroller.permission.data.v35.PackagePermissionsExternalDeviceLiveData
 import com.android.permissioncontroller.permission.model.livedatatypes.AppPermGroupUiInfo
 import com.android.permissioncontroller.permission.model.livedatatypes.LightAppPermGroup
 import com.android.permissioncontroller.permission.model.livedatatypes.LightPermission
@@ -78,13 +83,13 @@ import com.android.permissioncontroller.permission.utils.KotlinUtils.isLocationA
 import com.android.permissioncontroller.permission.utils.KotlinUtils.isPhotoPickerPromptEnabled
 import com.android.permissioncontroller.permission.utils.KotlinUtils.openPhotoPickerForApp
 import com.android.permissioncontroller.permission.utils.LocationUtils
-import com.android.permissioncontroller.permission.utils.MultiDeviceUtils
 import com.android.permissioncontroller.permission.utils.PermissionMapping
 import com.android.permissioncontroller.permission.utils.PermissionMapping.getPartialStorageGrantPermissionsForGroup
 import com.android.permissioncontroller.permission.utils.SafetyNetLogger
 import com.android.permissioncontroller.permission.utils.Utils
 import com.android.permissioncontroller.permission.utils.navigateSafe
 import com.android.permissioncontroller.permission.utils.v34.SafetyLabelUtils
+import com.android.permissioncontroller.permission.utils.v35.MultiDeviceUtils
 import com.android.settingslib.RestrictedLockUtils
 import java.util.Random
 import kotlin.collections.component1
@@ -216,6 +221,114 @@ class AppPermissionViewModel(
                         .any()
             }
         }
+
+    @get:RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    val sensorStatusLiveData: SensorStatusLiveData? by
+        lazy(LazyThreadSafetyMode.NONE) {
+            if (SdkLevel.isAtLeastV()) {
+                SensorStatusLiveData()
+            } else {
+                null
+            }
+        }
+
+    /** A LiveData that tracks whether to show or hide a warning banner for a sensor */
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    inner class SensorStatusLiveData() : SmartUpdateMediatorLiveData<Boolean>() {
+        val sensorPrivacyManager = app.getSystemService(SensorPrivacyManager::class.java)!!
+        val sensor = Utils.getSensorCode(permGroupName)
+        val isLocation = LOCATION.equals(permGroupName)
+        val isCamera = CAMERA.equals(permGroupName)
+
+        init {
+            addSource(buttonStateLiveData) { update() }
+            checkAndUpdateStatus()
+        }
+
+        fun checkAndUpdateStatus(showBannerForSensorUpdate: Boolean? = null) {
+            var showBanner = showBannerForSensorUpdate ?: showBannerForSensor()
+            if (isPermissionDenied()) {
+                showBanner = false
+            }
+            value = showBanner
+        }
+
+        fun showBannerForSensor(): Boolean {
+            return if (isLocation) {
+                !LocationUtils.isLocationEnabled(app.getApplicationContext())
+            } else if (isCamera) {
+                val state =
+                    sensorPrivacyManager.getSensorPrivacyState(
+                        SensorPrivacyManager.TOGGLE_TYPE_SOFTWARE,
+                        SensorPrivacyManager.Sensors.CAMERA
+                    )
+                state != SensorPrivacyManager.StateTypes.DISABLED
+            } else {
+                sensorPrivacyManager.isSensorPrivacyEnabled(sensor)
+            }
+        }
+
+        fun isPermissionDenied(): Boolean {
+            if (buttonStateLiveData.isInitialized) {
+                val buttonState = buttonStateLiveData.value
+                return buttonState?.get(DENY)?.isChecked == true ||
+                    buttonState?.get(DENY_FOREGROUND)?.isChecked == true
+            }
+            return false
+        }
+
+        override fun onActive() {
+            super.onActive()
+            checkAndUpdateStatus()
+            if (isLocation) {
+                LocationUtils.addLocationListener(mainLocListener)
+                if (
+                    LocationUtils.isAutomotiveLocationBypassAllowlistedPackage(
+                        app.getApplicationContext(),
+                        packageName
+                    )
+                ) {
+                    LocationUtils.addAutomotiveLocationBypassListener(locBypassListener)
+                }
+            } else {
+                sensorPrivacyManager.addSensorPrivacyListener(sensor, sensorPrivacyListener)
+            }
+        }
+
+        override fun onInactive() {
+            super.onInactive()
+            if (isLocation) {
+                LocationUtils.removeLocationListener(mainLocListener)
+                if (
+                    LocationUtils.isAutomotiveLocationBypassAllowlistedPackage(
+                        app.getApplicationContext(),
+                        packageName
+                    )
+                ) {
+                    LocationUtils.removeAutomotiveLocationBypassListener(locBypassListener)
+                }
+            } else {
+                sensorPrivacyManager.removeSensorPrivacyListener(sensor, sensorPrivacyListener)
+            }
+        }
+
+        private val sensorPrivacyListener =
+            object : OnSensorPrivacyChangedListener {
+                override fun onSensorPrivacyChanged(params: SensorPrivacyChangedParams) {
+                    val showBanner = (params.getState() != SensorPrivacyManager.StateTypes.DISABLED)
+                    checkAndUpdateStatus(showBanner)
+                }
+
+                @Deprecated("Please use onSensorPrivacyChanged(SensorPrivacyChangedParams)")
+                override fun onSensorPrivacyChanged(sensor: Int, enabled: Boolean) {}
+            }
+
+        private val mainLocListener = { isEnabled: Boolean -> checkAndUpdateStatus(!isEnabled) }
+        private val locBypassListener = { _: Boolean -> checkAndUpdateStatus() }
+        override fun onUpdate() {
+            checkAndUpdateStatus()
+        }
+    }
 
     /** A livedata which determines which detail string, if any, should be shown */
     val fullStorageStateLiveData =
@@ -473,8 +586,14 @@ class AppPermissionViewModel(
                     askOneTimeState.isChecked = group.foreground.isGranted && group.isOneTime
                     askOneTimeState.isShown = askOneTimeState.isChecked
                     deniedState.isChecked = !group.foreground.isGranted && !group.isOneTime
-                    if (Utils.getApplicationEnhancedConfirmationRestrictedIntentAsUser(
-                            user, app, packageName, permGroupName) != null) {
+                    if (
+                        Utils.getApplicationEnhancedConfirmationRestrictedIntentAsUser(
+                            user,
+                            app,
+                            packageName,
+                            permGroupName
+                        ) != null
+                    ) {
                         allowedState.isEnabled = false
                     }
                     if (group.foreground.isPolicyFixed || group.foreground.isSystemFixed) {
@@ -529,7 +648,7 @@ class AppPermissionViewModel(
 
                 if (shouldShowLocationAccuracy == null) {
                     shouldShowLocationAccuracy =
-                        isLocationAccuracyEnabled() &&
+                        isLocationAccuracyAvailableForApp(group) &&
                             group.permissions.containsKey(ACCESS_FINE_LOCATION)
                 }
                 val locationAccuracyState =
@@ -562,10 +681,19 @@ class AppPermissionViewModel(
 
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.VANILLA_ICE_CREAM, codename = "VanillaIceCream")
     fun handleDisabledAllowButton(fragment: Fragment) {
-        if (lightAppPermGroup!!.foreground.isSystemFixed ||
-            lightAppPermGroup!!.foreground.isPolicyFixed) return
-        val restrictionIntent = Utils.getApplicationEnhancedConfirmationRestrictedIntentAsUser(
-            user, app, packageName, permGroupName) ?: return
+        if (
+            lightAppPermGroup!!.foreground.isSystemFixed ||
+                lightAppPermGroup!!.foreground.isPolicyFixed
+        )
+            return
+        val restrictionIntent =
+            Utils.getApplicationEnhancedConfirmationRestrictedIntentAsUser(
+                user,
+                app,
+                packageName,
+                permGroupName
+            )
+                ?: return
         fragment.startActivity(restrictionIntent)
     }
 
@@ -582,6 +710,11 @@ class AppPermissionViewModel(
         }
         val userSelectedPerm = group.permissions[READ_MEDIA_VISUAL_USER_SELECTED] ?: return false
         return !userSelectedPerm.isImplicit
+    }
+
+    private fun isLocationAccuracyAvailableForApp(group: LightAppPermGroup): Boolean {
+        return isLocationAccuracyEnabled() &&
+            group.packageInfo.targetSdkVersion >= Build.VERSION_CODES.S
     }
 
     private fun isFineLocationChecked(group: LightAppPermGroup): Boolean {
@@ -1015,7 +1148,7 @@ class AppPermissionViewModel(
     ) {
         when (changeRequest) {
             ChangeRequest.GRANT_FOREGROUND_ONLY ->
-                KotlinUtils.grantRuntimePermissionsWithPersistentDeviceId(
+                MultiDeviceUtils.grantRuntimePermissionsWithPersistentDeviceId(
                     app,
                     persistentDeviceId,
                     packageName,
@@ -1023,7 +1156,7 @@ class AppPermissionViewModel(
                     true
                 )
             ChangeRequest.REVOKE_BOTH ->
-                KotlinUtils.revokeRuntimePermissionsWithPersistentDeviceId(
+                MultiDeviceUtils.revokeRuntimePermissionsWithPersistentDeviceId(
                     app,
                     persistentDeviceId,
                     packageName,

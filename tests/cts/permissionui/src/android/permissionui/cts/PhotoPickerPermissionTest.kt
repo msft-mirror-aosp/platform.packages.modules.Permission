@@ -20,6 +20,7 @@ import android.Manifest.permission.ACCESS_MEDIA_LOCATION
 import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.Manifest.permission.READ_MEDIA_VIDEO
 import android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+import android.app.UiAutomation.ROTATION_FREEZE_0
 import android.app.UiAutomation.ROTATION_FREEZE_270
 import android.app.UiAutomation.ROTATION_UNFREEZE
 import android.content.pm.PackageManager
@@ -301,7 +302,7 @@ class PhotoPickerPermissionTest : BaseUsePermissionTest() {
     fun testSelectPhotosInSettingsImplicit() {
         installPackage(APP_APK_PATH_IMPLICIT_USER_SELECT_STORAGE)
         navigateToIndividualPermissionSetting(READ_MEDIA_IMAGES)
-        click(By.res(SELECT_RADIO_BUTTON))
+        click(By.res(ALLOW_LIMITED_RADIO_BUTTON))
 
         eventually {
             assertAppHasPermission(READ_MEDIA_IMAGES, expectPermission = false)
@@ -315,7 +316,7 @@ class PhotoPickerPermissionTest : BaseUsePermissionTest() {
     fun testSelectPhotosInSettingsExplicit() {
         installPackage(APP_APK_PATH_LATEST)
         navigateToIndividualPermissionSetting(READ_MEDIA_IMAGES)
-        click(By.res(SELECT_RADIO_BUTTON))
+        click(By.res(ALLOW_LIMITED_RADIO_BUTTON))
 
         eventually {
             assertAppHasPermission(READ_MEDIA_IMAGES, expectPermission = false)
@@ -347,7 +348,7 @@ class PhotoPickerPermissionTest : BaseUsePermissionTest() {
         }
 
         navigateToIndividualPermissionSetting(READ_MEDIA_IMAGES)
-        findView(By.res(SELECT_RADIO_BUTTON), expected = false)
+        findView(By.res(ALLOW_LIMITED_RADIO_BUTTON), expected = false)
     }
 
     @Test
@@ -372,7 +373,7 @@ class PhotoPickerPermissionTest : BaseUsePermissionTest() {
         }
 
         navigateToIndividualPermissionSetting(READ_MEDIA_IMAGES)
-        findView(By.res(SELECT_RADIO_BUTTON), expected = false)
+        findView(By.res(ALLOW_LIMITED_RADIO_BUTTON), expected = false)
     }
 
     @Test
@@ -476,9 +477,9 @@ class PhotoPickerPermissionTest : BaseUsePermissionTest() {
             waitForWindowTransition = false
         ) {
             doAndWaitForWindowTransition { click(By.res(SELECT_BUTTON)) }
-            clickImageOrVideo()
             try {
                 doAndWaitForWindowTransition { uiAutomation.setRotation(ROTATION_FREEZE_270) }
+                doAndWaitForWindowTransition { uiAutomation.setRotation(ROTATION_FREEZE_0) }
                 clickImageOrVideo()
                 doAndWaitForWindowTransition { clickAllow() }
             } finally {
@@ -491,8 +492,8 @@ class PhotoPickerPermissionTest : BaseUsePermissionTest() {
     fun testCanSelectPhotosInSettings() {
         installPackage(APP_APK_PATH_LATEST)
         navigateToIndividualPermissionSetting(READ_MEDIA_IMAGES)
-        click(By.res(SELECT_RADIO_BUTTON))
-        doAndWaitForWindowTransition { click(By.res(EDIT_PHOTOS_BUTTON)) }
+        click(By.res(ALLOW_LIMITED_RADIO_BUTTON))
+        doAndWaitForWindowTransition { click(By.res(SELECT_PHOTOS_BUTTON)) }
         clickImageOrVideo()
         clickAllow()
     }
@@ -501,7 +502,7 @@ class PhotoPickerPermissionTest : BaseUsePermissionTest() {
     fun testEditButtonNotShownInSettingsWhenNoPhotosRequested() {
         installPackage(APP_APK_PATH_LATEST)
         navigateToIndividualPermissionSetting(READ_MEDIA_IMAGES)
-        UiAutomatorUtils2.waitUntilObjectGone(By.res(EDIT_PHOTOS_BUTTON))
+        UiAutomatorUtils2.waitUntilObjectGone(By.res(SELECT_PHOTOS_BUTTON))
     }
 
     private fun clickImageOrVideo() {

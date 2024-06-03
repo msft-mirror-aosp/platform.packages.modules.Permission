@@ -24,25 +24,27 @@ import android.companion.virtual.VirtualDeviceParams.DEVICE_POLICY_CUSTOM
 import android.companion.virtual.VirtualDeviceParams.POLICY_TYPE_CAMERA
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.permission.PermissionManager
 import android.permission.flags.Flags
+import android.permissionmultidevice.cts.PermissionUtils.isCddCompliantScreenSize
 import android.platform.test.annotations.RequiresFlagsEnabled
-import android.provider.Settings
 import android.virtualdevice.cts.common.VirtualDeviceRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
+import androidx.test.uiautomator.Until
 import com.android.compatibility.common.util.SystemUtil.eventually
 import com.android.compatibility.common.util.UiAutomatorUtils2
+import com.android.modules.utils.build.SdkLevel
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -70,8 +72,16 @@ class AppPermissionsTest {
     private val permissionManager =
         defaultDeviceContext.getSystemService(PermissionManager::class.java)!!
 
+    private val TAG = AppPermissionsTest::class.java.simpleName
+
     @Before
     fun setup() {
+        assumeTrue(SdkLevel.isAtLeastV())
+        assumeFalse(PermissionUtils.isAutomotive(defaultDeviceContext))
+        assumeFalse(PermissionUtils.isTv(defaultDeviceContext))
+        assumeFalse(PermissionUtils.isWatch(defaultDeviceContext))
+        assumeTrue(isCddCompliantScreenSize())
+
         PackageManagementUtils.installPackage(APP_APK_PATH_STREAMING)
 
         val virtualDeviceManager =
@@ -107,6 +117,17 @@ class AppPermissionsTest {
 
         openAppPermissionsScreen()
 
+        clickPermissionItem(externalDeviceCameraText)
+
+        verifyPermissionMessage()
+
+        verifyRadioButtonStates(
+            allowForegroundChecked = true,
+            askChecked = false,
+            denyChecked = false
+        )
+
+        UiAutomatorUtils2.getUiDevice().pressBack()
         val expectedGrantInfoMap =
             mapOf(
                 "Allowed" to listOf(externalDeviceCameraText),
@@ -114,15 +135,6 @@ class AppPermissionsTest {
                 "Not allowed" to listOf("Camera")
             )
         assertEquals(expectedGrantInfoMap, getGrantInfoMap())
-
-        clickPermissionItem(externalDeviceCameraText)
-
-        verifyPermissionMessage()
-
-        val radioButtons = getRadioButtons()
-        assertEquals(true, radioButtons["ALLOW_FOREGROUND_ONLY_RADIO_BUTTON"]!!.isChecked)
-        assertEquals(false, radioButtons["ASK_RADIO_BUTTON"]!!.isChecked)
-        assertEquals(false, radioButtons["DENY_RADIO_BUTTON"]!!.isChecked)
     }
 
     @RequiresFlagsEnabled(
@@ -135,7 +147,8 @@ class AppPermissionsTest {
         openAppPermissionsScreen()
 
         clickPermissionItem(externalDeviceCameraText)
-        getRadioButtons()["ASK_RADIO_BUTTON"]!!.click()
+        clickAskButton()
+
         verifyAskSelection()
     }
 
@@ -149,7 +162,8 @@ class AppPermissionsTest {
         openAppPermissionsScreen()
 
         clickPermissionItem(externalDeviceCameraText)
-        getRadioButtons()["DENY_RADIO_BUTTON"]!!.click()
+        clickDenyButton()
+
         verifyDenySelection()
     }
 
@@ -163,13 +177,14 @@ class AppPermissionsTest {
         openAppPermissionsScreen()
 
         clickPermissionItem(externalDeviceCameraText)
-        getRadioButtons()["ASK_RADIO_BUTTON"]!!.click()
-        val radioButtons = getRadioButtons()
-        assertEquals(false, radioButtons["ALLOW_FOREGROUND_ONLY_RADIO_BUTTON"]!!.isChecked)
-        assertEquals(true, radioButtons["ASK_RADIO_BUTTON"]!!.isChecked)
-        assertEquals(false, radioButtons["DENY_RADIO_BUTTON"]!!.isChecked)
+        clickAskButton()
+        verifyRadioButtonStates(
+            allowForegroundChecked = false,
+            askChecked = true,
+            denyChecked = false
+        )
 
-        radioButtons["ALLOW_FOREGROUND_ONLY_RADIO_BUTTON"]!!.click()
+        clickAllowForegroundButton()
         verifyAllowedSelection()
     }
 
@@ -202,12 +217,13 @@ class AppPermissionsTest {
 
         clickPermissionItem(externalDeviceCameraText)
 
-        val radioButtons = getRadioButtons()
-        assertEquals(true, radioButtons["ALLOW_FOREGROUND_ONLY_RADIO_BUTTON"]!!.isChecked)
-        assertEquals(false, radioButtons["ASK_RADIO_BUTTON"]!!.isChecked)
-        assertEquals(false, radioButtons["DENY_RADIO_BUTTON"]!!.isChecked)
+        verifyRadioButtonStates(
+            allowForegroundChecked = true,
+            askChecked = false,
+            denyChecked = false
+        )
 
-        radioButtons["DENY_RADIO_BUTTON"]!!.click()
+        clickDenyButton()
 
         UiAutomatorUtils2.getUiDevice().pressBack()
 
@@ -225,10 +241,11 @@ class AppPermissionsTest {
     private fun verifyAskSelection() {
         verifyPermissionMessage()
 
-        val radioButtons = getRadioButtons()
-        assertEquals(false, radioButtons["ALLOW_FOREGROUND_ONLY_RADIO_BUTTON"]!!.isChecked)
-        assertEquals(true, radioButtons["ASK_RADIO_BUTTON"]!!.isChecked)
-        assertEquals(false, radioButtons["DENY_RADIO_BUTTON"]!!.isChecked)
+        verifyRadioButtonStates(
+            allowForegroundChecked = false,
+            askChecked = true,
+            denyChecked = false
+        )
 
         UiAutomatorUtils2.getUiDevice().pressBack()
 
@@ -251,10 +268,11 @@ class AppPermissionsTest {
     private fun verifyDenySelection() {
         verifyPermissionMessage()
 
-        val radioButtons = getRadioButtons()
-        assertEquals(false, radioButtons["ALLOW_FOREGROUND_ONLY_RADIO_BUTTON"]!!.isChecked)
-        assertEquals(false, radioButtons["ASK_RADIO_BUTTON"]!!.isChecked)
-        assertEquals(true, radioButtons["DENY_RADIO_BUTTON"]!!.isChecked)
+        verifyRadioButtonStates(
+            allowForegroundChecked = false,
+            askChecked = false,
+            denyChecked = true
+        )
 
         UiAutomatorUtils2.getUiDevice().pressBack()
 
@@ -277,10 +295,11 @@ class AppPermissionsTest {
     private fun verifyAllowedSelection() {
         verifyPermissionMessage()
 
-        val radioButtons = getRadioButtons()
-        assertEquals(true, radioButtons["ALLOW_FOREGROUND_ONLY_RADIO_BUTTON"]!!.isChecked)
-        assertEquals(false, radioButtons["ASK_RADIO_BUTTON"]!!.isChecked)
-        assertEquals(false, radioButtons["DENY_RADIO_BUTTON"]!!.isChecked)
+        verifyRadioButtonStates(
+            allowForegroundChecked = true,
+            askChecked = false,
+            denyChecked = false
+        )
 
         UiAutomatorUtils2.getUiDevice().pressBack()
 
@@ -340,31 +359,62 @@ class AppPermissionsTest {
         return grantInfoMap
     }
 
-    private fun getRadioButtons(): Map<String, UiObject2> =
-        mapOf(
-            "ALLOW_FOREGROUND_ONLY_RADIO_BUTTON" to
-                UiAutomatorUtils2.waitFindObject(By.res(ALLOW_FOREGROUND_ONLY_RADIO_BUTTON)),
-            "ASK_RADIO_BUTTON" to UiAutomatorUtils2.waitFindObject(By.res(ASK_RADIO_BUTTON)),
-            "DENY_RADIO_BUTTON" to UiAutomatorUtils2.waitFindObject(By.res(DENY_RADIO_BUTTON))
-        )
-
-    private fun openAppPermissionsScreen() {
-        instrumentation.context.startActivity(
-            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", APP_PACKAGE_NAME, null)
-                addCategory(Intent.CATEGORY_DEFAULT)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            }
-        )
-        eventually { UiAutomatorUtils.click(By.text("Permissions")) }
+    private fun verifyRadioButtonStates(
+        allowForegroundChecked: Boolean,
+        askChecked: Boolean,
+        denyChecked: Boolean
+    ) {
+        eventually {
+            assertEquals(
+                allowForegroundChecked,
+                UiAutomatorUtils2.waitFindObject(By.res(ALLOW_FOREGROUND_ONLY_RADIO_BUTTON))
+                    .isChecked
+            )
+            assertEquals(
+                askChecked,
+                UiAutomatorUtils2.waitFindObject(By.res(ASK_RADIO_BUTTON)).isChecked
+            )
+            assertEquals(
+                denyChecked,
+                UiAutomatorUtils2.waitFindObject(By.res(DENY_RADIO_BUTTON)).isChecked
+            )
+        }
     }
 
-    private fun getScrollableRecyclerView(): UiScrollable =
-        UiScrollable(UiSelector().resourceId(RECYCLER_VIEW))
+    private fun openAppPermissionsScreen() {
+        UiAutomatorUtils2.getUiDevice()
+            .performActionAndWait(
+                {
+                    defaultDeviceContext.startActivity(
+                        Intent(Intent.ACTION_MANAGE_APP_PERMISSIONS).apply {
+                            putExtra(Intent.EXTRA_PACKAGE_NAME, APP_PACKAGE_NAME)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        }
+                    )
+                },
+                Until.newWindow(),
+                NEW_WINDOW_TIMEOUT_MILLIS
+            )
+    }
+
+    private fun getScrollableRecyclerView(): UiScrollable {
+        // Wait for object to load
+        UiAutomatorUtils2.waitFindObject(By.res(RECYCLER_VIEW))
+        return UiScrollable(UiSelector().resourceId(RECYCLER_VIEW))
+    }
 
     private fun clickPermissionItem(permissionItemName: String) =
         UiAutomatorUtils2.waitFindObject(By.text(permissionItemName)).click()
+
+    private fun clickAllowForegroundButton() =
+        UiAutomatorUtils2.waitFindObject(By.res(ALLOW_FOREGROUND_ONLY_RADIO_BUTTON)).click()
+
+    private fun clickAskButton() =
+        UiAutomatorUtils2.waitFindObject(By.res(ASK_RADIO_BUTTON)).click()
+
+    private fun clickDenyButton() =
+        UiAutomatorUtils2.waitFindObject(By.res(DENY_RADIO_BUTTON)).click()
 
     private fun grantRunTimePermission() =
         permissionManager.grantRuntimePermission(
@@ -393,5 +443,6 @@ class AppPermissionsTest {
         private const val RECYCLER_VIEW = "com.android.permissioncontroller:id/recycler_view"
         private const val PERMISSION_MESSAGE_ID =
             "com.android.permissioncontroller:id/permission_message"
+        private const val NEW_WINDOW_TIMEOUT_MILLIS: Long = 20_000
     }
 }

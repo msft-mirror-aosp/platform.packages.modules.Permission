@@ -39,6 +39,7 @@ import android.provider.Settings
 import android.text.Spanned
 import android.text.style.ClickableSpan
 import android.view.View
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.StaleObjectException
@@ -50,6 +51,7 @@ import com.android.compatibility.common.util.SystemUtil
 import com.android.compatibility.common.util.SystemUtil.callWithShellPermissionIdentity
 import com.android.compatibility.common.util.SystemUtil.eventually
 import com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity
+import com.android.compatibility.common.util.UiAutomatorUtils2
 import com.android.modules.utils.build.SdkLevel
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -64,6 +66,7 @@ import org.junit.Before
 abstract class BaseUsePermissionTest : BasePermissionTest() {
     companion object {
         const val APP_APK_NAME_31 = "CtsUsePermissionApp31.apk"
+        const val APP_APK_NAME_31_WITH_ASL = "CtsUsePermissionApp31WithAsl.apk"
         const val APP_APK_NAME_LATEST = "CtsUsePermissionAppLatest.apk"
 
         const val APP_APK_PATH_22 = "$APK_DIRECTORY/CtsUsePermissionApp22.apk"
@@ -94,6 +97,8 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             "$APK_DIRECTORY/CtsUsePermissionAppImplicitUserSelectStorage.apk"
         const val APP_APK_PATH_STORAGE_33 = "$APK_DIRECTORY/CtsUsePermissionAppStorage33.apk"
         const val APP_APK_PATH_OTHER_APP = "$APK_DIRECTORY/CtsDifferentPkgNameApp.apk"
+        const val APP_APK_PATH_TWO_PERM_REQUESTS =
+            "$APK_DIRECTORY/CtsAppThatMakesTwoPermRequests.apk"
         const val APP_PACKAGE_NAME = "android.permissionui.cts.usepermission"
         const val OTHER_APP_PACKAGE_NAME = "android.permissionui.cts.usepermissionother"
         const val TEST_INSTALLER_PACKAGE_NAME = "android.permissionui.cts"
@@ -125,8 +130,9 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             "com.android.permissioncontroller:id/allow_foreground_only_radio_button"
         const val ASK_RADIO_BUTTON = "com.android.permissioncontroller:id/ask_radio_button"
         const val DENY_RADIO_BUTTON = "com.android.permissioncontroller:id/deny_radio_button"
-        const val SELECT_RADIO_BUTTON = "com.android.permissioncontroller:id/select_radio_button"
-        const val EDIT_PHOTOS_BUTTON = "com.android.permissioncontroller:id/edit_selected_button"
+        const val ALLOW_LIMITED_RADIO_BUTTON =
+            "com.android.permissioncontroller:id/allow_limited_radio_button"
+        const val SELECT_PHOTOS_BUTTON = "com.android.permissioncontroller:id/select_photos_button"
 
         const val NOTIF_TEXT = "permgrouprequest_notifications"
         const val ALLOW_BUTTON_TEXT = "grant_dialog_button_allow"
@@ -158,6 +164,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         const val PURPOSE_MESSAGE_ID = "com.android.permissioncontroller:id/purpose_message"
         const val LEARN_MORE_TITLE_ID = "com.android.permissioncontroller:id/learn_more_title"
         const val LEARN_MORE_MESSAGE_ID = "com.android.permissioncontroller:id/learn_more_message"
+        const val DETAIL_MESSAGE_ID = "com.android.permissioncontroller:id/detail_message"
         const val PERMISSION_RATIONALE_SETTINGS_SECTION =
             "com.android.permissioncontroller:id/settings_section"
         const val SETTINGS_TITLE_ID = "com.android.permissioncontroller:id/settings_title"
@@ -379,9 +386,16 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             return
         }
 
-        waitFindObjectOrNull(By.res("android:id/button1"), timeoutMillis)?.let {
+        val targetSdkWarningVisible =
+            uiDevice.wait(
+                Until.hasObject(
+                    By.textStartsWith("This app was built for an older version of Android")
+                ),
+                timeoutMillis
+            )
+        if (targetSdkWarningVisible) {
             try {
-                it.click()
+                uiDevice.findObject(By.res("android:id/button1")).click()
             } catch (e: StaleObjectException) {
                 // Click sometimes fails with StaleObjectException (b/280430717).
                 e.printStackTrace()
@@ -470,6 +484,34 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
 
     protected fun installPackageWithInstallSourceAndNoMetadata(apkName: String) {
         installPackageViaSession(apkName)
+    }
+
+    protected fun installPackageWithInstallSourceAndNoMetadataFromStore(apkName: String) {
+        installPackageViaSession(
+            apkName,
+            packageSource = PACKAGE_SOURCE_STORE
+        )
+    }
+
+    protected fun installPackageWithInstallSourceAndNoMetadataFromLocalFile(apkName: String) {
+        installPackageViaSession(
+            apkName,
+            packageSource = PACKAGE_SOURCE_LOCAL_FILE
+        )
+    }
+
+    protected fun installPackageWithInstallSourceAndNoMetadataFromDownloadedFile(apkName: String) {
+        installPackageViaSession(
+            apkName,
+            packageSource = PACKAGE_SOURCE_DOWNLOADED_FILE
+        )
+    }
+
+    protected fun installPackageWithInstallSourceAndNoMetadataFromOther(apkName: String) {
+        installPackageViaSession(
+            apkName,
+            packageSource = PACKAGE_SOURCE_OTHER
+        )
     }
 
     protected fun installPackageWithInstallSourceAndInvalidMetadata(apkName: String) {
@@ -632,7 +674,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
     protected inline fun requestAppPermissions(
         vararg permissions: String?,
         askTwice: Boolean = false,
-        waitForWindowTransition: Boolean = true,
+        waitForWindowTransition: Boolean = !isWatch,
         crossinline block: () -> Unit
     ): Instrumentation.ActivityResult {
         // Request the permissions
@@ -670,11 +712,26 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         waitForWindowTransition: Boolean = !isWatch,
         crossinline block: () -> Unit
     ) {
+        var shouldWaitForWindowTransition = waitForWindowTransition
+        // Do not wait for windowTransition after action is performed on auto, when permissions
+        // are being denied. The click deny function explicitly waits for window to transition
+        if (isAutomotive) {
+            var somePermissionsTrue = false
+            // http://go/nl-kt-best-practices#for-loop-vs-foreach
+            for (it in permissionAndExpectedGrantResults) {
+                somePermissionsTrue = somePermissionsTrue || it.second
+            }
+            // When all permissions being requested are to be denied
+            // do not wait for windowTransition
+            if (!somePermissionsTrue) {
+                shouldWaitForWindowTransition = false
+            }
+        }
         val result =
             requestAppPermissions(
                 *permissions,
                 askTwice = askTwice,
-                waitForWindowTransition = waitForWindowTransition,
+                waitForWindowTransition = shouldWaitForWindowTransition,
                 block = block
             )
         assertEquals(
@@ -769,20 +826,20 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
      * Only for use in tests that are not testing the notification permission popup, on T devices
      */
     protected fun clickNotificationPermissionRequestAllowButtonIfAvailable() {
-        if (!SdkLevel.isAtLeastT()) {
-            return
-        }
-
-        if (
-            waitFindObjectOrNull(
-                By.text(getPermissionControllerString(NOTIF_TEXT, APP_PACKAGE_NAME)),
-                1000
-            ) != null
-        ) {
-            if (isAutomotive) {
-                click(By.text(getPermissionControllerString(ALLOW_BUTTON_TEXT)))
-            } else {
-                click(By.res(ALLOW_BUTTON))
+        if (SdkLevel.isAtLeastT() && getTargetSdk() < Build.VERSION_CODES.TIRAMISU) {
+            val notificationPermissionRequestVisible =
+                uiDevice.wait(
+                    Until.hasObject(
+                        By.text(getPermissionControllerString(NOTIF_TEXT, APP_PACKAGE_NAME))
+                    ),
+                    1000
+                )
+            if (notificationPermissionRequestVisible) {
+                if (isAutomotive) {
+                    click(By.text(getPermissionControllerString(ALLOW_BUTTON_TEXT)))
+                } else {
+                    click(By.res(ALLOW_BUTTON))
+                }
             }
         }
     }
@@ -824,7 +881,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         }
     }
 
-    protected fun clickPermissionRequestAllowForegroundButton(timeoutMillis: Long = 10_000) {
+    protected fun clickPermissionRequestAllowForegroundButton(timeoutMillis: Long = 20_000) {
         if (isAutomotive || isWatch) {
             click(
                 By.text(getPermissionControllerString(ALLOW_FOREGROUND_BUTTON_TEXT)),
@@ -836,7 +893,11 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
     }
 
     protected fun clickPermissionRequestDenyButton() {
-        if (isAutomotive || isWatch || isTv) {
+        if (isAutomotive) {
+            clickAndWaitForWindowTransition(
+                By.text(getPermissionControllerString(DENY_BUTTON_TEXT))
+            )
+        } else if (isWatch || isTv) {
             click(By.text(getPermissionControllerString(DENY_BUTTON_TEXT)))
         } else {
             click(By.res(DENY_BUTTON))
@@ -851,6 +912,10 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
 
     protected fun clickPermissionRequestSettingsLink() {
         eventually {
+            if (isWatch) {
+                clickPermissionRequestSettingsLinkForWear()
+                return@eventually
+            }
             // UiObject2 doesn't expose CharSequence.
             val node =
                 if (isAutomotive) {
@@ -860,14 +925,13 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                         .findAccessibilityNodeInfosByText(" settings.")[0]
                 } else {
                     uiAutomation.rootInActiveWindow
-                        .findAccessibilityNodeInfosByViewId(
-                            "com.android.permissioncontroller:id/detail_message"
-                        )[0]
+                        .findAccessibilityNodeInfosByViewId(DETAIL_MESSAGE_ID)[0]
                 }
             if (!node.isVisibleToUser) {
                 scrollToBottom()
             }
             assertTrue(node.isVisibleToUser)
+
             val text = node.text as Spanned
             val clickableSpan = text.getSpans(0, text.length, ClickableSpan::class.java)[0]
             // We could pass in null here in Java, but we need an instance in Kotlin.
@@ -875,9 +939,43 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         }
     }
 
+    private fun clickPermissionRequestSettingsLinkForWear() {
+        // Find detail message.
+        val text = waitFindObject(By.textContains(" settings."))
+
+        // Move the view to the top of the screen.
+        var visibleBounds = text.getVisibleBounds()
+        val centerX = (visibleBounds.left + visibleBounds.right) / 2
+        uiDevice.drag(centerX, visibleBounds.top, centerX, 0, 10)
+
+        // Click the deep link.
+        // Not sure where the clickable text is. So try different point in the last line
+        // of the 5 line text.
+        val bounds = text.getVisibleBounds()
+        val xdelta = 0.2 * bounds.width()
+        val y = bounds.bottom - (0.05 * bounds.height())
+        var clickedOnLink: Boolean = false
+        for (i in 1..4) {
+            val x = bounds.left + (i * xdelta)
+            uiDevice.click(x.toInt(), y.toInt())
+            waitForIdleLong()
+            val nextScreenNode: AccessibilityNodeInfo? =
+                    findAccessibilityNodeInfosByTextForSurfaceView(
+                        uiAutomation.rootInActiveWindow,
+                        "All the time")
+            if (nextScreenNode != null) {
+                clickedOnLink = true
+                break
+            }
+        }
+        assertTrue("Could not click on the settings link correctly", clickedOnLink)
+    }
+
     protected fun clickPermissionRequestDenyAndDontAskAgainButton() {
         if (isAutomotive) {
-            click(By.text(getPermissionControllerString(DENY_AND_DONT_ASK_AGAIN_BUTTON_TEXT)))
+            clickAndWaitForWindowTransition(
+                By.text(getPermissionControllerString(DENY_AND_DONT_ASK_AGAIN_BUTTON_TEXT))
+            )
         } else if (isWatch) {
             click(By.text(getPermissionControllerString(DENY_BUTTON_TEXT)))
         } else {
@@ -897,7 +995,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
     }
 
     protected fun clickPermissionRequestNoUpgradeAndDontAskAgainButton() {
-        if (isAutomotive) {
+        if (isAutomotive || isWatch) {
             click(By.text(getPermissionControllerString(NO_UPGRADE_AND_DONT_ASK_AGAIN_BUTTON_TEXT)))
         } else {
             click(By.res(NO_UPGRADE_AND_DONT_ASK_AGAIN_BUTTON))
@@ -935,10 +1033,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
 
     private fun navigateToAppPermissionSettings() {
         if (isTv) {
-            // Dismiss DeprecatedTargetSdkVersionDialog, if present
-            if (waitFindObjectOrNull(By.text(APP_PACKAGE_NAME), 1000L) != null) {
-                pressBack()
-            }
+            clearTargetSdkWarning(1000L)
             pressHome()
         } else {
             pressBack()
@@ -1283,6 +1378,20 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                 e.printStackTrace()
             }
         }
+    }
+
+    protected fun findAccessibilityNodeInfosByTextForSurfaceView(
+        node: AccessibilityNodeInfo,
+        text: String
+    ): AccessibilityNodeInfo? {
+        if (node.text != null && node.text.contains(text)) return node
+        for (i in 0 until node.childCount) {
+            val child = node.getChild(i)
+            if (child != null) {
+                return findAccessibilityNodeInfosByTextForSurfaceView(child, text) ?: continue
+            }
+        }
+        return null
     }
 
     private fun byTextRes(textRes: Int): BySelector = By.text(context.getString(textRes))

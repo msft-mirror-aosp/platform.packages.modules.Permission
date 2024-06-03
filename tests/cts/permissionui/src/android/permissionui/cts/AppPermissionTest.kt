@@ -123,6 +123,67 @@ class AppPermissionTest : BaseUsePermissionTest() {
         assertAppPermissionRationaleContainerIsVisible(false)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM, codeName =
+    "VanillaIceCream")
+    @RequiresFlagsEnabled(android.content.pm.Flags.FLAG_ASL_IN_APK_APP_METADATA_SOURCE)
+    @Test
+    fun showPermissionRationaleContainer_withInstallSourceAndNoMetadata_packageSourceUnspecified() {
+        // Unspecified is the default, so no need to explicitly set it
+        installPackageWithInstallSourceAndNoMetadata(APP_APK_NAME_31_WITH_ASL)
+
+        navigateToIndividualPermissionSetting(ACCESS_COARSE_LOCATION)
+
+        assertAppPermissionRationaleContainerIsVisible(false)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM, codeName =
+    "VanillaIceCream")
+    @RequiresFlagsEnabled(android.content.pm.Flags.FLAG_ASL_IN_APK_APP_METADATA_SOURCE)
+    @Test
+    fun showPermissionRationaleContainer_withInstallSourceAndNoMetadata_packageSourceStore() {
+        installPackageWithInstallSourceAndNoMetadataFromStore(APP_APK_NAME_31_WITH_ASL)
+
+        navigateToIndividualPermissionSetting(ACCESS_COARSE_LOCATION)
+
+        assertAppPermissionRationaleContainerIsVisible(false)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM, codeName =
+    "VanillaIceCream")
+    @RequiresFlagsEnabled(android.content.pm.Flags.FLAG_ASL_IN_APK_APP_METADATA_SOURCE)
+    @Test
+    fun showPermissionRationaleContainer_withInstallSourceAndNoMetadata_packageSourceLocalFile() {
+        installPackageWithInstallSourceAndNoMetadataFromLocalFile(APP_APK_NAME_31_WITH_ASL)
+
+        navigateToIndividualPermissionSetting(ACCESS_COARSE_LOCATION)
+
+        assertAppPermissionRationaleContainerIsVisible(false)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM, codeName =
+    "VanillaIceCream")
+    @RequiresFlagsEnabled(android.content.pm.Flags.FLAG_ASL_IN_APK_APP_METADATA_SOURCE)
+    @Test
+    fun showPermissionRationaleContainer_withInstallSourceAndNoMetadata_packageSourceDownloadedFile() {
+        installPackageWithInstallSourceAndNoMetadataFromDownloadedFile(APP_APK_NAME_31_WITH_ASL)
+
+        navigateToIndividualPermissionSetting(ACCESS_COARSE_LOCATION)
+
+        assertAppPermissionRationaleContainerIsVisible(false)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM, codeName =
+    "VanillaIceCream")
+    @RequiresFlagsEnabled(android.content.pm.Flags.FLAG_ASL_IN_APK_APP_METADATA_SOURCE)
+    @Test
+    fun showPermissionRationaleContainer_withInstallSourceAndNoMetadata_packageSourceOther() {
+        installPackageWithInstallSourceAndNoMetadataFromOther(APP_APK_NAME_31_WITH_ASL)
+
+        navigateToIndividualPermissionSetting(ACCESS_COARSE_LOCATION)
+
+        assertAppPermissionRationaleContainerIsVisible(false)
+    }
+
     @Test
     fun noShowPermissionRationaleContainer_withInstallSourceAndNoMetadata() {
         installPackageWithInstallSourceAndNoMetadata(APP_APK_NAME_31)
@@ -295,6 +356,22 @@ class AppPermissionTest : BaseUsePermissionTest() {
         pressBack()
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM, codeName =
+    "VanillaIceCream")
+    @RequiresFlagsEnabled(Flags.FLAG_ENHANCED_CONFIRMATION_MODE_APIS_ENABLED)
+    @Test
+    fun installWithUnspecifiedSource_disabledAllowRadioButtonAndIfClickedAndRestrictedSettingDialog_SMSPermGroup() {
+        installPackageViaSession(APP_APK_NAME_LATEST)
+
+        navigateToIndividualPermissionSetting(SMS)
+
+        assertAllowButtonIsDisabledAndRestrictedSettingDialogPoppedUp()
+
+        pressBack()
+
+        pressBack()
+    }
+
     private fun assertAllowButtonIsEnabledAndClickAndChecked() {
         waitFindObject(By.res(ALLOW_RADIO_BUTTON).enabled(true).checked(false))
             .click()
@@ -305,7 +382,7 @@ class AppPermissionTest : BaseUsePermissionTest() {
         waitFindObject(By.res(ALLOW_RADIO_BUTTON).enabled(false))
             .clickAndWait(Until.newWindow(), TIMEOUT_MILLIS)
 
-        waitFindObject(By.res(ALERT_DIALOG_OK_BUTTON), TIMEOUT_MILLIS)
+        waitFindObject(ENHANCED_CONFIRMATION_DIALOG_SELECTOR, TIMEOUT_MILLIS)
     }
 
     private fun assertAppPermissionRationaleContainerIsVisible(expected: Boolean) {
@@ -314,5 +391,7 @@ class AppPermissionTest : BaseUsePermissionTest() {
 
     companion object {
         private const val PERMISSION_RATIONALE_ENABLED = "permission_rationale_enabled"
+        private val ENHANCED_CONFIRMATION_DIALOG_SELECTOR = By.res(
+            "com.android.permissioncontroller:id/enhanced_confirmation_dialog_title")
     }
 }

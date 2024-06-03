@@ -53,7 +53,6 @@
     <uses-permission android:name="android.permission.START_VIEW_PERMISSION_USAGE" />
     <uses-permission android:name="android.permission.MANAGE_APP_HIBERNATION" />
     <uses-permission android:name="android.permission.MANAGE_SENSOR_PRIVACY" />
-    <uses-permission android:name="android.permission.OBSERVE_SENSOR_PRIVACY" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.MANAGE_SAFETY_CENTER" />
@@ -68,6 +67,8 @@
     <uses-permission android:name="android.permission.GET_APP_METADATA" />
     <uses-permission android:name="android.permission.NFC_PREFERRED_PAYMENT_INFO" />
     <uses-permission android:name="android.permission.MANAGE_ENHANCED_CONFIRMATION_STATES" />
+    <uses-permission android:name="android.permission.READ_SYSTEM_GRAMMATICAL_GENDER" />
+    <uses-permission android:name="android.permission.MANAGE_CLIPBOARD_ACCESS_NOTIFICATION" />
 
     <application android:name="com.android.permissioncontroller.PermissionControllerApplication"
             android:label="@string/app_name"
@@ -291,7 +292,7 @@
         </activity>
 
         <activity android:name="com.android.permissioncontroller.ecm.EnhancedConfirmationDialogActivity"
-            android:theme="@style/GrantPermissions.FilterTouches"
+            android:theme="@style/Theme.EnhancedConfirmationDialog.FilterTouches"
             android:excludeFromRecents="true"
             android:exported="true"
             android:launchMode="singleTop"
