@@ -102,7 +102,7 @@ public class GrantPermissionsAutoViewHandler implements GrantPermissionsViewHand
         mGroupIcon = icon;
         mGroupMessage = message;
         mDetailMessage = detailMessage;
-        mButtonVisibilities = buttonVisibilities;
+        setButtonVisibilities(buttonVisibilities);
 
         update();
     }
@@ -116,7 +116,6 @@ public class GrantPermissionsAutoViewHandler implements GrantPermissionsViewHand
 
         AlertDialogBuilder builder = new AlertDialogBuilder(mContext)
                 .setTitle(mGroupMessage)
-                .setSubtitle(mDetailMessage)
                 .setAllowDismissButton(false)
                 .setOnDismissListener((dialog) -> {
                     mDialog = null;
@@ -127,6 +126,17 @@ public class GrantPermissionsAutoViewHandler implements GrantPermissionsViewHand
         }
 
         List<CarUiListItem> itemList = new ArrayList<>();
+
+
+        // TODO(b/343727055): We are adding the subtitle to the item list so that it is
+        // scrollable. When the title and the subtitle are long, the buttons in the
+        // AlertDialog are not visible to the user.
+        if (mDetailMessage != null && !(mDetailMessage.length() == 0)) {
+            CarUiContentListItem item = new CarUiContentListItem(CarUiContentListItem.Action.NONE);
+            item.setSecure(true);
+            item.setTitle(mDetailMessage);
+            itemList.add(item);
+        }
 
         // Don't show the allow one time button as per automotive design decisions
         createListItem(itemList, R.string.grant_dialog_button_allow,
@@ -193,9 +203,17 @@ public class GrantPermissionsAutoViewHandler implements GrantPermissionsViewHand
         mGroupCount = savedInstanceState.getInt(ARG_GROUP_COUNT);
         mGroupIndex = savedInstanceState.getInt(ARG_GROUP_INDEX);
         mDetailMessage = savedInstanceState.getCharSequence(ARG_GROUP_DETAIL_MESSAGE);
-        mButtonVisibilities = savedInstanceState.getBooleanArray(ARG_BUTTON_VISIBILITIES);
+        setButtonVisibilities(savedInstanceState.getBooleanArray(ARG_BUTTON_VISIBILITIES));
 
         update();
+    }
+
+    private void setButtonVisibilities(boolean[] visibilities) {
+        // If GrantPermissionsActivity sent the user directly to settings, button visibilities are
+        // not created. If the activity was then destroyed by the system, once the activity is
+        // recreated to perform onActivityResult, it will try to loadInstanceState in onCreate but
+        // the button visibilities were never set, so they will be null.
+        mButtonVisibilities = visibilities == null ? new boolean[0] : visibilities;
     }
 
     @Override

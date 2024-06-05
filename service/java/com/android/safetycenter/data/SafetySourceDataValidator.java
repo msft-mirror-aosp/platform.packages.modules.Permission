@@ -29,10 +29,10 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.android.modules.utils.build.SdkLevel;
-import com.android.permission.util.UserUtils;
 import com.android.safetycenter.SafetyCenterConfigReader;
 import com.android.safetycenter.SafetyCenterFlags;
 import com.android.safetycenter.SafetySources;
+import com.android.safetycenter.UserProfileGroup;
 
 import java.util.List;
 import java.util.Set;
@@ -70,9 +70,12 @@ final class SafetySourceDataValidator {
      *
      * @param safetySourceData being set, or {@code null} if retrieving or clearing data, or
      *     reporting an error
+     * @param callerCanAccessAnySource whether we should allow the caller to access any source, or
+     *     restrict them to their own {@code packageName}
      */
     boolean validateRequest(
             @Nullable SafetySourceData safetySourceData,
+            boolean callerCanAccessAnySource,
             String safetySourceId,
             String packageName,
             @UserIdInt int userId) {
@@ -83,18 +86,24 @@ final class SafetySourceDataValidator {
         }
 
         SafetySource safetySource = externalSafetySource.getSafetySource();
-        validateCallingPackage(safetySource, packageName, safetySourceId);
+        if (!callerCanAccessAnySource) {
+            validateCallingPackage(safetySource, packageName, safetySourceId);
+        }
 
-        if (UserUtils.isManagedProfile(userId, mContext)
-                && !SafetySources.supportsManagedProfiles(safetySource)) {
+        @UserProfileGroup.ProfileType int profileType =
+                UserProfileGroup.getProfileTypeOfUser(userId, mContext);
+        if (!SafetySources.supportsProfileType(safetySource, profileType)) {
             throw new IllegalArgumentException(
-                    "Unexpected managed profile request for safety source: " + safetySourceId);
+                    "Unexpected profile type: "
+                            + profileType
+                            + " for safety source: "
+                            + safetySourceId);
         }
 
         boolean retrievingOrClearingData = safetySourceData == null;
         if (retrievingOrClearingData) {
-            return mSafetyCenterConfigReader.isExternalSafetySourceActive(
-                    safetySourceId, packageName);
+            return isExternalSafetySourceActive(
+                    callerCanAccessAnySource, safetySourceId, packageName);
         }
 
         SafetySourceStatus safetySourceStatus = safetySourceData.getStatus();
@@ -162,7 +171,20 @@ final class SafetySourceDataValidator {
             }
         }
 
-        return mSafetyCenterConfigReader.isExternalSafetySourceActive(safetySourceId, packageName);
+        return isExternalSafetySourceActive(callerCanAccessAnySource, safetySourceId, packageName);
+    }
+
+    private boolean isExternalSafetySourceActive(
+            boolean callerCanAccessAnySource, String safetySourceId, String callerPackageName) {
+        boolean isActive =
+                mSafetyCenterConfigReader.isExternalSafetySourceActive(
+                        safetySourceId, callerCanAccessAnySource ? null : callerPackageName);
+        if (!isActive) {
+            Log.i(
+                    TAG,
+                    "Call ignored as safety source " + safetySourceId + " is not currently active");
+        }
+        return isActive;
     }
 
     private void validateCallingPackage(

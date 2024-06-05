@@ -86,19 +86,22 @@ class PermissionControllerServiceModel(private val service: PermissionController
             }
 
             var updated = false
-            val observer = object : Observer<T> {
-                override fun onChanged(value: T) {
-                    if (updated) {
-                        return
-                    }
-                    if ((liveData is SmartUpdateMediatorLiveData<T> && !liveData.isStale) ||
-                        liveData !is SmartUpdateMediatorLiveData<T>) {
-                        onChangedFun(value)
-                        liveData.removeObserver(this)
-                        updated = true
+            val observer =
+                object : Observer<T> {
+                    override fun onChanged(value: T) {
+                        if (updated) {
+                            return
+                        }
+                        if (
+                            (liveData is SmartUpdateMediatorLiveData<T> && !liveData.isStale) ||
+                                liveData !is SmartUpdateMediatorLiveData<T>
+                        ) {
+                            onChangedFun(value)
+                            liveData.removeObserver(this)
+                            updated = true
+                        }
                     }
                 }
-            }
 
             liveData.observe(service, observer)
         }
@@ -284,11 +287,13 @@ class PermissionControllerServiceModel(private val service: PermissionController
      *
      * @param callback The callback our result will be returned to
      */
-    fun onCountUnusedApps(
-        callback: IntConsumer
-    ) {
-        val unusedAppsCount = getUnusedPackages().map { it?.size ?: 0 }
-        observeAndCheckForLifecycleState(unusedAppsCount) { count -> callback.accept(count ?: 0) }
+    fun onCountUnusedApps(callback: IntConsumer) {
+        GlobalScope.launch(Main.immediate) {
+            val unusedAppsCount = getUnusedPackages().map { it?.size ?: 0 }
+            observeAndCheckForLifecycleState(unusedAppsCount) { count ->
+                callback.accept(count ?: 0)
+            }
+        }
     }
 
     /**

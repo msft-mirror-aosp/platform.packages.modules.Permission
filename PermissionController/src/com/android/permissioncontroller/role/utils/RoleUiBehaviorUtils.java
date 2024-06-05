@@ -19,20 +19,19 @@ package com.android.permissioncontroller.role.utils;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.os.Process;
 import android.os.UserHandle;
-import android.os.UserManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.android.modules.utils.build.SdkLevel;
+import com.android.permissioncontroller.role.ui.RequestRoleItemView;
 import com.android.permissioncontroller.role.ui.RoleApplicationPreference;
 import com.android.permissioncontroller.role.ui.RolePreference;
-import com.android.permissioncontroller.role.ui.UserRestrictionAwarePreference;
 import com.android.permissioncontroller.role.ui.behavior.RoleUiBehavior;
 import com.android.role.controller.model.Role;
+
+import java.util.List;
 
 /**
  * Utility methods for Role UI behavior
@@ -63,28 +62,17 @@ public final class RoleUiBehaviorUtils {
     }
 
     /**
-     * @see RoleUiBehavior#isVisibleAsUser
+     * @see RoleUiBehavior#prepareRequestRoleItemViewAsUser
      */
-    public static boolean isVisibleAsUser(@NonNull Role role, @NonNull UserHandle user,
-            @NonNull Context context) {
+    public static void prepareRequestRoleItemViewAsUser(@NonNull Role role,
+            @NonNull RequestRoleItemView itemView, @NonNull ApplicationInfo applicationInfo,
+            @NonNull UserHandle user, @NonNull Context context) {
         RoleUiBehavior uiBehavior = getUiBehavior(role);
         if (uiBehavior == null) {
-            return role.isVisible();
+            return;
         }
-        return role.isVisible() && uiBehavior.isVisibleAsUser(role, user, context);
+        uiBehavior.prepareRequestRoleItemViewAsUser(role, itemView, applicationInfo, user, context);
     }
-
-    /**
-     * Check whether this role should be visible to user, for current user.
-     *
-     * @param context the `Context` to retrieve system services
-     *
-     * @return whether this role should be visible to user.
-     */
-    public static boolean isVisible(@NonNull Role role, @NonNull Context context) {
-        return isVisibleAsUser(role, Process.myUserHandle(), context);
-    }
-
 
     /**
      * @see RoleUiBehavior#getManageIntentAsUser
@@ -103,28 +91,13 @@ public final class RoleUiBehaviorUtils {
      * @see RoleUiBehavior#preparePreferenceAsUser
      */
     public static void preparePreferenceAsUser(@NonNull Role role,
-            @NonNull RolePreference preference, @NonNull UserHandle user,
-            @NonNull Context context) {
-        prepareUserRestrictionAwarePreferenceAsUser(role, preference, user, context);
-
+            @NonNull List<ApplicationInfo> applicationInfos, @NonNull RolePreference preference,
+            @NonNull UserHandle user, @NonNull Context context) {
         RoleUiBehavior uiBehavior = getUiBehavior(role);
         if (uiBehavior == null) {
             return;
         }
-        uiBehavior.preparePreferenceAsUser(role, preference, user, context);
-    }
-
-    /**
-     * @see RoleUiBehavior#isApplicationVisibleAsUser
-     */
-    public static boolean isApplicationVisibleAsUser(@NonNull Role role,
-            @NonNull ApplicationInfo applicationInfo, @NonNull UserHandle user,
-            @NonNull Context context) {
-        RoleUiBehavior uiBehavior = getUiBehavior(role);
-        if (uiBehavior == null) {
-            return true;
-        }
-        return uiBehavior.isApplicationVisibleAsUser(role, applicationInfo, user, context);
+        uiBehavior.preparePreferenceAsUser(role, preference, applicationInfos, user, context);
     }
 
     /**
@@ -134,8 +107,6 @@ public final class RoleUiBehaviorUtils {
             @NonNull RoleApplicationPreference preference,
             @NonNull ApplicationInfo applicationInfo, @NonNull UserHandle user,
             @NonNull Context context) {
-        prepareUserRestrictionAwarePreferenceAsUser(role, preference, user, context);
-
         RoleUiBehavior uiBehavior = getUiBehavior(role);
         if (uiBehavior == null) {
             return;
@@ -143,18 +114,6 @@ public final class RoleUiBehaviorUtils {
         uiBehavior.prepareApplicationPreferenceAsUser(
                 role, preference.asTwoStatePreference(), applicationInfo, user,
                 context);
-    }
-
-    private static void prepareUserRestrictionAwarePreferenceAsUser(@NonNull Role role,
-            @NonNull UserRestrictionAwarePreference preference, @NonNull UserHandle user,
-            @NonNull Context context) {
-        if (SdkLevel.isAtLeastU() && role.isExclusive()) {
-            UserManager userManager = context.getSystemService(UserManager.class);
-            boolean hasDisallowConfigDefaultApps = userManager.hasUserRestrictionForUser(
-                    UserManager.DISALLOW_CONFIG_DEFAULT_APPS, user);
-            preference.setUserRestriction(hasDisallowConfigDefaultApps
-                    ? UserManager.DISALLOW_CONFIG_DEFAULT_APPS : null);
-        }
     }
 
     /**

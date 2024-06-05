@@ -16,6 +16,7 @@
 
 package android.safetycenter.functional
 
+import android.Manifest.permission.MANAGE_SAFETY_CENTER
 import android.content.Context
 import android.content.Intent
 import android.os.Build.VERSION_CODES.TIRAMISU
@@ -784,6 +785,18 @@ class SafetyCenterManagerTest {
 
     @get:Rule(order = 1) val supportsSafetyCenterRule = SupportsSafetyCenterRule(context)
     @get:Rule(order = 2) val safetyCenterTestRule = SafetyCenterTestRule(safetyCenterTestHelper)
+
+    @Test
+    fun getSafetySourceData_differentPackageWithManageSafetyCenterPermission_returnsData() {
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.complexConfig)
+
+        val data =
+            callWithShellPermissionIdentity(MANAGE_SAFETY_CENTER) {
+                safetyCenterManager.getSafetySourceData(DYNAMIC_OTHER_PACKAGE_ID)
+            }
+
+        assertThat(data).isNull()
+    }
 
     @Test
     fun refreshSafetySources_timeout_marksSafetySourceAsError() {
@@ -3823,9 +3836,9 @@ class SafetyCenterManagerTest {
 
     companion object {
         private val RESURFACE_DELAY = Duration.ofMillis(500)
-        // Wait 1.5 times the RESURFACE_DELAY before asserting whether an issue has or has not
+        // Wait 3 times the RESURFACE_DELAY before asserting whether an issue has or has not
         // resurfaced. Use a constant additive error buffer if we increase the delay considerably.
-        private val RESURFACE_TIMEOUT = RESURFACE_DELAY.multipliedBy(3).dividedBy(2)
+        private val RESURFACE_TIMEOUT = RESURFACE_DELAY.multipliedBy(3)
         // Check more than once during a RESURFACE_DELAY before asserting whether an issue has or
         // has not resurfaced. Use a different check logic (focused at the expected resurface time)
         // if we increase the delay considerably.

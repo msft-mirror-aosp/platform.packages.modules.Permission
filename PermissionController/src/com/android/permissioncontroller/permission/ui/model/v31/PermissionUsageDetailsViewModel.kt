@@ -29,9 +29,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.os.UserHandle
+import android.os.UserManager
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
@@ -43,6 +45,7 @@ import com.android.permissioncontroller.permission.compat.IntentCompat
 import com.android.permissioncontroller.permission.data.AppPermGroupUiInfoLiveData
 import com.android.permissioncontroller.permission.data.LightPackageInfoLiveData
 import com.android.permissioncontroller.permission.data.SmartUpdateMediatorLiveData
+import com.android.permissioncontroller.permission.data.get
 import com.android.permissioncontroller.permission.data.v31.AllLightHistoricalPackageOpsLiveData
 import com.android.permissioncontroller.permission.model.livedatatypes.LightPackageInfo
 import com.android.permissioncontroller.permission.model.livedatatypes.v31.AppPermissionId
@@ -84,6 +87,8 @@ class PermissionUsageDetailsViewModel(
 
     private val roleManager =
         Utils.getSystemServiceSafe(application.applicationContext, RoleManager::class.java)
+    private val userManager =
+        Utils.getSystemServiceSafe(application.applicationContext, UserManager::class.java)
 
     /** Updates whether system app permissions usage should be displayed in the UI. */
     fun updateShowSystemAppsToggle(showSystem: Boolean) {
@@ -190,6 +195,7 @@ class PermissionUsageDetailsViewModel(
     ): List<AppPermissionAccessUiInfo> {
         return allLightHistoricalPackageOpsLiveData
             .getLightHistoricalPackageOps()
+            ?.filter { Utils.shouldShowInSettings(it.userHandle, userManager) }
             ?.flatMap { it.clusterAccesses(startTime, showSystem) }
             ?.sortedBy { -1 * it.discreteAccesses.first().accessTimeMs }
             ?.map { it.buildAppPermissionAccessUiInfo() }
@@ -261,9 +267,8 @@ class PermissionUsageDetailsViewModel(
     private fun List<AppPermissionDiscreteAccessesWithLabel>.filterOutExemptAppPermissions(
         showSystem: Boolean
     ): List<AppPermissionDiscreteAccessesWithLabel> {
-        return this.filter {
-                !Utils.getExemptedPackages(roleManager).contains(it.appPermissionId.packageName)
-            }
+        val exemptedPackages = Utils.getExemptedPackages(roleManager)
+        return filter { !exemptedPackages.contains(it.appPermissionId.packageName) }
             .filter { it.appPermissionId.permissionGroup == permissionGroup }
             .filter { isPermissionRequestedByApp(it.appPermissionId) }
             .filter { showSystem || !isAppPermissionSystem(it.appPermissionId) }
@@ -487,7 +492,8 @@ class PermissionUsageDetailsViewModel(
             ?.let {
                 getPackageLabel(
                     it.proxy!!.packageName!!,
-                    UserHandle.getUserHandleForUid(it.proxy.uid))
+                    UserHandle.getUserHandleForUid(it.proxy.uid)
+                )
             }
 
     /** Returns the attribution label for the permission access, if any. */
@@ -737,8 +743,14 @@ class PermissionUsageDetailsViewModel(
             showingAttribution: Boolean,
             attributionTags: List<String>
         ): Intent? {
-            // TODO(b/255992934) only location provider apps should be able to provide this intent
-            if (!showingAttribution || !SdkLevel.isAtLeastT()) {
+            if (
+                !showingAttribution ||
+                    !SdkLevel.isAtLeastT() ||
+                    !context
+                        .getSystemService(LocationManager::class.java)!!
+                        .isProviderPackage(packageName)
+            ) {
+                // We should only limit this intent to location provider
                 return null
             }
             val intent =

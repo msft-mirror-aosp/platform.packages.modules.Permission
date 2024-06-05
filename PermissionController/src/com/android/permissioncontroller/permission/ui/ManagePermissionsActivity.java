@@ -31,6 +31,7 @@ import static com.android.permissioncontroller.PermissionControllerStatsLog.PERM
 import static com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_USAGE_FRAGMENT_INTERACTION__ACTION__OPEN;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -70,14 +71,16 @@ import com.android.permissioncontroller.permission.ui.auto.dashboard.AutoPermiss
 import com.android.permissioncontroller.permission.ui.auto.dashboard.AutoPermissionUsageFragment;
 import com.android.permissioncontroller.permission.ui.handheld.AppPermissionFragment;
 import com.android.permissioncontroller.permission.ui.handheld.AppPermissionGroupsFragment;
-import com.android.permissioncontroller.permission.ui.handheld.HandheldUnusedAppsWrapperFragment;
 import com.android.permissioncontroller.permission.ui.handheld.PermissionAppsFragment;
 import com.android.permissioncontroller.permission.ui.handheld.v31.PermissionDetailsWrapperFragment;
 import com.android.permissioncontroller.permission.ui.handheld.v31.PermissionUsageWrapperFragment;
 import com.android.permissioncontroller.permission.ui.handheld.v34.AppDataSharingUpdatesFragment;
 import com.android.permissioncontroller.permission.ui.legacy.AppPermissionActivity;
 import com.android.permissioncontroller.permission.ui.television.TvUnusedAppsFragment;
-import com.android.permissioncontroller.permission.ui.wear.AppPermissionsFragmentWear;
+import com.android.permissioncontroller.permission.ui.wear.WearAppPermissionFragment;
+import com.android.permissioncontroller.permission.ui.wear.WearPermissionUsageDetailsFragment;
+import com.android.permissioncontroller.permission.ui.wear.WearPermissionUsageFragment;
+import com.android.permissioncontroller.permission.ui.wear.WearUnusedAppsFragment;
 import com.android.permissioncontroller.permission.utils.KotlinUtils;
 import com.android.permissioncontroller.permission.utils.PermissionMapping;
 import com.android.permissioncontroller.permission.utils.Utils;
@@ -137,11 +140,12 @@ public final class ManagePermissionsActivity extends SettingsActivity {
      */
     private static final int PROXY_ACTIVITY_REQUEST_CODE = 5;
 
+    @TargetApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private static final String LAUNCH_PERMISSION_SETTINGS =
-            "android.permission.LAUNCH_PERMISSION_SETTINGS";
+            Manifest.permission.LAUNCH_PERMISSION_SETTINGS;
 
-    private static final String APP_PERMISSIONS_SETTINGS =
-            "android.settings.APP_PERMISSIONS_SETTINGS";
+    @TargetApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private static final String APP_PERMISSIONS_SETTINGS = Settings.ACTION_APP_PERMISSIONS_SETTINGS;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -152,10 +156,13 @@ public final class ManagePermissionsActivity extends SettingsActivity {
         }
         super.onCreate(savedInstanceState);
 
-        // If this is not a phone (which uses the Navigation component), and there is a previous
-        // instance, re-use its Fragment instead of making a new one.
-        if ((DeviceUtils.isTelevision(this) || DeviceUtils.isAuto(this)
-                || DeviceUtils.isWear(this)) && savedInstanceState != null) {
+        // TODO(b/309578419): Make this activity handle insets properly and then remove this.
+        getTheme().applyStyle(R.style.OptOutEdgeToEdgeEnforcement, /* force */ false);
+
+        // If this is not a phone or a watch (which uses the Navigation component), and there
+        // is a previous instance, re-use its Fragment instead of making a new one.
+        if ((DeviceUtils.isTelevision(this) || DeviceUtils.isAuto(this))
+                && savedInstanceState != null) {
             return;
         }
 
@@ -227,6 +234,8 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                         PERMISSION_USAGE_FRAGMENT_INTERACTION__ACTION__OPEN);
                 if (DeviceUtils.isAuto(this)) {
                     androidXFragment = new AutoPermissionUsageFragment();
+                } else if (DeviceUtils.isWear(this)) {
+                    androidXFragment = WearPermissionUsageFragment.newInstance(sessionId);
                 } else {
                     androidXFragment = PermissionUsageWrapperFragment.newInstance(
                             Long.MAX_VALUE, sessionId);
@@ -248,6 +257,9 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                 if (DeviceUtils.isAuto(this)) {
                     androidXFragment = AutoPermissionUsageDetailsFragment.Companion.newInstance(
                             groupName, showSystem, sessionId);
+                } else if (DeviceUtils.isWear(this)) {
+                    androidXFragment = WearPermissionUsageDetailsFragment
+                            .newInstance(groupName, showSystem, show7Days);
                 } else {
                     androidXFragment = PermissionDetailsWrapperFragment
                             .newInstance(groupName, Long.MAX_VALUE, showSystem, sessionId,
@@ -257,8 +269,7 @@ public final class ManagePermissionsActivity extends SettingsActivity {
             }
 
             case Intent.ACTION_MANAGE_APP_PERMISSION: {
-                if (DeviceUtils.isAuto(this) || DeviceUtils.isTelevision(this)
-                        || DeviceUtils.isWear(this)) {
+                if (DeviceUtils.isAuto(this) || DeviceUtils.isTelevision(this)) {
                     Intent compatIntent = new Intent(this, AppPermissionActivity.class);
                     compatIntent.putExtras(getIntent().getExtras());
                     startActivityForResult(compatIntent, PROXY_ACTIVITY_REQUEST_CODE);
@@ -296,15 +307,22 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                     return;
                 }
 
-                Bundle args = AppPermissionFragment.createArgs(packageName, permissionName,
-                        groupName, userHandle, caller, sessionId, null);
+                Bundle args;
+                if (DeviceUtils.isWear(this)) {
+                    args = WearAppPermissionFragment.createArgs(packageName, permissionName,
+                            groupName, userHandle, caller, sessionId, null);
+                } else {
+                    args = AppPermissionFragment.createArgs(packageName, permissionName,
+                            groupName, userHandle, caller, sessionId, null);
+                }
                 setNavGraph(args, R.id.app_permission);
                 return;
             }
 
             case Intent.ACTION_MANAGE_APP_PERMISSIONS:
             case APP_PERMISSIONS_SETTINGS: {
-                if (Objects.equals(action, APP_PERMISSIONS_SETTINGS)) {
+                if (!SdkLevel.isAtLeastV()
+                        && Objects.equals(action, APP_PERMISSIONS_SETTINGS)) {
                     PermissionInfo permissionInfo;
                     try {
                         permissionInfo = getPackageManager()
@@ -373,8 +391,6 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                         androidXFragment = AutoAppPermissionsFragment.newInstance(packageName,
                                 userHandle, sessionId, /* isSystemPermsScreen= */ true);
                     }
-                } else if (DeviceUtils.isWear(this)) {
-                    androidXFragment = AppPermissionsFragmentWear.newInstance(packageName);
                 } else if (DeviceUtils.isTelevision(this)) {
                     androidXFragment = com.android.permissioncontroller.permission.ui.television
                             .AppPermissionsFragment.newInstance(packageName, userHandle);
@@ -472,8 +488,8 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                     androidXFragment = TvUnusedAppsFragment.newInstance();
                     androidXFragment.setArguments(UnusedAppsFragment.createArgs(sessionId));
                 } else if (DeviceUtils.isWear(this)) {
-                    androidXFragment = HandheldUnusedAppsWrapperFragment.newInstance();
-                    androidXFragment.setArguments(UnusedAppsFragment.createArgs(sessionId));
+                    setNavGraph(WearUnusedAppsFragment.createArgs(sessionId), R.id.auto_revoke);
+                    return;
                 } else {
                     setNavGraph(UnusedAppsFragment.createArgs(sessionId), R.id.auto_revoke);
                     return;

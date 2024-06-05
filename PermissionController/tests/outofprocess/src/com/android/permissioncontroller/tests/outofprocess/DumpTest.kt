@@ -20,12 +20,15 @@ import android.os.ParcelFileDescriptor.AutoCloseInputStream
 import android.os.UserHandle.myUserId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.modules.utils.build.SdkLevel
 import com.android.permissioncontroller.PermissionControllerProto.PermissionControllerDumpProto
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.InvalidProtocolBufferException
 import java.nio.charset.StandardCharsets.UTF_8
 import org.junit.Assert.fail
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -46,6 +49,12 @@ class DumpTest {
             fail("Cannot parse proto from ${String(dump, UTF_8)}")
             throw e
         }
+    }
+
+    @Before
+    fun setUp() {
+        // We no longer dump auto revoke data since T.
+        assumeFalse(SdkLevel.isAtLeastT())
     }
 
     @Test

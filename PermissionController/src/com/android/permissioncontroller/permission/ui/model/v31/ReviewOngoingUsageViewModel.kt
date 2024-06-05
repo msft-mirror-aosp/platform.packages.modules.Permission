@@ -52,7 +52,6 @@ import com.android.permissioncontroller.permission.ui.handheld.v31.ReviewOngoing
 import com.android.permissioncontroller.permission.ui.handheld.v31.ReviewOngoingUsageFragment.VIDEO_CALL
 import com.android.permissioncontroller.permission.utils.KotlinUtils
 import com.android.permissioncontroller.permission.utils.KotlinUtils.shouldShowLocationIndicators
-import com.android.permissioncontroller.permission.utils.KotlinUtils.shouldShowPermissionsDashboard
 import com.android.permissioncontroller.permission.utils.Utils
 import java.time.Instant
 import kotlin.math.max
@@ -105,7 +104,7 @@ class ReviewOngoingUsageViewModel(state: SavedStateHandle, extraDurationMills: L
             USAGES_KEY,
             PermGroupUsageLiveData(
                 PermissionControllerApplication.get(),
-                if (shouldShowPermissionsDashboard() || shouldShowLocationIndicators()) {
+                if (shouldShowLocationIndicators()) {
                     listOf(CAMERA, LOCATION, MICROPHONE)
                 } else {
                     listOf(CAMERA, MICROPHONE)
@@ -624,8 +623,10 @@ class ReviewOngoingUsageViewModelFactory(
         modelClass: Class<T>,
         handle: SavedStateHandle
     ): T {
-        handle.set(FIRST_OPENED_KEY, handle.get<Long>(FIRST_OPENED_KEY)
-            ?: System.currentTimeMillis())
+        handle.set(
+            FIRST_OPENED_KEY,
+            handle.get<Long>(FIRST_OPENED_KEY) ?: System.currentTimeMillis()
+        )
         @Suppress("UNCHECKED_CAST")
         return ReviewOngoingUsageViewModel(handle, extraDurationMillis) as T
     }

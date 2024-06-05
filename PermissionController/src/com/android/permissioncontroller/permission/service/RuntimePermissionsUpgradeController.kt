@@ -28,6 +28,7 @@ import android.os.Process.myUserHandle
 import android.permission.PermissionManager
 import android.util.Log
 import com.android.modules.utils.build.SdkLevel
+import com.android.permissioncontroller.DeviceUtils
 import com.android.permissioncontroller.PermissionControllerStatsLog
 import com.android.permissioncontroller.PermissionControllerStatsLog.RUNTIME_PERMISSIONS_UPGRADE_RESULT
 import com.android.permissioncontroller.permission.data.LightAppPermGroupLiveData
@@ -45,13 +46,15 @@ import com.android.permissioncontroller.permission.utils.KotlinUtils.grantForegr
 import com.android.permissioncontroller.permission.utils.PermissionMapping
 import com.android.permissioncontroller.permission.utils.PermissionMapping.getPlatformPermissionNamesOfGroup
 import com.android.permissioncontroller.permission.utils.PermissionMapping.getRuntimePlatformPermissionNames
+import com.android.permissioncontroller.permission.utils.Utils.FLAGS_PERMISSION_RESTRICTION_ANY_EXEMPT
 import com.android.permissioncontroller.permission.utils.application
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 /** This class handles upgrading the runtime permissions database */
-internal object RuntimePermissionsUpgradeController {
+object RuntimePermissionsUpgradeController {
     private val LOG_TAG = RuntimePermissionsUpgradeController::class.java.simpleName
+    private const val DEBUG = false
 
     // The latest version of the runtime permissions database
     private val LATEST_VERSION =
@@ -63,6 +66,7 @@ internal object RuntimePermissionsUpgradeController {
             9
         }
 
+    @Suppress("MissingPermission")
     fun upgradeIfNeeded(context: Context, onComplete: Runnable) {
         val permissionManager = context.getSystemService(PermissionManager::class.java)
         val storedVersion = permissionManager!!.runtimePermissionsVersion
@@ -135,6 +139,8 @@ internal object RuntimePermissionsUpgradeController {
         val needBackgroundAppPermGroups = sdkUpgradedFromP && currentVersion <= 6
         val needAccessMediaAppPermGroups = !isNewUser && currentVersion <= 7
         val needGrantedExternalStorage = currentVersion <= 9 && SdkLevel.isAtLeastT()
+        val needBodySensorsAppPermGroups =
+            DeviceUtils.isWear(context) && currentVersion <= 9 && SdkLevel.isAtLeastT()
         val needGrantedReadMediaVisual = currentVersion <= 10 && SdkLevel.isAtLeastU()
         val isDeviceUpgrading = context.packageManager.isDeviceUpgrading
 
@@ -206,7 +212,8 @@ internal object RuntimePermissionsUpgradeController {
                             needBackgroundAppPermGroups ||
                                 needAccessMediaAppPermGroups ||
                                 needGrantedExternalStorage ||
-                                needGrantedReadMediaVisual
+                                needGrantedReadMediaVisual ||
+                                needBodySensorsAppPermGroups
                         ) {
                             for ((pkgName, _, requestedPerms, requestedPermFlags) in
                                 pkgInfoProvider.value!!) {
@@ -248,6 +255,16 @@ internal object RuntimePermissionsUpgradeController {
                                         ) {
                                             hasGrantedReadMediaVisual = true
                                         }
+                                    }
+
+                                    if (
+                                        needBodySensorsAppPermGroups &&
+                                            perm == permission.BODY_SENSORS_BACKGROUND
+                                    ) {
+                                        permGroupProviders!!.add(
+                                            LightAppPermGroupLiveData[
+                                                pkgName, permission_group.SENSORS, myUserHandle()]
+                                        )
                                     }
                                 }
 
@@ -323,6 +340,7 @@ internal object RuntimePermissionsUpgradeController {
 
                         val bgGroups = mutableListOf<LightAppPermGroup>()
                         val storageGroups = mutableListOf<LightAppPermGroup>()
+                        val bgSensorsGroups = mutableListOf<LightAppPermGroup>()
 
                         for (group in permGroupProviders!!.mapNotNull { it.value }) {
                             when (group.permGroupName) {
@@ -337,6 +355,9 @@ internal object RuntimePermissionsUpgradeController {
                                 }
                                 permission_group.READ_MEDIA_VISUAL -> {
                                     storageGroups.add(group)
+                                }
+                                permission_group.SENSORS -> {
+                                    bgSensorsGroups.add(group)
                                 }
                             }
                         }
@@ -362,14 +383,15 @@ internal object RuntimePermissionsUpgradeController {
                                 restrictedPermissions,
                                 pkgInfoProvider.value!!,
                                 bgGroups,
-                                storageGroups
+                                storageGroups,
+                                bgSensorsGroups
                             )
                     }
                 }
             }
 
         // Trigger loading of data and wait until data is loaded
-        val upgradeData = upgradeDataProvider.getInitializedValue(forceUpdate = true)
+        val upgradeData = upgradeDataProvider.getInitializedValue(forceUpdate = true)!!
 
         // Only exempt permissions that are in the OTA. Apps that are updated via OTAs are never
         // installed. Hence their permission are never exempted. This code replaces that by
@@ -386,6 +408,7 @@ internal object RuntimePermissionsUpgradeController {
                 upgradeData.restrictedPermissions,
                 upgradeData.bgGroups,
                 upgradeData.storageGroups,
+                upgradeData.bgSensorsGroups,
                 isDeviceUpgrading
             )
 
@@ -407,6 +430,7 @@ internal object RuntimePermissionsUpgradeController {
         restrictedPermissions: Set<String>,
         bgApps: List<LightAppPermGroup>,
         storageAndMediaAppPermGroups: List<LightAppPermGroup>,
+        bgSensorsGroups: List<LightAppPermGroup>,
         isDeviceUpgrading: Boolean
     ): Triple<Int, List<RestrictionExemption>, List<Grant>> {
         val exemptions = mutableListOf<RestrictionExemption>()
@@ -572,13 +596,12 @@ internal object RuntimePermissionsUpgradeController {
             if (isNewUser) {
                 Log.i(
                     LOG_TAG,
-                    "Not migrating STORAGE permissions to READ_MEDIA permissions as" +
-                        " this is a new user"
+                    "Not migrating STORAGE and BODY_SENSORS permissions as this is a new user"
                 )
             } else if (!isDeviceUpgrading) {
                 Log.i(
                     LOG_TAG,
-                    "Not migrating STORAGE permissions to READ_MEDIA permissions as" +
+                    "Not migrating STORAGE and BODY_SENSORS permissions as" +
                         " this device is not performing an upgrade"
                 )
             } else {
@@ -617,6 +640,55 @@ internal object RuntimePermissionsUpgradeController {
                     }
                     if (visualAppPermGroup != null) {
                         grants.add(Grant(false, visualAppPermGroup))
+                    }
+                }
+
+                // Granting body sensors background permission to apps that had the pre-split body
+                // sensors permission granted.
+                Log.i(LOG_TAG, "Grandfathering body sensors background permissions")
+
+                for (bgSensorsGroup in bgSensorsGroups) {
+                    val perm =
+                        bgSensorsGroup.allPermissions[permission.BODY_SENSORS_BACKGROUND]
+                            ?: continue
+                    if (perm.flags and FLAGS_PERMISSION_RESTRICTION_ANY_EXEMPT != 0) {
+                        continue
+                    }
+
+                    // Exempt the background permission to allow setting from users.
+                    val pkgName = bgSensorsGroup.packageName
+                    exemptions.add(
+                        RestrictionExemption(
+                            pkgName,
+                            permission.BODY_SENSORS_BACKGROUND,
+                            FLAG_PERMISSION_WHITELIST_UPGRADE
+                        )
+                    )
+
+                    val allPermissionsWithExemption = bgSensorsGroup.allPermissions.toMutableMap()
+                    allPermissionsWithExemption[permission.BODY_SENSORS_BACKGROUND] =
+                        LightPermission(
+                            perm.pkgInfo,
+                            perm.permInfo,
+                            perm.isGrantedIncludingAppOp,
+                            perm.flags or FLAG_PERMISSION_RESTRICTION_UPGRADE_EXEMPT,
+                            perm.foregroundPerms
+                        )
+                    val group =
+                        LightAppPermGroup(
+                            bgSensorsGroup.packageInfo,
+                            bgSensorsGroup.permGroupInfo,
+                            allPermissionsWithExemption,
+                            bgSensorsGroup.hasInstallToRuntimeSplit,
+                            bgSensorsGroup.specialLocationGrant
+                        )
+
+                    // Grant the background permission only if foreground permission is granted.
+                    if (group.foreground.isGranted) {
+                        if (DEBUG) {
+                            Log.i(LOG_TAG, "$pkgName Granted body sensors background permissions")
+                        }
+                        grants.add(Grant(isBackground = true, group = group))
                     }
                 }
             }
@@ -664,6 +736,10 @@ internal object RuntimePermissionsUpgradeController {
         val bgGroups: List<LightAppPermGroup>,
         /** Storage groups that need to be inspected by {@link #onUpgradeLockedDataLoaded} */
         val storageGroups: List<LightAppPermGroup>,
+        /**
+         * Background Sensors groups that need to be inspected by {@link #onUpgradeLockedDataLoaded}
+         */
+        val bgSensorsGroups: List<LightAppPermGroup>,
     )
 
     /** A restricted permission of an app that should be exempted */
@@ -739,7 +815,7 @@ internal object RuntimePermissionsUpgradeController {
                     uid,
                     packageName
                 )
-                Log.v(
+                Log.i(
                     LOG_TAG,
                     "Runtime permission upgrade logged for permissionName=" +
                         permission.name +

@@ -9,7 +9,17 @@
       "name": "SafetyCenterFunctionalTestCases[com.google.android.permission.apex]",
       "options": [
         {
-          "exclude-annotation": "android.platform.test.annotations.FlakyTest"
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+    }
+  ],
+  "permission-mainline-presubmit": [
+    {
+      "name": "SafetyCenterFunctionalTestCases",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
         }
       ]
     }

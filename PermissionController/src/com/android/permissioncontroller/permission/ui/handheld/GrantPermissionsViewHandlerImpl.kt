@@ -166,7 +166,6 @@ class GrantPermissionsViewHandlerImpl(
         buttonVisibilities: BooleanArray?,
         locationVisibilities: BooleanArray?
     ) {
-
         this.groupName = groupName
         this.groupCount = groupCount
         this.groupIndex = groupIndex

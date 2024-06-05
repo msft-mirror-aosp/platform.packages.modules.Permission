@@ -30,6 +30,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.Manifest;
 import android.app.admin.DevicePolicyManager;
+import android.app.role.RoleManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -55,6 +57,7 @@ import androidx.annotation.RequiresApi;
 
 import com.android.permissioncontroller.PermissionControllerProto.PermissionControllerDumpProto;
 import com.android.permissioncontroller.PermissionControllerStatsLog;
+import com.android.permissioncontroller.ecm.EnhancedConfirmationStatsLogUtils;
 import com.android.permissioncontroller.permission.model.AppPermissionGroup;
 import com.android.permissioncontroller.permission.model.AppPermissions;
 import com.android.permissioncontroller.permission.model.Permission;
@@ -62,6 +65,7 @@ import com.android.permissioncontroller.permission.model.livedatatypes.AppPermGr
 import com.android.permissioncontroller.permission.model.livedatatypes.AppPermGroupUiInfo.PermGrantState;
 import com.android.permissioncontroller.permission.ui.AutoGrantPermissionsNotifier;
 import com.android.permissioncontroller.permission.utils.ArrayUtils;
+import com.android.permissioncontroller.permission.utils.ContextCompat;
 import com.android.permissioncontroller.permission.utils.KotlinUtils;
 import com.android.permissioncontroller.permission.utils.PermissionMapping;
 import com.android.permissioncontroller.permission.utils.UserSensitiveFlagsUtils;
@@ -537,6 +541,17 @@ public final class PermissionControllerServiceImpl extends PermissionControllerL
             return false;
         }
 
+        // TODO(b/333867076): Switch to !SdkLevel.isAtLeastW()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && Build.VERSION.SDK_INT <= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            RoleManager roleManager = getSystemService(RoleManager.class);
+            List<String> roleHolders =
+                    roleManager.getRoleHolders(RoleManager.ROLE_SYSTEM_SUPERVISION);
+            if (roleHolders.contains(callerPackageName)) {
+                canAdminGrantSensorsPermissions = true;
+            }
+        }
+
         ArrayList<String> expandedPermissions = addSplitPermissions(
                 Collections.singletonList(unexpandedPermission),
                 callerPkgInfo.applicationInfo.targetSdkVersion);
@@ -563,7 +578,8 @@ public final class PermissionControllerServiceImpl extends PermissionControllerL
             switch (grantState) {
                 case PERMISSION_GRANT_STATE_GRANTED:
                     if (AdminRestrictedPermissionsUtils.mayAdminGrantPermission(perm.getName(),
-                            canAdminGrantSensorsPermissions, isManagedProfile, dpm)) {
+                            group.getName(), canAdminGrantSensorsPermissions, isManagedProfile,
+                            dpm)) {
                         perm.setPolicyFixed(true);
                         group.grantRuntimePermissions(false, false, new String[]{permName});
                         autoGrantPermissionsNotifier.onPermissionAutoGranted(permName);
@@ -641,7 +657,14 @@ public final class PermissionControllerServiceImpl extends PermissionControllerL
 
     @Override
     public void onOneTimePermissionSessionTimeout(@NonNull String packageName) {
-        PackageManager pm = getPackageManager();
+        onOneTimePermissionSessionTimeout(packageName, ContextCompat.DEVICE_ID_DEFAULT);
+    }
+
+    @Override
+    public void onOneTimePermissionSessionTimeout(@NonNull String packageName,
+            int deviceId) {
+        Context deviceContext = ContextCompat.createDeviceContext(this, deviceId);
+        PackageManager pm = deviceContext.getPackageManager();
         PackageInfo packageInfo;
         int uid;
         try {
@@ -655,11 +678,10 @@ public final class PermissionControllerServiceImpl extends PermissionControllerL
         if (permissions == null) {
             return;
         }
-
         Set<AppPermissionGroup> groups = new ArraySet<>();
         for (String permission : permissions) {
-            AppPermissionGroup group = AppPermissionGroup.create(this, packageInfo, permission,
-                    true);
+            AppPermissionGroup group = AppPermissionGroup.create(deviceContext, packageInfo,
+                    permission, true);
             if (group != null) {
                 AppPermissionGroup bgGroup = group.getBackgroundPermissions();
                 boolean isBgGroupOneTime = bgGroup != null && bgGroup.isOneTime();
@@ -730,15 +752,18 @@ public final class PermissionControllerServiceImpl extends PermissionControllerL
         for (Permission permission : group.getPermissions()) {
             if (permission.isGranted()) {
                 String permName = permission.getName();
-                Log.v(LOG_TAG,
+                Log.i(LOG_TAG,
                         "Permission grant result requestId=" + requestId + " callingUid="
                                 + uid + " callingPackage=" + packageName + " permission="
                                 + permName + " isImplicit=false" + " result=" + r);
-
+                boolean isPackageRestrictedByEnhancedConfirmation =
+                        EnhancedConfirmationStatsLogUtils.INSTANCE.isPackageEcmRestricted(this,
+                        packageName, uid);
                 PermissionControllerStatsLog.write(
                         PermissionControllerStatsLog.PERMISSION_GRANT_REQUEST_RESULT_REPORTED,
                         requestId, uid, packageName, permName, false, r,
-                        /* permission_rationale_shown = */ false);
+                        /* permission_rationale_shown = */ false,
+                        isPackageRestrictedByEnhancedConfirmation);
             }
         }
     }
@@ -779,13 +804,21 @@ public final class PermissionControllerServiceImpl extends PermissionControllerL
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public void onRevokeSelfPermissionsOnKill(@NonNull String packageName,
             @NonNull List<String> permissions, @NonNull Runnable callback) {
+        onRevokeSelfPermissionsOnKill(
+                packageName, permissions, ContextCompat.DEVICE_ID_DEFAULT, callback);
+    }
+
+    @Override
+    public void onRevokeSelfPermissionsOnKill(@NonNull String packageName,
+            @NonNull List<String> permissions, int deviceId, @NonNull Runnable callback) {
+        Context deviceContext = ContextCompat.createDeviceContext(this, deviceId);
         PackageInfo pkgInfo = getPkgInfo(packageName);
         if (pkgInfo == null) {
             throw new SecurityException("Cannot revoke permission " + String.join(",", permissions)
                     + " for package " + packageName);
         }
         Set<AppPermissionGroup> groups = new HashSet<>();
-        AppPermissions app = new AppPermissions(this, pkgInfo, false, true, null);
+        AppPermissions app = new AppPermissions(deviceContext, pkgInfo, false, true, null);
         for (String permName : permissions) {
             AppPermissionGroup group = app.getGroupForPermission(permName);
             if (group == null) {

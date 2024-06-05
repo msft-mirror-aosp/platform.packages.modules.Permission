@@ -20,10 +20,12 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.os.Build;
+import android.os.UserHandle;
 
 import androidx.annotation.NonNull;
 
 import com.android.modules.utils.build.SdkLevel;
+import com.android.role.controller.util.UserUtils;
 
 import java.util.Objects;
 
@@ -70,19 +72,23 @@ public class Permission {
     /**
      * Check whether this permission is available.
      *
+     * @param user the user to check for
+     * @param context the {@code Context} to retrieve system services
+     *
      * @return whether this permission is available
      */
-    public boolean isAvailable(@NonNull Context context) {
+    public boolean isAvailableAsUser(@NonNull UserHandle user, @NonNull Context context) {
         if (Build.VERSION.SDK_INT >= mMinSdkVersion
-                // Workaround to match the value 34 for U in roles.xml before SDK finalization.
-                || (mMinSdkVersion == 34 && SdkLevel.isAtLeastU())) {
+                // Workaround to match the value 35 for V in roles.xml before SDK finalization.
+                || (mMinSdkVersion == 35 && SdkLevel.isAtLeastV())) {
             return true;
         }
         if (Build.VERSION.SDK_INT >= mOptionalMinSdkVersion) {
-            PackageManager packageManager = context.getPackageManager();
+            Context userContext = UserUtils.getUserContext(context, user);
+            PackageManager userPackageManager = userContext.getPackageManager();
             PermissionInfo permissionInfo;
             try {
-                permissionInfo = packageManager.getPermissionInfo(mName, 0);
+                permissionInfo = userPackageManager.getPermissionInfo(mName, 0);
             } catch (PackageManager.NameNotFoundException e) {
                 return false;
             }

@@ -19,6 +19,8 @@ package com.android.permissioncontroller.tests.mocking.permission.service
 import android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.ACCESS_MEDIA_LOCATION
+import android.Manifest.permission.BODY_SENSORS
+import android.Manifest.permission.BODY_SENSORS_BACKGROUND
 import android.Manifest.permission.READ_CALL_LOG
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.READ_MEDIA_AUDIO
@@ -52,6 +54,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession
 import com.android.modules.utils.build.SdkLevel
+import com.android.permissioncontroller.DeviceUtils
 import com.android.permissioncontroller.PermissionControllerApplication
 import com.android.permissioncontroller.permission.service.RuntimePermissionsUpgradeController
 import com.android.permissioncontroller.tests.mocking.permission.data.dataRepositories
@@ -61,11 +64,13 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.AdditionalMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mock
 import org.mockito.Mockito.anyString
+import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.timeout
@@ -82,9 +87,6 @@ class RuntimePermissionsUpgradeControllerTest {
         val application = mock(PermissionControllerApplication::class.java)
 
         init {
-            whenever(application.applicationContext).thenReturn(application)
-            whenever(application.createContextAsUser(any(), anyInt())).thenReturn(application)
-
             whenever(application.registerComponentCallbacks(any())).thenAnswer {
                 val dataRepository = it.arguments[0] as ComponentCallbacks2
 
@@ -207,18 +209,17 @@ class RuntimePermissionsUpgradeControllerTest {
                 .startMocking()
 
         whenever(PermissionControllerApplication.get()).thenReturn(application)
-
-        whenever(application.getSystemService(PermissionManager::class.java))
-            .thenReturn(permissionManager)
-        whenever(application.getSystemService(ActivityManager::class.java))
-            .thenReturn(activityManager)
-        whenever(application.getSystemService(AppOpsManager::class.java)).thenReturn(appOpsManager)
-        whenever(application.getSystemService(LocationManager::class.java))
-            .thenReturn(locationManager)
-        whenever(application.getSystemService(UserManager::class.java)).thenReturn(userManager)
-        whenever(application.getSystemService(JobScheduler::class.java)).thenReturn(jobScheduler)
-
-        whenever(application.packageManager).thenReturn(packageManager)
+        whenever(application.applicationContext).thenReturn(application)
+        whenever(application.createContextAsUser(any(), anyInt())).thenReturn(application)
+        doReturn(packageManager).`when`(application).packageManager
+        doReturn(permissionManager)
+            .`when`(application)
+            .getSystemService(PermissionManager::class.java)
+        doReturn(activityManager).`when`(application).getSystemService(ActivityManager::class.java)
+        doReturn(appOpsManager).`when`(application).getSystemService(AppOpsManager::class.java)
+        doReturn(locationManager).`when`(application).getSystemService(LocationManager::class.java)
+        doReturn(userManager).`when`(application).getSystemService(UserManager::class.java)
+        doReturn(jobScheduler).`when`(application).getSystemService(JobScheduler::class.java)
 
         whenever(packageManager.getPermissionInfo(any(), anyInt())).thenAnswer {
             val permissionName = it.arguments[0] as String
@@ -241,6 +242,15 @@ class RuntimePermissionsUpgradeControllerTest {
         // We cannot use thenReturn(mutableListOf()) because that would return the same instance.
         whenever(packageManager.queryPermissionsByGroup(any(), anyInt())).thenAnswer {
             mutableListOf<PermissionInfo>()
+        }
+
+        whenever(packageManager.hasSystemFeature(any())).thenAnswer {
+            val featureName = it.arguments[0] as String
+
+            InstrumentationRegistry.getInstrumentation()
+                .getTargetContext()
+                .packageManager
+                .hasSystemFeature(featureName)
         }
     }
 
@@ -609,6 +619,113 @@ class RuntimePermissionsUpgradeControllerTest {
         upgradeIfNeeded()
 
         verifyNotGranted(TEST_PKG_NAME, READ_MEDIA_VISUAL_USER_SELECTED)
+    }
+
+    @Test
+    fun ensureDatabaseResetToLatestIfAboveLatest() {
+        setInitialDatabaseVersion(Int.MAX_VALUE)
+        upgradeIfNeeded()
+        verify(permissionManager).runtimePermissionsVersion =
+            AdditionalMatchers.not(eq(Int.MAX_VALUE))
+    }
+
+    @Test
+    fun bodySensorsInheritToBodySensorsBackgroundWhenBodySensorsWasGrantedAndTargetingR() {
+        Assume.assumeTrue(DeviceUtils.isWear(application))
+        Assume.assumeTrue(SdkLevel.isAtLeastT())
+        whenever(packageManager.isDeviceUpgrading).thenReturn(true)
+        setInitialDatabaseVersion(9)
+        setPackages(
+            Package(
+                TEST_PKG_NAME,
+                Permission(BODY_SENSORS, isGranted = true, flags = FLAG_PERMISSION_USER_SET),
+                Permission(BODY_SENSORS_BACKGROUND, isGranted = false),
+                targetSdkVersion = 30
+            )
+        )
+
+        upgradeIfNeeded()
+
+        verifyGranted(TEST_PKG_NAME, BODY_SENSORS_BACKGROUND)
+    }
+
+    @Test
+    fun bodySensorsNotInheritToBodySensorsBackgroundWhenBodySensorsWasNotGrantedAndTargetingR() {
+        Assume.assumeTrue(DeviceUtils.isWear(application))
+        Assume.assumeTrue(SdkLevel.isAtLeastT())
+        whenever(packageManager.isDeviceUpgrading).thenReturn(true)
+        setInitialDatabaseVersion(9)
+        setPackages(
+            Package(
+                TEST_PKG_NAME,
+                Permission(BODY_SENSORS, isGranted = false, flags = FLAG_PERMISSION_USER_SET),
+                Permission(BODY_SENSORS_BACKGROUND, isGranted = false),
+                targetSdkVersion = 30
+            )
+        )
+
+        upgradeIfNeeded()
+
+        verifyNotGranted(TEST_PKG_NAME, BODY_SENSORS_BACKGROUND)
+    }
+
+    @Test
+    fun bodySensorsInheritToBodySensorsBackgroundWhenBodySensorsWasGrantedAndTargetingT() {
+        Assume.assumeTrue(DeviceUtils.isWear(application))
+        Assume.assumeTrue(SdkLevel.isAtLeastT())
+        whenever(packageManager.isDeviceUpgrading).thenReturn(true)
+        setInitialDatabaseVersion(9)
+        setPackages(
+            Package(
+                TEST_PKG_NAME,
+                Permission(BODY_SENSORS, isGranted = true, flags = FLAG_PERMISSION_USER_SET),
+                Permission(BODY_SENSORS_BACKGROUND, isGranted = false),
+                targetSdkVersion = 33
+            )
+        )
+
+        upgradeIfNeeded()
+
+        verifyGranted(TEST_PKG_NAME, BODY_SENSORS_BACKGROUND)
+    }
+
+    @Test
+    fun bodySensorsNotInheritToBodySensorsBackgroundWhenBodySensorsWasNotGrantedAndTargetingT() {
+        Assume.assumeTrue(DeviceUtils.isWear(application))
+        Assume.assumeTrue(SdkLevel.isAtLeastT())
+        whenever(packageManager.isDeviceUpgrading).thenReturn(true)
+        setInitialDatabaseVersion(9)
+        setPackages(
+            Package(
+                TEST_PKG_NAME,
+                Permission(BODY_SENSORS, isGranted = false, flags = FLAG_PERMISSION_USER_SET),
+                Permission(BODY_SENSORS_BACKGROUND, isGranted = false),
+                targetSdkVersion = 33
+            )
+        )
+
+        upgradeIfNeeded()
+
+        verifyNotGranted(TEST_PKG_NAME, BODY_SENSORS_BACKGROUND)
+    }
+
+    @Test
+    fun bodySensorsNotInheritToBodySensorsBackgroundWhenBackgroundNotDeclaredAndTargetingT() {
+        Assume.assumeTrue(DeviceUtils.isWear(application))
+        Assume.assumeTrue(SdkLevel.isAtLeastT())
+        whenever(packageManager.isDeviceUpgrading).thenReturn(true)
+        setInitialDatabaseVersion(9)
+        setPackages(
+            Package(
+                TEST_PKG_NAME,
+                Permission(BODY_SENSORS, isGranted = true, flags = FLAG_PERMISSION_USER_SET),
+                targetSdkVersion = 33
+            )
+        )
+
+        upgradeIfNeeded()
+
+        verifyNotGranted(TEST_PKG_NAME, BODY_SENSORS_BACKGROUND)
     }
 
     @After

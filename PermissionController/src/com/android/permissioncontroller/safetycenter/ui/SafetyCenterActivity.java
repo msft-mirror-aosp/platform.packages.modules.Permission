@@ -26,6 +26,7 @@ import static com.android.permissioncontroller.PermissionControllerStatsLog.PRIV
 import static com.android.permissioncontroller.safetycenter.SafetyCenterConstants.EXTRA_SETTINGS_FRAGMENT_ARGS_KEY;
 import static com.android.permissioncontroller.safetycenter.SafetyCenterConstants.PERSONAL_PROFILE_SUFFIX;
 import static com.android.permissioncontroller.safetycenter.SafetyCenterConstants.PRIVACY_SOURCES_GROUP_ID;
+import static com.android.permissioncontroller.safetycenter.SafetyCenterConstants.PRIVATE_PROFILE_SUFFIX;
 import static com.android.permissioncontroller.safetycenter.SafetyCenterConstants.WORK_PROFILE_SUFFIX;
 
 import android.app.ActionBar;
@@ -105,7 +106,7 @@ public final class SafetyCenterActivity extends CollapsingToolbarBaseActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.content_frame, frag)
+                    .add(com.android.settingslib.collapsingtoolbar.R.id.content_frame, frag)
                     .commitNow();
         }
 
@@ -128,7 +129,8 @@ public final class SafetyCenterActivity extends CollapsingToolbarBaseActivity {
     /** Decide whether a home/back button should be shown or not. */
     private void configureHomeButton() {
         ActionBar actionBar = getActionBar();
-        Fragment frag = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+        Fragment frag = getSupportFragmentManager().findFragmentById(
+                com.android.settingslib.collapsingtoolbar.R.id.content_frame);
         if (actionBar == null || frag == null) {
             return;
         }
@@ -220,7 +222,7 @@ public final class SafetyCenterActivity extends CollapsingToolbarBaseActivity {
             int uid = intent.getIntExtra(Intent.EXTRA_UID, -1);
             long sessionId =
                     intent.getLongExtra(Constants.EXTRA_SESSION_ID, Constants.INVALID_SESSION_ID);
-            Log.v(
+            Log.i(
                     TAG,
                     "privacy source notification metric, source "
                             + privacySource
@@ -270,6 +272,8 @@ public final class SafetyCenterActivity extends CollapsingToolbarBaseActivity {
             splitKey = preferenceKey.split("_" + PERSONAL_PROFILE_SUFFIX);
         } else if (preferenceKey.endsWith(WORK_PROFILE_SUFFIX)) {
             splitKey = preferenceKey.split("_" + WORK_PROFILE_SUFFIX);
+        } else if (preferenceKey.endsWith(PRIVATE_PROFILE_SUFFIX)) {
+            splitKey = preferenceKey.split("_" + PRIVATE_PROFILE_SUFFIX);
         } else {
             return "";
         }

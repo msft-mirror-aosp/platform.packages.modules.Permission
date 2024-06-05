@@ -97,9 +97,7 @@ class PermissionAppsViewModel(
 
     @get:RequiresApi(Build.VERSION_CODES.S)
     val sensorStatusLiveData: SensorStatusLiveData by
-        lazy(LazyThreadSafetyMode.NONE) @RequiresApi(Build.VERSION_CODES.S) {
-            SensorStatusLiveData()
-        }
+        lazy(LazyThreadSafetyMode.NONE) { SensorStatusLiveData() }
 
     fun updateShowSystem(showSystem: Boolean) {
         if (showSystem != state.get(SHOULD_SHOW_SYSTEM_KEY)) {
@@ -458,7 +456,7 @@ class PermissionAppsViewModel(
             packageName,
             category
         )
-        Log.v(
+        Log.i(
             tag,
             tag +
                 " created with sessionId=" +
@@ -498,7 +496,6 @@ class PermissionAppsViewModelFactory(
         handle.set(HAS_SYSTEM_APPS_KEY, handle.get<Boolean>(HAS_SYSTEM_APPS_KEY) ?: true)
         handle.set(SHOW_ALWAYS_ALLOWED, handle.get<Boolean>(SHOW_ALWAYS_ALLOWED) ?: false)
         handle.set(CREATION_LOGGED_KEY, handle.get<Boolean>(CREATION_LOGGED_KEY) ?: false)
-        @Suppress("UNCHECKED_CAST")
-        return PermissionAppsViewModel(handle, app, groupName) as T
+        @Suppress("UNCHECKED_CAST") return PermissionAppsViewModel(handle, app, groupName) as T
     }
 }

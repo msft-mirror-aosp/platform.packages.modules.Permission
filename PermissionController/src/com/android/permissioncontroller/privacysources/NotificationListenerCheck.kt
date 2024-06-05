@@ -190,7 +190,7 @@ private fun getSafetySourceIssueIdFromComponentName(componentName: ComponentName
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @VisibleForTesting
-internal class NotificationListenerCheckInternal(
+class NotificationListenerCheckInternal(
     context: Context,
     private val shouldCancel: BooleanSupplier?
 ) {
@@ -255,7 +255,7 @@ internal class NotificationListenerCheckInternal(
      * <p>Always run async inside a {@NotificationListenerCheckJobService} via coroutine.
      */
     @WorkerThread
-    internal suspend fun getEnabledNotificationListenersAndNotifyIfNeeded(
+    suspend fun getEnabledNotificationListenersAndNotifyIfNeeded(
         params: JobParameters,
         service: NotificationListenerCheckJobService
     ) {
@@ -288,7 +288,7 @@ internal class NotificationListenerCheckInternal(
             sessionId = random.nextLong()
         }
         if (DEBUG) {
-            Log.v(
+            Log.d(
                 TAG,
                 "Found ${enabledComponents.size} enabled notification listeners. " +
                     "${notifiedComponents.size} already notified. ${unNotifiedComponents.size} " +
@@ -343,11 +343,11 @@ internal class NotificationListenerCheckInternal(
     }
 
     @VisibleForTesting
-    internal fun getNotifiedComponents(): MutableSet<String> {
+    fun getNotifiedComponents(): MutableSet<String> {
         return sharedPrefs.getStringSet(KEY_ALREADY_NOTIFIED_COMPONENTS, mutableSetOf<String>())!!
     }
 
-    internal suspend fun removeDisabledComponentsFromNotifiedComponents(
+    suspend fun removeDisabledComponentsFromNotifiedComponents(
         enabledComponents: Collection<ComponentName>
     ) {
         sharedPrefsLock.withLock {
@@ -364,7 +364,7 @@ internal class NotificationListenerCheckInternal(
         }
     }
 
-    internal suspend fun markComponentAsNotified(component: ComponentName) {
+    suspend fun markComponentAsNotified(component: ComponentName) {
         sharedPrefsLock.withLock {
             val notifiedComponents = getNotifiedComponents()
             notifiedComponents.add(component.flattenToShortString())
@@ -375,7 +375,7 @@ internal class NotificationListenerCheckInternal(
         }
     }
 
-    internal suspend fun removeFromNotifiedComponents(packageName: String) {
+    suspend fun removeFromNotifiedComponents(packageName: String) {
         sharedPrefsLock.withLock {
             val notifiedComponents = getNotifiedComponents()
             val filteredServices =
@@ -394,7 +394,7 @@ internal class NotificationListenerCheckInternal(
         }
     }
 
-    internal suspend fun removeFromNotifiedComponents(component: ComponentName) {
+    suspend fun removeFromNotifiedComponents(component: ComponentName) {
         val componentNameShortString = component.flattenToShortString()
         sharedPrefsLock.withLock {
             val notifiedComponents = getNotifiedComponents()
@@ -434,7 +434,7 @@ internal class NotificationListenerCheckInternal(
                 getInBetweenNotificationsMillis()
         ) {
             if (DEBUG) {
-                Log.v(
+                Log.d(
                     TAG,
                     "Notification not posted, within " +
                         "$DEFAULT_NOTIFICATION_LISTENER_CHECK_INTERVAL_MILLIS ms"
@@ -446,7 +446,7 @@ internal class NotificationListenerCheckInternal(
         // Check for existing notification first, exit if one already present
         if (getCurrentlyShownNotificationLocked() != null) {
             if (DEBUG) {
-                Log.v(TAG, "Notification not posted, previous notification has not been dismissed")
+                Log.d(TAG, "Notification not posted, previous notification has not been dismissed")
             }
             return
         }
@@ -459,7 +459,7 @@ internal class NotificationListenerCheckInternal(
 
             if (componentsInternal.isEmpty()) {
                 if (DEBUG) {
-                    Log.v(TAG, "Notification not posted, no unnotified enabled listeners")
+                    Log.d(TAG, "Notification not posted, no unnotified enabled listeners")
                 }
                 return
             }
@@ -467,7 +467,7 @@ internal class NotificationListenerCheckInternal(
             componentToNotifyFor = componentsInternal[random.nextInt(componentsInternal.size)]
             try {
                 if (DEBUG) {
-                    Log.v(
+                    Log.d(
                         TAG,
                         "Attempting to get PackageInfo for " + componentToNotifyFor.packageName
                     )
@@ -516,8 +516,8 @@ internal class NotificationListenerCheckInternal(
         pkg: PackageInfo,
         sessionId: Long
     ) {
-        val pkgLabel = Utils.getApplicationLabel(parentUserContext, pkg.applicationInfo)
-        val uid = pkg.applicationInfo.uid
+        val pkgLabel = Utils.getApplicationLabel(parentUserContext, pkg.applicationInfo!!)
+        val uid = pkg.applicationInfo!!.uid
 
         val deletePendingIntent =
             getNotificationDeletePendingIntent(parentUserContext, componentName, uid, sessionId)
@@ -563,7 +563,7 @@ internal class NotificationListenerCheckInternal(
         )
 
         if (DEBUG) {
-            Log.v(
+            Log.d(
                 TAG,
                 "Notification listener check notification shown with component=" +
                     "${componentName.flattenToString()}, uid=$uid, sessionId=$sessionId"
@@ -726,9 +726,9 @@ internal class NotificationListenerCheckInternal(
             }
             return null
         }
-        val pkgLabel = Utils.getApplicationLabel(parentUserContext, pkgInfo.applicationInfo)
+        val pkgLabel = Utils.getApplicationLabel(parentUserContext, pkgInfo.applicationInfo!!)
         val safetySourceIssueId = getSafetySourceIssueIdFromComponentName(componentName)
-        val uid = pkgInfo.applicationInfo.uid
+        val uid = pkgInfo.applicationInfo!!.uid
 
         val disableNlsPendingIntent =
             getDisableNlsPendingIntent(
@@ -1005,7 +1005,7 @@ class NotificationListenerCheckNotificationDeleteHandler : BroadcastReceiver() {
             NotificationListenerCheckInternal(context, null).markComponentAsNotified(componentName)
         }
         if (DEBUG) {
-            Log.v(
+            Log.d(
                 TAG,
                 "Notification listener check notification declined with component=" +
                     "${componentName.flattenToString()} , uid=$uid, sessionId=$sessionId"
@@ -1034,7 +1034,7 @@ class DisableNotificationListenerComponentHandler : BroadcastReceiver() {
 
         GlobalScope.launch(Default) {
             if (DEBUG) {
-                Log.v(
+                Log.d(
                     TAG,
                     "DisableComponentHandler: disabling $componentName," +
                         "uid=$uid, sessionId=$sessionId"
@@ -1099,7 +1099,7 @@ class NotificationListenerActionCardDismissalReceiver : BroadcastReceiver() {
 
         GlobalScope.launch(Default) {
             if (DEBUG) {
-                Log.v(
+                Log.d(
                     TAG,
                     "ActionCardDismissalReceiver: $componentName dismissed," +
                         "uid=$uid, sessionId=$sessionId"

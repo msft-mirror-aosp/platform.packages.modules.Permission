@@ -276,6 +276,12 @@ public class Constants {
             "com.android.permissioncontroller.extra.SESSION_ID";
 
     /**
+     * Intent extra used to pass if the restriction dialog is triggered in-app.
+     */
+    public static final String EXTRA_IS_ECM_IN_APP =
+            "com.android.permissincontroller.extra.IS_ECM_IN_APP";
+
+    /**
      * Intent extra used to pass privacy source details to safety center.
      */
     public static final String EXTRA_PRIVACY_SOURCE =
@@ -319,6 +325,17 @@ public class Constants {
      * Action id for safety center "See unused apps" action.
      */
     public static final String UNUSED_APPS_SAFETY_CENTER_SEE_UNUSED_APPS_ID = "see_unused_apps";
+
+    /**
+     * Fallback Settings package name
+     */
+    public static final String SETTINGS_PACKAGE_NAME_FALLBACK = "com.android.settings";
+
+    /**
+     * Extra launcher icon for notification
+     */
+    public static final String NOTIFICATION_EXTRA_USE_LAUNCHER_ICON =
+            "com.android.car.notification.EXTRA_USE_LAUNCHER_ICON";
 
     // TODO(b/231624295) add to API
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)

@@ -23,6 +23,8 @@ import android.os.UserHandle
 import com.android.permissioncontroller.PermissionControllerApplication
 import com.android.permissioncontroller.permission.model.livedatatypes.LightPackageInfo
 import com.android.permissioncontroller.permission.model.livedatatypes.PermState
+import com.android.permissioncontroller.permission.utils.ContextCompat
+import com.android.permissioncontroller.permission.utils.KotlinUtils
 import com.android.permissioncontroller.permission.utils.Utils
 import kotlinx.coroutines.Job
 
@@ -41,13 +43,19 @@ private constructor(
     private val app: Application,
     private val packageName: String,
     private val permGroupName: String,
-    private val user: UserHandle
+    private val user: UserHandle,
+    private val deviceId: Int
 ) :
     SmartAsyncMediatorLiveData<Map<String, PermState>>(),
     PermissionListenerMultiplexer.PermissionChangeCallback {
 
-    private val context = Utils.getUserContext(app, user)
-    private val packageInfoLiveData = LightPackageInfoLiveData[packageName, user]
+    private val context =
+        Utils.getUserContext(app, user).let {
+            if (deviceId == ContextCompat.DEVICE_ID_DEFAULT) {
+                it
+            } else ContextCompat.createDeviceContext(it, deviceId)
+        }
+    private val packageInfoLiveData = LightPackageInfoLiveData[packageName, user, deviceId]
     private val groupLiveData = PermGroupLiveData[permGroupName]
 
     private var uid: Int? = null
@@ -74,13 +82,12 @@ private constructor(
         val packageInfo = packageInfoLiveData.value
         val permissionGroup = groupLiveData.value
         if (packageInfo == null || permissionGroup == null) {
-            invalidateSingle(Triple(packageName, permGroupName, user))
+            invalidateSingle(KotlinUtils.Quadruple(packageName, permGroupName, user, deviceId))
             postValue(null)
             return
         }
         val permissionStates = mutableMapOf<String, PermState>()
         for ((index, permissionName) in packageInfo.requestedPermissions.withIndex()) {
-
             permissionGroup.permissionInfos[permissionName]?.let { permInfo ->
                 val packageFlags = packageInfo.requestedPermissionsFlags[index]
                 val permFlags =
@@ -138,13 +145,19 @@ private constructor(
      * UserHandle, value is its corresponding LiveData.
      */
     companion object :
-        DataRepositoryForPackage<Triple<String, String, UserHandle>, PermStateLiveData>() {
-        override fun newValue(key: Triple<String, String, UserHandle>): PermStateLiveData {
+        DataRepositoryForDevice<
+            KotlinUtils.Quadruple<String, String, UserHandle, Int>, PermStateLiveData
+        >() {
+        override fun newValue(
+            key: KotlinUtils.Quadruple<String, String, UserHandle, Int>,
+            deviceId: Int
+        ): PermStateLiveData {
             return PermStateLiveData(
                 PermissionControllerApplication.get(),
                 key.first,
                 key.second,
-                key.third
+                key.third,
+                deviceId
             )
         }
     }

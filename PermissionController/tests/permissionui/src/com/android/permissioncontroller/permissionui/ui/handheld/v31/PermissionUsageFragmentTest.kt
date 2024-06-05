@@ -40,13 +40,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 class PermissionUsageFragmentTest : PermissionHub2Test() {
-    private val APK =
-        "/data/local/tmp/permissioncontroller/tests/permissionui" +
-            "/PermissionUiUseCameraPermissionApp.apk"
+    private val APK = "/data/local/tmp/pc-permissionui" + "/PermissionUiUseCameraPermissionApp.apk"
     private val APP = "com.android.permissioncontroller.tests.appthatrequestpermission"
     private val APP_LABEL = "CameraRequestApp"
     private val CAMERA_PREF_LABEL = "Camera"
-    private val REFRESH = "Refresh"
 
     @Before
     fun setup() {
@@ -69,14 +66,8 @@ class PermissionUsageFragmentTest : PermissionHub2Test() {
         }
 
         eventually {
-            try {
-                waitFindObject(By.res("android:id/title").textContains(CAMERA_PREF_LABEL)).click()
-            } catch (e: Exception) {
-                waitFindObject(By.textContains(REFRESH)).click()
-                throw e
-            }
+            waitFindObject(By.res("android:id/title").textContains(CAMERA_PREF_LABEL)).click()
         }
-
         waitFindObject(By.textContains(APP_LABEL))
     }
 

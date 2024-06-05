@@ -40,7 +40,7 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
     MediatorLiveData<T>(), DataRepository.InactiveTimekeeper {
 
     companion object {
-        const val DEBUG_UPDATES = false
+        const val DEBUG = false
         val LOG_TAG = SmartUpdateMediatorLiveData::class.java.simpleName
     }
 
@@ -86,7 +86,7 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
      */
     @MainThread
     fun update() {
-        if (DEBUG_UPDATES) {
+        if (DEBUG) {
             Log.i(LOG_TAG, "update ${javaClass.simpleName} ${shortStackTrace()}")
         }
 
@@ -113,18 +113,20 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
     }
 
     override fun <S : Any?> addSource(source: LiveData<S>, onChanged: Observer<in S>) {
-        addSourceWithStackTraceAttribution(
-            source,
-            onChanged,
-            IllegalStateException().getStackTrace()
-        )
+        addSourceWithStackTraceAttribution(source, onChanged)
     }
 
     private fun <S : Any?> addSourceWithStackTraceAttribution(
         source: LiveData<S>,
-        onChanged: Observer<in S>,
-        stackTrace: Array<StackTraceElement>
+        onChanged: Observer<in S>
     ) {
+        val stackTrace =
+            if (DEBUG) {
+                IllegalStateException().stackTrace
+            } else {
+                null
+            }
+
         GlobalScope.launch(Main.immediate) {
             if (source is SmartUpdateMediatorLiveData) {
                 if (source in sources) {
@@ -135,7 +137,9 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
             try {
                 super.addSource(source, onChanged)
             } catch (ex: IllegalStateException) {
-                ex.setStackTrace(stackTrace)
+                if (DEBUG) {
+                    ex.stackTrace = stackTrace!!
+                }
                 throw ex
             }
         }
@@ -176,8 +180,6 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
 
         val removed = toRemove.map { have.remove(it) }.toMutableList()
 
-        val stackTrace = IllegalStateException().getStackTrace()
-
         GlobalScope.launch(Main.immediate) {
             // If any state got out of sorts before this coroutine ran, correct it
             for (key in toRemove) {
@@ -200,7 +202,7 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
                             update()
                         }
                     }
-                addSourceWithStackTraceAttribution(liveData, observer, stackTrace)
+                addSourceWithStackTraceAttribution(liveData, observer)
             }
         }
         return toAdd to toRemove
@@ -234,7 +236,7 @@ abstract class SmartUpdateMediatorLiveData<T>(private val isStaticVal: Boolean =
      * @param staleOk whether [isStale] value is ok to return
      * @param forceUpdate whether to call [update] (usually triggers an IPC)
      */
-    suspend fun getInitializedValue(staleOk: Boolean = false, forceUpdate: Boolean = false): T {
+    suspend fun getInitializedValue(staleOk: Boolean = false, forceUpdate: Boolean = false): T? {
         return getInitializedValue(
             observe = { observer ->
                 observeForever(observer)

@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 package {
+    default_team: "trendy_team_android_permissions",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
@@ -35,6 +36,8 @@ android_library {
         "kotlinx-coroutines-android",
         "safety-center-internal-data",
         "safety-center-resources-lib",
+        // TODO(b/326414126): aconfig: support multi-container library
+        "com.android.permission.flags-aconfig-java",
     ],
     apex_available: [
         "com.android.permission",

@@ -64,6 +64,7 @@ import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 
 import com.android.modules.utils.build.SdkLevel;
+import com.android.permission.flags.Flags;
 import com.android.permissioncontroller.PermissionControllerStatsLog;
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.permission.model.livedatatypes.HibernationSettingState;
@@ -76,6 +77,7 @@ import com.android.permissioncontroller.permission.ui.model.AppPermissionGroupsV
 import com.android.permissioncontroller.permission.utils.KotlinUtils;
 import com.android.permissioncontroller.permission.utils.StringUtils;
 import com.android.permissioncontroller.permission.utils.Utils;
+import com.android.permissioncontroller.permission.utils.v35.MultiDeviceUtils;
 import com.android.settingslib.HelpUtils;
 import com.android.settingslib.widget.FooterPreference;
 
@@ -349,7 +351,19 @@ public final class AppPermissionGroupsFragment extends SettingsWithLargeHeader i
                 PermissionControlPreference preference = new PermissionControlPreference(context,
                         mPackageName, groupName, mUser, AppPermissionGroupsFragment.class.getName(),
                         sessionId, grantCategory.getCategoryName(), true);
-                preference.setTitle(KotlinUtils.INSTANCE.getPermGroupLabel(context, groupName));
+
+                CharSequence permissionGroupName = KotlinUtils.INSTANCE.getPermGroupLabel(context,
+                        groupName);
+                if (MultiDeviceUtils.isDefaultDeviceId(groupInfo.getPersistentDeviceId())) {
+                    preference.setTitle(permissionGroupName);
+                } else {
+                    final String deviceName = MultiDeviceUtils.getDeviceName(context,
+                            groupInfo.getPersistentDeviceId());
+                    preference.setTitle(context.getString(
+                            R.string.permission_group_name_with_device_name,
+                            permissionGroupName, deviceName));
+                    preference.setPersistentDeviceId(groupInfo.getPersistentDeviceId());
+                }
                 preference.setIcon(KotlinUtils.INSTANCE.getPermGroupIcon(context, groupName));
                 preference.setKey(groupName);
                 String summary = mViewModel.getPreferenceSummary(groupInfo, context,
@@ -431,8 +445,10 @@ public final class AppPermissionGroupsFragment extends SettingsWithLargeHeader i
         int switchTitleId;
         if (isHibernationEnabled()) {
             if (SdkLevel.isAtLeastT()) {
-                switchTitleId = R.string.unused_apps_label_v2;
-                autoRevokeSwitch.setSummary(R.string.unused_apps_summary);
+                switchTitleId = isArchivingEnabled() ? R.string.unused_apps_label_v3
+                        : R.string.unused_apps_label_v2;
+                autoRevokeSwitch.setSummary(isArchivingEnabled() ? R.string.unused_apps_summary_v2
+                        : R.string.unused_apps_summary);
             } else {
                 switchTitleId = R.string.unused_apps_label;
             }
@@ -454,6 +470,10 @@ public final class AppPermissionGroupsFragment extends SettingsWithLargeHeader i
                             : R.string.unused_apps);
         }
         autoRevokeCategory.addPreference(autoRevokeSummary);
+    }
+
+    private boolean isArchivingEnabled() {
+        return SdkLevel.isAtLeastV() && Flags.archivingReadOnly();
     }
 
     private void setAutoRevokeToggleState(HibernationSettingState state) {
@@ -584,7 +604,7 @@ public final class AppPermissionGroupsFragment extends SettingsWithLargeHeader i
         }
         PermissionControllerStatsLog.write(APP_PERMISSIONS_FRAGMENT_VIEWED, sessionId, viewId,
                 permissionGroupName, uid, mPackageName, category);
-        Log.v(LOG_TAG, "AppPermissionFragment view logged with sessionId=" + sessionId + " viewId="
+        Log.i(LOG_TAG, "AppPermissionFragment view logged with sessionId=" + sessionId + " viewId="
                 + viewId + " permissionGroupName=" + permissionGroupName + " uid="
                 + uid + " packageName="
                 + mPackageName + " category=" + category);

@@ -34,6 +34,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.provider.Settings;
 import android.safetycenter.SafetyCenterManager;
 import android.util.ArrayMap;
@@ -54,7 +55,6 @@ import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.permission.model.v31.AppPermissionUsage;
 import com.android.permissioncontroller.permission.model.v31.PermissionUsages;
 import com.android.permissioncontroller.permission.ui.Category;
-import com.android.permissioncontroller.permission.ui.ManagePermissionsActivity;
 import com.android.permissioncontroller.permission.ui.handheld.v31.CardViewPreference;
 import com.android.permissioncontroller.permission.ui.model.PermissionAppsViewModel;
 import com.android.permissioncontroller.permission.ui.model.PermissionAppsViewModelFactory;
@@ -92,8 +92,6 @@ public final class PermissionAppsFragment extends SettingsWithLargeHeader implem
     private static final String STORAGE_FOOTER_PREFERENCE_KEY = "storage_footer_preference";
     private static final int SHOW_LOAD_DELAY_MS = 200;
 
-    private static final int MENU_PERMISSION_USAGE = MENU_HIDE_SYSTEM + 1;
-
     private static final String PRIVACY_CONTROLS_ACTION = "android.settings.PRIVACY_CONTROLS";
 
     /**
@@ -118,6 +116,7 @@ public final class PermissionAppsFragment extends SettingsWithLargeHeader implem
     private PermissionUsages mPermissionUsages;
     private List<AppPermissionUsage> mAppPermissionUsages = new ArrayList<>();
     private Boolean mSensorStatus;
+    private UserManager mUserManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -171,6 +170,8 @@ public final class PermissionAppsFragment extends SettingsWithLargeHeader implem
                 mViewModel.getSensorStatusLiveData().observe(this, this::setSensorStatus);
             }
         }
+
+        mUserManager = Utils.getSystemServiceSafe(getContext(), UserManager.class);
     }
 
     @Override
@@ -200,10 +201,6 @@ public final class PermissionAppsFragment extends SettingsWithLargeHeader implem
             updateMenu(mViewModel.getShouldShowSystemLiveData().getValue());
         }
 
-        if (KotlinUtils.INSTANCE.shouldShowPermissionsDashboard()) {
-            menu.add(Menu.NONE, MENU_PERMISSION_USAGE, Menu.NONE, R.string.permission_usage_title);
-        }
-
         if (!SdkLevel.isAtLeastS()) {
             HelpUtils.prepareHelpMenuItem(getActivity(), menu, R.string.help_app_permissions,
                     getClass().getName());
@@ -221,11 +218,6 @@ public final class PermissionAppsFragment extends SettingsWithLargeHeader implem
             case MENU_HIDE_SYSTEM:
                 mViewModel.updateShowSystem(item.getItemId() == MENU_SHOW_SYSTEM);
                 break;
-            case MENU_PERMISSION_USAGE:
-                getActivity().startActivity(new Intent(Intent.ACTION_REVIEW_PERMISSION_USAGE)
-                        .setClass(getContext(), ManagePermissionsActivity.class)
-                        .putExtra(Intent.EXTRA_PERMISSION_GROUP_NAME, mPermGroupName));
-                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -286,8 +278,9 @@ public final class PermissionAppsFragment extends SettingsWithLargeHeader implem
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private String getPrivacyControlsIntent() {
+        Context context = getPreferenceManager().getContext();
         SafetyCenterManager safetyCenterManager =
-                getContext().getSystemService(SafetyCenterManager.class);
+                context.getSystemService(SafetyCenterManager.class);
         if (safetyCenterManager.isSafetyCenterEnabled()) {
             return PRIVACY_CONTROLS_ACTION;
         } else {
@@ -447,6 +440,9 @@ public final class PermissionAppsFragment extends SettingsWithLargeHeader implem
             }
 
             for (Pair<String, UserHandle> packageUserLabel : packages) {
+                if (!Utils.shouldShowInSettings(packageUserLabel.getSecond(), mUserManager)) {
+                    continue;
+                }
                 String packageName = packageUserLabel.getFirst();
                 UserHandle user = packageUserLabel.getSecond();
 
