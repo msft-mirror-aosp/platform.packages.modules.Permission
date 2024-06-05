@@ -86,7 +86,7 @@
     <string name="app_permissions_group_summary" msgid="8788419008958284002">"Dovoljene aplikacije: <xliff:g id="COUNT_0">%1$d</xliff:g> od <xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
     <string name="app_permissions_group_summary2" msgid="4329922444840521150">"Dovoljene aplikacije: <xliff:g id="COUNT_0">%1$d</xliff:g>/<xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
     <string name="menu_show_system" msgid="4254021607027872504">"Prikaži sistemske procese"</string>
-    <string name="menu_hide_system" msgid="3855390843744028465">"Skrivanje sistemskih procesov"</string>
+    <string name="menu_hide_system" msgid="3855390843744028465">"Skrij sistemske procese"</string>
     <string name="menu_show_7_days_data" msgid="8979611198508523706">"Pokaži 7 dni"</string>
     <string name="menu_show_24_hours_data" msgid="8228054833323380780">"Pokaži 24 ur"</string>
     <string name="manage_permission" msgid="2895385393037061964">"Upravljanje dovoljenja"</string>
@@ -493,12 +493,12 @@
     <string name="permgroupupgraderequestdetail_camera" msgid="6642747548010962597">"Ta aplikacija želi vseskozi snemati fotografije in videoposnetke, tudi ko aplikacije ne uporabljate. "<annotation id="link">"To omogočite v nastavitvah."</annotation></string>
     <string name="permgrouprequest_calllog" msgid="2065327180175371397">"Dovolite aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; dostop do dnevnikov klicev v telefonu?"</string>
     <string name="permgrouprequest_phone" msgid="1829234136997316752">"Dovolite aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; opravljanje in upravljanje telefonskih klicev?"</string>
-    <string name="permgrouprequest_sensors" msgid="4397358316850652235">"Dovolite aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; dostop do podatkov tipala o vitalnih znakih?"</string>
+    <string name="permgrouprequest_sensors" msgid="4397358316850652235">"Dovolite aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; dostop do podatkov tipal o vitalnih znakih?"</string>
     <string name="permgroupupgraderequestdetail_sensors" msgid="6651914048792092835">"Ta aplikacija želi stalen dostop do podatkov tipal vitalnih znakov, tudi ko aplikacije ne uporabljate. Če želite izvesti to spremembo, "<annotation id="link">"pojdite v nastavitve"</annotation>"."</string>
     <string name="permgroupbackgroundrequest_sensors" msgid="5661924322018503886">"Želite aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; omogočiti dostop do podatkov tipal o vitalnih znakih?"</string>
     <string name="permgroupbackgroundrequestdetail_sensors" msgid="7726767635834043501">"Če želite tej aplikaciji omogočiti stalen dostop do podatkov tipal telesnih funkcij, tudi ko je ne uporabljate, "<annotation id="link">"pojdite v nastavitve"</annotation>"."</string>
     <string name="permgroupupgraderequest_sensors" msgid="7576527638411370468">"Ali želite aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; še naprej dovoliti dostop do podatkov tipal telesnih funkcij, ko je v uporabi?"</string>
-    <string name="permgrouprequest_notifications" msgid="6396739062335106181">"Želite aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; omogočiti, da vam pošilja obvestila?"</string>
+    <string name="permgrouprequest_notifications" msgid="6396739062335106181">"Želite aplikaciji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; dovoliti, da vam pošilja obvestila?"</string>
     <string name="auto_granted_permissions" msgid="6009452264824455892">"Zunanje upravljana dovoljenja"</string>
     <string name="auto_granted_location_permission_notification_title" msgid="7570818224669050377">"<xliff:g id="APP_NAME">%1$s</xliff:g> ima dostop do lokacije"</string>
     <string name="auto_granted_permission_notification_body" msgid="5040234389205471318">"Vaša organizacija aplikaciji <xliff:g id="APP_NAME">%1$s</xliff:g> dovoljuje dostop do vaše lokacije."</string>

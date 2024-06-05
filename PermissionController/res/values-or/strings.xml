@@ -72,7 +72,7 @@
     <string name="denied_permission_decision" msgid="5308961501779563781">"ଆପଣ <xliff:g id="PERMISSION_NAME">%2$s</xliff:g>କୁ <xliff:g id="APP_NAME">%1$s</xliff:g> ଆକ୍ସେସ ଅଗ୍ରାହ୍ୟ କରିଛନ୍ତି"</string>
     <string name="days_ago" msgid="6650359081551335629">"{count,plural, =0{ଆଜି}=1{1 ଦିନ ପୂର୍ବେ}other{# ଦିନ ପୂର୍ବେ}}"</string>
     <string name="app_disable_dlg_positive" msgid="7418444149981904940">"ଆପ୍ ଅକ୍ଷମ କରନ୍ତୁ"</string>
-    <string name="app_disable_dlg_text" msgid="3126943217146120240">"ଯଦି ଆପଣ ଏହି ଆପକୁ ଅକ୍ଷମ କରିବେ, ତେବେ Android ଓ ଅନ୍ୟ ଆପଗୁଡ଼ିକ ଆଉ ଆଶାନୁରୂପେ କାର୍ଯ୍ୟ କରିନପାରେ। ମନେରଖନ୍ତୁ ଯେ, ଏହି ଆପ୍ ଆପଣଙ୍କ ଡିଭାଇସରେ ପୂର୍ବରୁ-ଇନଷ୍ଟଲ୍ କରାଯାଇଥିବା ଯୋଗୁଁ ଆପଣ ଏହାକୁ ଡିଲିଟ୍ କରିପାରିବେ ନାହିଁ। ଅକ୍ଷମ କରି, ଆପଣ ଏହି ଆପକୁ ବନ୍ଦ କରିଦିଅନ୍ତି ଏବଂ ଆପଣଙ୍କ ଡିଭାଇସରେ ଲୁଚାଇଦିଅନ୍ତି।"</string>
+    <string name="app_disable_dlg_text" msgid="3126943217146120240">"ଯଦି ଆପଣ ଏହି ଆପକୁ ଅକ୍ଷମ କରିବେ, ତେବେ Android ଓ ଅନ୍ୟ ଆପ୍ସ ଆଉ ଆଶାନୁରୂପେ କାର୍ଯ୍ୟ କରିନପାରେ। ମନେରଖନ୍ତୁ ଯେ, ଏହି ଆପ ଆପଣଙ୍କ ଡିଭାଇସରେ ପୂର୍ବରୁ-ଇନଷ୍ଟଲ କରାଯାଇଥିବା ଯୋଗୁଁ ଆପଣ ଏହାକୁ ଡିଲିଟ କରିପାରିବେ ନାହିଁ। ଅକ୍ଷମ କରିବା ଫଳରେ ଆପଣ ଏହି ଆପକୁ ବନ୍ଦ କରି ଆପଣଙ୍କ ଡିଭାଇସରେ ଲୁଚାଇଦିଅନ୍ତି।"</string>
     <string name="app_permission_manager" msgid="3903811137630909550">"ଅନୁମତି ପରିଚାଳକ"</string>
     <string name="never_ask_again" msgid="4728762438198560329">"ପୁଣି ପଚାରନ୍ତୁ ନାହିଁ"</string>
     <string name="no_permissions" msgid="3881676756371148563">"କୌଣସି ଅନୁମତିଗୁଡ଼ିକ ନାହିଁ"</string>
@@ -354,10 +354,10 @@
     <string name="role_assistant_description" msgid="6622458130459922952">"ଆପଣ ଦେଖୁଥିବା ସ୍କ୍ରିନ୍‌ ସୂଚନାକୁ ଆଧାର କରି ସହାୟକ ଆପ୍‌ ଆପଣଙ୍କୁ ସାହାଯ୍ୟ କରିପାରିବ। କେତେକ ଆପ୍‌, ଆପଣଙ୍କୁ ଉତ୍ତମ ସହାୟତା ଦେବା ପାଇଁ, ଉଭୟ ଲଞ୍ଚର୍ ଓ ଭଏସ୍‍ ଇନପୁଟ୍‍ ସେବାକୁ ସମର୍ଥନ କରେ।"</string>
     <string name="role_browser_label" msgid="2877796144554070207">"ଡିଫଲ୍ଟ ବ୍ରାଉଜର୍‌ ଆପ୍‌"</string>
     <string name="role_browser_short_label" msgid="6745009127123292296">"ବ୍ରାଉଜର୍‌ ଆପ୍‌"</string>
-    <string name="role_browser_description" msgid="3465253637499842671">"ଆପ୍ସ ଯାହା ଆପଣଙ୍କୁ ଇଣ୍ଟର୍ନେଟ୍ ପାଇଁ ଆକ୍ସେସ୍ ଦିଏ ଏବଂ ଆପଣ ଟାପ୍ କରିଥିବା ଲିଙ୍କ୍‌ଗୁଡ଼ିକ ପ୍ରଦର୍ଶନ କରେ"</string>
+    <string name="role_browser_description" msgid="3465253637499842671">"ଆପ୍ସ ଯାହା ଆପଣଙ୍କୁ ଇଣ୍ଟର୍ନେଟ ପାଇଁ ଆକ୍ସେସ ଦିଏ ଏବଂ ଆପଣ ଟାପ କରୁଥିବା ଲିଙ୍କଗୁଡ଼ିକୁ ଡିସପ୍ଲେ କରେ"</string>
     <string name="role_browser_request_title" msgid="2895200507835937192">"<xliff:g id="APP_NAME">%1$s</xliff:g>କୁ ଆପଣଙ୍କ ଡିଫଲ୍ଟ ବ୍ରାଉଜର୍ ଭାବେ ସେଟ୍ କରିବେ କି?"</string>
     <string name="role_browser_request_description" msgid="5888803407905985941">"କୌଣସି ଅନୁମତି ଆବଶ୍ୟକ ନାହିଁ"</string>
-    <string name="role_dialer_label" msgid="1100224146343237968">"ଡିଫଲ୍ଟ ଫୋନ୍‌ ଆପ୍‌"</string>
+    <string name="role_dialer_label" msgid="1100224146343237968">"ଡିଫଲ୍ଟ ଫୋନ ଆପ"</string>
     <string name="role_dialer_short_label" msgid="7186888549465352489">"ଫୋନ୍ ଆପ୍"</string>
     <string name="role_dialer_description" msgid="8768708633696539612">"ଆପ୍ସ, ଯାହା ଆପଣଙ୍କୁ ଆପଣଙ୍କର ଡିଭାଇସ୍‌ରେ ଟେଲିଫୋନ୍ କଲ୍ କରିବାକୁ ଏବଂ ଗ୍ରହଣ କରିବାକୁ ଅନୁମତି ଦିଏ"</string>
     <string name="role_dialer_request_title" msgid="5959618560705912058">"<xliff:g id="APP_NAME">%1$s</xliff:g>କୁ ଆପଣଙ୍କ ଡିଫଲ୍ଟ ଫୋନ୍ ଆପ୍ ଭାବରେ ସେଟ୍ କରିବେ କି?"</string>
@@ -386,7 +386,7 @@
     <string name="role_call_redirection_description" msgid="6091669882014664420">"ସେହି ଆପ୍ସ ଯାହା ଆଉଟ୍‌ଗୋଇଂ କଲ୍‍ଗୁଡ଼ିକୁ ଅନ୍ୟ ଏକ ଫୋନ୍ ନମ୍ବରକୁ ଫର୍‍ୱାର୍ଡ କରିବାକୁ ଆପଣଙ୍କୁ ଅନୁମତି ଦିଏ"</string>
     <string name="role_call_redirection_request_title" msgid="2816244455003562925">"<xliff:g id="APP_NAME">%1$s</xliff:g>କୁ ଆପଣଙ୍କ ଡିଫଲ୍ଟ କଲ୍ ପୁନଃନିର୍ଦ୍ଦେଶନା ଆପ୍ ଭାବରେ ସେଟ୍ କରିବେ କି?"</string>
     <string name="role_call_redirection_request_description" msgid="3118895714178527164">"କୌଣସି ଅନୁମତି ଆବଶ୍ୟକ ନାହିଁ"</string>
-    <string name="role_call_screening_label" msgid="883935222060878724">"ଡିଫଲ୍ଟ କଲର୍ ID &amp; ସ୍ପାମ୍ ଆପ୍"</string>
+    <string name="role_call_screening_label" msgid="883935222060878724">"ଡିଫଲ୍ଟ କଲର ID ଏବଂ ସ୍ପାମ ଆପ"</string>
     <string name="role_call_screening_short_label" msgid="2048465565063130834">"କଲର୍ ID &amp; ସ୍ପାମ୍ ଆପ୍"</string>
     <string name="role_call_screening_description" msgid="2349431420497468981">"ସେହି ଆପ୍ସ ଯାହା କଲଗୁଡ଼ିକୁ ଚିହ୍ନଟ କରିବା, ସ୍ପାମ୍ ଓ ରୋବୋକଲ୍ ବା ଅଦରକାରୀ ନମ୍ବରଗୁଡ଼ିକୁ ବ୍ଲକ୍ କରିବାକୁ ଅନୁମତି ଦିଏ"</string>
     <string name="role_call_screening_request_title" msgid="7358309224566977290">"<xliff:g id="APP_NAME">%1$s</xliff:g>କୁ ଆପଣଙ୍କର ଡିଫଲ୍ଟ କଲର୍ ଆଇଡି &amp; ସ୍ପାମ୍ ଆପ୍ ଭାବ୍ ସେଟ୍ କରିବେ କି?"</string>
@@ -493,7 +493,7 @@
     <string name="permgroupupgraderequestdetail_camera" msgid="6642747548010962597">"ଆପଣ ଆପକୁ ବ୍ୟବହାର କରୁନଥିଲେ ମଧ୍ୟ, ଏହା ସବୁ ସମୟରେ ଛବି ନେବାକୁ ଏବଂ ଭିଡିଓ ରେକର୍ଡ କରିବାକୁ ଚାହେଁ। "<annotation id="link">"ସେଟିଂସରେ ଅନୁମତି ଦିଅନ୍ତୁ।"</annotation></string>
     <string name="permgrouprequest_calllog" msgid="2065327180175371397">"ଆପଣଙ୍କ ଫୋନର କଲ ଲଗ ଆକ୍ସେସ କରିବା ପାଇଁ &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;କୁ ଅନୁମତି ଦେବେ?"</string>
     <string name="permgrouprequest_phone" msgid="1829234136997316752">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;କୁ ଫୋନ କଲ କରିବାକୁ ତଥା ପରିଚାଳନା କରିବାକୁ ଅନୁମତି ଦେବେ?"</string>
-    <string name="permgrouprequest_sensors" msgid="4397358316850652235">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;କୁ ଆପଣଙ୍କ ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ ଲକ୍ଷଣଗୁଡ଼ିକ ବିଷୟରେ ସେନ୍ସର୍‍ ଡାଟା ଆକ୍ସେସ୍‍ କରିବା ପାଇଁ ଅନୁମତି ଦେବେ କି?"</string>
+    <string name="permgrouprequest_sensors" msgid="4397358316850652235">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;କୁ ଆପଣଙ୍କ ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ ଲକ୍ଷଣଗୁଡ଼ିକ ବିଷୟରେ ସେନ୍ସର ଡାଟା ଆକ୍ସେସ କରିବା ପାଇଁ ଅନୁମତି ଦେବେ କି?"</string>
     <string name="permgroupupgraderequestdetail_sensors" msgid="6651914048792092835">"ଆପଣ ଆପ ବ୍ୟବହାର କରୁନଥିଲେ ମଧ୍ୟ, ଏହି ଆପ ସବୁ ସମୟରେ ଆପଣଙ୍କ ମହତ୍ତ୍ୱପୂର୍ଣ୍ଣ ଲକ୍ଷଣଗୁଡ଼ିକ ବିଷୟରେ ସେନ୍ସର ଡାଟାକୁ ଆକ୍ସେସ କରିବା ପାଇଁ ଚାହେଁ। ଏହି ପରିବର୍ତ୍ତନ କରିବାକୁ, "<annotation id="link">"ସେଟିଂସକୁ ଯାଆନ୍ତୁ।"</annotation></string>
     <string name="permgroupbackgroundrequest_sensors" msgid="5661924322018503886">"ଆପଣଙ୍କ ମହତ୍ତ୍ୱପୂର୍ଣ୍ଣ ଲକ୍ଷଣଗୁଡ଼ିକ ବିଷୟରେ ସେନ୍ସର ଡାଟାକୁ ଆକ୍ସେସ କରିବା ପାଇଁ &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;କୁ ଅନୁମତି ଦେବେ କି?"</string>
     <string name="permgroupbackgroundrequestdetail_sensors" msgid="7726767635834043501">"ଆପଣ ଆପ ବ୍ୟବହାର କରୁନଥିଲେ ମଧ୍ୟ, ବଡି ସେନ୍ସର ଡାଟାକୁ ସର୍ବଦା ଆକ୍ସେସ କରିବା ନିମନ୍ତେ ଏହି ଆପକୁ ଅନୁମତି ଦେବା ପାଇଁ, "<annotation id="link">"ସେଟିଂସକୁ ଯାଆନ୍ତୁ।"</annotation></string>

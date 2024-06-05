@@ -351,7 +351,7 @@
     <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"Aceste aplicații pot vedea ecranul, acțiunile și textul introdus, să facă acțiuni și să controleze afișajul."</string>
     <string name="role_assistant_label" msgid="4727586018198208128">"Aplicația asistent digital prestabilită"</string>
     <string name="role_assistant_short_label" msgid="3369003713187703399">"Aplicația asistent digital"</string>
-    <string name="role_assistant_description" msgid="6622458130459922952">"Aplicațiile asistent te  pot ajuta pe baza informațiilor din ecranul afișat. Pentru a-ți oferi o asistență integrată, unele aplicații acceptă atât serviciile cu lansatoare, cât și pe cele de intrare vocală."</string>
+    <string name="role_assistant_description" msgid="6622458130459922952">"Aplicațiile asistent te pot ajuta pe baza informațiilor din ecranul afișat. Pentru a-ți oferi o asistență integrată, unele aplicații acceptă atât serviciile cu lansatoare, cât și pe cele de intrare vocală."</string>
     <string name="role_browser_label" msgid="2877796144554070207">"Aplicația browser prestabilită"</string>
     <string name="role_browser_short_label" msgid="6745009127123292296">"Aplicația browser"</string>
     <string name="role_browser_description" msgid="3465253637499842671">"Aplicații care îți oferă acces la internet și afișează linkurile pe care le atingi"</string>
@@ -359,7 +359,7 @@
     <string name="role_browser_request_description" msgid="5888803407905985941">"Nu este nevoie de permisiuni"</string>
     <string name="role_dialer_label" msgid="1100224146343237968">"Aplicația pentru telefon"</string>
     <string name="role_dialer_short_label" msgid="7186888549465352489">"Aplicația Telefon"</string>
-    <string name="role_dialer_description" msgid="8768708633696539612">"Aplicațiile cu ajutorul cărora faci și primești apeluri telefonice pe dispozitiv"</string>
+    <string name="role_dialer_description" msgid="8768708633696539612">"Aplicațiile cu ajutorul cărora efectuezi și primești apeluri telefonice pe dispozitiv"</string>
     <string name="role_dialer_request_title" msgid="5959618560705912058">"Setezi <xliff:g id="APP_NAME">%1$s</xliff:g> ca aplicație prestabilită pentru telefon?"</string>
     <string name="role_dialer_request_description" msgid="6288839625724909320">"Aplicația va avea acces la Camera foto, Agendă, Microfon, Telefon și SMS"</string>
     <string name="role_dialer_search_keywords" msgid="3324448983559188087">"tastatură telefon"</string>
@@ -429,7 +429,7 @@
     <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"Deschiderea linkurilor"</string>
     <string name="default_apps_for_work" msgid="4970308943596201811">"Prestabilite pentru serviciu"</string>
     <string name="default_app_none" msgid="9084592086808194457">"Niciuna"</string>
-    <string name="default_app_system_default" msgid="6218386768175513760">"(Valoare prestabilită de sistem)"</string>
+    <string name="default_app_system_default" msgid="6218386768175513760">"(Prestabilită de sistem)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"Nicio aplicație"</string>
     <string name="car_default_app_selected" msgid="5416420830430644174">"Selectată"</string>
     <string name="car_default_app_selected_with_info" msgid="1932204186080593500">"Selectat - <xliff:g id="ADDITIONAL_INFO">%1$s</xliff:g>"</string>

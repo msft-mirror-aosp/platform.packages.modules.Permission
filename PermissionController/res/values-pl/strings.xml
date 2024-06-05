@@ -72,7 +72,7 @@
     <string name="denied_permission_decision" msgid="5308961501779563781">"Odmówiono aplikacji <xliff:g id="APP_NAME">%1$s</xliff:g> dostępu do: <xliff:g id="PERMISSION_NAME">%2$s</xliff:g>"</string>
     <string name="days_ago" msgid="6650359081551335629">"{count,plural, =0{Dzisiaj}=1{1 dzień temu}few{# dni temu}many{# dni temu}other{# dnia temu}}"</string>
     <string name="app_disable_dlg_positive" msgid="7418444149981904940">"Wyłącz aplikację"</string>
-    <string name="app_disable_dlg_text" msgid="3126943217146120240">"Jeśli wyłączysz tę aplikację, Android i inne aplikacje mogą działać nieprawidłowo. Pamiętaj, że nie możesz usunąć tej aplikacji, bo została ona fabrycznie zainstalowana na Twoim urządzeniu. Wyłączone aplikacje są ukrywane na urządzeniu."</string>
+    <string name="app_disable_dlg_text" msgid="3126943217146120240">"Jeśli wyłączysz tę aplikację, Android i inne aplikacje mogą działać nieprawidłowo. Pamiętaj, że nie możesz usunąć tej aplikacji, bo została ona fabrycznie zainstalowana na Twoim urządzeniu. Wyłączona aplikacja zostanie ukryta na urządzeniu."</string>
     <string name="app_permission_manager" msgid="3903811137630909550">"Menedżer uprawnień"</string>
     <string name="never_ask_again" msgid="4728762438198560329">"Nie pytaj ponownie"</string>
     <string name="no_permissions" msgid="3881676756371148563">"Brak uprawnień"</string>
@@ -342,7 +342,7 @@
     <string name="no_apps_allowed" msgid="7718822655254468631">"Nie zezwolono żadnym aplikacjom"</string>
     <string name="no_apps_allowed_full" msgid="8011716991498934104">"Brak aplikacji z uprawnieniami dla wszystkich plików"</string>
     <string name="no_apps_allowed_scoped" msgid="4908850477787659501">"Brak aplikacji z uprawnieniami tylko dla multimediów"</string>
-    <string name="no_apps_denied" msgid="7663435886986784743">"Nie zabroniono żadnym aplikacjom"</string>
+    <string name="no_apps_denied" msgid="7663435886986784743">"Nie zabroniono dostępu żadnym aplikacjom"</string>
     <string name="car_permission_selected" msgid="180837028920791596">"Wybrana"</string>
     <string name="settings" msgid="5409109923158713323">"Ustawienia"</string>
     <string name="accessibility_service_dialog_title_single" msgid="7956432823014102366">"Usługa <xliff:g id="SERVICE_NAME">%s</xliff:g> ma pełny dostęp do urządzenia"</string>
@@ -497,7 +497,7 @@
     <string name="permgroupupgraderequestdetail_sensors" msgid="6651914048792092835">"Ta aplikacja chce mieć dostęp do danych z czujnika dotyczących parametrów życiowych przez cały czas, nawet kiedy jej nie używasz. Aby dokonać tej zmiany, "<annotation id="link">"otwórz ustawienia."</annotation></string>
     <string name="permgroupbackgroundrequest_sensors" msgid="5661924322018503886">"Zezwolić aplikacji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; na dostęp do danych z czujnika podstawowych funkcji życiowych?"</string>
     <string name="permgroupbackgroundrequestdetail_sensors" msgid="7726767635834043501">"Aby zezwolić tej aplikacji na dostęp do danych z czujników na ciele przez cały czas, nawet kiedy jej nie używasz, "<annotation id="link">"przejdź do ustawień"</annotation>"."</string>
-    <string name="permgroupupgraderequest_sensors" msgid="7576527638411370468">"Czy nadal zezwalać aplikacji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; na dostęp do czujników na ciele podczas jej używania?"</string>
+    <string name="permgroupupgraderequest_sensors" msgid="7576527638411370468">"Czy nadal zezwalać aplikacji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; na dostęp do danych z czujników na ciele podczas jej używania?"</string>
     <string name="permgrouprequest_notifications" msgid="6396739062335106181">"Zezwolić aplikacji &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; na wysyłanie powiadomień?"</string>
     <string name="auto_granted_permissions" msgid="6009452264824455892">"Pozwolenia kontrolowane"</string>
     <string name="auto_granted_location_permission_notification_title" msgid="7570818224669050377">"Aplikacja <xliff:g id="APP_NAME">%1$s</xliff:g> ma dostęp do lokalizacji"</string>
