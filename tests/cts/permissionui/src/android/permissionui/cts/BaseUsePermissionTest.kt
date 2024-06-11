@@ -130,9 +130,8 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             "com.android.permissioncontroller:id/allow_foreground_only_radio_button"
         const val ASK_RADIO_BUTTON = "com.android.permissioncontroller:id/ask_radio_button"
         const val DENY_RADIO_BUTTON = "com.android.permissioncontroller:id/deny_radio_button"
-        const val ALLOW_LIMITED_RADIO_BUTTON =
-            "com.android.permissioncontroller:id/allow_limited_radio_button"
-        const val SELECT_PHOTOS_BUTTON = "com.android.permissioncontroller:id/select_photos_button"
+        const val SELECT_RADIO_BUTTON = "com.android.permissioncontroller:id/select_radio_button"
+        const val EDIT_PHOTOS_BUTTON = "com.android.permissioncontroller:id/edit_selected_button"
 
         const val NOTIF_TEXT = "permgrouprequest_notifications"
         const val ALLOW_BUTTON_TEXT = "grant_dialog_button_allow"
@@ -894,6 +893,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
 
     protected fun clickPermissionRequestDenyButton() {
         if (isAutomotive) {
+            scrollToBottom();
             clickAndWaitForWindowTransition(
                 By.text(getPermissionControllerString(DENY_BUTTON_TEXT))
             )
@@ -973,6 +973,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
 
     protected fun clickPermissionRequestDenyAndDontAskAgainButton() {
         if (isAutomotive) {
+            scrollToBottom();
             clickAndWaitForWindowTransition(
                 By.text(getPermissionControllerString(DENY_AND_DONT_ASK_AGAIN_BUTTON_TEXT))
             )
