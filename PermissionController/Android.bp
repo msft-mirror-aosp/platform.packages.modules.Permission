@@ -72,11 +72,6 @@ java_library {
     ],
 }
 
-filegroup {
-    name: "PermissionController-jarjar-rules",
-    srcs: ["jarjar-rules.txt"],
-}
-
 android_library {
     name: "PermissionController-lib",
     sdk_version: "system_current",
@@ -172,9 +167,6 @@ android_library {
         "//apex_available:platform",
         "com.android.permission",
     ],
-
-    // TODO(b/313706381): Remove jarjar once flagging lib is fixed
-    jarjar_rules: ":PermissionController-jarjar-rules",
 }
 
 android_app {
