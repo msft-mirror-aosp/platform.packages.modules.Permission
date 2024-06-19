@@ -47,7 +47,6 @@ import com.android.bedstead.harrier.annotations.EnsureHasAdditionalUser
 import com.android.bedstead.harrier.annotations.EnsureHasCloneProfile
 import com.android.bedstead.enterprise.annotations.EnsureHasNoWorkProfile
 import com.android.bedstead.harrier.annotations.EnsureHasPrivateProfile
-import com.android.bedstead.harrier.annotations.EnsureHasNoPrivateProfile
 import com.android.bedstead.enterprise.annotations.EnsureHasWorkProfile
 import com.android.bedstead.enterprise.annotations.EnsureHasDeviceOwner
 import com.android.bedstead.enterprise.annotations.EnsureHasNoDeviceOwner
@@ -566,7 +565,6 @@ class SafetyCenterMultiUsersTest {
 
     @Test
     @EnsureHasNoWorkProfile
-    @EnsureHasNoPrivateProfile
     fun getSafetyCenterData_withComplexConfigWithoutWorkProfile_returnsPrimaryDataFromConfig() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.complexAllProfileConfig)
 
@@ -607,7 +605,6 @@ class SafetyCenterMultiUsersTest {
 
     @Test
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
-    @EnsureHasNoPrivateProfile
     fun getSafetyCenterData_withComplexConfigWithoutDataProvided_returnsDataFromConfig() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.complexAllProfileConfig)
 
@@ -661,7 +658,6 @@ class SafetyCenterMultiUsersTest {
 
     @Test
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
-    @EnsureHasNoPrivateProfile
     fun getSafetyCenterData_withComplexConfigWithPrimaryDataProvided_returnsPrimaryDataProvided() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.complexAllProfileConfig)
         updatePrimaryProfileSources()
@@ -715,7 +711,6 @@ class SafetyCenterMultiUsersTest {
 
     @Test
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
-    @EnsureHasNoPrivateProfile
     fun getSafetyCenterData_withComplexConfigWithExtraWorkOnlyWithAllDataProvided_returnsAllDataProvided() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.complexAllProfileConfig)
         updatePrimaryProfileSources()
@@ -1086,7 +1081,6 @@ class SafetyCenterMultiUsersTest {
 
     @Test
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
-    @EnsureHasNoPrivateProfile
     fun getSafetyCenterData_withQuietMode_shouldHaveWorkProfilePausedSummaryAndNoWorkIssues() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.complexAllProfileConfig)
         updatePrimaryProfileSources()
@@ -1171,7 +1165,6 @@ class SafetyCenterMultiUsersTest {
 
     @Test
     @EnsureHasWorkProfile(installInstrumentedApp = TRUE)
-    @EnsureHasNoPrivateProfile
     fun getSafetyCenterData_afterManagedProfileRemoved_returnsDefaultData() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceAllProfileConfig)
         val managedSafetyCenterManager =

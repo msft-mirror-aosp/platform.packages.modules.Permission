@@ -35,7 +35,6 @@ import android.provider.DeviceConfig
 import android.provider.Settings
 import android.safetycenter.SafetyCenterManager
 import android.server.wm.WindowManagerStateHelper
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
@@ -138,7 +137,6 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
         private const val AUTO_MIC_INDICATOR_DISMISSAL_TIMEOUT_MS = 30_000L
         const val SAFETY_CENTER_ENABLED = "safety_center_is_enabled"
         const val DELAY_MILLIS = 3000L
-        private val TAG = CameraMicIndicatorsPermissionTest::class.java.simpleName
     }
 
     private val safetyCenterEnabled = callWithShellPermissionIdentity {
@@ -361,11 +359,6 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
         safetyCenterEnabled: Boolean = false,
         finishEarly: Boolean = false
     ) {
-        Log.d(
-            TAG,
-            "testCameraAndMicIndicator useMic=$useMic useCamera=$useCamera " +
-                "safetyCenterEnabled=$safetyCenterEnabled finishEarly=$finishEarly"
-        )
         // If camera is not available skip the test
         if (useCamera) {
             assumeTrue(packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY))
@@ -399,7 +392,6 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
                 }
             }
 
-            Log.d(TAG, "assert to make sure Indicators are displayed")
             assertIndicatorsShown(useMic, useCamera, useHotword, chainUsage, safetyCenterEnabled)
 
             if (finishEarly) {
@@ -408,13 +400,10 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
                 try {
                     // Check if the indicator has gone away. This will throw an exception if the
                     // indicator is still present
-                    Log.d(TAG, "checking on indicators again")
                     assertIndicatorsShown(false, false, false)
-                    Log.d(TAG, "indicators are gone")
                     // If we successfully asserted that the indicator went away, fail the test
                     failed = true
                 } catch (t: Throwable) {
-                    Log.d(TAG, "indicators are continuing to show")
                     // expected
                 }
                 if (failed) {
@@ -584,7 +573,6 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
                 privacyChip.click()
             }
         } else {
-            Log.d(TAG, "waiting for PRIVACY_CHIP_ID to disappear")
             assertWithUiDump { UiAutomatorUtils2.waitUntilObjectGone(By.res(PRIVACY_CHIP_ID)) }
             return
         }
