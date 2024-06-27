@@ -367,7 +367,7 @@
     <string name="role_dialer_request_description" msgid="6288839625724909320">"Aplikasi ini akan diberi akses ke Kamera, Kontak, Mikrofon, Telepon, dan SMS Anda"</string>
     <string name="role_dialer_search_keywords" msgid="3324448983559188087">"telepon"</string>
     <string name="role_sms_label" msgid="8456999857547686640">"Aplikasi SMS default"</string>
-    <string name="role_sms_short_label" msgid="4371444488034692243">"Aplikasi SMS"</string>
+    <string name="role_sms_short_label" msgid="4371444488034692243">"aplikasi SMS"</string>
     <string name="role_sms_description" msgid="3424020199148153513">"Aplikasi yang memungkinkan Anda menggunakan nomor telepon untuk mengirim dan menerima SMS, foto, video, dan sebagainya"</string>
     <string name="role_sms_request_title" msgid="7953552109601185602">"Tetapkan <xliff:g id="APP_NAME">%1$s</xliff:g> sebagai aplikasi SMS default Anda?"</string>
     <string name="role_sms_request_description" msgid="2691004766132144886">"Aplikasi ini akan diberi akses ke Kamera, Kontak, File dan media, Mikrofon, Telepon, dan SMS Anda"</string>
@@ -560,10 +560,8 @@
     <string name="blocked_mic_summary" msgid="8960466941528458347">"Data mikrofon mungkin tetap dibagikan saat Anda menelepon nomor darurat."</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"Ubah"</string>
     <string name="automotive_blocked_camera_title" msgid="6142362431548829416">"Akses kamera nonaktif"</string>
-    <!-- no translation found for automotive_blocked_microphone_title (3956311098238620220) -->
-    <skip />
-    <!-- no translation found for automotive_blocked_location_title (6047574747593264689) -->
-    <skip />
+    <string name="automotive_blocked_microphone_title" msgid="3956311098238620220">"Akses mikrofon nonaktif"</string>
+    <string name="automotive_blocked_location_title" msgid="6047574747593264689">"Akses lokasi nonaktif"</string>
     <string name="automotive_blocked_infotainment_app_summary" msgid="8217099645064950860">"Untuk aplikasi infotainmen"</string>
     <string name="automotive_blocked_required_app_summary" msgid="8591513745681168088">"Untuk aplikasi yang diperlukan"</string>
     <string name="automotive_required_app_title" msgid="2992168288249988735">"Aplikasi ini diperlukan"</string>
