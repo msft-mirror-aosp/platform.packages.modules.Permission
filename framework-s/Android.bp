@@ -103,4 +103,7 @@ java_sdk_library {
         "android.safetycenter",
         "android.safetylabel",
     ],
+    lint: {
+        baseline_filename: "lint-baseline-framework-permission-s.xml",
+    },
 }
