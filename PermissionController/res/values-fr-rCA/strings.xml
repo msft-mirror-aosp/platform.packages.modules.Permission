@@ -196,7 +196,7 @@
     <string name="precise_image_description" msgid="6349638632303619872">"Position exacte"</string>
     <string name="approximate_image_description" msgid="938803699637069884">"Position approximative"</string>
     <string name="app_permission_location_accuracy" msgid="7166912915040018669">"Utiliser la position exacte"</string>
-    <string name="app_permission_location_accuracy_subtitle" msgid="2654077606404987210">"Si la position exacte est désactivée, les applications ont accès à votre position approximative"</string>
+    <string name="app_permission_location_accuracy_subtitle" msgid="2654077606404987210">"Si la position exacte est désactivée, les applis ont accès à votre position approximative"</string>
     <string name="app_permission_title" msgid="2090897901051370711">"Autorisation : <xliff:g id="PERM">%1$s</xliff:g>"</string>
     <string name="app_permission_header" msgid="2951363137032603806">"Accès pour cette appli : <xliff:g id="PERM">%1$s</xliff:g>"</string>
     <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"Afficher toutes les autorisations pour <xliff:g id="APP">%1$s</xliff:g>"</string>
@@ -358,7 +358,7 @@
     <string name="role_browser_request_title" msgid="2895200507835937192">"Définir <xliff:g id="APP_NAME">%1$s</xliff:g> comme application par défaut pour la navigation?"</string>
     <string name="role_browser_request_description" msgid="5888803407905985941">"Aucune autorisation nécessaire"</string>
     <string name="role_dialer_label" msgid="1100224146343237968">"Appli de téléphone par défaut"</string>
-    <string name="role_dialer_short_label" msgid="7186888549465352489">"Application de téléphonie"</string>
+    <string name="role_dialer_short_label" msgid="7186888549465352489">"Appli Téléphone"</string>
     <string name="role_dialer_description" msgid="8768708633696539612">"Applications qui vous permettent de faire et de recevoir des appels téléphoniques sur votre appareil"</string>
     <string name="role_dialer_request_title" msgid="5959618560705912058">"Définir <xliff:g id="APP_NAME">%1$s</xliff:g> comme application de téléphonie par défaut?"</string>
     <string name="role_dialer_request_description" msgid="6288839625724909320">"Cette application aura accès à votre appareil photo, à vos contacts, à votre microphone, à votre téléphone et à vos messages texte"</string>

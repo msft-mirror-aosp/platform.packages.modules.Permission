@@ -470,7 +470,7 @@
     <string name="permgrouprequest_coarselocation" msgid="7244605063736425232">"ఈ పరికరానికి సంబంధించి సుమారుగా ఉన్న లొకేషన్‌ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ని అనుమతించాలా?"</string>
     <string name="permgrouprequest_finelocation_imagetext" msgid="1313062433398914334">"ఖచ్చితమైన"</string>
     <string name="permgrouprequest_coarselocation_imagetext" msgid="8650605041483025297">"సుమారుగా"</string>
-    <string name="permgrouprequest_calendar" msgid="1493150855673603806">"మీ క్యాలెండర్‌ని యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ని అనుమతించాలా?"</string>
+    <string name="permgrouprequest_calendar" msgid="1493150855673603806">"మీ క్యాలెండర్‌ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను అనుమతించాలా?"</string>
     <string name="permgrouprequest_sms" msgid="5672063688745420991">"SMS మెసేజ్‌లు పంపడం, చూడటం చేయగలిగేలా &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
     <string name="permgrouprequest_storage" msgid="8717773092518621602">"మీ పరికరంలోని ఫోటోలు, మీడియా, ఫైళ్లను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను అనుమతించాలా?"</string>
     <string name="permgrouprequest_storage_q_to_s" msgid="8213701872983685505">"ఈ పరికరంలో &lt;b&gt;ఫోటోలు, వీడియోలు, మ్యూజిక్, ఆడియో&lt;/b&gt;ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
