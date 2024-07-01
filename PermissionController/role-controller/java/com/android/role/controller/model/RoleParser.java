@@ -881,6 +881,8 @@ public class RoleParser {
                     throwOrLogMessage("Invalid value for \"maxTargetSdkVersion\": "
                             + maxTargetSdkVersion);
                 }
+                int minSdkVersion = getAttributeIntValue(parser,
+                        ATTRIBUTE_MIN_SDK_VERSION, Build.VERSION_CODES.BASE);
                 String modeName = requireAttributeValue(parser, ATTRIBUTE_MODE, TAG_APP_OP);
                 if (modeName == null) {
                     continue;
@@ -891,7 +893,7 @@ public class RoleParser {
                     continue;
                 }
                 int mode = sModeNameToMode.valueAt(modeIndex);
-                AppOp appOp = new AppOp(name, maxTargetSdkVersion, mode);
+                AppOp appOp = new AppOp(name, maxTargetSdkVersion, minSdkVersion, mode);
                 appOps.add(appOp);
             } else {
                 throwOrLogForUnknownTag(parser);
@@ -1221,6 +1223,9 @@ public class RoleParser {
     }
 
     private void validateAppOp(@NonNull AppOp appOp) {
+        if (!appOp.isAvailableBySdkVersion()) {
+            return;
+        }
         // This throws IllegalArgumentException if app op is unknown.
         String permission = AppOpsManager.opToPermission(appOp.getName());
         if (permission != null) {
