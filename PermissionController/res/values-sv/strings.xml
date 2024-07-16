@@ -21,6 +21,7 @@
     <string name="permission_search_keyword" msgid="1214451577494730543">"behörigheter"</string>
     <string name="cancel" msgid="8943320028373963831">"Avbryt"</string>
     <string name="back" msgid="6249950659061523680">"Tillbaka"</string>
+    <string name="dialog_close" msgid="6840699812532384661">"Stäng"</string>
     <string name="available" msgid="6007778121920339498">"Tillgänglig"</string>
     <string name="blocked" msgid="9195547604866033708">"Blockerad"</string>
     <string name="on" msgid="280241003226755921">"På"</string>
@@ -355,7 +356,7 @@
     <string name="role_assistant_label" msgid="4727586018198208128">"Digital assistentapp, standard"</string>
     <string name="role_assistant_short_label" msgid="3369003713187703399">"Digital assistentapp"</string>
     <string name="role_assistant_description" msgid="6622458130459922952">"Med assistentappar kan du få hjälp som baseras på den information som visas på den aktuella skärmen. Vissa appar har stöd för både översikts- och röstinmatningstjänster för att hjälpa dig."</string>
-    <string name="role_browser_label" msgid="2877796144554070207">"Standard webbläsarapp"</string>
+    <string name="role_browser_label" msgid="2877796144554070207">"Standard­webbläsarapp"</string>
     <string name="role_browser_short_label" msgid="6745009127123292296">"Webbläsarapp"</string>
     <string name="role_browser_description" msgid="3465253637499842671">"Appar som visar länkar du trycker på och du använder för att ansluta till internet"</string>
     <string name="role_browser_request_title" msgid="2895200507835937192">"Vill du ställa in <xliff:g id="APP_NAME">%1$s</xliff:g> som din standardwebbläsarapp?"</string>
@@ -681,4 +682,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"OK"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Begäran om behörighet har dolts"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Appen begär ytterligare behörigheter, men det går inte att bevilja behörigheter under streamingsessionen. Bevilja behörigheten på telefonen först."</string>
+    <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"För ett nödsamtal eller nöd-sms"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"Plats skickad till räddningstjänsten"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"Den här appen fick åtkomst till enhetens plats när du ringde eller sms:ade till ett nödnummer. Detta kan hända även när appen inte har platsbehörighet eller om enhetens plats är inaktiverad. "<a href="https://support.google.com/android/answer/9319337">"Läs mer"</a></string>
 </resources>
