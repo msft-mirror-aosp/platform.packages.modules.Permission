@@ -21,6 +21,7 @@
     <string name="permission_search_keyword" msgid="1214451577494730543">"أذونات"</string>
     <string name="cancel" msgid="8943320028373963831">"إلغاء"</string>
     <string name="back" msgid="6249950659061523680">"رجوع"</string>
+    <string name="dialog_close" msgid="6840699812532384661">"إغلاق"</string>
     <string name="available" msgid="6007778121920339498">"متاح"</string>
     <string name="blocked" msgid="9195547604866033708">"محظور"</string>
     <string name="on" msgid="280241003226755921">"مفعَّلة"</string>
@@ -195,7 +196,7 @@
     <string name="precise_image_description" msgid="6349638632303619872">"الموقع الجغرافي الدقيق"</string>
     <string name="approximate_image_description" msgid="938803699637069884">"الموقع الجغرافي التقريبي"</string>
     <string name="app_permission_location_accuracy" msgid="7166912915040018669">"استخدام الموقع الجغرافي الدقيق"</string>
-    <string name="app_permission_location_accuracy_subtitle" msgid="2654077606404987210">"عندما يكون الموقع الجغرافي الدقيق غير مفعّل، يمكن للتطبيقات الوصول إلى الموقع الجغرافي التقريبي"</string>
+    <string name="app_permission_location_accuracy_subtitle" msgid="2654077606404987210">"التطبيقات يمكنها الوصول إلى الموقع الجغرافي التقريبي عندما يكون الموقع الجغرافي الدقيق غير مفعّل"</string>
     <string name="app_permission_title" msgid="2090897901051370711">"إذن <xliff:g id="PERM">%1$s</xliff:g>"</string>
     <string name="app_permission_header" msgid="2951363137032603806">"منح هذا التطبيق الإذن بالوصول إلى <xliff:g id="PERM">%1$s</xliff:g>"</string>
     <string name="app_permission_header_with_device_name" msgid="7193042925656173271">"إذن \"<xliff:g id="PERM">%1$s</xliff:g>\" لهذا التطبيق على \"<xliff:g id="DEVICE_NAME">%2$s</xliff:g>\""</string>
@@ -673,7 +674,7 @@
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"للحفاظ على أمانك، هذا الإعداد غير متوفِّر حاليًا."</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"تم منع التطبيق من الوصول إلى <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"‏طلب التطبيق أحد أذونات الوصول إلى المعلومات الحساسة، ما قد يعرّض معلوماتك الشخصية والمالية للخطر.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>من المحتمل ألا يعمل التطبيق بشكل صحيح إذا لم يحصل على هذا الإذن المقيَّد. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;مزيد من المعلومات حول كيفية منح الأذونات&lt;/a&gt;"</string>
-    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"لم يتم السماح للتطبيق بأن يُستخدَم كـ <xliff:g id="ROLE_NAME">%1$s</xliff:g> تلقائيًا"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"لم يُسمَح للتطبيق بأن يكون <xliff:g id="ROLE_NAME">%1$s</xliff:g> التلقائي"</string>
     <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"‏طلب التطبيق أذونات الوصول إلى المعلومات الحساسة، ما قد يعرّض معلوماتك الشخصية والمالية للخطر.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>من المحتمل ألا يعمل التطبيق بشكل صحيح إذا لم يحصل على هذه الأذونات المقيَّدة. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;مزيد من المعلومات حول كيفية منح الأذونات&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"تم منع التطبيق من الوصول"</string>
     <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"‏إذا منحت التطبيق هذا الإذن، يمكن أن تتعرّض معلوماتك الشخصية والمالية للخطر.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>من المحتمل ألا يعمل التطبيق بشكل صحيح إذا لم يحصل على هذا الإذن المقيَّد. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;مزيد من المعلومات حول كيفية منح الأذونات&lt;/a&gt;"</string>
@@ -681,4 +682,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"حسنًا"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"تم إلغاء طلب الحصول على الإذن"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"يطلب هذا التطبيق الحصول على أذونات إضافية، ولكن لا يمكن منح أذونات في جلسة بث. امنح الإذن على هاتفك أولاً."</string>
+    <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"مراسلة نصية أو مكالمة طوارئ"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"تم إرسال بيانات الموقع الجغرافي إلى خدمات طوارئ"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"وصل هذا التطبيق إلى الموقع الجغرافي لجهازك أثناء إجراء اتصال برقم طوارئ أو مراسلته نصيًا. يمكن أن يحدث ذلك حتى إذا لم يحصل التطبيق على إذن تحديد الموقع الجغرافي أو لم يتم تفعيل إعدادات الموقع الجغرافي للجهاز. "<a href="https://support.google.com/android/answer/9319337">"مزيد من المعلومات"</a></string>
 </resources>
