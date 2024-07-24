@@ -22,6 +22,10 @@ apex {
     name: "com.android.permission",
     defaults: ["com.android.permission-defaults"],
     manifest: "apex_manifest.json",
+    compat_configs: [
+        "framework-permission-s-compat-config",
+    ],
+    visibility: ["//packages/modules/common/build"],
 }
 
 apex_defaults {
@@ -31,7 +35,6 @@ apex_defaults {
     systemserverclasspath_fragments: ["com.android.permission-systemserverclasspath-fragment"],
     prebuilts: [
         "current_sdkinfo",
-        "privapp_allowlist_com.android.permissioncontroller.xml",
     ],
     key: "com.android.permission.key",
     certificate: ":com.android.permission.certificate",
@@ -106,6 +109,7 @@ bootclasspath_fragment {
         // result in a build failure due to inconsistent flags.
         package_prefixes: [
             "android.app.role",
+            "android.app.ecm",
             "android.permission.jarjar",
             "android.safetycenter",
             "android.safetylabel",

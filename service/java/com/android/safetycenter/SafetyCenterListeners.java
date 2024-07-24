@@ -16,9 +16,6 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
-
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
@@ -30,7 +27,7 @@ import android.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
 import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicReference;
@@ -43,7 +40,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * <p>This class isn't thread safe. Thread safety must be handled by the caller.
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 final class SafetyCenterListeners {
 
@@ -67,7 +63,7 @@ final class SafetyCenterListeners {
         try {
             listener.onSafetyCenterDataChanged(safetyCenterData);
         } catch (RemoteException e) {
-            Log.e(TAG, "Error delivering SafetyCenterData to listener", e);
+            Log.w(TAG, "Error delivering SafetyCenterData to listener", e);
         }
     }
 
@@ -81,7 +77,7 @@ final class SafetyCenterListeners {
         try {
             listener.onError(safetyCenterErrorDetails);
         } catch (RemoteException e) {
-            Log.e(TAG, "Error delivering SafetyCenterErrorDetails to listener", e);
+            Log.w(TAG, "Error delivering SafetyCenterErrorDetails to listener", e);
         }
     }
 
@@ -91,10 +87,14 @@ final class SafetyCenterListeners {
      */
     void deliverDataForUserProfileGroup(UserProfileGroup userProfileGroup) {
         ArrayMap<String, SafetyCenterData> safetyCenterDataCache = new ArrayMap<>();
-        int[] relevantUserIds = userProfileGroup.getProfileParentAndManagedRunningProfilesUserIds();
+        int[] relevantUserIds = userProfileGroup.getAllRunningProfilesUserIds();
         for (int i = 0; i < relevantUserIds.length; i++) {
             deliverUpdateForUser(
-                    relevantUserIds[i], userProfileGroup, safetyCenterDataCache, true, null);
+                    relevantUserIds[i],
+                    userProfileGroup,
+                    safetyCenterDataCache,
+                    /* updateSafetyCenterData= */ true,
+                    /* safetyCenterErrorDetails= */ null);
         }
     }
 
@@ -105,13 +105,13 @@ final class SafetyCenterListeners {
     void deliverErrorForUserProfileGroup(
             UserProfileGroup userProfileGroup, SafetyCenterErrorDetails safetyCenterErrorDetails) {
         ArrayMap<String, SafetyCenterData> safetyCenterDataCache = new ArrayMap<>();
-        int[] relevantUserIds = userProfileGroup.getProfileParentAndManagedRunningProfilesUserIds();
+        int[] relevantUserIds = userProfileGroup.getAllRunningProfilesUserIds();
         for (int i = 0; i < relevantUserIds.length; i++) {
             deliverUpdateForUser(
                     relevantUserIds[i],
                     userProfileGroup,
                     safetyCenterDataCache,
-                    false,
+                    /* updateSafetyCenterData= */ false,
                     safetyCenterErrorDetails);
         }
     }

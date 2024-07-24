@@ -24,14 +24,23 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
+/** toBooleanString() doesn't seem available on all Kotlin versions we need to support. */
+private fun String.toBooleanStrictInt(): Boolean =
+    when (this) {
+        "true" -> true
+        "false" -> false
+        else ->
+            throw IllegalArgumentException("The string doesn't represent a boolean value: $this")
+    }
+
 /** JUnit rule for host side tests that requires Safety Center to be supported and enabled. */
 class RequireSafetyCenterRule(private val hostTestClass: BaseHostJUnit4Test) : TestRule {
 
     private val safetyCenterSupported: Boolean by lazy {
-        executeShellCommandOrThrow("cmd safety_center supported").toBoolean()
+        shellCommandStdoutOrThrow("cmd safety_center supported").toBooleanStrictInt()
     }
     private val safetyCenterEnabled: Boolean by lazy {
-        executeShellCommandOrThrow("cmd safety_center enabled").toBoolean()
+        shellCommandStdoutOrThrow("cmd safety_center enabled").toBooleanStrictInt()
     }
 
     override fun apply(base: Statement, description: Description): Statement {
@@ -45,13 +54,20 @@ class RequireSafetyCenterRule(private val hostTestClass: BaseHostJUnit4Test) : T
     }
 
     /** Returns the package name of Safety Center on the test device. */
-    fun getSafetyCenterPackageName(): String =
-        executeShellCommandOrThrow("cmd safety_center package-name")
+    fun getSafetyCenterPackageName(): String {
+        return shellCommandStdoutOrThrow("cmd safety_center package-name")
+    }
 
-    private fun executeShellCommandOrThrow(command: String): String {
+    private fun shellCommandStdoutOrThrow(command: String): String {
         val result = hostTestClass.device.executeShellV2Command(command)
         if (result.status != CommandStatus.SUCCESS) {
-            throw IOException("$command exited with status ${result.exitCode}")
+            throw IOException(
+                """Host-side test failed to execute adb shell command on test device.
+                        |Command '$command' exited with status code ${result.exitCode}.
+                        |This probably means the test device does not have a compatible version of
+                        |the Permission Mainline module. Please check the test configuration."""
+                    .trimMargin("|")
+            )
         }
         return result.stdout.trim()
     }

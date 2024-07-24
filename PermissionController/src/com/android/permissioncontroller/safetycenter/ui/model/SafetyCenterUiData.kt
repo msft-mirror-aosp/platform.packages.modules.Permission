@@ -16,19 +16,30 @@
 
 package com.android.permissioncontroller.safetycenter.ui.model
 
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.safetycenter.SafetyCenterData
 import android.safetycenter.SafetyCenterEntryGroup
 import android.safetycenter.SafetyCenterEntryOrGroup
 import android.safetycenter.SafetyCenterIssue
+import android.safetycenter.SafetyCenterIssue.ISSUE_SEVERITY_LEVEL_OK
 import androidx.annotation.RequiresApi
 import com.android.safetycenter.internaldata.SafetyCenterBundles.ISSUES_TO_GROUPS_BUNDLE_KEY
+import com.android.safetycenter.internaldata.SafetyCenterIds
+import com.android.safetycenter.internaldata.SafetyCenterIssueKey
 
 /** UI model representation of Safety Center Data */
 data class SafetyCenterUiData(
     val safetyCenterData: SafetyCenterData,
     val resolvedIssues: Map<IssueId, ActionId> = emptyMap()
 ) {
+    @RequiresApi(TIRAMISU)
+    fun getMatchingIssue(issueKey: SafetyCenterIssueKey): SafetyCenterIssue? {
+        return safetyCenterData.issues.find {
+            SafetyCenterIds.issueIdFromString(it.id).safetyCenterIssueKey == issueKey
+        }
+    }
+
     /** Returns the [SafetyCenterEntryGroup] corresponding to the provided ID */
     @RequiresApi(UPSIDE_DOWN_CAKE)
     fun getMatchingGroup(groupId: String): SafetyCenterEntryGroup? {
@@ -51,7 +62,7 @@ data class SafetyCenterUiData(
      */
     @RequiresApi(UPSIDE_DOWN_CAKE)
     fun getMatchingDismissedIssues(groupId: String): List<SafetyCenterIssue> =
-        selectMatchingIssuesForGroup(groupId, safetyCenterData.dismissedIssues)
+        selectMatchingIssuesForGroup(groupId, safetyCenterData.visibleDismissedIssues())
 
     @RequiresApi(UPSIDE_DOWN_CAKE)
     private fun selectMatchingIssuesForGroup(
@@ -68,4 +79,9 @@ data class SafetyCenterUiData(
             if (mappingExists) matchesInMapping else matchesByDefault
         }
     }
+
+    /** Returns the [SafetyCenterData.getDismissedIssues] that are meant to be visible in the UI. */
+    @RequiresApi(UPSIDE_DOWN_CAKE)
+    fun SafetyCenterData.visibleDismissedIssues() =
+        dismissedIssues.filter { it.severityLevel > ISSUE_SEVERITY_LEVEL_OK }
 }

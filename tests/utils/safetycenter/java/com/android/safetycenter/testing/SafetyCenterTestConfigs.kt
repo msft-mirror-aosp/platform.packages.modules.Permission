@@ -31,6 +31,7 @@ import android.safetycenter.config.SafetySource.SAFETY_SOURCE_TYPE_STATIC
 import android.safetycenter.config.SafetySourcesGroup
 import androidx.annotation.RequiresApi
 import com.android.modules.utils.build.SdkLevel
+import com.android.permission.flags.Flags
 import com.android.safetycenter.testing.SettingsPackage.getSettingsPackageName
 import java.security.MessageDigest
 
@@ -49,7 +50,7 @@ class SafetyCenterTestConfigs(private val context: Context) {
                         context.packageName,
                         PackageInfoFlags.of(GET_SIGNING_CERTIFICATES.toLong())
                     )
-                    .signingInfo
+                    .signingInfo!!
                     .apkContentsSigners[0]
                     .toByteArray()
             )
@@ -64,7 +65,9 @@ class SafetyCenterTestConfigs(private val context: Context) {
      */
     val singleSourceInvalidIntentConfig =
         singleSourceConfig(
-            dynamicSafetySourceBuilder(SINGLE_SOURCE_ID).setIntentAction("stub").build()
+            dynamicSafetySourceBuilder(SINGLE_SOURCE_ID)
+                .setIntentAction(INTENT_ACTION_NOT_RESOLVING)
+                .build()
         )
 
     /**
@@ -156,6 +159,14 @@ class SafetyCenterTestConfigs(private val context: Context) {
 
     /** A [SafetyCenterConfig] with a dynamic source in a different, missing package. */
     val singleSourceOtherPackageConfig = singleSourceConfig(dynamicOtherPackageSafetySource)
+
+    /** A [SafetyCenterConfig] with a dynamic hidden-by-default source. */
+    val hiddenSourceConfig =
+        singleSourceConfig(
+            dynamicSafetySourceBuilder(DYNAMIC_HIDDEN_ID)
+                .setInitialDisplayState(SafetySource.INITIAL_DISPLAY_STATE_HIDDEN)
+                .build()
+        )
 
     /** A simple [SafetyCenterConfig] with a source supporting all profiles. */
     val singleSourceAllProfileConfig =
@@ -348,7 +359,9 @@ class SafetyCenterTestConfigs(private val context: Context) {
             .addSafetySourcesGroup(
                 safetySourcesGroupBuilder(MULTIPLE_SOURCES_GROUP_ID_1)
                     .addSafetySource(
-                        dynamicSafetySourceBuilder(SOURCE_ID_1).setIntentAction("stub").build()
+                        dynamicSafetySourceBuilder(SOURCE_ID_1)
+                            .setIntentAction(INTENT_ACTION_NOT_RESOLVING)
+                            .build()
                     )
                     .addSafetySource(dynamicSafetySource(SOURCE_ID_2))
                     .build()
@@ -373,9 +386,7 @@ class SafetyCenterTestConfigs(private val context: Context) {
      * Source group provided by [staticSourcesConfig] containing a single source [staticSource1].
      */
     val staticSourceGroup1 =
-        SafetySourcesGroup.Builder()
-            .setId("test_static_sources_group_id_1")
-            .setTitleResId(android.R.string.paste)
+        staticSafetySourcesGroupBuilder("test_static_sources_group_id_1")
             .addSafetySource(staticSource1)
             .build()
 
@@ -383,8 +394,7 @@ class SafetyCenterTestConfigs(private val context: Context) {
      * Source group provided by [staticSourcesConfig] containing a single source [staticSource2].
      */
     val staticSourceGroup2 =
-        SafetySourcesGroup.Builder()
-            .setId("test_static_sources_group_id_2")
+        staticSafetySourcesGroupBuilder("test_static_sources_group_id_2")
             .setTitleResId(android.R.string.copy)
             .addSafetySource(staticSource2)
             .build()
@@ -402,7 +412,44 @@ class SafetyCenterTestConfigs(private val context: Context) {
      * The particular source ID is configured in the same way as sources hosted by the Settings app,
      * to launch as if it is part of the Settings app UI.
      */
-    val singleStaticSettingsSource = singleSourceConfig(staticSafetySource("TestSource"))
+    val singleStaticSettingsSourceConfig =
+        SafetyCenterConfig.Builder()
+            .addSafetySourcesGroup(
+                staticSafetySourcesGroupBuilder("single_static_source_group")
+                    .addSafetySource(staticSafetySource("TestSource"))
+                    .build()
+            )
+            .build()
+
+    /** A [SafetyCenterConfig] with a single static source and an intent that doesn't resolve */
+    val singleStaticInvalidIntentConfig =
+        SafetyCenterConfig.Builder()
+            .addSafetySourcesGroup(
+                staticSafetySourcesGroupBuilder("single_static_source_group")
+                    .addSafetySource(
+                        staticSafetySourceBuilder(SINGLE_SOURCE_ID)
+                            .setIntentAction(INTENT_ACTION_NOT_RESOLVING)
+                            .build()
+                    )
+                    .build()
+            )
+            .build()
+
+    /**
+     * A [SafetyCenterConfig] with a single static source and an implicit intent that isn't exported
+     */
+    val singleStaticImplicitIntentNotExportedConfig =
+        SafetyCenterConfig.Builder()
+            .addSafetySourcesGroup(
+                staticSafetySourcesGroupBuilder("single_static_source_group")
+                    .addSafetySource(
+                        staticSafetySourceBuilder(SINGLE_SOURCE_ID)
+                            .setIntentAction(ACTION_TEST_ACTIVITY)
+                            .build()
+                    )
+                    .build()
+            )
+            .build()
 
     /** [SafetyCenterConfig] used in tests for Your Work Policy Info source. */
     val workPolicyInfoConfig =
@@ -640,6 +687,11 @@ class SafetyCenterTestConfigs(private val context: Context) {
                             .setSummaryResId(Resources.ID_NULL)
                             .setIntentAction(null)
                             .setInitialDisplayState(SafetySource.INITIAL_DISPLAY_STATE_HIDDEN)
+                            .apply {
+                                if (SdkLevel.isAtLeastV() && Flags.privateProfileTitleApi()) {
+                                    setTitleForPrivateProfileResId(Resources.ID_NULL)
+                                }
+                            }
                             .build()
                     )
                     .build()
@@ -742,6 +794,11 @@ class SafetyCenterTestConfigs(private val context: Context) {
         dynamicSafetySourceBuilder(id)
             .setProfile(SafetySource.PROFILE_ALL)
             .setTitleForWorkResId(android.R.string.paste)
+            .apply {
+                if (SdkLevel.isAtLeastV() && Flags.privateProfileTitleApi()) {
+                    setTitleForPrivateProfileResId(android.R.string.paste)
+                }
+            }
 
     private fun staticSafetySource(id: String) = staticSafetySourceBuilder(id).build()
 
@@ -750,13 +807,18 @@ class SafetyCenterTestConfigs(private val context: Context) {
             .setId(id)
             .setTitleResId(android.R.string.ok)
             .setSummaryResId(android.R.string.ok)
-            .setIntentAction(ACTION_TEST_ACTIVITY)
+            .setIntentAction(ACTION_TEST_ACTIVITY_EXPORTED)
             .setProfile(SafetySource.PROFILE_PRIMARY)
 
     private fun staticAllProfileSafetySourceBuilder(id: String) =
         staticSafetySourceBuilder(id)
             .setProfile(SafetySource.PROFILE_ALL)
             .setTitleForWorkResId(android.R.string.paste)
+            .apply {
+                if (SdkLevel.isAtLeastV() && Flags.privateProfileTitleApi()) {
+                    setTitleForPrivateProfileResId(android.R.string.unknownName)
+                }
+            }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private fun issueOnlySafetySourceWithDuplicationInfo(id: String, deduplicationGroup: String) =
@@ -779,6 +841,9 @@ class SafetyCenterTestConfigs(private val context: Context) {
             .setId(id)
             .setTitleResId(android.R.string.ok)
             .setSummaryResId(android.R.string.ok)
+
+    private fun staticSafetySourcesGroupBuilder(id: String) =
+        SafetySourcesGroup.Builder().setId(id).setTitleResId(android.R.string.paste)
 
     fun singleSourceConfig(safetySource: SafetySource) =
         SafetyCenterConfig.Builder()
@@ -807,7 +872,9 @@ class SafetyCenterTestConfigs(private val context: Context) {
          * ID of the only source provided in [singleSourceConfig], [severityZeroConfig] and
          * [noPageOpenConfig].
          */
+        // LINT.IfChange(single_source_id)
         const val SINGLE_SOURCE_ID = "test_single_source_id"
+        // LINT.ThenChange(/tests/hostside/safetycenter/src/android/safetycenter/hostside/SafetyCenterInteractionLoggingHostTest.kt:single_source_id)
 
         /** ID of the only source provided in [singleSourceAllProfileConfig]. */
         const val SINGLE_SOURCE_ALL_PROFILE_ID = "test_single_source_all_profile_id"
@@ -1033,5 +1100,7 @@ class SafetyCenterTestConfigs(private val context: Context) {
          * [privacySubpageWithoutDataSourcesConfig], to replicate the privacy sources group.
          */
         const val ANDROID_PRIVACY_SOURCES_GROUP_ID = "AndroidPrivacySources"
+
+        private const val INTENT_ACTION_NOT_RESOLVING = "there.is.no.way.this.resolves"
     }
 }

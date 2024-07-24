@@ -16,12 +16,14 @@
 
 package com.android.safetycenter;
 
-import static android.os.Build.VERSION_CODES.TIRAMISU;
+import static com.android.safetycenter.UserProfileGroup.PROFILE_TYPE_MANAGED;
+import static com.android.safetycenter.UserProfileGroup.PROFILE_TYPE_PRIMARY;
+import static com.android.safetycenter.UserProfileGroup.PROFILE_TYPE_PRIVATE;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.Nullable;
 import android.content.res.Resources;
 import android.safetycenter.config.SafetyCenterConfig;
 import android.safetycenter.config.SafetySource;
@@ -29,11 +31,12 @@ import android.safetycenter.config.SafetySourcesGroup;
 import android.util.ArrayMap;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 
+import com.android.safetycenter.UserProfileGroup.ProfileType;
 import com.android.safetycenter.config.ParseException;
 import com.android.safetycenter.config.SafetyCenterConfigParser;
-import com.android.safetycenter.resources.SafetyCenterResourcesContext;
+import com.android.safetycenter.resources.SafetyCenterResourcesApk;
 
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -50,21 +53,20 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * @hide
  */
-@RequiresApi(TIRAMISU)
 @NotThreadSafe
 public final class SafetyCenterConfigReader {
 
     private static final String TAG = "SafetyCenterConfigReade";
 
-    private final SafetyCenterResourcesContext mSafetyCenterResourcesContext;
+    private final SafetyCenterResourcesApk mSafetyCenterResourcesApk;
 
     @Nullable private SafetyCenterConfigInternal mConfigInternalFromXml;
 
     @Nullable private SafetyCenterConfigInternal mConfigInternalOverrideForTests;
 
-    /** Creates a {@link SafetyCenterConfigReader} from a {@link SafetyCenterResourcesContext}. */
-    SafetyCenterConfigReader(SafetyCenterResourcesContext safetyCenterResourcesContext) {
-        mSafetyCenterResourcesContext = safetyCenterResourcesContext;
+    /** Creates a {@link SafetyCenterConfigReader} from a {@link SafetyCenterResourcesApk}. */
+    SafetyCenterConfigReader(SafetyCenterResourcesApk safetyCenterResourcesApk) {
+        mSafetyCenterResourcesApk = safetyCenterResourcesApk;
     }
 
     /**
@@ -76,7 +78,7 @@ public final class SafetyCenterConfigReader {
      * this method was {@code true}.
      */
     boolean loadConfig() {
-        SafetyCenterConfig safetyCenterConfig = readSafetyCenterConfig();
+        SafetyCenterConfig safetyCenterConfig = loadSafetyCenterConfig();
         if (safetyCenterConfig == null) {
             return false;
         }
@@ -114,7 +116,7 @@ public final class SafetyCenterConfigReader {
 
     /**
      * Returns the groups of {@link SafetySource}, filtering out any sources where {@link
-     * SafetySources#isLoggable(SafetySource)} is false (and any resultingly empty groups).
+     * SafetySources#isLoggable(SafetySource)} is {@code false} (and any resulting empty groups).
      */
     public List<SafetySourcesGroup> getLoggableSafetySourcesGroups() {
         return getCurrentConfigInternal().getLoggableSourcesGroups();
@@ -137,15 +139,15 @@ public final class SafetyCenterConfigReader {
     @Nullable
     public ExternalSafetySource getExternalSafetySource(
             String safetySourceId, String callingPackageName) {
-        SafetyCenterConfigInternal currentConfig = getCurrentConfigInternal();
+        SafetyCenterConfigInternal testConfig = mConfigInternalOverrideForTests;
         SafetyCenterConfigInternal xmlConfig = requireNonNull(mConfigInternalFromXml);
-        if (currentConfig == xmlConfig) {
+        if (testConfig == null) {
             // No override, access source directly.
-            return currentConfig.getExternalSafetySources().get(safetySourceId);
+            return xmlConfig.getExternalSafetySources().get(safetySourceId);
         }
 
         ExternalSafetySource externalSafetySourceInTestConfig =
-                currentConfig.getExternalSafetySources().get(safetySourceId);
+                testConfig.getExternalSafetySources().get(safetySourceId);
         ExternalSafetySource externalSafetySourceInRealConfig =
                 xmlConfig.getExternalSafetySources().get(safetySourceId);
 
@@ -179,15 +181,19 @@ public final class SafetyCenterConfigReader {
      * source is expected to interact with Safety Center, but is currently being silenced / no-ops
      * while an override for tests is in place.
      *
-     * <p>The {@code callingPackageName} is used to differentiate a real source being overridden. It
-     * could be that a test is overriding a real source and as such the real source should not be
-     * able to provide data while its override is in place.
+     * <p>The {@code callingPackageName} can be used to differentiate a real source being
+     * overridden. It could be that a test is overriding a real source and as such the real source
+     * should not be able to provide data while its override is in place.
      */
-    public boolean isExternalSafetySourceActive(String safetySourceId, String callingPackageName) {
+    public boolean isExternalSafetySourceActive(
+            String safetySourceId, @Nullable String callingPackageName) {
         ExternalSafetySource externalSafetySourceInCurrentConfig =
                 getCurrentConfigInternal().getExternalSafetySources().get(safetySourceId);
         if (externalSafetySourceInCurrentConfig == null) {
             return false;
+        }
+        if (callingPackageName == null) {
+            return true;
         }
         return Objects.equals(
                 externalSafetySourceInCurrentConfig.getSafetySource().getPackageName(),
@@ -225,26 +231,21 @@ public final class SafetyCenterConfigReader {
     }
 
     @Nullable
-    private SafetyCenterConfig readSafetyCenterConfig() {
-        InputStream in = mSafetyCenterResourcesContext.getSafetyCenterConfig();
+    private SafetyCenterConfig loadSafetyCenterConfig() {
+        InputStream in = mSafetyCenterResourcesApk.getSafetyCenterConfig();
         if (in == null) {
-            Log.e(TAG, "Cannot get safety center config file, safety center will be disabled.");
+            Log.e(TAG, "Cannot access Safety Center config file");
             return null;
         }
 
-        Resources resources = mSafetyCenterResourcesContext.getResources();
-        if (resources == null) {
-            Log.e(TAG, "Cannot get safety center resources, safety center will be disabled.");
-            return null;
-        }
-
+        Resources resources = mSafetyCenterResourcesApk.getResources();
         try {
             SafetyCenterConfig safetyCenterConfig =
                     SafetyCenterConfigParser.parseXmlResource(in, resources);
-            Log.i(TAG, "SafetyCenterConfig read successfully");
+            Log.d(TAG, "SafetyCenterConfig loaded successfully");
             return safetyCenterConfig;
         } catch (ParseException e) {
-            Log.e(TAG, "Cannot read SafetyCenterConfig, safety center will be disabled.", e);
+            Log.e(TAG, "Cannot parse SafetyCenterConfig", e);
             return null;
         }
     }
@@ -415,11 +416,24 @@ public final class SafetyCenterConfigReader {
                         broadcast.mSourceIdsForProfileParentOnPageOpen.add(safetySource.getId());
                     }
                     boolean needsManagedProfilesBroadcast =
-                            SafetySources.supportsManagedProfiles(safetySource);
+                            SafetySources.supportsProfileType(safetySource, PROFILE_TYPE_MANAGED);
                     if (needsManagedProfilesBroadcast) {
                         broadcast.mSourceIdsForManagedProfiles.add(safetySource.getId());
                         if (safetySource.isRefreshOnPageOpenAllowed()) {
                             broadcast.mSourceIdsForManagedProfilesOnPageOpen.add(
+                                    safetySource.getId());
+                        }
+                    }
+
+                    // TODO(b/317378205): think about generalising these fields in Broadcast so that
+                    // we are not duplicating the code - it can be a source of confusion and errors
+                    // in future.
+                    boolean needsPrivateProfileBroadcast =
+                            SafetySources.supportsProfileType(safetySource, PROFILE_TYPE_PRIVATE);
+                    if (needsPrivateProfileBroadcast) {
+                        broadcast.mSourceIdsForPrivateProfile.add(safetySource.getId());
+                        if (safetySource.isRefreshOnPageOpenAllowed()) {
+                            broadcast.mSourceIdsForPrivateProfileOnPageOpen.add(
                                     safetySource.getId());
                         }
                     }
@@ -491,6 +505,8 @@ public final class SafetyCenterConfigReader {
         private final List<String> mSourceIdsForProfileParentOnPageOpen = new ArrayList<>();
         private final List<String> mSourceIdsForManagedProfiles = new ArrayList<>();
         private final List<String> mSourceIdsForManagedProfilesOnPageOpen = new ArrayList<>();
+        private final List<String> mSourceIdsForPrivateProfile = new ArrayList<>();
+        private final List<String> mSourceIdsForPrivateProfileOnPageOpen = new ArrayList<>();
 
         private Broadcast(String packageName) {
             mPackageName = packageName;
@@ -502,41 +518,42 @@ public final class SafetyCenterConfigReader {
         }
 
         /**
-         * Returns the safety source ids associated with this broadcast in the profile owner.
+         * Returns the safety source ids associated with this broadcast in the given profile type.
          *
-         * <p>If this list is empty, there are no sources to dispatch to in the profile owner.
+         * <p>If this list is empty, there are no sources to dispatch to in the given profile type.
          */
-        List<String> getSourceIdsForProfileParent() {
-            return unmodifiableList(mSourceIdsForProfileParent);
+        List<String> getSourceIdsForProfileType(@ProfileType int profileType) {
+            switch (profileType) {
+                case PROFILE_TYPE_PRIMARY:
+                    return unmodifiableList(mSourceIdsForProfileParent);
+                case PROFILE_TYPE_MANAGED:
+                    return unmodifiableList(mSourceIdsForManagedProfiles);
+                case PROFILE_TYPE_PRIVATE:
+                    return unmodifiableList(mSourceIdsForPrivateProfile);
+                default:
+                    Log.w(TAG, "source ids asked for unexpected profile " + profileType);
+                    return emptyList();
+            }
         }
 
         /**
-         * Returns the safety source ids associated with this broadcast in the profile owner that
-         * have refreshOnPageOpenAllowed set to true in the XML config.
-         *
-         * <p>If this list is empty, there are no sources to dispatch to in the profile owner.
-         */
-        List<String> getSourceIdsForProfileParentOnPageOpen() {
-            return unmodifiableList(mSourceIdsForProfileParentOnPageOpen);
-        }
-
-        /**
-         * Returns the safety source ids associated with this broadcast in the managed profile(s).
-         *
-         * <p>If this list is empty, there are no sources to dispatch to in the managed profile(s).
-         */
-        List<String> getSourceIdsForManagedProfiles() {
-            return unmodifiableList(mSourceIdsForManagedProfiles);
-        }
-
-        /**
-         * Returns the safety source ids associated with this broadcast in the managed profile(s)
+         * Returns the safety source ids associated with this broadcast in the given profile type
          * that have refreshOnPageOpenAllowed set to true in the XML config.
          *
-         * <p>If this list is empty, there are no sources to dispatch to in the managed profile(s).
+         * <p>If this list is empty, there are no sources to dispatch to in the given profile type.
          */
-        List<String> getSourceIdsForManagedProfilesOnPageOpen() {
-            return unmodifiableList(mSourceIdsForManagedProfilesOnPageOpen);
+        List<String> getSourceIdsOnPageOpenForProfileType(@ProfileType int profileType) {
+            switch (profileType) {
+                case PROFILE_TYPE_PRIMARY:
+                    return unmodifiableList(mSourceIdsForProfileParentOnPageOpen);
+                case PROFILE_TYPE_MANAGED:
+                    return unmodifiableList(mSourceIdsForManagedProfilesOnPageOpen);
+                case PROFILE_TYPE_PRIVATE:
+                    return unmodifiableList(mSourceIdsForPrivateProfileOnPageOpen);
+                default:
+                    Log.w(TAG, "source ids asked for unexpected profile " + profileType);
+                    return emptyList();
+            }
         }
 
         @Override
@@ -550,7 +567,10 @@ public final class SafetyCenterConfigReader {
                             that.mSourceIdsForProfileParentOnPageOpen)
                     && mSourceIdsForManagedProfiles.equals(that.mSourceIdsForManagedProfiles)
                     && mSourceIdsForManagedProfilesOnPageOpen.equals(
-                            that.mSourceIdsForManagedProfilesOnPageOpen);
+                            that.mSourceIdsForManagedProfilesOnPageOpen)
+                    && mSourceIdsForPrivateProfile.equals(that.mSourceIdsForPrivateProfile)
+                    && mSourceIdsForPrivateProfileOnPageOpen.equals(
+                            that.mSourceIdsForPrivateProfileOnPageOpen);
         }
 
         @Override
@@ -560,7 +580,9 @@ public final class SafetyCenterConfigReader {
                     mSourceIdsForProfileParent,
                     mSourceIdsForProfileParentOnPageOpen,
                     mSourceIdsForManagedProfiles,
-                    mSourceIdsForManagedProfilesOnPageOpen);
+                    mSourceIdsForManagedProfilesOnPageOpen,
+                    mSourceIdsForPrivateProfile,
+                    mSourceIdsForPrivateProfileOnPageOpen);
         }
 
         @Override
@@ -576,6 +598,10 @@ public final class SafetyCenterConfigReader {
                     + mSourceIdsForManagedProfiles
                     + ", mSourceIdsForManagedProfilesOnPageOpen="
                     + mSourceIdsForManagedProfilesOnPageOpen
+                    + ", mSourceIdsForPrivateProfile="
+                    + mSourceIdsForPrivateProfile
+                    + ", mSourceIdsForPrivateProfileOnPageOpen="
+                    + mSourceIdsForPrivateProfileOnPageOpen
                     + '}';
         }
     }

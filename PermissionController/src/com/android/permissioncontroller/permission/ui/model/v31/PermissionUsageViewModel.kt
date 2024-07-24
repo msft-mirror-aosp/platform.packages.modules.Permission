@@ -22,6 +22,7 @@ import android.app.role.RoleManager
 import android.os.Build
 import android.os.Bundle
 import android.os.UserHandle
+import android.os.UserManager
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.AndroidViewModel
@@ -32,6 +33,7 @@ import com.android.permissioncontroller.permission.data.AppPermGroupUiInfoLiveDa
 import com.android.permissioncontroller.permission.data.LightPackageInfoLiveData
 import com.android.permissioncontroller.permission.data.SmartUpdateMediatorLiveData
 import com.android.permissioncontroller.permission.data.StandardPermGroupNamesLiveData
+import com.android.permissioncontroller.permission.data.get
 import com.android.permissioncontroller.permission.data.v31.AllLightPackageOpsLiveData
 import com.android.permissioncontroller.permission.model.livedatatypes.v31.AppPermissionId
 import com.android.permissioncontroller.permission.model.livedatatypes.v31.LightPackageOps
@@ -54,6 +56,8 @@ class PermissionUsageViewModel(
     private val state: SavedStateHandle,
     app: Application,
 ) : AndroidViewModel(app) {
+    private val userManager =
+        Utils.getSystemServiceSafe(app.applicationContext, UserManager::class.java)
     private val roleManager =
         Utils.getSystemServiceSafe(app.applicationContext, RoleManager::class.java)
     private val exemptedPackages: Set<String> = Utils.getExemptedPackages(roleManager)
@@ -98,7 +102,8 @@ class PermissionUsageViewModel(
             showSystem,
             show7Days,
             mAllLightPackageOpsLiveData.containsSystemAppUsages(startTime),
-            mAllLightPackageOpsLiveData.buildPermissionGroupsWithUsageCounts(startTime, showSystem))
+            mAllLightPackageOpsLiveData.buildPermissionGroupsWithUsageCounts(startTime, showSystem)
+        )
     }
 
     /** Builds a map of permission groups to the number of apps that recently accessed them. */
@@ -112,16 +117,24 @@ class PermissionUsageViewModel(
         }
 
         val eligibleLightPackageOpsList: List<LightPackageOps> =
-            getAllLightPackageOps()?.filterOutExemptedApps() ?: listOf()
+            getAllLightPackageOps()?.filterOutExemptedApps()?.filter {
+                Utils.shouldShowInSettings(it.userHandle, userManager)
+            }
+                ?: listOf()
 
         for (lightPackageOps: LightPackageOps in eligibleLightPackageOpsList) {
             val permGroupsToLastAccess: List<Map.Entry<String, Long>> =
                 lightPackageOps.lastPermissionGroupAccessTimesMs.entries
                     .filterOutExemptedPermissionGroupsFromKeys()
                     .filterOutPermissionsNotRequestedByApp(
-                        lightPackageOps.packageName, lightPackageOps.userHandle)
+                        lightPackageOps.packageName,
+                        lightPackageOps.userHandle
+                    )
                     .filterOutSystemAppPermissionsIfNecessary(
-                        showSystem, lightPackageOps.packageName, lightPackageOps.userHandle)
+                        showSystem,
+                        lightPackageOps.packageName,
+                        lightPackageOps.userHandle
+                    )
                     .filterAccessTimeLaterThan(startTime)
             val recentlyUsedPermissions: List<String> = permGroupsToLastAccess.map { it.key }
 
@@ -147,10 +160,14 @@ class PermissionUsageViewModel(
                     .filterAccessTimeLaterThan(startTime)
                     .map { it.key }
                     .toSet()
-            if (recentlyUsedPermissions
-                .filterOutExemptedPermissionGroups()
-                .containsSystemAppPermission(
-                    lightPackageOps.packageName, lightPackageOps.userHandle)) {
+            if (
+                recentlyUsedPermissions
+                    .filterOutExemptedPermissionGroups()
+                    .containsSystemAppPermission(
+                        lightPackageOps.packageName,
+                        lightPackageOps.userHandle
+                    )
+            ) {
                 return true
             }
         }
@@ -186,9 +203,11 @@ class PermissionUsageViewModel(
         // The Telecom doesn't request microphone or camera permissions. However, telecom app may
         // use these permissions and they are considered system app permissions, so we return true
         // even if the AppPermGroupUiInfo is unavailable.
-        if (appPermissionId.packageName == TELECOM_PACKAGE &&
-            (appPermissionId.permissionGroup == Manifest.permission_group.CAMERA ||
-                appPermissionId.permissionGroup == Manifest.permission_group.MICROPHONE)) {
+        if (
+            appPermissionId.packageName == TELECOM_PACKAGE &&
+                (appPermissionId.permissionGroup == Manifest.permission_group.CAMERA ||
+                    appPermissionId.permissionGroup == Manifest.permission_group.MICROPHONE)
+        ) {
             return true
         }
         return false
@@ -302,36 +321,55 @@ class PermissionUsageViewModel(
                 if (mAllLightPackageOpsLiveData.isStale) {
                     return
                 }
+                if (
+                    appPermGroupUiInfoLiveDataList.any {
+                        !it.value.isInitialized || it.value.isStale
+                    }
+                ) {
+                    return
+                }
+                if (
+                    lightPackageInfoLiveDataMap.any { !it.value.isInitialized || it.value.isStale }
+                ) {
+                    return
+                }
 
+                val packageOps: Map<Pair<String, UserHandle>, LightPackageOps> =
+                    mAllLightPackageOpsLiveData.value ?: emptyMap()
                 val appPermissionIds = mutableListOf<AppPermissionId>()
-                val allPackages = mAllLightPackageOpsLiveData.value?.keys ?: setOf()
-                for (packageWithUserHandle: Pair<String, UserHandle> in allPackages) {
-                    for (permissionGroup in getAllEligiblePermissionGroups()) {
+                val allPackages = packageOps.keys
+
+                packageOps.forEach { (packageWithUserHandle, pkgOps) ->
+                    pkgOps.lastPermissionGroupAccessTimesMs.keys.forEach { permissionGroup ->
                         appPermissionIds.add(
                             AppPermissionId(
                                 packageWithUserHandle.first,
                                 packageWithUserHandle.second,
                                 permissionGroup,
-                            ))
+                            )
+                        )
                     }
                 }
 
                 setSourcesToDifference(
                     appPermissionIds,
                     appPermGroupUiInfoLiveDataList,
-                    getAppPermGroupUiInfoLiveData) {
-                        update()
-                    }
+                    getAppPermGroupUiInfoLiveData
+                ) {
+                    update()
+                }
 
                 setSourcesToDifference(
-                    allPackages, lightPackageInfoLiveDataMap, getLightPackageInfoLiveData) {
-                        update()
-                    }
+                    allPackages,
+                    lightPackageInfoLiveDataMap,
+                    getLightPackageInfoLiveData
+                ) {
+                    update()
+                }
 
                 if (lightPackageInfoLiveDataMap.any { it.value.isStale }) {
                     return
                 }
-
 
                 if (appPermGroupUiInfoLiveDataList.any { it.value.isStale }) {
                     return

@@ -21,13 +21,18 @@ import android.safetycenter.SafetySourceData
 import android.safetycenter.SafetySourceIssue
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.android.safetycenter.pendingintents.PendingIntentSender
+import com.android.safetycenter.testing.SafetyCenterActivityLauncher
 import com.android.safetycenter.testing.SafetyCenterFlags
 import com.android.safetycenter.testing.SafetyCenterTestConfigs
 import com.android.safetycenter.testing.SafetyCenterTestConfigs.Companion.SINGLE_SOURCE_ID
 import com.android.safetycenter.testing.SafetyCenterTestHelper
+import com.android.safetycenter.testing.SafetyCenterTestRule
 import com.android.safetycenter.testing.SafetySourceTestData
-import org.junit.After
+import com.android.safetycenter.testing.StatusBarNotificationWithChannel
+import com.android.safetycenter.testing.TestNotificationListener
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -48,23 +53,28 @@ class SafetyCenterNotificationLoggingHelperTests {
     private val safetySourceTestData = SafetySourceTestData(context)
     private val safetyCenterTestConfigs = SafetyCenterTestConfigs(context)
 
+    @get:Rule
+    val safetyCenterTestRule =
+        SafetyCenterTestRule(safetyCenterTestHelper, withNotifications = true)
+
     @Before
     fun setUp() {
-        safetyCenterTestHelper.setup()
         SafetyCenterFlags.notificationsEnabled = true
         SafetyCenterFlags.notificationsAllowedSources = setOf(SINGLE_SOURCE_ID)
         SafetyCenterFlags.allowStatsdLogging = true
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
     }
 
-    @After
-    fun tearDown() {
-        safetyCenterTestHelper.reset()
-    }
-
     @Test
     fun sendNotification() {
         safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, newTestDataWithNotifiableIssue())
+    }
+
+    @Test
+    fun openSafetyCenterFromNotification() {
+        safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, newTestDataWithNotifiableIssue())
+
+        sendContentPendingIntent(TestNotificationListener.waitForSingleNotification())
     }
 
     private fun newTestDataWithNotifiableIssue(): SafetySourceData =
@@ -77,4 +87,17 @@ class SafetyCenterNotificationLoggingHelperTests {
                     .build()
             )
             .build()
+
+    companion object {
+        private fun sendContentPendingIntent(
+            statusBarNotificationWithChannel: StatusBarNotificationWithChannel
+        ) {
+            val contentIntent =
+                statusBarNotificationWithChannel.statusBarNotification.notification.contentIntent
+            SafetyCenterActivityLauncher.executeBlockAndExit(
+                launchActivity = { PendingIntentSender.send(contentIntent) },
+                block = {} // No action required
+            )
+        }
+    }
 }
