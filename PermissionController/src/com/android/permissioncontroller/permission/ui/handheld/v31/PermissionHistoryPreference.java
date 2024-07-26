@@ -20,6 +20,7 @@ import static com.android.permissioncontroller.PermissionControllerStatsLog.PERM
 import static com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_DETAILS_INTERACTION__ACTION__INFO_ICON_CLICKED;
 import static com.android.permissioncontroller.PermissionControllerStatsLog.write;
 
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +29,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.UserHandle;
 import android.text.format.DateFormat;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -47,7 +49,7 @@ import com.android.permissioncontroller.permission.compat.IntentCompat;
 import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageDetailsViewModel;
 import com.android.permissioncontroller.permission.utils.Utils;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -64,26 +66,23 @@ public class PermissionHistoryPreference extends Preference {
     private final long mAccessStartTime;
     private final long mAccessEndTime;
     private final Drawable mAppIcon;
-    private final String mTitle;
-    private final ArrayList<String> mAttributionTags;
+    private final List<String> mAttributionTags;
     private final boolean mIsLastUsage;
     private final Intent mIntent;
     private final boolean mShowingAttribution;
     private final PackageManager mUserPackageManager;
+    private final boolean mIsEmergencyLocationAccess;
 
     private final long mSessionId;
 
-    private Drawable mWidgetIcon;
+    private Drawable mInfoWidgetIcon;
 
-    public PermissionHistoryPreference(@NonNull Context context,
-            @NonNull UserHandle userHandle, @NonNull String pkgName,
-            @Nullable Drawable appIcon,
-            @NonNull String preferenceTitle,
-            @NonNull String permissionGroup,
-            @NonNull long accessStartTime,
-            @NonNull long accessEndTime,
-            @Nullable CharSequence summaryText, boolean showingAttribution,
-            @NonNull ArrayList<String> attributionTags, boolean isLastUsage, long sessionId) {
+    public PermissionHistoryPreference(@NonNull Context context, @NonNull UserHandle userHandle,
+            @NonNull String pkgName, @Nullable Drawable packageIcon, @NonNull String packageLabel,
+            @NonNull String permissionGroup, @NonNull long accessStartTime,
+            @NonNull long accessEndTime, @Nullable CharSequence summaryText,
+            boolean showingAttribution, @NonNull List<String> attributionTags,
+            boolean isLastUsage, long sessionId, boolean isEmergencyLocationAccess) {
         super(context);
         mContext = context;
         Context userContext = Utils.getUserContext(context, userHandle);
@@ -93,22 +92,22 @@ public class PermissionHistoryPreference extends Preference {
         mPermissionGroup = permissionGroup;
         mAccessStartTime = accessStartTime;
         mAccessEndTime = accessEndTime;
-        mAppIcon = appIcon;
-        mTitle = preferenceTitle;
-        mWidgetIcon = null;
+        mAppIcon = packageIcon;
+        mInfoWidgetIcon = null;
         mAttributionTags = attributionTags;
         mIsLastUsage = isLastUsage;
         mSessionId = sessionId;
         mShowingAttribution = showingAttribution;
+        mIsEmergencyLocationAccess = isEmergencyLocationAccess;
 
-        setTitle(mTitle);
+        setTitle(packageLabel);
         if (summaryText != null) {
             setSummary(summaryText);
         }
 
         mIntent = getViewPermissionUsageForPeriodIntent(showingAttribution);
         if (mIntent != null) {
-            mWidgetIcon = mContext.getDrawable(R.drawable.ic_info_outline);
+            mInfoWidgetIcon = mContext.getDrawable(R.drawable.ic_info_outline);
             setWidgetLayoutResource(R.layout.image_view_with_divider);
         }
     }
@@ -137,8 +136,8 @@ public class PermissionHistoryPreference extends Preference {
         TextView permissionHistoryTime = widget.findViewById(R.id.permission_history_time);
         permissionHistoryTime.setText(DateFormat.getTimeFormat(mContext).format(mAccessEndTime));
 
-        ImageView permissionIcon = widget.findViewById(R.id.permission_history_icon);
-        permissionIcon.setImageDrawable(mAppIcon);
+        ImageView appIcon = widget.findViewById(R.id.permission_history_icon);
+        appIcon.setImageDrawable(mAppIcon);
 
         ImageView widgetView = widgetFrame.findViewById(R.id.icon);
         setInfoIcon(holder, widgetView);
@@ -150,24 +149,45 @@ public class PermissionHistoryPreference extends Preference {
         // It's temporarily created via a static method due to ongoing ViewModel refactoring.
         Intent intent =
                 PermissionUsageDetailsViewModel.Companion.createHistoryPreferenceClickIntent(
-                    mContext,
-                    mUserHandle,
-                    mPackageName,
-                    mPermissionGroup,
-                    mAccessStartTime,
-                    mAccessEndTime,
-                    mShowingAttribution,
-                    mAttributionTags);
+                        mContext,
+                        mUserHandle,
+                        mPackageName,
+                        mPermissionGroup,
+                        mAccessStartTime,
+                        mAccessEndTime,
+                        mShowingAttribution,
+                        mAttributionTags);
 
-        setOnPreferenceClickListener((preference) -> {
-            mContext.startActivityAsUser(intent, mUserHandle);
-            return true;
-        });
+        if (mIsEmergencyLocationAccess) {
+            setOnPreferenceClickListener(preference -> {
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext)
+                        .setTitle(R.string.privacy_dashboard_emergency_location_dialog_title)
+                        .setMessage(
+                                R.string.privacy_dashboard_emergency_location_dialog_description)
+                        .setPositiveButton(R.string.app_permissions,  (dialog, which) -> {
+                            mContext.startActivityAsUser(intent, mUserHandle);
+                        })
+                        .setNegativeButton(R.string.dialog_close, null);
+
+                AlertDialog alertDialog = dialogBuilder.create();
+                alertDialog.show();
+                TextView messageView = alertDialog.findViewById(android.R.id.message);
+                if (messageView != null) {
+                    messageView.setMovementMethod(LinkMovementMethod.getInstance());
+                }
+                return true;
+            });
+        } else {
+            setOnPreferenceClickListener((preference) -> {
+                mContext.startActivityAsUser(intent, mUserHandle);
+                return true;
+            });
+        }
     }
 
     private void setInfoIcon(@NonNull PreferenceViewHolder holder, ImageView widgetView) {
         if (mIntent != null) {
-            widgetView.setImageDrawable(mWidgetIcon);
+            widgetView.setImageDrawable(mInfoWidgetIcon);
             widgetView.setOnClickListener(v -> {
                 write(PERMISSION_DETAILS_INTERACTION,
                         mSessionId,
