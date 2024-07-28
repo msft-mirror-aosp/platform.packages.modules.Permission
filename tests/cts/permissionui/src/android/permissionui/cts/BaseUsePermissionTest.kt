@@ -162,6 +162,8 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         const val PURPOSE_TITLE_ID = "com.android.permissioncontroller:id/purpose_title"
         const val PURPOSE_MESSAGE_ID = "com.android.permissioncontroller:id/purpose_message"
         const val LEARN_MORE_TITLE_ID = "com.android.permissioncontroller:id/learn_more_title"
+        const val HELP_URL_ECM =
+            "com.android.permissioncontroller:id/help_url_action_disabled_by_restricted_settings"
         const val LEARN_MORE_MESSAGE_ID = "com.android.permissioncontroller:id/learn_more_message"
         const val DETAIL_MESSAGE_ID = "com.android.permissioncontroller:id/detail_message"
         const val PERMISSION_RATIONALE_SETTINGS_SECTION =
@@ -1096,6 +1098,21 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                         putExtra(Intent.EXTRA_USER, Process.myUserHandle())
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    }
+                )
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    protected fun startManageAppPermissionsActivity() {
+        doAndWaitForWindowTransition {
+            runWithShellPermissionIdentity {
+                context.startActivity(
+                    Intent(Intent.ACTION_MANAGE_APP_PERMISSIONS).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        putExtra(Intent.EXTRA_PACKAGE_NAME, APP_PACKAGE_NAME)
                     }
                 )
             }
