@@ -21,6 +21,7 @@
     <string name="permission_search_keyword" msgid="1214451577494730543">"అనుమతులు"</string>
     <string name="cancel" msgid="8943320028373963831">"రద్దు చేయండి"</string>
     <string name="back" msgid="6249950659061523680">"వెనుకకు"</string>
+    <string name="dialog_close" msgid="6840699812532384661">"మూసివేయండి"</string>
     <string name="available" msgid="6007778121920339498">"అందుబాటులో ఉంది"</string>
     <string name="blocked" msgid="9195547604866033708">"బ్లాక్ చేయబడినది"</string>
     <string name="on" msgid="280241003226755921">"ఆన్‌లో ఉంది"</string>
@@ -487,7 +488,7 @@
     <string name="permgrouprequest_device_aware_coarselocation" msgid="8367540370912066757">"&lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt; రమారమి లొకేషన్‌ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; యాప్‌ను అనుమతించాలనుకుంటున్నారా?"</string>
     <string name="permgrouprequest_finelocation_imagetext" msgid="1313062433398914334">"ఖచ్చితమైన"</string>
     <string name="permgrouprequest_coarselocation_imagetext" msgid="8650605041483025297">"సుమారుగా"</string>
-    <string name="permgrouprequest_calendar" msgid="1493150855673603806">"మీ క్యాలెండర్‌ని యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ని అనుమతించాలా?"</string>
+    <string name="permgrouprequest_calendar" msgid="1493150855673603806">"మీ క్యాలెండర్‌ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను అనుమతించాలా?"</string>
     <string name="permgrouprequest_device_aware_calendar" msgid="7161929851377463612">"&lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;‌లో మీ క్యాలెండర్‌ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; యాప్‌ను అనుమతించాలనుకుంటున్నారా?"</string>
     <string name="permgrouprequest_sms" msgid="5672063688745420991">"SMS మెసేజ్‌లు పంపడం, చూడటం చేయగలిగేలా &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
     <string name="permgrouprequest_device_aware_sms" msgid="6639977653040502291">"&lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;‌లో SMS మెసేజ్‌లను పంపడానికి, వాటిని చూడటానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను అనుమతించాలా?"</string>
@@ -673,12 +674,21 @@
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"మీ సెక్యూరిటీ కోసం, ఈ సెట్టింగ్ ప్రస్తుతం అందుబాటులో లేదు."</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"యాప్ <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>‌కు యాక్సెస్ తిరస్కరించబడింది"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"మీ వ్యక్తిగత, ఆర్థిక సమాచారాన్ని ప్రమాదంలో పడేసే గోప్యమైన సమాచార యాక్సెస్ అనుమతికి యాప్ యాక్సెస్‌ను రిక్వెస్ట్ చేయడం జరిగింది.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ఈ అదనపు అవసరాలు గల అనుమతి లేకుండా యాప్ సరిగ్గా పని చేయకపోయే అవకాశం ఉంది. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;యాక్సెస్‌ను అనుమతించడం ఎలాగో తెలుసుకోండి&lt;/a&gt;"</string>
-    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"యాప్ ఆటోమేటిక్ సెట్టింగ్ <xliff:g id="ROLE_NAME">%1$s</xliff:g>‌గా ఉండటానికి యాక్సెస్ తిరస్కరించబడింది"</string>
-    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"మీ వ్యక్తిగత, ఆర్థిక సమాచారాన్ని ప్రమాదంలో పడేసే గోప్యమైన సమాచార యాక్సెస్ అనుమతులకు యాప్ యాక్సెస్‌ను రిక్వెస్ట్ చేయడం జరిగింది.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ఈ అదనపు అవసరాలు గల అనుమతులు లేకుండా యాప్ సరిగ్గా పని చేయకపోయే అవకాశం ఉంది. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;యాక్సెస్‌ను అనుమతించడం ఎలాగో తెలుసుకోండి&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"ఆటోమేటిక్ <xliff:g id="ROLE_NAME">%1$s</xliff:g>‌గా ఉండటానికి యాప్‌నకు యాక్సెస్ నిరాకరించబడింది"</string>
+    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"మీ వ్యక్తిగత, ఆర్థిక సమాచారాన్ని ప్రమాదంలో పడేయగల గోప్యమైన సమాచారాన్ని యాక్సెస్ చేయడానికి అనుమతులు (సెన్సిటివ్ పర్మిషన్స్) కావాలని ఈ యాప్ కోరింది.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>అయితే ఈ అదనపు అవసరాలు గల అనుమతులను (రిస్ట్రిక్టెడ్ పర్మిషన్స్‌ను) ఇవ్వకపోతే యాప్ సరిగ్గా పని చేయకుండా పోయే అవకాశం ఉంది. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;యాక్సెస్‌ను అనుమతించడం ఎలాగో తెలుసుకోండి&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"యాప్‌నకు యాక్సెస్ తిరస్కరించబడింది"</string>
     <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"ఈ అనుమతికి యాక్సెస్‌ను ఇవ్వడం వల్ల మీ వ్యక్తిగత, ఆర్థిక సమాచారం ప్రమాదంలో పడవచ్చు.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ఈ అదనపు అవసరాలు గల అనుమతులు లేకుండా యాప్ సరిగ్గా పని చేయకపోయే అవకాశం ఉంది. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;యాక్సెస్‌ను అనుమతించడం ఎలాగో తెలుసుకోండి&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"మరింత తెలుసుకోండి"</string>
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"సరే"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"అనుమతి రిక్వెస్ట్ బ్లాక్ చేయబడింది"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"ఈ యాప్ అదనపు అనుమతి కోసం రిక్వెస్ట్ చేస్తోంది, కానీ స్ట్రీమింగ్ సెషన్‌లో అనుమతులను మంజూరు చేయడం సాధ్యం కాదు. ముందుగా మీ ఫోన్‌లో అనుమతిని మంజూరు చేయండి."</string>
+    <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"ఎమర్జెన్సీ కాల్ లేదా టెక్స్ట్ మెసేజ్ పంపే విషయంలో"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"ఎమర్జెన్సీ సర్వీసులకు లొకేషన్ పంపడం జరిగింది"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"ఎమర్జెన్సీ నంబర్‌కు కాల్ చేసినప్పుడు, లేదా టెక్స్ట్ మెసేజ్ పంపినప్పుడు ఈ యాప్ మీ పరికర లొకేషన్‌ను యాక్సెస్ చేసింది. యాప్‌నకు లొకేషన్ అనుమతి లేకున్నా లేదా పరికర లొకేషన్ ఆఫ్‌లో ఉన్నప్పటికీ కూడా ఇలా జరిగవచ్చు. "<a href="https://support.google.com/android/answer/9319337">"మరింత తెలుసుకోండి"</a></string>
+    <!-- no translation found for wear_check_your_phone_title (7957291983474981420) -->
+    <skip />
+    <!-- no translation found for wear_phone_connection_error (8934350845737930783) -->
+    <skip />
+    <!-- no translation found for wear_phone_connection_should_retry (2835355845567088003) -->
+    <skip />
 </resources>

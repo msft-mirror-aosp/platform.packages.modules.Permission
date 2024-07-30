@@ -21,6 +21,7 @@
     <string name="permission_search_keyword" msgid="1214451577494730543">"permisos"</string>
     <string name="cancel" msgid="8943320028373963831">"Cancelar"</string>
     <string name="back" msgid="6249950659061523680">"Atrás"</string>
+    <string name="dialog_close" msgid="6840699812532384661">"Cerrar"</string>
     <string name="available" msgid="6007778121920339498">"Disponible"</string>
     <string name="blocked" msgid="9195547604866033708">"Bloqueado"</string>
     <string name="on" msgid="280241003226755921">"Activado"</string>
@@ -353,7 +354,7 @@
     <string name="accessibility_service_dialog_bottom_text_single" msgid="1128666197822205958">"<xliff:g id="SERVICE_NAME">%s</xliff:g> puede ver tu pantalla, lo que haces y lo que introduces; realizar acciones; y controlar la pantalla."</string>
     <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"Estas aplicaciones pueden ver tu pantalla, lo que haces y lo que introduces; realizar acciones; y controlar la pantalla."</string>
     <string name="role_assistant_label" msgid="4727586018198208128">"Aplicación de asistente digital predeterminada"</string>
-    <string name="role_assistant_short_label" msgid="3369003713187703399">"Asistente digital"</string>
+    <string name="role_assistant_short_label" msgid="3369003713187703399">"Aplicación de asistente digital"</string>
     <string name="role_assistant_description" msgid="6622458130459922952">"Las aplicaciones de asistencia te ayudan según la información que aparezca en la pantalla. Algunas aplicaciones admiten tanto el menú de aplicaciones como los servicios de entrada de voz para ofrecerte asistencia integrada."</string>
     <string name="role_browser_label" msgid="2877796144554070207">"Aplicación de navegador predeterminada"</string>
     <string name="role_browser_short_label" msgid="6745009127123292296">"Aplicación de navegador"</string>
@@ -656,7 +657,7 @@
     <string name="data_sharing_updates_title" msgid="7996933386875213859">"Cambios en los datos compartidos de ubicación"</string>
     <string name="data_sharing_updates_summary" msgid="764113985772233889">"Consulta las aplicaciones que han cambiado cómo comparten tus datos de ubicación"</string>
     <string name="data_sharing_updates_subtitle" msgid="6311537708950632329">"Estas aplicaciones han cambiado cómo pueden compartir tus datos de ubicación. Puede que no los hayan compartido antes, o que ahora lo hagan con fines publicitarios o de marketing."</string>
-    <string name="data_sharing_updates_footer_message" msgid="1582711655172892107">"Los desarrolladores de estas aplicaciones han proporcionado información a una tienda de aplicaciones sobre sus formas de compartir datos. Es posible que la actualicen con el tiempo.\n\nLas formas en que se comparten los datos pueden variar en función de la versión de la aplicación, el modo en que la utilices, el país donde la uses y tu edad."</string>
+    <string name="data_sharing_updates_footer_message" msgid="1582711655172892107">"Los desarrolladores de estas aplicaciones han proporcionado información a una tienda de aplicaciones sobre sus formas de compartir datos. Es posible que la actualicen con el tiempo.\n\nLas formas en que se comparten los datos pueden variar en función de la versión de la aplicación, el modo en que la utilices, la zona donde la uses y tu edad."</string>
     <string name="learn_about_data_sharing" msgid="4200480587079488045">"Más información sobre cómo se comparten los datos"</string>
     <string name="shares_location_with_third_parties" msgid="2278051743742057767">"Tus datos de ubicación ahora se comparten con terceros"</string>
     <string name="shares_location_with_third_parties_for_advertising" msgid="1918588064014480513">"Tus datos de ubicación ahora se comparten con terceros para fines de publicidad o marketing"</string>
@@ -673,7 +674,7 @@
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Por seguridad, este ajuste no está disponible actualmente."</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Se ha denegado el acceso a <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> a la aplicación"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"La aplicación ha solicitado acceso a un permiso sensible que puede poner en riesgo tu información personal y financiera.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Es posible que la aplicación no funcione correctamente sin este permiso restringido. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Consulta cómo permitir el acceso&lt;/a&gt;."</string>
-    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Se ha denegado el acceso para ser <xliff:g id="ROLE_NAME">%1$s</xliff:g> de forma predeterminada a la aplicación"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Se ha denegado el acceso para que la aplicación sea <xliff:g id="ROLE_NAME">%1$s</xliff:g> predeterminada"</string>
     <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"La aplicación ha solicitado acceso a permisos sensibles que pueden poner en riesgo tu información personal y financiera.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Es posible que la aplicación no funcione correctamente sin estos permisos restringidos. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Consulta cómo permitir el acceso&lt;/a&gt;."</string>
     <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"Se ha denegado el acceso a la aplicación"</string>
     <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"El acceso a este permiso puede poner en riesgo tu información personal y financiera.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Es posible que la aplicación no funcione correctamente sin este permiso restringido. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Consulta cómo permitir el acceso&lt;/a&gt;."</string>
@@ -681,4 +682,13 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"Aceptar"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Solicitud de permiso rechazada"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Esta aplicación está solicitando permisos adicionales, pero no se pueden dar durante una sesión de streaming. Da primero el permiso en tu teléfono."</string>
+    <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"Para llamadas o mensajes de emergencia"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"Ubicación enviada a los servicios de emergencias"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"Esta aplicación ha accedido a la ubicación de tu dispositivo mientras hacías una llamada o enviabas un mensaje al número de emergencia. Esto puede ocurrir aunque la aplicación no tenga el permiso de ubicación o la ubicación del dispositivo esté desactivada. "<a href="https://support.google.com/android/answer/9319337">"Más información"</a></string>
+    <!-- no translation found for wear_check_your_phone_title (7957291983474981420) -->
+    <skip />
+    <!-- no translation found for wear_phone_connection_error (8934350845737930783) -->
+    <skip />
+    <!-- no translation found for wear_phone_connection_should_retry (2835355845567088003) -->
+    <skip />
 </resources>

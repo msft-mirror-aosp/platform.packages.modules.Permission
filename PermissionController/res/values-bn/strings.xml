@@ -21,6 +21,7 @@
     <string name="permission_search_keyword" msgid="1214451577494730543">"অনুমতি"</string>
     <string name="cancel" msgid="8943320028373963831">"বাতিল করুন"</string>
     <string name="back" msgid="6249950659061523680">"ফিরুন"</string>
+    <string name="dialog_close" msgid="6840699812532384661">"বন্ধ করুন"</string>
     <string name="available" msgid="6007778121920339498">"উপলভ্য"</string>
     <string name="blocked" msgid="9195547604866033708">"ব্লক করা হয়েছে"</string>
     <string name="on" msgid="280241003226755921">"চালু করা আছে"</string>
@@ -528,7 +529,7 @@
     <string name="permgrouprequest_sensors" msgid="4397358316850652235">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-কে সেন্সর থেকে আপনার ভাইটাল সাইনের ডেটা অ্যাক্সেস করতে দেবেন?"</string>
     <string name="permgrouprequest_device_aware_sensors" msgid="3874451050573615157">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; অ্যাপকে &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt; ডিভাইসে আপনার ভাইটাল সাইন সম্পর্কিত সেন্সর ডেটা অ্যাক্সেসের অনুমতি দেবেন?"</string>
     <string name="permgroupupgraderequestdetail_sensors" msgid="6651914048792092835">"এই অ্যাপ সবসময় শারীরবৃত্তীয় লক্ষণ সংক্রান্ত সেন্সর ডেটা অ্যাক্সেস করার অনুমতি চায়, এমনকী আপনি যখন অ্যাপটি ব্যবহার করছেন না, তখনও। এই পরিবর্তন চালু করতে, "<annotation id="link">"সেটিংসে যান।"</annotation></string>
-    <string name="permgroupbackgroundrequest_sensors" msgid="5661924322018503886">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-কে আপনার বেঁচে থাকার গুরুত্বপূর্ণ লক্ষণ সম্পর্কিত সেন্সর ডেটা অ্যাক্সেস করার অনুমতি দিতে চান?"</string>
+    <string name="permgroupbackgroundrequest_sensors" msgid="5661924322018503886">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-কে আপনার ভাইটাল সাইন সম্পর্কিত সেন্সর ডেটা অ্যাক্সেস করার অনুমতি দিতে চান?"</string>
     <string name="permgroupbackgroundrequest_device_aware_sensors" msgid="3687673359121603824">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; অ্যাপকে &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt; ডিভাইসে আপনার ভাইটাল সাইন সম্পর্কিত সেন্সর ডেটা অ্যাক্সেসের অনুমতি দেবেন?"</string>
     <string name="permgroupbackgroundrequestdetail_sensors" msgid="7726767635834043501">"অ্যাপটি ব্যবহার না করলেও, সেটিকে সবসময় বডি সেন্সর ডেটাতে অ্যাক্সেস দিতে "<annotation id="link">"সেটিংসে যান"</annotation>"।"</string>
     <string name="permgroupupgraderequest_sensors" msgid="7576527638411370468">"ব্যবহার করার সময় &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; অ্যাপকে বডি সেন্সর ডেটার অ্যাক্সেস দিয়ে রাখতে চান?"</string>
@@ -681,4 +682,10 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"ঠিক আছে"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"অনুমতির অনুরোধ ব্লক করা হয়েছে"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"এই অ্যাপ অতিরিক্ত অনুমতির জন্য অনুরোধ করছে, কিন্তু স্ট্রিমিং সেশন চলাকালীন অনুমতি দেওয়া যাবে না। প্রথমে আপনার ফোনে অনুমতি দিন।"</string>
+    <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"জরুরি কল বা মেসেজের জন্য"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"জরুরি পরিষেবায় লোকেশন পাঠানো হয়েছে"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"আপনি যখন একটি জরুরি নম্বরে কল বা মেসেজ পাঠানোর সময়, অ্যাপটি আপনার ডিভাইসের লোকেশন অ্যাক্সেস করেছে। অ্যাপের ডিভাইসের লোকেশন অ্যাক্সেস করার অনুমতি না থাকলে অথবা লোকেশন বন্ধ থাকলেও এটি হতে পারে। "<a href="https://support.google.com/android/answer/9319337">"আরও জানুন"</a></string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"আপনার ফোন চেক করুন"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"আপনার ফোনে কানেক্ট করা যায়নি"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"আবার চেষ্টা করতে চান?"</string>
 </resources>

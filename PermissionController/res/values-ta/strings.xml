@@ -21,6 +21,7 @@
     <string name="permission_search_keyword" msgid="1214451577494730543">"அனுமதிகள்"</string>
     <string name="cancel" msgid="8943320028373963831">"ரத்துசெய்"</string>
     <string name="back" msgid="6249950659061523680">"பின்செல்"</string>
+    <string name="dialog_close" msgid="6840699812532384661">"மூடு"</string>
     <string name="available" msgid="6007778121920339498">"உள்ளது"</string>
     <string name="blocked" msgid="9195547604866033708">"தடுக்கப்பட்டது"</string>
     <string name="on" msgid="280241003226755921">"இயக்கப்பட்டுள்ளது"</string>
@@ -674,11 +675,20 @@
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>க்கான ஆப்ஸ் அணுகல் நிராகரிக்கப்பட்டது"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"பாதுகாக்க வேண்டிய தகவல்களுக்கான அனுமதியை வழங்க ஆப்ஸ் கேட்டுள்ளது, இது உங்கள் தனிப்பட்ட மற்றும் நிதித் தகவல்களை ஆபத்துக்குள்ளாக்கலாம்.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>இந்தக் கட்டுப்படுத்தப்பட்ட அனுமதி இல்லாமல் ஆப்ஸ் சரியாக வேலை செய்யாமல் போகக்கூடும். &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;எப்படி அணுகல் வழங்குவதென அறிக&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"இயல்புநிலை <xliff:g id="ROLE_NAME">%1$s</xliff:g>க்கான ஆப்ஸ் அணுகல் நிராகரிக்கப்பட்டது"</string>
-    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"பாதுகாக்க வேண்டிய தகவல்களுக்கான அனுமதிகளை வழங்க ஆப்ஸ் கேட்டுள்ளது, இது உங்கள் தனிப்பட்ட மற்றும் நிதித் தகவல்களை ஆபத்துக்குள்ளாக்கலாம்.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>இந்தக் கட்டுப்படுத்தப்பட்ட அனுமதிகள் இல்லாமல் ஆப்ஸ் சரியாக வேலை செய்யாமல் போகக்கூடும். &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;எப்படி அணுகல் வழங்குவதென அறிக&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"பாதுகாக்க வேண்டிய தகவலை அணுவதற்கான அனுமதியை ஆப்ஸ் கேட்டுள்ளது, இது உங்கள் தனிப்பட்ட மற்றும் நிதித் தகவல்களை ஆபத்துக்குள்ளாக்கலாம்.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>இந்தக் கட்டுப்படுத்தப்பட்ட அனுமதிகள் இல்லாமல் ஆப்ஸ் சரியாக வேலை செய்யாமல் போகக்கூடும். &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;எப்படி அணுகல் வழங்குவதென அறிக&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"ஆப்ஸ் அணுகல் நிராகரிக்கப்பட்டது"</string>
     <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"இதற்கு அனுமதி அளிப்பதனால் உங்கள் தனிப்பட்ட மற்றும் நிதித் தகவல்கள் ஆபத்துக்குள்ளாகலாம்.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>இந்தக் கட்டுப்படுத்தப்பட்ட அனுமதி இல்லாமல் ஆப்ஸ் சரியாக வேலை செய்யாமல் போகக்கூடும். &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;எப்படி அணுகல் வழங்குவதென அறிக&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"மேலும் அறிக"</string>
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"சரி"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"அணுகல் கோரிக்கை முடக்கப்பட்டது"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"இந்த ஆப்ஸ் கூடுதல் அனுமதிகளைக் கேட்கிறது. ஆனால் ஸ்ட்ரீமிங் அமர்வில் அனுமதிகள் வழங்கப்படாது. முதலில் உங்கள் மொபைலில் அனுமதி வழங்கவும்."</string>
+    <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"அவசர அழைப்பு/மெசேஜுக்கு"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"அவசரகாலச் சேவைகளுக்கு இருப்பிடம் அனுப்பப்பட்டது"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"அவசர உதவி எண்ணை அழைத்தபோதோ அந்த எண்ணிற்கு மெசேஜ் அனுப்பியபோதோ உங்கள் சாதனத்தின் இருப்பிடத்தை இந்த ஆப்ஸ் அணுகியது. இருப்பிட அனுமதி ஆப்ஸுக்கு இல்லாதபோதும் சாதனத்தின் இருப்பிடம் முடக்கப்பட்டிருக்கும்போதும் கூட இப்படி நிகழலாம். "<a href="https://support.google.com/android/answer/9319337">"மேலும் அறிக"</a></string>
+    <!-- no translation found for wear_check_your_phone_title (7957291983474981420) -->
+    <skip />
+    <!-- no translation found for wear_phone_connection_error (8934350845737930783) -->
+    <skip />
+    <!-- no translation found for wear_phone_connection_should_retry (2835355845567088003) -->
+    <skip />
 </resources>

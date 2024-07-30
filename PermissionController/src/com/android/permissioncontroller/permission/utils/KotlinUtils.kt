@@ -164,10 +164,6 @@ object KotlinUtils {
     private const val PROPERTY_SAFETY_LABEL_CHANGES_JOB_RUN_WHEN_IDLE =
         "safety_label_changes_job_run_when_idle"
 
-    /** Whether the kill switch is set for [SafetyLabelChangesJobService]. */
-    private const val PROPERTY_SAFETY_LABEL_CHANGES_JOB_SERVICE_KILL_SWITCH =
-        "safety_label_changes_job_service_kill_switch"
-
     data class Quadruple<out A, out B, out C, out D>(
         val first: A,
         val second: B,
@@ -278,20 +274,6 @@ object KotlinUtils {
             !DeviceUtils.isWear(context)
     }
 
-    /**
-     * Whether the kill switch is set for [SafetyLabelChangesJobService]. If {@code true}, the
-     * service is effectively disabled and will not run or schedule any jobs.
-     */
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
-    fun safetyLabelChangesJobServiceKillSwitch(): Boolean {
-        return SdkLevel.isAtLeastU() &&
-            DeviceConfig.getBoolean(
-                DeviceConfig.NAMESPACE_PRIVACY,
-                PROPERTY_SAFETY_LABEL_CHANGES_JOB_SERVICE_KILL_SWITCH,
-                false
-            )
-    }
-
     /** How often the safety label changes job will run. */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
     fun getSafetyLabelChangesJobIntervalMillis(): Long {
@@ -299,16 +281,6 @@ object KotlinUtils {
             DeviceConfig.NAMESPACE_PRIVACY,
             PROPERTY_SAFETY_LABEL_CHANGES_JOB_INTERVAL_MILLIS,
             Duration.ofDays(30).toMillis()
-        )
-    }
-
-    /** Whether the safety label changes job should only be run when the device is idle. */
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
-    fun runSafetyLabelChangesJobOnlyWhenDeviceIdle(): Boolean {
-        return DeviceConfig.getBoolean(
-            DeviceConfig.NAMESPACE_PRIVACY,
-            PROPERTY_SAFETY_LABEL_CHANGES_JOB_RUN_WHEN_IDLE,
-            true
         )
     }
 
@@ -1260,6 +1232,7 @@ object KotlinUtils {
         }
         return false
     }
+
     /**
      * Revokes a single runtime permission.
      *
@@ -1553,7 +1526,6 @@ object KotlinUtils {
      * @return true if the permission denied was POST_NOTIFICATIONS, the app is a backup app, and a
      *   backup restore is in progress, false otherwise
      */
-    @SuppressLint("LongLogTag")
     fun shouldSkipKillOnPermDeny(
         app: Application,
         permission: String,
@@ -1569,25 +1541,23 @@ object KotlinUtils {
             return false
         }
 
-        return try {
-            val isInSetup =
-                Settings.Secure.getInt(
-                    userContext.contentResolver,
-                    Settings.Secure.USER_SETUP_COMPLETE,
-                    user.identifier
-                ) == 0
-            val isInDeferredSetup =
-                Settings.Secure.getInt(
-                    userContext.contentResolver,
-                    Settings.Secure.USER_SETUP_PERSONALIZATION_STATE,
-                    user.identifier
-                ) == Settings.Secure.USER_SETUP_PERSONALIZATION_STARTED
-            isInSetup || isInDeferredSetup
-        } catch (e: Settings.SettingNotFoundException) {
-            Log.w(LOG_TAG, "Failed to check if the user is in restore: $e")
-            false
-        }
+        val isInSetup = getSecureInt(Settings.Secure.USER_SETUP_COMPLETE, userContext, user) == 0
+        if (isInSetup) return true
+
+        val isInDeferredSetup =
+            getSecureInt(Settings.Secure.USER_SETUP_PERSONALIZATION_STATE, userContext, user) ==
+                Settings.Secure.USER_SETUP_PERSONALIZATION_STARTED
+        return isInDeferredSetup
     }
+
+    @SuppressLint("LongLogTag")
+    private fun getSecureInt(settingName: String, userContext: Context, user: UserHandle): Int? =
+        try {
+            Settings.Secure.getInt(userContext.contentResolver, settingName, user.identifier)
+        } catch (e: Settings.SettingNotFoundException) {
+            Log.i(LOG_TAG, "Setting $settingName not found", e)
+            null
+        }
 
     /**
      * Determine if a given package has a launch intent. Will function correctly even if called

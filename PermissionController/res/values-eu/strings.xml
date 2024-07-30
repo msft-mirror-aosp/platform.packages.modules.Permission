@@ -21,6 +21,7 @@
     <string name="permission_search_keyword" msgid="1214451577494730543">"baimenak"</string>
     <string name="cancel" msgid="8943320028373963831">"Utzi"</string>
     <string name="back" msgid="6249950659061523680">"Atzera"</string>
+    <string name="dialog_close" msgid="6840699812532384661">"Itxi"</string>
     <string name="available" msgid="6007778121920339498">"Baimenduta"</string>
     <string name="blocked" msgid="9195547604866033708">"Blokeatuta"</string>
     <string name="on" msgid="280241003226755921">"Aktibatuta"</string>
@@ -172,7 +173,7 @@
     <string name="filter_by_time" msgid="6667864816999691642">"Iragazi orduaren arabera"</string>
     <string name="sort_spinner_most_permissions" msgid="1704349738096822836">"Baimen gehien erabili dituztenak"</string>
     <string name="sort_spinner_most_accesses" msgid="5283913004357220161">"Erabilienak"</string>
-    <string name="sort_spinner_recent" msgid="7513845273076525203">"Azkenak"</string>
+    <string name="sort_spinner_recent" msgid="7513845273076525203">"Azkenaldikoak"</string>
     <string name="sort_by_app" msgid="4055799843051138087">"Ordenatu erabileraren arabera"</string>
     <string name="sort_by_time" msgid="5435045320002150456">"Ordenatu orduaren arabera"</string>
     <string name="item_separator" msgid="4030255389809224513">", "</string>
@@ -367,7 +368,7 @@
     <string name="role_dialer_request_description" msgid="6288839625724909320">"Zure kamera, kontaktuak, mikrofonoa, telefonoa eta SMSak erabiltzeko baimena emango zaio aplikazioari"</string>
     <string name="role_dialer_search_keywords" msgid="3324448983559188087">"markagailua"</string>
     <string name="role_sms_label" msgid="8456999857547686640">"SMSetarako aplikazio lehenetsia"</string>
-    <string name="role_sms_short_label" msgid="4371444488034692243">"SMSetarako aplikazioa"</string>
+    <string name="role_sms_short_label" msgid="4371444488034692243">"SMSetarako aplikazio"</string>
     <string name="role_sms_description" msgid="3424020199148153513">"Telefono-zenbakiaren bidez testu-mezu laburrak, argazkiak, bideoak eta beste zenbait gauza bidaltzea eta jasotzea ahalbidetzen dizuten aplikazioak"</string>
     <string name="role_sms_request_title" msgid="7953552109601185602">"<xliff:g id="APP_NAME">%1$s</xliff:g> ezarri nahi duzu SMSetarako aplikazio lehenetsi gisa?"</string>
     <string name="role_sms_request_description" msgid="2691004766132144886">"Zure kamera, kontaktuak, fitxategiak eta multimedia-edukia, mikrofonoa, telefonoa eta SMSak erabiltzeko baimena emango zaio aplikazioari"</string>
@@ -621,7 +622,7 @@
     <string name="safety_center_background_location_access_reminder_title" msgid="5477847038103863843">"Berrikusi kokapena atzeko planoan erabiltzeko baimena duen aplikazioa"</string>
     <string name="safety_center_background_location_access_reminder_summary" msgid="7431657777510537658">"Aplikazioak beti erabil dezake kokapena, nahiz eta itxita egon.\n\nSegurtasun- eta larrialdi-aplikazio batzuek atzeko planoan kokapena erabiltzeko baimena behar dute behar bezala funtzionatzeko."</string>
     <string name="safety_center_background_location_access_revoked" msgid="6972274943343442213">"Aldatu da sarbidea"</string>
-    <string name="safety_center_view_recent_location_access" msgid="3524391299490678243">"Ikusi kokapenaren azken erabilera"</string>
+    <string name="safety_center_view_recent_location_access" msgid="3524391299490678243">"Ikusi kokapenaren azkenaldiko erabilera"</string>
     <string name="privacy_controls_title" msgid="7605929972256835199">"Pribatutasun-ezarpenak"</string>
     <string name="camera_toggle_title" msgid="1251201397431837666">"Kamera erabiltzeko baimena"</string>
     <string name="mic_toggle_title" msgid="2649991093496110162">"Mikrofonoa erabiltzeko baimena"</string>
@@ -681,4 +682,13 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"Ados"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Blokeatu da baimen-eskaera"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Baimen gehigarriak eskatzen ari da aplikazioa, baina ezin da eman baimenik igorpen-saioetan. Lehenik eta behin, eman baimena telefonoan."</string>
+    <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"Larrialdi-deiak egitean edo larrialdietarako testu-mezuak bidaltzean"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"Kokapena larrialdi-zerbitzuei bidali zaie"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"Aplikazioak gailuaren kokapena atzitu du larrialdietarako zenbaki batera dei bat egin edo testu-mezu bat bidali duzun bitartean. Baliteke aplikazioak kokapena erabiltzeko baimena ez izan edo gailuaren kokapena desaktibatuta egon arren gertatzea hori. "<a href="https://support.google.com/android/answer/9319337">"Lortu informazio gehiago"</a></string>
+    <!-- no translation found for wear_check_your_phone_title (7957291983474981420) -->
+    <skip />
+    <!-- no translation found for wear_phone_connection_error (8934350845737930783) -->
+    <skip />
+    <!-- no translation found for wear_phone_connection_should_retry (2835355845567088003) -->
+    <skip />
 </resources>

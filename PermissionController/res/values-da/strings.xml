@@ -21,6 +21,7 @@
     <string name="permission_search_keyword" msgid="1214451577494730543">"tilladelser"</string>
     <string name="cancel" msgid="8943320028373963831">"Annuller"</string>
     <string name="back" msgid="6249950659061523680">"Tilbage"</string>
+    <string name="dialog_close" msgid="6840699812532384661">"Luk"</string>
     <string name="available" msgid="6007778121920339498">"Tilgængelig"</string>
     <string name="blocked" msgid="9195547604866033708">"Blokeret"</string>
     <string name="on" msgid="280241003226755921">"Til"</string>
@@ -367,7 +368,7 @@
     <string name="role_dialer_request_description" msgid="6288839625724909320">"Denne app får adgang til Kamera, Kontakter, Mikrofon, Telefon og SMS"</string>
     <string name="role_dialer_search_keywords" msgid="3324448983559188087">"opkald"</string>
     <string name="role_sms_label" msgid="8456999857547686640">"Standardapp til sms-beskeder"</string>
-    <string name="role_sms_short_label" msgid="4371444488034692243">"Sms-app"</string>
+    <string name="role_sms_short_label" msgid="4371444488034692243">"sms-app"</string>
     <string name="role_sms_description" msgid="3424020199148153513">"Apps, der bruger dit telefonnummer til at sende og modtage sms-beskeder, billeder, videoer m.m."</string>
     <string name="role_sms_request_title" msgid="7953552109601185602">"Vil du angive <xliff:g id="APP_NAME">%1$s</xliff:g> som din standardapp til sms-beskeder?"</string>
     <string name="role_sms_request_description" msgid="2691004766132144886">"Denne app får adgang til Kamera, Kontakter, Filer og medier, Mikrofon, Telefon og SMS"</string>
@@ -681,4 +682,13 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"OK"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Anmodning om tilladelse blokeret"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Denne app anmoder om yderligere tilladelser, men der kan ikke gives tilladelser under en streamingsession. Giv tilladelse på din telefon først."</string>
+    <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"For opkald eller beskeder til et alarmnummer"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"Lokation sendt til nødtjenester"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"Denne app har tilgået din enheds lokation i forbindelse med et opkald eller en besked til et alarmnummer. Dette kan lade sig gøre, selvom appen ikke har lokationstilladelse, eller enhedens lokation er deaktiveret. "<a href="https://support.google.com/android/answer/9319337">"Få flere oplysninger"</a></string>
+    <!-- no translation found for wear_check_your_phone_title (7957291983474981420) -->
+    <skip />
+    <!-- no translation found for wear_phone_connection_error (8934350845737930783) -->
+    <skip />
+    <!-- no translation found for wear_phone_connection_should_retry (2835355845567088003) -->
+    <skip />
 </resources>
