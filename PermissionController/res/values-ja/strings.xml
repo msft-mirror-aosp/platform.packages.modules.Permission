@@ -21,6 +21,7 @@
     <string name="permission_search_keyword" msgid="1214451577494730543">"権限"</string>
     <string name="cancel" msgid="8943320028373963831">"キャンセル"</string>
     <string name="back" msgid="6249950659061523680">"戻る"</string>
+    <string name="dialog_close" msgid="6840699812532384661">"閉じる"</string>
     <string name="available" msgid="6007778121920339498">"使用可能"</string>
     <string name="blocked" msgid="9195547604866033708">"ブロック中"</string>
     <string name="on" msgid="280241003226755921">"ON"</string>
@@ -185,7 +186,7 @@
     <string name="app_permission_usage_summary_no_duration" msgid="3698475875179457400">"アクセス: <xliff:g id="NUM">%1$s</xliff:g> 回。最終使用: <xliff:g id="TIME">%2$s</xliff:g>前。"</string>
     <string name="app_permission_button_allow" msgid="5808039516494774647">"許可する"</string>
     <string name="app_permission_button_allow_all_files" msgid="1792232272599018825">"すべてのファイルの管理を許可"</string>
-    <string name="app_permission_button_allow_media_only" msgid="2834282724426046154">"メディアへのアクセスのみを許可"</string>
+    <string name="app_permission_button_allow_media_only" msgid="2834282724426046154">"アクセスのみ許可"</string>
     <string name="app_permission_button_allow_always" msgid="4573292371734011171">"常に許可"</string>
     <string name="app_permission_button_allow_foreground" msgid="1991570451498943207">"アプリの使用中のみ許可"</string>
     <string name="app_permission_button_always_allow_all" msgid="4905699259378428855">"常にすべて許可"</string>
@@ -252,7 +253,7 @@
     <string name="allowed_header" msgid="7769277978004790414">"許可"</string>
     <string name="allowed_always_header" msgid="6455903312589013545">"常に許可"</string>
     <string name="allowed_foreground_header" msgid="6845655788447833353">"使用中のみ許可"</string>
-    <string name="allowed_storage_scoped" msgid="5383645873719086975">"メディアへのアクセスのみが許可されたアプリ"</string>
+    <string name="allowed_storage_scoped" msgid="5383645873719086975">"アクセスのみ許可"</string>
     <string name="allowed_storage_full" msgid="5356699280625693530">"すべてのファイルの管理が許可されたアプリ"</string>
     <string name="ask_header" msgid="2633816846459944376">"毎回確認する"</string>
     <string name="denied_header" msgid="903209608358177654">"許可しない"</string>
@@ -671,6 +672,7 @@
     <string name="wear_app_perms_24h_access_yest" msgid="7069312481704735679">"昨日の <xliff:g id="TIME_DATE">%1$s</xliff:g> にアクセス"</string>
     <string name="wear_app_perms_7d_access" msgid="4608069019194676432">"<xliff:g id="TIME_DATE_0">%1$s</xliff:g> <xliff:g id="TIME_DATE_1">%2$s</xliff:g> にアクセス"</string>
     <string name="test_otp_msg" msgid="7559110574222727550">"ワンタイム パスワードは 132435 です"</string>
+    <string name="allow_restricted_settings" msgid="8073000189478396881">"制限付き設定を許可"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"制限付き設定"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"セキュリティ保護のため、この設定は現在利用できません。"</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"アプリは<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>へのアクセスを拒否されました"</string>
@@ -683,4 +685,10 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"OK"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"権限のリクエストが抑制されています"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"このアプリは追加の権限を求めていますが、ストリーミング セッションでは権限を付与できません。スマートフォンで先に権限を付与してください。"</string>
+    <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"緊急通報（電話またはテキスト メッセージ）の場合"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"緊急サービスへの位置情報の送信"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"このアプリは緊急通報番号に電話またはテキスト メッセージで通報する際にデバイスの位置情報にアクセスしました。このアクセスは、アプリに位置情報の利用許可が付与されていない場合やデバイスの位置情報が OFF の場合も発生することがあります。"<a href="https://support.google.com/android/answer/9319337">"詳細"</a></string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"スマートフォンを確認してください"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"スマートフォンに接続できません"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"再試行しますか？"</string>
 </resources>
