@@ -34,6 +34,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.UserHandle
 import android.os.UserManager
+import android.permission.flags.Flags
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
@@ -147,8 +148,7 @@ class PermissionUsageDetailsViewModel(
                     .filterOutExemptAppPermissions(true)
                     .filterAccessesLaterThan(startTime)
             }
-            ?.any { isAppPermissionSystem(it.appPermissionId) }
-            ?: false
+            ?.any { isAppPermissionSystem(it.appPermissionId) } ?: false
     }
 
     private fun isPermissionRequestedByApp(appPermissionId: AppPermissionId): Boolean {
@@ -156,8 +156,15 @@ class PermissionUsageDetailsViewModel(
             lightPackageInfoLiveDataMap[
                     Pair(appPermissionId.packageName, appPermissionId.userHandle)]
                 ?.value
-                ?.requestedPermissions
-                ?: listOf()
+                ?.requestedPermissions ?: listOf()
+
+        if (
+            appPermissionId.permissionGroup == Manifest.permission_group.LOCATION &&
+                appRequestedPermissions.contains(Manifest.permission.LOCATION_BYPASS)
+        ) {
+            return true
+        }
+
         return appRequestedPermissions.any {
             PermissionMapping.getGroupOfPlatformPermission(it) == appPermissionId.permissionGroup
         }
@@ -198,8 +205,7 @@ class PermissionUsageDetailsViewModel(
             ?.filter { Utils.shouldShowInSettings(it.userHandle, userManager) }
             ?.flatMap { it.clusterAccesses(startTime, showSystem) }
             ?.sortedBy { -1 * it.discreteAccesses.first().accessTimeMs }
-            ?.map { it.buildAppPermissionAccessUiInfo() }
-            ?: listOf()
+            ?.map { it.buildAppPermissionAccessUiInfo() } ?: listOf()
     }
 
     private fun LightHistoricalPackageOps.clusterAccesses(
@@ -352,7 +358,9 @@ class PermissionUsageDetailsViewModel(
                         appPermAccesses.appPermissionId,
                         appPermAccesses.attributionLabel,
                         appPermAccesses.attributionTags,
-                        currentDiscreteAccesses.toMutableList()
+                        currentDiscreteAccesses.toMutableList(),
+                        if (isOpClusteredByItself(discreteAccess.opName)) discreteAccess.opName
+                        else null
                     )
                 )
                 currentDiscreteAccesses.clear()
@@ -363,12 +371,14 @@ class PermissionUsageDetailsViewModel(
         }
 
         if (currentDiscreteAccesses.isNotEmpty()) {
+            val opName = currentDiscreteAccesses.first().opName
             clusters.add(
                 AppPermissionDiscreteAccessCluster(
                     appPermAccesses.appPermissionId,
                     appPermAccesses.attributionLabel,
                     appPermAccesses.attributionTags,
-                    currentDiscreteAccesses.toMutableList()
+                    currentDiscreteAccesses.toMutableList(),
+                    if (isOpClusteredByItself(opName)) opName else null
                 )
             )
         }
@@ -382,11 +392,30 @@ class PermissionUsageDetailsViewModel(
     private fun canAccessBeAddedToCluster(
         discreteAccess: DiscreteAccess,
         clusteredAccesses: List<DiscreteAccess>
-    ): Boolean =
-        discreteAccess.accessTimeMs / ONE_HOUR_MS ==
+    ): Boolean {
+        if (
+            isOpClusteredByItself(discreteAccess.opName) &&
+                discreteAccess.opName != clusteredAccesses.first().opName
+        ) {
+            return false
+        }
+
+        return discreteAccess.accessTimeMs / ONE_HOUR_MS ==
             clusteredAccesses.first().accessTimeMs / ONE_HOUR_MS &&
             clusteredAccesses.last().accessTimeMs / ONE_MINUTE_MS -
                 discreteAccess.accessTimeMs / ONE_MINUTE_MS <= CLUSTER_SPACING_MINUTES
+    }
+
+    /**
+     * Determine if an op should be in its own cluster and hence display as an individual entry in
+     * the privacy timeline
+     */
+    private fun isOpClusteredByItself(opName: String): Boolean {
+        if (isLocationByPassEnabled()) {
+            return opName == AppOpsManager.OPSTR_EMERGENCY_LOCATION
+        }
+        return false
+    }
 
     /**
      * Composes all UI information from a [AppPermissionDiscreteAccessCluster] into a
@@ -399,9 +428,11 @@ class PermissionUsageDetailsViewModel(
         val durationSummaryLabel = getDurationSummary(context, this, accessTimeList)
         val proxyLabel = getProxyPackageLabel(this)
         val subAttributionLabel = getSubAttributionLabel(this)
-        val showingSubAttribution = subAttributionLabel != null && subAttributionLabel.isNotEmpty()
+        val showingSubAttribution = !subAttributionLabel.isNullOrEmpty()
         val summary =
             buildUsageSummary(context, subAttributionLabel, proxyLabel, durationSummaryLabel)
+        val isEmergencyLocationAccess =
+            isLocationByPassEnabled() && clusteredOp == AppOpsManager.OPSTR_EMERGENCY_LOCATION
 
         return AppPermissionAccessUiInfo(
             this.appPermissionId.userHandle,
@@ -413,7 +444,8 @@ class PermissionUsageDetailsViewModel(
             summary,
             showingSubAttribution,
             ArrayList(this.attributionTags),
-            getBadgedPackageIcon(this.appPermissionId.packageName, this.appPermissionId.userHandle)
+            getBadgedPackageIcon(this.appPermissionId.packageName, this.appPermissionId.userHandle),
+            isEmergencyLocationAccess
         )
     }
 
@@ -497,12 +529,24 @@ class PermissionUsageDetailsViewModel(
             }
 
     /** Returns the attribution label for the permission access, if any. */
-    private fun getSubAttributionLabel(accessCluster: AppPermissionDiscreteAccessCluster): String? =
-        if (accessCluster.attributionLabel == Resources.ID_NULL) null
+    private fun getSubAttributionLabel(accessCluster: AppPermissionDiscreteAccessCluster): String? {
+        // Special case for EMERGENCY_LOCATION app op. Show enforced attribution label in the
+        // Privacy Dashboard
+        if (
+            isLocationByPassEnabled() &&
+                accessCluster.clusteredOp == AppOpsManager.OPSTR_EMERGENCY_LOCATION
+        ) {
+            return application.getString(
+                R.string.privacy_dashboard_emergency_location_enforced_attribution_label
+            )
+        }
+
+        return if (accessCluster.attributionLabel == Resources.ID_NULL) null
         else {
             val lightPackageInfo = getLightPackageInfo(accessCluster.appPermissionId)
             getSubAttributionLabels(lightPackageInfo)?.get(accessCluster.attributionLabel)
         }
+    }
 
     private fun getSubAttributionLabels(lightPackageInfo: LightPackageInfo?): Map<Int, String>? =
         if (lightPackageInfo == null) null
@@ -530,6 +574,7 @@ class PermissionUsageDetailsViewModel(
         val showingAttribution: Boolean,
         val attributionTags: ArrayList<String>,
         val badgedPackageIcon: Drawable?,
+        val isEmergencyLocationAccess: Boolean
     )
 
     /**
@@ -566,6 +611,7 @@ class PermissionUsageDetailsViewModel(
         val attributionLabel: Int,
         val attributionTags: List<String>,
         val discreteAccesses: List<DiscreteAccess>,
+        val clusteredOp: String?
     )
 
     /**
@@ -615,8 +661,7 @@ class PermissionUsageDetailsViewModel(
                             ?.get(packageWithUserHandle)
                             ?.appPermissionDiscreteAccesses
                             ?.map { it.appPermissionId }
-                            ?.toSet()
-                            ?: setOf()
+                            ?.toSet() ?: setOf()
 
                     appPermissionIds.addAll(appPermGroupIds)
                 }
@@ -705,6 +750,9 @@ class PermissionUsageDetailsViewModel(
                     if (SdkLevel.isAtLeastT()) {
                         add(AppOpsManager.OPSTR_RECEIVE_AMBIENT_TRIGGER_AUDIO)
                     }
+                    if (isLocationByPassEnabled()) {
+                        add(AppOpsManager.OPSTR_EMERGENCY_LOCATION)
+                    }
                 }
 
         /** Creates the [Intent] for the click action of a privacy dashboard app usage event. */
@@ -726,8 +774,7 @@ class PermissionUsageDetailsViewModel(
                 accessEndTime,
                 showingAttribution,
                 attributionTags
-            )
-                ?: getDefaultManageAppPermissionsIntent(packageName, userHandle)
+            ) ?: getDefaultManageAppPermissionsIntent(packageName, userHandle)
         }
 
         /**
@@ -790,6 +837,9 @@ class PermissionUsageDetailsViewModel(
                 putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
             }
         }
+
+        private fun isLocationByPassEnabled(): Boolean =
+            SdkLevel.isAtLeastV() && Flags.locationBypassPrivacyDashboardEnabled()
     }
 
     /** Factory for [PermissionUsageDetailsViewModel]. */
