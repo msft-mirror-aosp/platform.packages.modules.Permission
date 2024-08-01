@@ -74,11 +74,13 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     @Test
     fun installedAppStartsWithModeDefault() {
         installPackageWithInstallSourceAndMetadataFromStore(APP_APK_NAME_LATEST)
-        runWithShellPermissionIdentity {
-            assertEquals(
-                getAppEcmState(context, appOpsManager, APP_PACKAGE_NAME),
-                AppOpsManager.MODE_DEFAULT
-            )
+        eventually {
+            runWithShellPermissionIdentity {
+                assertEquals(
+                    getAppEcmState(context, appOpsManager, APP_PACKAGE_NAME),
+                    AppOpsManager.MODE_DEFAULT
+                )
+            }
         }
     }
 
@@ -113,6 +115,14 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     @Test
     fun givenExplicitlyRestrictedAppThenIsRestrictedFromProtectedSetting() {
         installPackageWithInstallSourceAndMetadataFromStore(APP_APK_NAME_LATEST)
+        eventually {
+            runWithShellPermissionIdentity {
+                assertEquals(
+                    getAppEcmState(context, appOpsManager, APP_PACKAGE_NAME),
+                    AppOpsManager.MODE_DEFAULT
+                )
+            }
+        }
         runWithShellPermissionIdentity {
             eventually { assertFalse(ecm.isRestricted(APP_PACKAGE_NAME, PROTECTED_SETTING)) }
             setAppEcmState(context, appOpsManager, APP_PACKAGE_NAME, AppOpsManager.MODE_ERRORED)
