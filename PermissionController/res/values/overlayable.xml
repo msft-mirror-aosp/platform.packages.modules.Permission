@@ -314,6 +314,10 @@
             <item type="dimen" name="secondary_app_icon_size" />
             <!-- END SETTINGSLIB APPPREFERENCE -->
 
+            <!-- START ATTRS -->
+            <item type="attr" name="state_has_icon_space" />
+            <!-- END ATTRS -->
+
             <!-- START THEMES -->
             <item type="style" name="Settings" />
             <item type="style" name="TextAppearance.CategoryTitle" />
