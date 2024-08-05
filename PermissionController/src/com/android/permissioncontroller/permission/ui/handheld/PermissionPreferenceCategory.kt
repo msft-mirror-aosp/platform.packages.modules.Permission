@@ -20,6 +20,7 @@ import android.content.Context
 import android.util.AttributeSet
 import androidx.preference.PreferenceCategory
 import com.android.modules.utils.build.SdkLevel
+import com.android.permissioncontroller.DeviceUtils
 import com.android.permissioncontroller.R
 
 // TODO b/327285817 add chunking/dividers oems can customize
@@ -29,7 +30,7 @@ open class PermissionPreferenceCategory : PreferenceCategory {
     constructor(c: Context, a: AttributeSet) : super(c, a)
 
     init {
-        if (SdkLevel.isAtLeastV()) {
+        if (SdkLevel.isAtLeastV() && DeviceUtils.isHandheld(context)) {
             layoutResource = R.layout.permission_preference_category
         }
     }
