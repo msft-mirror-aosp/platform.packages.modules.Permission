@@ -33,7 +33,7 @@ import org.junit.runner.RunWith
 /** This is an integration tests for permission timeline page view model. */
 @RunWith(AndroidJUnit4::class)
 class PermissionUsageDetailsViewModelTest {
-    @get:Rule val instantTaskExecutorRule = InstantTaskExecutorRule()
+    @JvmField @Rule val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Test
     fun verifyUiStateIsGeneratedSuccessfully() {
