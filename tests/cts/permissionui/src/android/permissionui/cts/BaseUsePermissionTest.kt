@@ -51,7 +51,6 @@ import com.android.compatibility.common.util.SystemUtil
 import com.android.compatibility.common.util.SystemUtil.callWithShellPermissionIdentity
 import com.android.compatibility.common.util.SystemUtil.eventually
 import com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity
-import com.android.compatibility.common.util.UiAutomatorUtils2
 import com.android.modules.utils.build.SdkLevel
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -130,9 +129,8 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             "com.android.permissioncontroller:id/allow_foreground_only_radio_button"
         const val ASK_RADIO_BUTTON = "com.android.permissioncontroller:id/ask_radio_button"
         const val DENY_RADIO_BUTTON = "com.android.permissioncontroller:id/deny_radio_button"
-        const val ALLOW_LIMITED_RADIO_BUTTON =
-            "com.android.permissioncontroller:id/allow_limited_radio_button"
-        const val SELECT_PHOTOS_BUTTON = "com.android.permissioncontroller:id/select_photos_button"
+        const val SELECT_RADIO_BUTTON = "com.android.permissioncontroller:id/select_radio_button"
+        const val EDIT_PHOTOS_BUTTON = "com.android.permissioncontroller:id/edit_selected_button"
 
         const val NOTIF_TEXT = "permgrouprequest_notifications"
         const val ALLOW_BUTTON_TEXT = "grant_dialog_button_allow"
@@ -146,6 +144,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         const val DENY_AND_DONT_ASK_AGAIN_BUTTON_TEXT =
             "grant_dialog_button_deny_and_dont_ask_again"
         const val NO_UPGRADE_AND_DONT_ASK_AGAIN_BUTTON_TEXT = "grant_dialog_button_no_upgrade"
+        const val ECM_ALERT_DIALOG_OK_BUTTON_TEXT = "enhanced_confirmation_dialog_ok"
         const val ALERT_DIALOG_MESSAGE = "android:id/message"
         const val ALERT_DIALOG_OK_BUTTON = "android:id/button1"
         const val APP_PERMISSION_RATIONALE_CONTAINER_VIEW =
@@ -163,6 +162,8 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         const val PURPOSE_TITLE_ID = "com.android.permissioncontroller:id/purpose_title"
         const val PURPOSE_MESSAGE_ID = "com.android.permissioncontroller:id/purpose_message"
         const val LEARN_MORE_TITLE_ID = "com.android.permissioncontroller:id/learn_more_title"
+        const val HELP_URL_ECM =
+            "com.android.permissioncontroller:id/help_url_action_disabled_by_restricted_settings"
         const val LEARN_MORE_MESSAGE_ID = "com.android.permissioncontroller:id/learn_more_message"
         const val DETAIL_MESSAGE_ID = "com.android.permissioncontroller:id/detail_message"
         const val PERMISSION_RATIONALE_SETTINGS_SECTION =
@@ -370,8 +371,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         // dialog
         callWithShellPermissionIdentity {
             context.packageManager.resolveActivity(finishOnCreateIntent, PackageManager.MATCH_ALL)
-        }
-            ?: return
+        } ?: return
 
         // Start the test app, and expect the targetSDK warning dialog
         context.startActivity(finishOnCreateIntent)
@@ -487,31 +487,19 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
     }
 
     protected fun installPackageWithInstallSourceAndNoMetadataFromStore(apkName: String) {
-        installPackageViaSession(
-            apkName,
-            packageSource = PACKAGE_SOURCE_STORE
-        )
+        installPackageViaSession(apkName, packageSource = PACKAGE_SOURCE_STORE)
     }
 
     protected fun installPackageWithInstallSourceAndNoMetadataFromLocalFile(apkName: String) {
-        installPackageViaSession(
-            apkName,
-            packageSource = PACKAGE_SOURCE_LOCAL_FILE
-        )
+        installPackageViaSession(apkName, packageSource = PACKAGE_SOURCE_LOCAL_FILE)
     }
 
     protected fun installPackageWithInstallSourceAndNoMetadataFromDownloadedFile(apkName: String) {
-        installPackageViaSession(
-            apkName,
-            packageSource = PACKAGE_SOURCE_DOWNLOADED_FILE
-        )
+        installPackageViaSession(apkName, packageSource = PACKAGE_SOURCE_DOWNLOADED_FILE)
     }
 
     protected fun installPackageWithInstallSourceAndNoMetadataFromOther(apkName: String) {
-        installPackageViaSession(
-            apkName,
-            packageSource = PACKAGE_SOURCE_OTHER
-        )
+        installPackageViaSession(apkName, packageSource = PACKAGE_SOURCE_OTHER)
     }
 
     protected fun installPackageWithInstallSourceAndInvalidMetadata(apkName: String) {
@@ -894,7 +882,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
 
     protected fun clickPermissionRequestDenyButton() {
         if (isAutomotive) {
-            scrollToBottom();
+            scrollToBottom()
             clickAndWaitForWindowTransition(
                 By.text(getPermissionControllerString(DENY_BUTTON_TEXT))
             )
@@ -961,9 +949,10 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             uiDevice.click(x.toInt(), y.toInt())
             waitForIdleLong()
             val nextScreenNode: AccessibilityNodeInfo? =
-                    findAccessibilityNodeInfosByTextForSurfaceView(
-                        uiAutomation.rootInActiveWindow,
-                        "All the time")
+                findAccessibilityNodeInfosByTextForSurfaceView(
+                    uiAutomation.rootInActiveWindow,
+                    "All the time"
+                )
             if (nextScreenNode != null) {
                 clickedOnLink = true
                 break
@@ -974,7 +963,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
 
     protected fun clickPermissionRequestDenyAndDontAskAgainButton() {
         if (isAutomotive) {
-            scrollToBottom();
+            scrollToBottom()
             clickAndWaitForWindowTransition(
                 By.text(getPermissionControllerString(DENY_AND_DONT_ASK_AGAIN_BUTTON_TEXT))
             )
@@ -1109,6 +1098,21 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                         putExtra(Intent.EXTRA_USER, Process.myUserHandle())
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    }
+                )
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    protected fun startManageAppPermissionsActivity() {
+        doAndWaitForWindowTransition {
+            runWithShellPermissionIdentity {
+                context.startActivity(
+                    Intent(Intent.ACTION_MANAGE_APP_PERMISSIONS).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        putExtra(Intent.EXTRA_PACKAGE_NAME, APP_PACKAGE_NAME)
                     }
                 )
             }
@@ -1336,6 +1340,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             android.Manifest.permission.ACCESS_BACKGROUND_LOCATION -> true
             else -> false
         }
+
     private fun showsAllowPhotosButton(permission: String): Boolean {
         if (!isPhotoPickerPermissionPromptEnabled()) {
             return false
@@ -1450,6 +1455,21 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             for ((flag, set) in flags) {
                 assertEquals("flag $flag: ", set, currFlags and flag != 0)
             }
+        }
+    }
+
+    protected fun clickECMAlertDialogOKButton(waitForWindowTransition: Boolean = !isWatch) {
+        var action = { click(By.res(ALERT_DIALOG_OK_BUTTON), TIMEOUT_MILLIS) }
+        if (isWatch) {
+            val okButtonText =
+                getPermissionControllerResString(ECM_ALERT_DIALOG_OK_BUTTON_TEXT) ?: "OK"
+            action = { click(By.text(okButtonText), TIMEOUT_MILLIS) }
+        }
+
+        if (waitForWindowTransition) {
+            doAndWaitForWindowTransition { action() }
+        } else {
+            action()
         }
     }
 }
