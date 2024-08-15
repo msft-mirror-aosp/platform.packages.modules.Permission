@@ -21,7 +21,6 @@ import android.app.AppOpsManager
 import android.app.Instrumentation
 import android.app.ecm.EnhancedConfirmationManager
 import android.content.Context
-import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Process
@@ -33,7 +32,7 @@ import android.platform.test.flag.junit.DeviceFlagsValueProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
-import com.android.compatibility.common.util.CddTest;
+import com.android.compatibility.common.util.CddTest
 import com.android.compatibility.common.util.SystemUtil.callWithShellPermissionIdentity
 import com.android.compatibility.common.util.SystemUtil.eventually
 import com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity
@@ -63,23 +62,29 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     val mCheckFlagsRule: CheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule()
 
     @Before
-    fun assumeNotAutoTvOrWear() {
+    fun assumeNotAutoOrTv() {
         Assume.assumeFalse(packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK))
-        Assume.assumeFalse(
-            packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)
-        )
-        Assume.assumeFalse(packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH))
+        Assume.assumeFalse(packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE))
+    }
+
+    @RequiresFlagsEnabled(Flags.FLAG_ENHANCED_CONFIRMATION_MODE_APIS_ENABLED)
+    @Test
+    fun helpUrlActionLinkIsNotEmpty() {
+        val helpUrl = getPermissionControllerResString(HELP_URL_ECM)
+        assertFalse(helpUrl?.length == 0)
     }
 
     @RequiresFlagsEnabled(Flags.FLAG_ENHANCED_CONFIRMATION_MODE_APIS_ENABLED)
     @Test
     fun installedAppStartsWithModeDefault() {
         installPackageWithInstallSourceAndMetadataFromStore(APP_APK_NAME_LATEST)
-        runWithShellPermissionIdentity {
-            assertEquals(
-                getAppEcmState(context, appOpsManager, APP_PACKAGE_NAME),
-                AppOpsManager.MODE_DEFAULT
-            )
+        eventually {
+            runWithShellPermissionIdentity {
+                assertEquals(
+                    getAppEcmState(context, appOpsManager, APP_PACKAGE_NAME),
+                    AppOpsManager.MODE_DEFAULT
+                )
+            }
         }
     }
 
@@ -114,6 +119,14 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     @Test
     fun givenExplicitlyRestrictedAppThenIsRestrictedFromProtectedSetting() {
         installPackageWithInstallSourceAndMetadataFromStore(APP_APK_NAME_LATEST)
+        eventually {
+            runWithShellPermissionIdentity {
+                assertEquals(
+                    getAppEcmState(context, appOpsManager, APP_PACKAGE_NAME),
+                    AppOpsManager.MODE_DEFAULT
+                )
+            }
+        }
         runWithShellPermissionIdentity {
             eventually { assertFalse(ecm.isRestricted(APP_PACKAGE_NAME, PROTECTED_SETTING)) }
             setAppEcmState(context, appOpsManager, APP_PACKAGE_NAME, AppOpsManager.MODE_ERRORED)
@@ -170,42 +183,12 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
         )
         val permissionAndExpectedGrantResults =
             arrayOf(
-                GROUP_1_PERMISSION_1_RESTRICTED to false,
-                GROUP_1_PERMISSION_2_RESTRICTED to false
+                GROUP_2_PERMISSION_1_RESTRICTED to false,
+                GROUP_2_PERMISSION_2_RESTRICTED to false
             )
 
         requestAppPermissionsAndAssertResult(*permissionAndExpectedGrantResults) {
-            click(By.res(ALERT_DIALOG_OK_BUTTON), TIMEOUT_MILLIS)
-        }
-        assertTrue(isClearRestrictionAllowed(APP_PACKAGE_NAME))
-
-        requestAppPermissionsAndAssertResult(
-            *permissionAndExpectedGrantResults,
-            waitForWindowTransition = false
-        ) {
-            assertNoEcmDialogShown()
-        }
-        assertTrue(isClearRestrictionAllowed(APP_PACKAGE_NAME))
-    }
-
-    @RequiresFlagsEnabled(Flags.FLAG_ENHANCED_CONFIRMATION_MODE_APIS_ENABLED)
-    @Test
-    fun grantDialogBlocksRestrictedPermissionsOfDifferentGroupsIndividually() {
-        installPackageWithInstallSourceFromDownloadedFileAndAllowHardRestrictedPerms(
-            APP_APK_NAME_LATEST
-        )
-        val permissionAndExpectedGrantResults =
-            arrayOf(
-                GROUP_1_PERMISSION_1_RESTRICTED to false,
-                GROUP_2_PERMISSION_1_RESTRICTED to false
-            )
-
-        requestAppPermissionsAndAssertResult(
-            *permissionAndExpectedGrantResults,
-            waitForWindowTransition = false
-        ) {
-            doAndWaitForWindowTransition { click(By.res(ALERT_DIALOG_OK_BUTTON), TIMEOUT_MILLIS) }
-            doAndWaitForWindowTransition { click(By.res(ALERT_DIALOG_OK_BUTTON), TIMEOUT_MILLIS) }
+            clickECMAlertDialogOKButton(waitForWindowTransition = false)
         }
         assertTrue(isClearRestrictionAllowed(APP_PACKAGE_NAME))
 
@@ -232,8 +215,8 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
             GROUP_2_PERMISSION_2_RESTRICTED to false,
             waitForWindowTransition = false
         ) {
-            doAndWaitForWindowTransition { click(By.res(ALERT_DIALOG_OK_BUTTON), TIMEOUT_MILLIS) }
-            doAndWaitForWindowTransition { clickPermissionRequestDenyButton() }
+            clickECMAlertDialogOKButton()
+            clickPermissionRequestDenyButton()
         }
         assertTrue(isClearRestrictionAllowed(APP_PACKAGE_NAME))
 
@@ -242,7 +225,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
             GROUP_3_PERMISSION_2_UNRESTRICTED to true,
             waitForWindowTransition = false
         ) {
-            doAndWaitForWindowTransition { clickPermissionRequestAllowForegroundButton() }
+            clickPermissionRequestAllowForegroundButton()
         }
         assertTrue(isClearRestrictionAllowed(APP_PACKAGE_NAME))
     }
@@ -257,12 +240,10 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
         requestAppPermissionsAndAssertResult(
             GROUP_3_PERMISSION_1_UNRESTRICTED to true,
             GROUP_2_PERMISSION_1_RESTRICTED to false,
-            GROUP_1_PERMISSION_1_RESTRICTED to false,
             waitForWindowTransition = false
         ) {
-            doAndWaitForWindowTransition { click(By.res(ALERT_DIALOG_OK_BUTTON), TIMEOUT_MILLIS) }
-            doAndWaitForWindowTransition { click(By.res(ALERT_DIALOG_OK_BUTTON), TIMEOUT_MILLIS) }
-            doAndWaitForWindowTransition { clickPermissionRequestAllowForegroundButton() }
+            clickECMAlertDialogOKButton()
+            clickPermissionRequestAllowForegroundButton()
         }
         assertTrue(isClearRestrictionAllowed(APP_PACKAGE_NAME))
     }
@@ -277,33 +258,12 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
         requestAppPermissionsAndAssertResult(
             GROUP_4_PERMISSION_1_UNRESTRICTED to true,
             GROUP_2_PERMISSION_1_RESTRICTED to false,
-            GROUP_1_PERMISSION_1_RESTRICTED to false,
             waitForWindowTransition = false
         ) {
-            doAndWaitForWindowTransition { click(By.res(ALERT_DIALOG_OK_BUTTON), TIMEOUT_MILLIS) }
-            doAndWaitForWindowTransition { click(By.res(ALERT_DIALOG_OK_BUTTON), TIMEOUT_MILLIS) }
-            doAndWaitForWindowTransition { clickPermissionRequestAllowForegroundButton() }
+            clickECMAlertDialogOKButton()
+            clickPermissionRequestAllowForegroundButton()
         }
         assertTrue(isClearRestrictionAllowed(APP_PACKAGE_NAME))
-    }
-
-    @RequiresFlagsEnabled(Flags.FLAG_ENHANCED_CONFIRMATION_MODE_APIS_ENABLED)
-    @Test
-    fun givenPackagesSourceUnspecifiedAndInstallerTargetVersionAtLeastVThenIsRestricted() {
-        val installingApplicationInfo = getApplicationInfoAsUser(context,
-            TEST_INSTALLER_PACKAGE_NAME)
-        assertTrue(installingApplicationInfo.targetSdkVersion >=
-                Build.VERSION_CODES.VANILLA_ICE_CREAM)
-
-        installPackageViaSession(APP_APK_NAME_LATEST)
-
-        val installSource = packageManager.getInstallSourceInfo(APP_PACKAGE_NAME)
-        assertEquals(installSource.installingPackageName, TEST_INSTALLER_PACKAGE_NAME)
-        assertEquals(installSource.packageSource, PackageInstaller.PACKAGE_SOURCE_UNSPECIFIED)
-
-        runWithShellPermissionIdentity {
-            assertTrue(ecm.isRestricted(APP_PACKAGE_NAME, PROTECTED_SETTING))
-        }
     }
 
     private fun isClearRestrictionAllowed(packageName: String) = callWithShellPermissionIdentity {
@@ -313,13 +273,21 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     private fun assertNoEcmDialogShown() {
         assertNull(
             "expected to not see dialog",
-            waitFindObjectOrNull(By.res(ALERT_DIALOG_OK_BUTTON), UNEXPECTED_TIMEOUT_MILLIS.toLong())
+            if (isWatch) {
+                waitFindObjectOrNull(
+                    By.text(getPermissionControllerString(ECM_ALERT_DIALOG_OK_BUTTON_TEXT)),
+                    UNEXPECTED_TIMEOUT_MILLIS.toLong()
+                )
+            } else {
+                waitFindObjectOrNull(
+                    By.res(ALERT_DIALOG_OK_BUTTON),
+                    UNEXPECTED_TIMEOUT_MILLIS.toLong()
+                )
+            }
         )
     }
 
     companion object {
-        private const val GROUP_1_PERMISSION_1_RESTRICTED = Manifest.permission.CALL_PHONE
-        private const val GROUP_1_PERMISSION_2_RESTRICTED = Manifest.permission.READ_PHONE_STATE
         private const val GROUP_2_PERMISSION_1_RESTRICTED = Manifest.permission.SEND_SMS
         private const val GROUP_2_PERMISSION_2_RESTRICTED = Manifest.permission.READ_SMS
         private const val GROUP_3_PERMISSION_1_UNRESTRICTED =

@@ -21,6 +21,7 @@
     <string name="permission_search_keyword" msgid="1214451577494730543">"odobrenja"</string>
     <string name="cancel" msgid="8943320028373963831">"Otkaži"</string>
     <string name="back" msgid="6249950659061523680">"Nazad"</string>
+    <string name="dialog_close" msgid="6840699812532384661">"Zatvori"</string>
     <string name="available" msgid="6007778121920339498">"Dostupno"</string>
     <string name="blocked" msgid="9195547604866033708">"Blokirano"</string>
     <string name="on" msgid="280241003226755921">"Uključeno"</string>
@@ -367,7 +368,7 @@
     <string name="role_dialer_request_description" msgid="6288839625724909320">"Ova aplikacija će dobiti pristup vašoj Kameri, Kontaktima, Mikrofonu, Telefonu i SMS-u"</string>
     <string name="role_dialer_search_keywords" msgid="3324448983559188087">"brojčana tastatura"</string>
     <string name="role_sms_label" msgid="8456999857547686640">"Zadana aplikacija za SMS"</string>
-    <string name="role_sms_short_label" msgid="4371444488034692243">"Aplikacija za SMS"</string>
+    <string name="role_sms_short_label" msgid="4371444488034692243">"aplikacija za SMS"</string>
     <string name="role_sms_description" msgid="3424020199148153513">"Aplikacije koje vam omogućavaju korištenje broja telefona za slanje i primanje kratkih SMS-ova, fotografija, videozapisa i drugog"</string>
     <string name="role_sms_request_title" msgid="7953552109601185602">"Postaviti aplikaciju <xliff:g id="APP_NAME">%1$s</xliff:g> kao zadanu aplikaciju za SMS?"</string>
     <string name="role_sms_request_description" msgid="2691004766132144886">"Ova aplikacija će dobiti pristup vašoj Kameri, Kontaktima, Fajlovima i medijima, Mikrofonu, Telefonu i SMS-u"</string>
@@ -440,6 +441,7 @@
     <string name="default_app_none" msgid="9084592086808194457">"Nema"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(Sistemski zadano)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"Nema aplikacija"</string>
+    <string name="default_payment_app_other_nfc_services" msgid="5957633798695758917">"Druge NFC usluge"</string>
     <string name="car_default_app_selected" msgid="5416420830430644174">"Odabrano"</string>
     <string name="car_default_app_selected_with_info" msgid="1932204186080593500">"Odabrano – <xliff:g id="ADDITIONAL_INFO">%1$s</xliff:g>"</string>
     <string name="special_app_access_search_keyword" msgid="8032347212290774210">"poseban pristup aplikacijama"</string>
@@ -560,6 +562,8 @@
     <string name="blocked_mic_summary" msgid="8960466941528458347">"Podaci mikrofona se i dalje mogu dijeliti kada pozovete broj za hitne slučajeve."</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"Promijeni"</string>
     <string name="automotive_blocked_camera_title" msgid="6142362431548829416">"Pristup kameri je isključen"</string>
+    <string name="automotive_blocked_microphone_title" msgid="3956311098238620220">"Pristup mikrofonu je isključen"</string>
+    <string name="automotive_blocked_location_title" msgid="6047574747593264689">"Pristup lokaciji je isključen"</string>
     <string name="automotive_blocked_infotainment_app_summary" msgid="8217099645064950860">"Za informativno-zabavne aplikacije"</string>
     <string name="automotive_blocked_required_app_summary" msgid="8591513745681168088">"Za potrebne aplikacije"</string>
     <string name="automotive_required_app_title" msgid="2992168288249988735">"Ova aplikacija je potrebna"</string>
@@ -667,11 +671,12 @@
     <string name="wear_app_perms_24h_access_yest" msgid="7069312481704735679">"Pristupljeno je jučer u <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
     <string name="wear_app_perms_7d_access" msgid="4608069019194676432">"Pristupljeno je <xliff:g id="TIME_DATE_0">%1$s</xliff:g> u <xliff:g id="TIME_DATE_1">%2$s</xliff:g>"</string>
     <string name="test_otp_msg" msgid="7559110574222727550">"Jednokratna lozinka je 132435"</string>
+    <string name="allow_restricted_settings" msgid="8073000189478396881">"Dozvoli ograničene postavke"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Ograničena postavka"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Radi vaše sigurnosti postavka trenutno nije dostupna."</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Aplikaciji je odbijen pristup odobrenju <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Aplikacija je zatražila pristup osjetljivom odobrenju, što može ugroziti vaše lične i finansijske informacije.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Moguće je da aplikacija neće ispravno raditi bez ovog ograničenog odobrenja. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Saznajte kako dozvoliti pristup&lt;/a&gt;"</string>
-    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Aplikaciji je odbijen pristup da bude zadana uloga <xliff:g id="ROLE_NAME">%1$s</xliff:g>"</string>
+    <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Aplikaciji je odbijen pristup da bude zadana <xliff:g id="ROLE_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"Aplikacija je zatražila pristup osjetljivim odobrenjima, što može ugroziti vaše lične i finansijske informacije.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Moguće je da aplikacija neće ispravno raditi bez ovih ograničenih odobrenja. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Saznajte kako dozvoliti pristup&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"Aplikaciji je odbijen pristup"</string>
     <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"Pristup ovom odobrenju može ugroziti vaše lične i finansijske informacije.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Moguće je da aplikacija neće ispravno raditi bez ovog ograničenog odobrenja. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Saznajte kako dozvoliti pristup&lt;/a&gt;"</string>
@@ -679,4 +684,10 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"Uredu"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Zahtjev za odobrenje je potisnut"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Aplikacija traži dodatna odobrenja, ali se ona ne mogu dati u sesiji prijenosa. Najprije dajte odobrenje na telefonu."</string>
+    <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"Za hitni poziv ili poruku"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"Lokacija je poslana hitnim službama"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"Ova aplikacija je pristupila lokaciji uređaja tokom poziva ili slanja poruke broju za hitne slučajeve. To se može dogoditi čak i kada aplikacija nema odobrenje za lokaciju ili je lokacija uređaja isključena. "<a href="https://support.google.com/android/answer/9319337">"Saznajte više"</a></string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Provjerite telefon"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"Nije se moguće povezati s telefonom"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"Pokušati ponovo?"</string>
 </resources>

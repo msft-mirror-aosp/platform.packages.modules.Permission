@@ -21,6 +21,7 @@
     <string name="permission_search_keyword" msgid="1214451577494730543">"ଅନୁମତିଗୁଡ଼ିକ"</string>
     <string name="cancel" msgid="8943320028373963831">"ବାତିଲ କରନ୍ତୁ"</string>
     <string name="back" msgid="6249950659061523680">"ପଛକୁ ଫେରନ୍ତୁ"</string>
+    <string name="dialog_close" msgid="6840699812532384661">"ବନ୍ଦ କରନ୍ତୁ"</string>
     <string name="available" msgid="6007778121920339498">"ଉପଲବ୍ଧ ଅଛି"</string>
     <string name="blocked" msgid="9195547604866033708">"ବ୍ଲକ କରାଯାଇଛି"</string>
     <string name="on" msgid="280241003226755921">"ଚାଲୁ ଅଛି"</string>
@@ -367,7 +368,7 @@
     <string name="role_dialer_request_description" msgid="6288839625724909320">"ଏହି ଆପକୁ ଆପଣଙ୍କ କ୍ୟାମେରା, ଯୋଗାଯୋଗ, ମାଇକ୍ରୋଫୋନ, ଫୋନ ଏବଂ SMSକୁ ଆକ୍ସେସ ଦିଆଯିବ"</string>
     <string name="role_dialer_search_keywords" msgid="3324448983559188087">"ଡାୟଲର୍"</string>
     <string name="role_sms_label" msgid="8456999857547686640">"ଡିଫଲ୍ଟ SMS ଆପ୍‌"</string>
-    <string name="role_sms_short_label" msgid="4371444488034692243">"SMS ଆପ୍‌"</string>
+    <string name="role_sms_short_label" msgid="4371444488034692243">"SMS ଆପ"</string>
     <string name="role_sms_description" msgid="3424020199148153513">"ଆପ୍ସ, ଯାହା ଆପଣଙ୍କ ଫୋନ୍ ନମ୍ବର ବ୍ୟବହାର କରି ଛୋଟ ଟେକ୍ସଟ୍ ମେସେଜ୍, ଫଟୋ, ଭିଡିଓ, ଏବଂ ଅନେକ କିଛି ପଠାଇବା ଏବଂ ପ୍ରାପ୍ତ କରିବାକୁ ଅନୁମତି ଦିଏ"</string>
     <string name="role_sms_request_title" msgid="7953552109601185602">"<xliff:g id="APP_NAME">%1$s</xliff:g>କୁ ଆପଣଙ୍କ ଡିଫଲ୍ଟ SMS ଆପ୍ ଭାବରେ ସେଟ୍ କରିବେ କି?"</string>
     <string name="role_sms_request_description" msgid="2691004766132144886">"ଏହି ଆପକୁ ଆପଣଙ୍କ କ୍ୟାମେରା, ଯୋଗାଯୋଗ, ଫାଇଲ ଓ ଡକ୍ୟୁମେଣ୍ଟ ମାଇକ୍ରୋଫୋନ, ଫୋନ ଏବଂ SMSକୁ ଆକ୍ସେସ ଦିଆଯିବ"</string>
@@ -440,6 +441,7 @@
     <string name="default_app_none" msgid="9084592086808194457">"କିଛି ଆପ ସେଟ କରାଯାଇନାହିଁ"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(ସିଷ୍ଟମ୍ ଡିଫଲ୍ଟ)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"କୌଣସି ଆପ୍‌ ନାହିଁ"</string>
+    <string name="default_payment_app_other_nfc_services" msgid="5957633798695758917">"ଅନ୍ୟ NFC ସେବା"</string>
     <string name="car_default_app_selected" msgid="5416420830430644174">"ଚୟନ କରାଯାଇଛି"</string>
     <string name="car_default_app_selected_with_info" msgid="1932204186080593500">"ଚୟନ କରାଯାଇଛି - <xliff:g id="ADDITIONAL_INFO">%1$s</xliff:g>"</string>
     <string name="special_app_access_search_keyword" msgid="8032347212290774210">"ବିଶେଷ ଆପ୍‌ ଆକ୍ସେସ୍‌"</string>
@@ -525,7 +527,7 @@
     <string name="permgrouprequest_device_aware_calllog" msgid="8220927190376843309">"&lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;ରେ ଆପଣଙ୍କ ଫୋନ କଲ ଲଗକୁ ଆକ୍ସେସ କରିବା ପାଇଁ &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;କୁ ଅନୁମତି ଦେବେ?"</string>
     <string name="permgrouprequest_phone" msgid="1829234136997316752">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;କୁ ଫୋନ କଲ କରିବାକୁ ତଥା ପରିଚାଳନା କରିବାକୁ ଅନୁମତି ଦେବେ?"</string>
     <string name="permgrouprequest_device_aware_phone" msgid="590399263670349955">"&lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;ରେ ଫୋନ କଲଗୁଡ଼ିକ କରିବା ଏବଂ ସେଗୁଡ଼ିକୁ ପରିଚାଳନା କରିବା ପାଇଁ &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;କୁ ଅନୁମତି ଦେବେ?"</string>
-    <string name="permgrouprequest_sensors" msgid="4397358316850652235">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;କୁ ଆପଣଙ୍କ ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ ଲକ୍ଷଣଗୁଡ଼ିକ ବିଷୟରେ ସେନ୍ସର୍‍ ଡାଟା ଆକ୍ସେସ୍‍ କରିବା ପାଇଁ ଅନୁମତି ଦେବେ କି?"</string>
+    <string name="permgrouprequest_sensors" msgid="4397358316850652235">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;କୁ ଆପଣଙ୍କ ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ ଲକ୍ଷଣଗୁଡ଼ିକ ବିଷୟରେ ସେନ୍ସର ଡାଟା ଆକ୍ସେସ କରିବା ପାଇଁ ଅନୁମତି ଦେବେ କି?"</string>
     <string name="permgrouprequest_device_aware_sensors" msgid="3874451050573615157">"&lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;ରେ ଆପଣଙ୍କ ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ ସଙ୍କେତ ବିଷୟରେ ସେନ୍ସର ଡାଟାକୁ ଆକ୍ସେସ କରିବା ପାଇଁ &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;କୁ ଅନୁମତି ଦେବେ?"</string>
     <string name="permgroupupgraderequestdetail_sensors" msgid="6651914048792092835">"ଆପଣ ଆପ ବ୍ୟବହାର କରୁନଥିଲେ ମଧ୍ୟ, ଏହି ଆପ ସବୁ ସମୟରେ ଆପଣଙ୍କ ମହତ୍ତ୍ୱପୂର୍ଣ୍ଣ ଲକ୍ଷଣଗୁଡ଼ିକ ବିଷୟରେ ସେନ୍ସର ଡାଟାକୁ ଆକ୍ସେସ କରିବା ପାଇଁ ଚାହେଁ। ଏହି ପରିବର୍ତ୍ତନ କରିବାକୁ, "<annotation id="link">"ସେଟିଂସକୁ ଯାଆନ୍ତୁ।"</annotation></string>
     <string name="permgroupbackgroundrequest_sensors" msgid="5661924322018503886">"ଆପଣଙ୍କ ମହତ୍ତ୍ୱପୂର୍ଣ୍ଣ ଲକ୍ଷଣଗୁଡ଼ିକ ବିଷୟରେ ସେନ୍ସର ଡାଟାକୁ ଆକ୍ସେସ କରିବା ପାଇଁ &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;କୁ ଅନୁମତି ଦେବେ କି?"</string>
@@ -560,6 +562,8 @@
     <string name="blocked_mic_summary" msgid="8960466941528458347">"ଆପଣ ଏକ ଜରୁରୀକାଳୀନ ନମ୍ବରକୁ କଲ କରିବା ସମୟରେ ମାଇକ୍ରୋଫୋନ ଡାଟା ଏବେ ବି ସେୟାର କରାଯାଇପାରେ।"</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"ପରିବର୍ତ୍ତନ କରନ୍ତୁ"</string>
     <string name="automotive_blocked_camera_title" msgid="6142362431548829416">"କେମେରା ଆକ୍ସେସ ବନ୍ଦ ଅଛି"</string>
+    <string name="automotive_blocked_microphone_title" msgid="3956311098238620220">"ମାଇକ୍ରୋଫୋନ ଆକ୍ସେସ ବନ୍ଦ ଅଛି"</string>
+    <string name="automotive_blocked_location_title" msgid="6047574747593264689">"ଲୋକେସନ ଆକ୍ସେସ ବନ୍ଦ ଅଛି"</string>
     <string name="automotive_blocked_infotainment_app_summary" msgid="8217099645064950860">"ଇନଫୋଟେନମେଣ୍ଟ ଆପ୍ସ ପାଇଁ"</string>
     <string name="automotive_blocked_required_app_summary" msgid="8591513745681168088">"ଆବଶ୍ୟକୀୟ ଆପ୍ସ ପାଇଁ"</string>
     <string name="automotive_required_app_title" msgid="2992168288249988735">"ଏହି ଆପ ଆବଶ୍ୟକ"</string>
@@ -667,6 +671,7 @@
     <string name="wear_app_perms_24h_access_yest" msgid="7069312481704735679">"ଗତକାଲି <xliff:g id="TIME_DATE">%1$s</xliff:g>ରେ ଆକ୍ସେସ କରାଯାଇଛି"</string>
     <string name="wear_app_perms_7d_access" msgid="4608069019194676432">"<xliff:g id="TIME_DATE_0">%1$s</xliff:g> <xliff:g id="TIME_DATE_1">%2$s</xliff:g>ରେ ଆକ୍ସେସ କରାଯାଇଛି"</string>
     <string name="test_otp_msg" msgid="7559110574222727550">"ଆପଣଙ୍କ ଗୋଟିଏ ଥରର ପାସୱାର୍ଡ ହେଉଛି 132435"</string>
+    <string name="allow_restricted_settings" msgid="8073000189478396881">"ପ୍ରତିବନ୍ଧିତ ସେଟିଂସକୁ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"ପ୍ରତିବନ୍ଧିତ ସେଟିଂ"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"ଆପଣଙ୍କ ସୁରକ୍ଷା ପାଇଁ ଏହି ସେଟିଂ ବର୍ତ୍ତମାନ ଅନୁପଲବ୍ଧ ଅଟେ।"</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>କୁ ଆପର ଆକ୍ସେସକୁ ଅଗ୍ରାହ୍ୟ କରାଯାଇଛି"</string>
@@ -679,4 +684,10 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"ଠିକ ଅଛି"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"ଅନୁମତି ଅନୁରୋଧକୁ ବନ୍ଦ କରାଯାଇଛି"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"ଏହି ଆପ ଅତିରିକ୍ତ ଅନୁମତି ପାଇଁ ଅନୁରୋଧ କରୁଛି, ଏକ ଷ୍ଟ୍ରିମିଂ ସେସନରେ ଅନୁମତି ଦିଆଯାଇପାରିବ ନାହିଁ। ପ୍ରଥମେ ଆପଣଙ୍କ ଫୋନରେ ଅନୁମତି ଦିଅନ୍ତୁ।"</string>
+    <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"ଜରୁରୀକାଳୀନ କଲ କିମ୍ବା ଟେକ୍ସଟ ପାଇଁ"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"ଜରୁରୀକାଳୀନ ସେବାଗୁଡ଼ିକୁ ଲୋକେସନ ପଠାଯାଇଛି"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"ଏକ ଜରୁରୀକାଳୀନ ନମ୍ବରକୁ କଲ କରାଯିବା କିମ୍ବା ଟେକ୍ସଟ ପଠାଇବା ସମୟରେ ଏହି ଆପ ଆପଣଙ୍କ ଡିଭାଇସର ଲୋକେସନକୁ ଆକ୍ସେସ କରିଛି। ଆପ ପାଖରେ ଲୋକେସନ ଅନୁମତି ନଥିଲେ କିମ୍ବା ଡିଭାଇସର ଲୋକେସନ ବନ୍ଦ ଥିଲେ ମଧ୍ୟ ଏହା ହୋଇପାରେ। "<a href="https://support.google.com/android/answer/9319337">"ଅଧିକ ଜାଣନ୍ତୁ"</a></string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"ଆପଣଙ୍କ ଫୋନ ଯାଞ୍ଚ କରନ୍ତୁ"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"ଆପଣଙ୍କ ଫୋନ ସହ କନେକ୍ଟ କରାଯାଇପାରିଲା ନାହିଁ"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"ପୁଣି ଚେଷ୍ଟା କରିବେ?"</string>
 </resources>

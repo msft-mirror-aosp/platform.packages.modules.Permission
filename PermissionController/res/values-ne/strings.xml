@@ -21,6 +21,7 @@
     <string name="permission_search_keyword" msgid="1214451577494730543">"अनुमतिहरू"</string>
     <string name="cancel" msgid="8943320028373963831">"रद्द गर्नुहोस्"</string>
     <string name="back" msgid="6249950659061523680">"पछाडि जानुहोस्"</string>
+    <string name="dialog_close" msgid="6840699812532384661">"बन्द गर्नुहोस्"</string>
     <string name="available" msgid="6007778121920339498">"उपलब्ध"</string>
     <string name="blocked" msgid="9195547604866033708">"ब्लक गरिएको"</string>
     <string name="on" msgid="280241003226755921">"अन छ"</string>
@@ -440,6 +441,7 @@
     <string name="default_app_none" msgid="9084592086808194457">"कुनै पनि होइन"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(सिस्टम डिफल्ट)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"कुनै पनि एप छैन"</string>
+    <string name="default_payment_app_other_nfc_services" msgid="5957633798695758917">"NFC का अन्य सेवाहरू"</string>
     <string name="car_default_app_selected" msgid="5416420830430644174">"चयन गरिएको"</string>
     <string name="car_default_app_selected_with_info" msgid="1932204186080593500">"चयन गरिएको - <xliff:g id="ADDITIONAL_INFO">%1$s</xliff:g>"</string>
     <string name="special_app_access_search_keyword" msgid="8032347212290774210">"एपसम्बन्धी विशेष पहुँच"</string>
@@ -560,8 +562,10 @@
     <string name="blocked_mic_summary" msgid="8960466941528458347">"तपाईंले आपत्‍कालीन नम्बरमा कल गर्नुभयो भने माइक्रोफोनसम्बन्धी डेटा सेयर गरिन पनि सक्छ।"</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"बदल्नुहोस्"</string>
     <string name="automotive_blocked_camera_title" msgid="6142362431548829416">"क्यामेरा एक्सेस अफ छ"</string>
+    <string name="automotive_blocked_microphone_title" msgid="3956311098238620220">"माइक्रोफोन एक्सेस अफ गरिएको छ"</string>
+    <string name="automotive_blocked_location_title" msgid="6047574747593264689">"लोकेसन एक्सेस अफ गरिएको छ"</string>
     <string name="automotive_blocked_infotainment_app_summary" msgid="8217099645064950860">"इन्फोटेनमेन्ट एपहरूका लागि"</string>
-    <string name="automotive_blocked_required_app_summary" msgid="8591513745681168088">"अनिवार्य रूपमा इन्स्टल गर्नु पर्ने एपहरूका लागि"</string>
+    <string name="automotive_blocked_required_app_summary" msgid="8591513745681168088">"आवश्यक एपहरूका लागि"</string>
     <string name="automotive_required_app_title" msgid="2992168288249988735">"यो एप अनिवार्य रूपमा इन्स्टल गर्नु पर्छ"</string>
     <string name="automotive_required_app_summary" msgid="6514902316658090465">"तपाईंको कारको उत्पादकले व्यवस्था गरेबमोजिम यो एप अनिवार्य रूपमा इन्स्टल गर्नु पर्छ"</string>
     <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"सुरक्षा तथा गोपनीयता"</string>
@@ -667,6 +671,7 @@
     <string name="wear_app_perms_24h_access_yest" msgid="7069312481704735679">"हिजो <xliff:g id="TIME_DATE">%1$s</xliff:g> मा एक्सेस गरिएको"</string>
     <string name="wear_app_perms_7d_access" msgid="4608069019194676432">"<xliff:g id="TIME_DATE_0">%1$s</xliff:g> <xliff:g id="TIME_DATE_1">%2$s</xliff:g> मा एक्सेस गरिएको"</string>
     <string name="test_otp_msg" msgid="7559110574222727550">"तपाईंको एक पटके पासवर्ड 132435 हो"</string>
+    <string name="allow_restricted_settings" msgid="8073000189478396881">"प्रतिबन्ध लगाइएका सेटिङ अनलक गर्नुहोस्"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"प्रतिबन्ध लगाइएका सेटिङ"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"तपाईंको खाताको सुरक्षार्थ यो सेटिङ हाल उपलब्ध छैन।"</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"एपले <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> प्रयोग गर्न मागेको अनुमति अस्वीकार गरिएको छ"</string>
@@ -679,4 +684,10 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"ठिक छ"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"अनुमतिसम्बन्धी अनुरोध रद्द गरिएको छ"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"यो एपले अतिरिक्त अनुमति मागिरहेको छ तर स्ट्रिमिङ सत्रमा अनुमति दिन मिल्दैन। सर्वप्रथम आफ्नो फोनमा अनुमति दिनुहोस्।"</string>
+    <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"आपत्कालीन अवस्थामा यो नम्बरमा कल गर्नुहोस् वा टेक्स्ट म्यासेज पठाउनुहोस्"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"आपत्कालीन सेवाहरूमा लोकेसन पठाइएको छ"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"यो एपले आपत्कालीन नम्बरमा कल वा टेक्स्ट म्यासेज गर्ने बेलामा तपाईंको डिभाइसको लोकेसन एक्सेस गरेको छ। यो एपलाई लोकेसन प्रयोग गर्ने अनुमति नदिइएका वा यो डिभाइसको लोकेसन अफ गरिएका अवस्थामा पनि यस्तो हुन सक्छ। "<a href="https://support.google.com/android/answer/9319337">"थप जान्नुहोस्"</a></string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"आफ्नो फोनमा हेर्नुहोस्"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"तपाईंको फोनमा कनेक्ट गर्न सकिएन"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"पुनः प्रयास गर्ने हो?"</string>
 </resources>

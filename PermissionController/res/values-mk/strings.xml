@@ -21,6 +21,7 @@
     <string name="permission_search_keyword" msgid="1214451577494730543">"дозволи"</string>
     <string name="cancel" msgid="8943320028373963831">"Откажи"</string>
     <string name="back" msgid="6249950659061523680">"Назад"</string>
+    <string name="dialog_close" msgid="6840699812532384661">"Затвори"</string>
     <string name="available" msgid="6007778121920339498">"Дозволен"</string>
     <string name="blocked" msgid="9195547604866033708">"Блокиран"</string>
     <string name="on" msgid="280241003226755921">"Вклучено"</string>
@@ -92,7 +93,7 @@
     <string name="manage_permission" msgid="2895385393037061964">"Управувајте со дозволата"</string>
     <string name="no_apps" msgid="2412612731628386816">"Нема апликации"</string>
     <string name="location_settings" msgid="3624412509133422562">"Поставки за локација"</string>
-    <string name="location_warning" msgid="2381649060929040962">"<xliff:g id="APP_NAME">%1$s</xliff:g> е давател на услуги според локација за овој уред. Пристапот до локацијата може да се смени од поставките за локација."</string>
+    <string name="location_warning" msgid="2381649060929040962">"<xliff:g id="APP_NAME">%1$s</xliff:g> е давател на локациски услуги за овој уред. Пристапот до локацијата може да се смени од поставките за локација."</string>
     <string name="system_warning" msgid="1173400963234358816">"Ако ја одбиете дозволава, основните функции на уредот можеби веќе нема да функционираат како што треба."</string>
     <string name="deny_read_media_visual_warning" msgid="3982586279917232827">"Оваа апликација е дизајнирана за постара верзија на Android. Ако го одбиете пристапот на апликацијава до фотографиите и видеата, пристапот до музиката и другото аудио исто така ќе се одбие."</string>
     <string name="deny_read_media_aural_warning" msgid="8928699919508646732">"Оваа апликација е дизајнирана за постара верзија на Android. Ако го одбиете пристапот на апликацијава до музиката и другото аудио, пристапот до фотографиите и видеата исто така ќе се одбие."</string>
@@ -440,6 +441,7 @@
     <string name="default_app_none" msgid="9084592086808194457">"Нема"</string>
     <string name="default_app_system_default" msgid="6218386768175513760">"(Стандардно за системот)"</string>
     <string name="default_app_no_apps" msgid="115720991680586885">"Нема апликации"</string>
+    <string name="default_payment_app_other_nfc_services" msgid="5957633798695758917">"Други услуги за NFC"</string>
     <string name="car_default_app_selected" msgid="5416420830430644174">"Избрана"</string>
     <string name="car_default_app_selected_with_info" msgid="1932204186080593500">"Избрана - <xliff:g id="ADDITIONAL_INFO">%1$s</xliff:g>"</string>
     <string name="special_app_access_search_keyword" msgid="8032347212290774210">"посебен пристап за апликации"</string>
@@ -560,6 +562,8 @@
     <string name="blocked_mic_summary" msgid="8960466941528458347">"Податоците за микрофонот може сепак да се споделат кога се јавувате на бројот за итни случаи."</string>
     <string name="blocked_sensor_button_label" msgid="6742092634984289658">"Измени"</string>
     <string name="automotive_blocked_camera_title" msgid="6142362431548829416">"Пристапот до камерата е исклучен"</string>
+    <string name="automotive_blocked_microphone_title" msgid="3956311098238620220">"Пристапот до микрофонот е исклучен"</string>
+    <string name="automotive_blocked_location_title" msgid="6047574747593264689">"Пристапот до локацијата е исклучен"</string>
     <string name="automotive_blocked_infotainment_app_summary" msgid="8217099645064950860">"За апликации за информации и забава"</string>
     <string name="automotive_blocked_required_app_summary" msgid="8591513745681168088">"За задолжителните апликации"</string>
     <string name="automotive_required_app_title" msgid="2992168288249988735">"Апликацијава е задолжителна"</string>
@@ -667,16 +671,23 @@
     <string name="wear_app_perms_24h_access_yest" msgid="7069312481704735679">"Пристапено вчера: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
     <string name="wear_app_perms_7d_access" msgid="4608069019194676432">"Пристапено: <xliff:g id="TIME_DATE_0">%1$s</xliff:g> <xliff:g id="TIME_DATE_1">%2$s</xliff:g>"</string>
     <string name="test_otp_msg" msgid="7559110574222727550">"Вашата еднократна лозинка е 132435"</string>
+    <string name="allow_restricted_settings" msgid="8073000189478396881">"Дозволете ограничени поставки"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Ограничена поставка"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"За ваша безбедност, поставкава е недостапна во моментов."</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Барањето за пристап на апликацијата до <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> е одбиено"</string>
-    <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Апликацијата побара пристап до дозвола за чувствителни податоци што може да ја загрози безбедноста на вашите лични и финансиски податоци.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Можно е апликацијата да не функционира правилно без ограниченава дозвола. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Дознајте повеќе како да дозволите пристап&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Апликацијата побара пристап до дозвола за чувствителни податоци што може да ја загрози безбедноста на вашите лични и финансиски податоци.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Можно е апликацијата да не функционира правилно без ограниченава дозвола. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Дознајте како да дозволите пристап&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Барањето на апликацијата да биде стандарднa <xliff:g id="ROLE_NAME">%1$s</xliff:g> е одбиено"</string>
-    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"Апликацијата побара пристап до дозволи за чувствителни податоци што може да ја загрози безбедноста на вашите лични и финансиски податоци.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Можно е апликацијата да не функционира правилно без ограничениве дозволи. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Дознајте повеќе како да дозволите пристап&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_desc_role" msgid="6369601947905234551">"Апликацијата побара пристап до дозволи за чувствителни податоци што може да ја загрози безбедноста на вашите лични и финансиски податоци.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Можно е апликацијата да не функционира правилно без ограничениве дозволи. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Дознајте како да дозволите пристап&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_settings_default" msgid="1858092969721041576">"Барањето за пристап на апликацијата е одбиено"</string>
-    <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"Пристапот до дозволава може да ја загрози безбедноста на вашите лични и финансиски податоци.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Можно е апликацијата да не функционира правилно без ограниченава дозвола. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Дознајте повеќе како да дозволите пристап&lt;/a&gt;"</string>
+    <string name="enhanced_confirmation_dialog_desc_settings_default" msgid="6911632348359332981">"Пристапот до дозволава може да ја загрози безбедноста на вашите лични и финансиски податоци.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Можно е апликацијата да не функционира правилно без ограниченава дозвола. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Дознајте како да дозволите пристап&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"Дознајте повеќе"</string>
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"Во ред"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Барањето за дозвола е потиснато"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Апликацијава бара дополнителни дозволи, но нив не може да ги доделите во сесија за стриминг. Прво доделете ја дозволата на вашиот телефон."</string>
+    <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"За итен повик или порака"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"Локацијата е испратена до службите за итни случаи"</string>
+    <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"Оваа апликација пристапи до локацијата на вашиот уред при размена на повик или пораки со број за итни случаи. Ова може да се случи дури и кога апликацијата нема дозвола за локација или кога локацијата на уредот е исклучена. "<a href="https://support.google.com/android/answer/9319337">"Дознајте повеќе"</a></string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Проверете го телефонот"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"Не можеше да се контактира со телефонот"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"Ќе се обидете повторно?"</string>
 </resources>
