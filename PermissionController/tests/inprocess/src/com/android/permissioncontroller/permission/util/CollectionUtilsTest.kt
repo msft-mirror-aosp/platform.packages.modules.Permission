@@ -16,11 +16,15 @@
 
 package com.android.permissioncontroller.permission.util
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.android.permissioncontroller.permission.utils.CollectionUtils
 import com.google.common.truth.Truth.assertThat
+import org.junit.Rule
 import org.junit.Test
 
 class CollectionUtilsTest {
+    @JvmField @Rule val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     @Test
     fun testContains_true() {
         val byteArrays = setOf(TEST_BYTE_ARRAY_1, TEST_BYTE_ARRAY_2, TEST_BYTE_ARRAY_3)

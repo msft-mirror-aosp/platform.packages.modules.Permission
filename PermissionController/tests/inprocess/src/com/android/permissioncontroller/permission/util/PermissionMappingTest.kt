@@ -19,14 +19,19 @@ package com.android.permissioncontroller.permission.util
 import android.Manifest
 import android.app.AppOpsManager
 import android.health.connect.HealthPermissions
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.android.permissioncontroller.permission.utils.PermissionMapping
 import com.google.common.truth.Truth.assertThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class PermissionMappingTest {
+
+    @JvmField @Rule val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     @Test
     fun testGetPlatformPermissionGroupForOp_healthPermissionGroup() {
         assertThat(
