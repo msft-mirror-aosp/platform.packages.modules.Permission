@@ -65,10 +65,19 @@ flag {
 }
 
 flag {
-    name: "livevdata_refactor_permission_timeline_enabled"
+    name: "livedata_refactor_permission_timeline_enabled"
     is_exported: true
     namespace: "permissions"
     description: "This flag is used to enable modern app architecture implementation for timeline page"
     bug: "354234946"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "odad_notifications_supported"
+    is_exported: true
+    namespace: "permissions"
+    description: "This flag is used to enable Safety Center notifications support for ODAD"
+    bug: "356910008"
     is_fixed_read_only: true
 }

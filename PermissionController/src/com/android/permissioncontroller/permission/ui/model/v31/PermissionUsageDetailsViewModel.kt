@@ -37,6 +37,7 @@ import android.os.UserManager
 import android.permission.flags.Flags
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
@@ -69,10 +70,10 @@ import java.util.concurrent.TimeUnit.DAYS
 /** [ViewModel] for the Permission Usage Details page. */
 @RequiresApi(Build.VERSION_CODES.S)
 class PermissionUsageDetailsViewModel(
-    val application: Application,
+    private val application: Application,
     private val state: SavedStateHandle,
     private val permissionGroup: String,
-) : ViewModel() {
+) : BasePermissionUsageDetailsViewModel(application) {
 
     val allLightHistoricalPackageOpsLiveData =
         AllLightHistoricalPackageOpsLiveData(application, opNames)
@@ -80,11 +81,9 @@ class PermissionUsageDetailsViewModel(
         mutableMapOf<AppPermissionId, AppPermGroupUiInfoLiveData>()
     private val lightPackageInfoLiveDataMap =
         mutableMapOf<Pair<String, UserHandle>, LightPackageInfoLiveData>()
-    val showSystemLiveData = state.getLiveData(SHOULD_SHOW_SYSTEM_KEY, false)
-    val show7DaysLiveData = state.getLiveData(SHOULD_SHOW_7_DAYS_KEY, false)
 
-    private val packageIconCache: MutableMap<Pair<String, UserHandle>, Drawable> = mutableMapOf()
-    private val packageLabelCache: MutableMap<String, String> = mutableMapOf()
+    override val showSystemLiveData = state.getLiveData(SHOULD_SHOW_SYSTEM_KEY, false)
+    val show7DaysLiveData = state.getLiveData(SHOULD_SHOW_7_DAYS_KEY, false)
 
     private val roleManager =
         Utils.getSystemServiceSafe(application.applicationContext, RoleManager::class.java)
@@ -92,21 +91,21 @@ class PermissionUsageDetailsViewModel(
         Utils.getSystemServiceSafe(application.applicationContext, UserManager::class.java)
 
     /** Updates whether system app permissions usage should be displayed in the UI. */
-    fun updateShowSystemAppsToggle(showSystem: Boolean) {
+    override fun updateShowSystemAppsToggle(showSystem: Boolean) {
         if (showSystem != state[SHOULD_SHOW_SYSTEM_KEY]) {
             state[SHOULD_SHOW_SYSTEM_KEY] = showSystem
         }
     }
 
     /** Updates whether 7 days usage or 1 day usage should be displayed in the UI. */
-    fun updateShow7DaysToggle(show7Days: Boolean) {
+    override fun updateShow7DaysToggle(show7Days: Boolean) {
         if (show7Days != state[SHOULD_SHOW_7_DAYS_KEY]) {
             state[SHOULD_SHOW_7_DAYS_KEY] = show7Days
         }
     }
 
-    /** Creates a [PermissionUsageDetailsUiInfo] containing all information to render the UI. */
-    fun buildPermissionUsageDetailsUiInfo(): PermissionUsageDetailsUiInfo {
+    /** Creates a [PermissionUsageDetailsUiState] containing all information to render the UI. */
+    fun buildPermissionUsageDetailsUiInfo(): PermissionUsageDetailsUiState {
         val showSystem: Boolean = state[SHOULD_SHOW_SYSTEM_KEY] ?: false
         val show7Days: Boolean = state[SHOULD_SHOW_7_DAYS_KEY] ?: false
         val showPermissionUsagesDuration =
@@ -120,9 +119,7 @@ class PermissionUsageDetailsViewModel(
                 Instant.EPOCH.toEpochMilli()
             )
 
-        return PermissionUsageDetailsUiInfo(
-            show7Days,
-            showSystem,
+        return PermissionUsageDetailsUiState.Success(
             buildAppPermissionAccessUiInfoList(
                 allLightHistoricalPackageOpsLiveData,
                 startTime,
@@ -204,8 +201,8 @@ class PermissionUsageDetailsViewModel(
             .getLightHistoricalPackageOps()
             ?.filter { Utils.shouldShowInSettings(it.userHandle, userManager) }
             ?.flatMap { it.clusterAccesses(startTime, showSystem) }
-            ?.sortedBy { -1 * it.discreteAccesses.first().accessTimeMs }
-            ?.map { it.buildAppPermissionAccessUiInfo() } ?: listOf()
+            ?.map { it.buildAppPermissionAccessUiInfo() }
+            ?.sortedBy { -it.accessStartTime } ?: listOf()
     }
 
     private fun LightHistoricalPackageOps.clusterAccesses(
@@ -349,7 +346,9 @@ class PermissionUsageDetailsViewModel(
     ): List<AppPermissionDiscreteAccessCluster> {
         val clusters = mutableListOf<AppPermissionDiscreteAccessCluster>()
         val currentDiscreteAccesses = mutableListOf<DiscreteAccess>()
-        for (discreteAccess in appPermAccesses.discreteAccesses) {
+        // Iterate entries in asc order based on access timestamp.
+        for (index in appPermAccesses.discreteAccesses.size - 1 downTo 0) {
+            val discreteAccess = appPermAccesses.discreteAccesses[index]
             if (currentDiscreteAccesses.isEmpty()) {
                 currentDiscreteAccesses.add(discreteAccess)
             } else if (!canAccessBeAddedToCluster(discreteAccess, currentDiscreteAccesses)) {
@@ -371,7 +370,7 @@ class PermissionUsageDetailsViewModel(
         }
 
         if (currentDiscreteAccesses.isNotEmpty()) {
-            val opName = currentDiscreteAccesses.first().opName
+            val opName = currentDiscreteAccesses.last().opName
             clusters.add(
                 AppPermissionDiscreteAccessCluster(
                     appPermAccesses.appPermissionId,
@@ -390,20 +389,25 @@ class PermissionUsageDetailsViewModel(
      * list that it can be added to the cluster.
      */
     private fun canAccessBeAddedToCluster(
-        discreteAccess: DiscreteAccess,
+        currentAccess: DiscreteAccess,
         clusteredAccesses: List<DiscreteAccess>
     ): Boolean {
+        val clusterOp = clusteredAccesses.last().opName
         if (
-            isOpClusteredByItself(discreteAccess.opName) &&
-                discreteAccess.opName != clusteredAccesses.first().opName
+            (isOpClusteredByItself(currentAccess.opName) || isOpClusteredByItself(clusterOp)) &&
+                currentAccess.opName != clusteredAccesses.last().opName
         ) {
             return false
         }
-
-        return discreteAccess.accessTimeMs / ONE_HOUR_MS ==
-            clusteredAccesses.first().accessTimeMs / ONE_HOUR_MS &&
-            clusteredAccesses.last().accessTimeMs / ONE_MINUTE_MS -
-                discreteAccess.accessTimeMs / ONE_MINUTE_MS <= CLUSTER_SPACING_MINUTES
+        val currentAccessMinute = currentAccess.accessTimeMs / ONE_MINUTE_MS
+        val prevMostRecentAccessMillis =
+            clusteredAccesses.maxOf { discreteAccess ->
+                if (discreteAccess.accessDurationMs > 0)
+                    discreteAccess.accessTimeMs + discreteAccess.accessDurationMs - ONE_MINUTE_MS
+                else discreteAccess.accessTimeMs
+            }
+        val prevMostRecentAccessMinute = prevMostRecentAccessMillis / ONE_MINUTE_MS
+        return (currentAccessMinute - prevMostRecentAccessMinute) <= CLUSTER_SPACING_MINUTES
     }
 
     /**
@@ -424,8 +428,21 @@ class PermissionUsageDetailsViewModel(
     private fun AppPermissionDiscreteAccessCluster.buildAppPermissionAccessUiInfo():
         AppPermissionAccessUiInfo {
         val context = application
-        val accessTimeList = this.discreteAccesses.map { it.accessTimeMs }
-        val durationSummaryLabel = getDurationSummary(context, this, accessTimeList)
+        // The end minute is exclusive here in terms of access, i.e. [1..5) as the private data
+        // was not accessed at minute 5, it helps calculate the duration correctly.
+        val accessEndTimeMillis =
+            discreteAccesses.maxOf { appOpEvent ->
+                if (appOpEvent.accessDurationMs > 0)
+                    appOpEvent.accessTimeMs + appOpEvent.accessDurationMs
+                else appOpEvent.accessTimeMs + ONE_MINUTE_MS
+            }
+        val accessStartTimeMillis = discreteAccesses.minOf { it.accessTimeMs }
+        val durationMs = accessEndTimeMillis - accessStartTimeMillis
+        val durationSummaryLabel =
+            if (durationMs >= TimeUnit.MINUTES.toMillis(CLUSTER_SPACING_MINUTES + 1)) {
+                getDurationUsedStr(context, durationMs)
+            } else null
+
         val proxyLabel = getProxyPackageLabel(this)
         val subAttributionLabel = getSubAttributionLabel(this)
         val showingSubAttribution = !subAttributionLabel.isNullOrEmpty()
@@ -439,11 +456,12 @@ class PermissionUsageDetailsViewModel(
             this.appPermissionId.packageName,
             getPackageLabel(this.appPermissionId.packageName, this.appPermissionId.userHandle),
             permissionGroup,
-            this.discreteAccesses.last().accessTimeMs,
-            this.discreteAccesses.first().accessTimeMs,
+            accessStartTimeMillis,
+            // Make the end time inclusive i.e. [1..4]
+            accessEndTimeMillis - ONE_MINUTE_MS,
             summary,
             showingSubAttribution,
-            ArrayList(this.attributionTags),
+            this.attributionTags.toSet(),
             getBadgedPackageIcon(this.appPermissionId.packageName, this.appPermissionId.userHandle),
             isEmergencyLocationAccess
         )
@@ -485,36 +503,6 @@ class PermissionUsageDetailsViewModel(
         return lightPackageInfo != null &&
             shouldShowSubattributionInPermissionsDashboard() &&
             SubattributionUtils.isSubattributionSupported(lightPackageInfo)
-    }
-
-    /** Returns a summary of the duration the permission was accessed for. */
-    private fun getDurationSummary(
-        context: Context,
-        accessCluster: AppPermissionDiscreteAccessCluster,
-        accessTimeList: List<Long>,
-    ): String? {
-        if (accessTimeList.isEmpty()) {
-            return null
-        }
-        // Since Location accesses are atomic, we manually calculate the access duration by
-        // comparing the first and last access within the cluster.
-        val durationMs: Long =
-            if (permissionGroup == Manifest.permission_group.LOCATION) {
-                accessTimeList[0] - accessTimeList[accessTimeList.size - 1]
-            } else {
-                accessCluster.discreteAccesses
-                    .filter { it.accessDurationMs > 0 }
-                    .sumOf { it.accessDurationMs }
-            }
-
-        // Only show the duration summary if it is at least (CLUSTER_SPACING_MINUTES + 1) minutes.
-        // Displaying a time that is shorter than the cluster granularity
-        // (CLUSTER_SPACING_MINUTES) will not convey useful information.
-        if (durationMs >= TimeUnit.MINUTES.toMillis(CLUSTER_SPACING_MINUTES + 1)) {
-            return getDurationUsedStr(context, durationMs)
-        }
-
-        return null
     }
 
     /** Returns the proxied package label if the permission access was proxied. */
@@ -572,35 +560,19 @@ class PermissionUsageDetailsViewModel(
         val accessEndTime: Long,
         val summaryText: CharSequence?,
         val showingAttribution: Boolean,
-        val attributionTags: ArrayList<String>,
+        val attributionTags: Set<String>,
         val badgedPackageIcon: Drawable?,
         val isEmergencyLocationAccess: Boolean
     )
 
-    /**
-     * Class containing all the information needed by the permission usage details fragments to
-     * render UI.
-     */
-    data class PermissionUsageDetailsUiInfo(
-        /**
-         * Whether to show data over the last 7 days.
-         *
-         * While this information is available from the [SHOULD_SHOW_7_DAYS_KEY] state, we include
-         * it in the UI info so that it triggers a UI update when changed.
-         */
-        private val show7Days: Boolean,
-        /**
-         * Whether to show system apps' data.
-         *
-         * While this information is available from the [SHOULD_SHOW_SYSTEM_KEY] state, we include
-         * it in the UI info so that it triggers a UI update when changed.
-         */
-        private val showSystem: Boolean,
-        /** List of [AppPermissionAccessUiInfo]s to be displayed in the UI. */
-        val appPermissionAccessUiInfoList: List<AppPermissionAccessUiInfo>,
-        /** Whether to show the "show/hide system" toggle. */
-        val containsSystemAppAccesses: Boolean,
-    )
+    sealed class PermissionUsageDetailsUiState {
+        data object Loading : PermissionUsageDetailsUiState()
+
+        data class Success(
+            val appPermissionAccessUiInfoList: List<AppPermissionAccessUiInfo>,
+            val containsSystemAppAccesses: Boolean,
+        ) : PermissionUsageDetailsUiState()
+    }
 
     /**
      * Data class representing a cluster of permission accesses close enough together to be
@@ -625,9 +597,10 @@ class PermissionUsageDetailsViewModel(
         val discreteAccesses: List<DiscreteAccess>
     )
 
-    /** [LiveData] object for [PermissionUsageDetailsUiInfo]. */
-    val permissionUsagesDetailsInfoUiLiveData =
-        object : SmartUpdateMediatorLiveData<@JvmSuppressWildcards PermissionUsageDetailsUiInfo>() {
+    /** [LiveData] object for [PermissionUsageDetailsUiState]. */
+    private val _permissionUsagesDetailsInfoUiLiveData =
+        object :
+            SmartUpdateMediatorLiveData<@JvmSuppressWildcards PermissionUsageDetailsUiState>() {
             private val getAppPermGroupUiInfoLiveData = { appPermissionId: AppPermissionId ->
                 AppPermGroupUiInfoLiveData[
                     Triple(
@@ -693,44 +666,21 @@ class PermissionUsageDetailsViewModel(
             }
         }
 
-    /**
-     * Returns the icon for the provided package name and user, by first searching the cache
-     * otherwise retrieving it from the app's [android.content.pm.ApplicationInfo].
-     */
-    private fun getBadgedPackageIcon(packageName: String, userHandle: UserHandle): Drawable? {
-        val packageNameWithUser: Pair<String, UserHandle> = Pair(packageName, userHandle)
-        if (packageIconCache.containsKey(packageNameWithUser)) {
-            return requireNotNull(packageIconCache[packageNameWithUser])
-        }
-        val packageIcon = KotlinUtils.getBadgedPackageIcon(application, packageName, userHandle)
-        if (packageIcon != null) packageIconCache[packageNameWithUser] = packageIcon
+    override fun getPermissionUsagesDetailsInfoUiLiveData():
+        LiveData<PermissionUsageDetailsUiState> = _permissionUsagesDetailsInfoUiLiveData
 
-        return packageIcon
-    }
+    override fun getShowSystem(): Boolean = showSystemLiveData.value ?: false
 
-    /**
-     * Returns the label for the provided package name, by first searching the cache otherwise
-     * retrieving it from the app's [android.content.pm.ApplicationInfo].
-     */
-    private fun getPackageLabel(packageName: String, user: UserHandle): String {
-        if (packageLabelCache.containsKey(packageName)) {
-            return requireNotNull(packageLabelCache[packageName])
-        }
-
-        val packageLabel = KotlinUtils.getPackageLabel(application, packageName, user)
-        packageLabelCache[packageName] = packageLabel
-
-        return packageLabel
-    }
+    override fun getShow7Days(): Boolean = show7DaysLiveData.value ?: false
 
     /** Companion object for [PermissionUsageDetailsViewModel]. */
     companion object {
-        private const val ONE_HOUR_MS = 3_600_000
-        private const val ONE_MINUTE_MS = 60_000
-        private const val CLUSTER_SPACING_MINUTES: Long = 1L
+        const val ONE_HOUR_MS = 3_600_000
+        const val ONE_MINUTE_MS = 60_000
+        const val CLUSTER_SPACING_MINUTES: Long = 1L
         private const val TELECOM_PACKAGE = "com.android.server.telecom"
-        private val TIME_7_DAYS_DURATION: Long = DAYS.toMillis(7)
-        private val TIME_24_HOURS_DURATION: Long = DAYS.toMillis(1)
+        val TIME_7_DAYS_DURATION: Long = DAYS.toMillis(7)
+        val TIME_24_HOURS_DURATION: Long = DAYS.toMillis(1)
         internal const val SHOULD_SHOW_SYSTEM_KEY = "showSystem"
         internal const val SHOULD_SHOW_7_DAYS_KEY = "show7Days"
 
@@ -764,7 +714,7 @@ class PermissionUsageDetailsViewModel(
             accessStartTime: Long,
             accessEndTime: Long,
             showingAttribution: Boolean,
-            attributionTags: List<String>
+            attributionTags: Set<String>
         ): Intent {
             return getManagePermissionUsageIntent(
                 context,
@@ -788,7 +738,7 @@ class PermissionUsageDetailsViewModel(
             accessStartTime: Long,
             accessEndTime: Long,
             showingAttribution: Boolean,
-            attributionTags: List<String>
+            attributionTags: Set<String>
         ): Intent? {
             if (
                 !showingAttribution ||
@@ -855,7 +805,13 @@ class PermissionUsageDetailsViewModel(
             handle: SavedStateHandle,
         ): T {
             @Suppress("UNCHECKED_CAST")
-            return PermissionUsageDetailsViewModel(app, handle, permissionGroup) as T
+            return if (
+                com.android.permission.flags.Flags.livedataRefactorPermissionTimelineEnabled()
+            ) {
+                PermissionUsageDetailsViewModelV2.create(app, handle, permissionGroup) as T
+            } else {
+                PermissionUsageDetailsViewModel(app, handle, permissionGroup) as T
+            }
         }
     }
 }
