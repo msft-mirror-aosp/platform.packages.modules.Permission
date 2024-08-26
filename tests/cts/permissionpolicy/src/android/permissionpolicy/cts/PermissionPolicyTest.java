@@ -310,6 +310,7 @@ public class PermissionPolicyTest {
             XmlPullParser parser = Xml.newPullParser();
             parser.setInput(in, null);
 
+            boolean hasMissingFlag = false;
             final int outerDepth = parser.getDepth();
             int type;
             while ((type = parser.next()) != XmlPullParser.END_DOCUMENT
@@ -319,7 +320,9 @@ public class PermissionPolicyTest {
                 }
                 if (TAG_PERMISSION.equals(parser.getName())) {
                     String featureFlag = parser.getAttributeValue(null, ATTR_FEATURE_FLAG);
-                    if (featureFlag != null) {
+                    boolean missingFlag = "missing".equals(featureFlag);
+                    hasMissingFlag |= missingFlag;
+                    if (featureFlag != null && !missingFlag) {
                         featureFlag = featureFlag.trim();
                         boolean invert = featureFlag.startsWith("!");
                         if (invert) {
@@ -346,6 +349,10 @@ public class PermissionPolicyTest {
                 } else {
                     Log.e(LOG_TAG, "Unknown tag " + parser.getName());
                 }
+            }
+            if (!hasMissingFlag) {
+                Assert.fail("All new permissions have real flags now! Revert the changes to this "
+                        + "file that introduced this error message to pass this test.");
             }
         } finally {
             flagsValueProvider.tearDownBeforeTest();
