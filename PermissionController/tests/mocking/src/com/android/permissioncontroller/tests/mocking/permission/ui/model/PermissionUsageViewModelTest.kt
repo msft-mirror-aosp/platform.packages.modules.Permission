@@ -216,6 +216,34 @@ class PermissionUsageViewModelTest {
         assertThat(permissionGroupsCount[MICROPHONE_PERMISSION_GROUP]).isEqualTo(1)
     }
 
+    @Test
+    fun verifyObserverIsNotifiedOnUserActionWhenDataIsSame() = runTest {
+        val timestamp = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(2)
+        val appOpsUsage =
+            listOf(
+                AppOpUsageModel(AppOpsManager.OPSTR_CAMERA, timestamp),
+                AppOpUsageModel(AppOpsManager.OPSTR_PHONE_CALL_MICROPHONE, timestamp),
+            )
+        val appOpsUsageModels =
+            listOf(
+                PackageAppOpUsageModel(testPackageName, appOpsUsage, currentUser.identifier),
+            )
+        val permissionUsageUseCase = getPermissionGroupUsageUseCase(appOpsUsageModels)
+        val permissionUsageViewModel =
+            getViewModel(
+                useCase = permissionUsageUseCase,
+                savedStateHandle = SavedStateHandle(mapOf("show7Days" to false))
+            )
+
+        val uiState = getPermissionUsageUiState(permissionUsageViewModel)
+        assertThat(uiState.show7Days).isFalse()
+
+        // perform user action
+        permissionUsageViewModel.updateShow7Days(true)
+        val uiState2 = getPermissionUsageUiState(permissionUsageViewModel)
+        assertThat(uiState2.show7Days).isTrue()
+    }
+
     private fun TestScope.getViewModel(
         useCase: GetPermissionGroupUsageUseCase = getPermissionGroupUsageUseCase(),
         is7DayToggleEnabled: Boolean = false,

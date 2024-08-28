@@ -132,7 +132,9 @@ class PermissionUsageViewModel(
             }
         return PermissionUsagesUiState.Success(
             permGroupOps.any { !it.isUserSensitive },
-            permissionUsageCountMap
+            permissionUsageCountMap,
+            showSystemApps,
+            show7DaysData
         )
     }
 
@@ -181,7 +183,9 @@ sealed class PermissionUsagesUiState {
 
     data class Success(
         val containsSystemAppUsage: Boolean,
-        val permissionGroupUsageCount: Map<String, Int>
+        val permissionGroupUsageCount: Map<String, Int>,
+        val showSystem: Boolean,
+        val show7Days: Boolean,
     ) : PermissionUsagesUiState()
 }
 
