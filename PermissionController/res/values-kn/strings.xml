@@ -278,7 +278,7 @@
     <string name="post_drive_permission_decision_reminder_summary_1_app_1_permission" msgid="670521503734140711">"ನೀವು ವಾಹನ ಚಲಾಯಿಸುವಾಗ, <xliff:g id="APP">%1$s</xliff:g> ಗೆ <xliff:g id="PERMISSION">%2$s</xliff:g> ಪ್ರವೇಶವನ್ನು ನೀಡಿದ್ದೀರಿ"</string>
     <string name="post_drive_permission_decision_reminder_summary_1_app_2_permissions" msgid="671791184670801301">"ನೀವು ವಾಹನ ಚಲಾಯಿಸುವಾಗ, <xliff:g id="APP">%1$s</xliff:g> ಗೆ <xliff:g id="PERMISSION_1">%2$s</xliff:g> ಮತ್ತು <xliff:g id="PERMISSION_2">%3$s</xliff:g> ಪ್ರವೇಶವನ್ನು ನೀಡಿದ್ದೀರಿ"</string>
     <string name="post_drive_permission_decision_reminder_summary_1_app_multi_permission" msgid="4080701771111456927">"ನೀವು ವಾಹನ ಚಲಾಯಿಸುವಾಗ, <xliff:g id="APP">%2$s</xliff:g> ಗೆ <xliff:g id="COUNT">%1$d</xliff:g> ಅನುಮತಿಗಳನ್ನು ನೀಡಿದ್ದೀರಿ"</string>
-    <string name="post_drive_permission_decision_reminder_summary_multi_apps" msgid="5253882771252863902">"{count,plural, =1{ನೀವು ವಾಹನ ಚಲಾಯಿಸುವಾಗ, <xliff:g id="APP_0">%1$s</xliff:g> ಮತ್ತು # ಇತರ ಆ್ಯಪ್‌ಗೆ ಪ್ರವೇಶವನ್ನು ನೀಡಿದ್ದೀರಿ}one{ನೀವು ವಾಹನ ಚಲಾಯಿಸುವಾಗ, <xliff:g id="APP_1">%1$s</xliff:g> ಮತ್ತು # ಇತರ ಆ್ಯಪ್‌ಗಳಿಗೆ ಪ್ರವೇಶವನ್ನು ನೀಡಿದ್ದೀರಿ}other{ನೀವು ವಾಹನ ಚಲಾಯಿಸುವಾಗ, <xliff:g id="APP_1">%1$s</xliff:g> ಮತ್ತು # ಇತರ ಆ್ಯಪ್‌ಗಳಿಗೆ ಪ್ರವೇಶವನ್ನು ನೀಡಿದ್ದೀರಿ}}"</string>
+    <string name="post_drive_permission_decision_reminder_summary_multi_apps" msgid="5253882771252863902">"{count,plural, =1{ನೀವು ವಾಹನ ಚಲಾಯಿಸುವಾಗ, <xliff:g id="APP_0">%1$s</xliff:g> ಮತ್ತು # ಇತರ ಆ್ಯಪ್‌ಗೆ ಆ್ಯಕ್ಸೆಸ್ ಅನ್ನು ನೀಡಿದ್ದೀರಿ}one{ನೀವು ವಾಹನ ಚಲಾಯಿಸುವಾಗ, <xliff:g id="APP_1">%1$s</xliff:g> ಮತ್ತು # ಇತರ ಆ್ಯಪ್‌ಗಳಿಗೆ ಆ್ಯಕ್ಸೆಸ್ ಅನ್ನು ನೀಡಿದ್ದೀರಿ}other{ನೀವು ವಾಹನ ಚಲಾಯಿಸುವಾಗ, <xliff:g id="APP_1">%1$s</xliff:g> ಮತ್ತು # ಇತರ ಆ್ಯಪ್‌ಗಳಿಗೆ ಆ್ಯಕ್ಸೆಸ್ ಅನ್ನು ನೀಡಿದ್ದೀರಿ}}"</string>
     <string name="go_to_settings" msgid="1053735612211228335">"ಸೆಟ್ಟಿಂಗ್‌ಗಳಿಗೆ ಹೋಗಿ"</string>
     <string name="auto_revoke_setting_subtitle" msgid="8631720570723050460">"ಹಲವಾರು ತಿಂಗಳುಗಳಿಂದ ಕೆಲವು ಆ್ಯಪ್‌ಗಳನ್ನು ಬಳಸಲಾಗಿಲ್ಲ"</string>
     <string name="permissions_removed_category_title" msgid="1064754271178447643">"ತೆಗೆದುಹಾಕಲಾದ ಅನುಮತಿಗಳು"</string>
@@ -671,6 +671,7 @@
     <string name="wear_app_perms_24h_access_yest" msgid="7069312481704735679">"ನಿನ್ನೆ <xliff:g id="TIME_DATE">%1$s</xliff:g> ಸಮಯಕ್ಕೆ ಆ್ಯಕ್ಸೆಸ್ ಮಾಡಲಾಗಿದೆ"</string>
     <string name="wear_app_perms_7d_access" msgid="4608069019194676432">"<xliff:g id="TIME_DATE_0">%1$s</xliff:g> <xliff:g id="TIME_DATE_1">%2$s</xliff:g> ಸಮಯಕ್ಕೆ ಆ್ಯಕ್ಸೆಸ್ ಮಾಡಲಾಗಿದೆ"</string>
     <string name="test_otp_msg" msgid="7559110574222727550">"ನಿಮ್ಮ ಒನ್‌-ಟೈಮ್ ಪಾಸ್‌ವರ್ಡ್ 132435"</string>
+    <string name="allow_restricted_settings" msgid="8073000189478396881">"ನಿರ್ಬಂಧಿಸಲಾದ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಅನುಮತಿಸಿ"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"ನಿರ್ಬಂಧಿಸಲಾದ ಸೆಟ್ಟಿಂಗ್"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"ನಿಮ್ಮ ಸುರಕ್ಷತೆಗಾಗಿ, ಈ ಸೆಟ್ಟಿಂಗ್ ಪ್ರಸ್ತುತ ಲಭ್ಯವಿಲ್ಲ."</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> ಅನ್ನು ಆ್ಯಕ್ಸೆಸ್ ಮಾಡಲು ಆ್ಯಪ್‌ಗೆ ನಿರಾಕರಿಸಲಾಗಿದೆ"</string>

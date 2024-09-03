@@ -36,5 +36,5 @@ public class SettingsCompat {
     // The constant is inlined so it's fine to suppress the warning.
     @SuppressLint("NewApi")
     public static final String ACTION_MANAGE_OTHER_NFC_SERVICES_SETTINGS =
-            "android.settings.MANAGE_OTHER_NFC_SERVICES_SETTINGS";
+            Settings.ACTION_MANAGE_OTHER_NFC_SERVICES_SETTINGS;
 }

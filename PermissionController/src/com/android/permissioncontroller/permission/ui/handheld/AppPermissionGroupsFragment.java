@@ -184,9 +184,8 @@ public final class AppPermissionGroupsFragment extends SettingsWithLargeHeader i
             Context context = getPreferenceManager().getContext();
             mPermissionUsages = new PermissionUsages(context);
 
-            long aggregateDataFilterBeginDays = KotlinUtils.INSTANCE.is7DayToggleEnabled()
-                    ? AppPermissionGroupsViewModel.AGGREGATE_DATA_FILTER_BEGIN_DAYS_7 :
-                    AppPermissionGroupsViewModel.AGGREGATE_DATA_FILTER_BEGIN_DAYS_1;
+            long aggregateDataFilterBeginDays =
+                    AppPermissionGroupsViewModel.AGGREGATE_DATA_FILTER_BEGIN_DAYS_7;
 
             long filterTimeBeginMillis = Math.max(System.currentTimeMillis()
                             - DAYS.toMillis(aggregateDataFilterBeginDays),
@@ -523,7 +522,10 @@ public final class AppPermissionGroupsFragment extends SettingsWithLargeHeader i
         }
 
         groupLabels.sort(mCollator);
-        if (groupLabels.isEmpty()) {
+        autoRevokeSummary.setVisible(true);
+        if (state.isExemptBySystem()) {
+            autoRevokeSummary.setVisible(false);
+        } else if (groupLabels.isEmpty()) {
             autoRevokeSummary.setSummary(R.string.auto_revoke_summary);
         } else {
             autoRevokeSummary.setSummary(getString(R.string.auto_revoke_summary_with_permissions,
