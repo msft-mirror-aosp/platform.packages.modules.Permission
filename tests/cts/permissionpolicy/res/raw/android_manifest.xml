@@ -825,7 +825,6 @@
     <protected-broadcast android:name="android.intent.action.PROFILE_REMOVED" />
     <protected-broadcast android:name="com.android.internal.telephony.cat.SMS_SENT_ACTION" />
     <protected-broadcast android:name="com.android.internal.telephony.cat.SMS_DELIVERY_ACTION" />
-    <protected-broadcast android:name="com.android.internal.telephony.data.ACTION_RETRY" />
     <protected-broadcast android:name="android.companion.virtual.action.VIRTUAL_DEVICE_REMOVED" />
     <protected-broadcast android:name="com.android.internal.intent.action.FLASH_NOTIFICATION_START_PREVIEW" />
     <protected-broadcast android:name="com.android.internal.intent.action.FLASH_NOTIFICATION_STOP_PREVIEW" />
@@ -2610,7 +2609,8 @@
          @hide
     -->
     <permission android:name="android.permission.VIBRATE_VENDOR_EFFECTS"
-        android:protectionLevel="signature|privileged" />
+        android:protectionLevel="signature|privileged"
+        android:featureFlag="android.os.vibrator.vendor_vibration_effects" />
 
     <!-- @SystemApi Allows access to the vibrator state.
          <p>Protection level: signature
@@ -3656,7 +3656,6 @@
 
     <!-- Allows an application to set policy related to sending assist content to a
         privileged app such as the Assistant app.
-        @FlaggedApi("android.app.admin.flags.assist_content_user_restriction_enabled")
     -->
     <permission android:name="android.permission.MANAGE_DEVICE_POLICY_ASSIST_CONTENT"
         android:protectionLevel="internal|role" />
@@ -3713,7 +3712,6 @@
     <!-- Allows an application to use audit logging API.
         @hide
         @SystemApi
-        @FlaggedApi("android.app.admin.flags.security_log_v2_enabled")
     -->
     <permission android:name="android.permission.MANAGE_DEVICE_POLICY_AUDIT_LOGGING"
         android:protectionLevel="internal|role" />
@@ -3862,7 +3860,7 @@
     <!-- Allows an application to set policy related to subscriptions downloaded by an admin.
         <p>{@link Manifest.permission#MANAGE_DEVICE_POLICY_ACROSS_USERS_FULL} is required to call
             APIs protected by this permission on users different to the calling user.
-        @FlaggedApi("android.app.admin.flags.esim_management_enabled") -->
+    -->
     <permission android:name="android.permission.MANAGE_DEVICE_POLICY_MANAGED_SUBSCRIPTIONS"
         android:protectionLevel="internal|role" />
 
@@ -5486,7 +5484,7 @@
          @hide -->
     <permission android:name="android.permission.ALWAYS_BOUND_TV_INPUT"
         android:protectionLevel="signature|privileged|vendorPrivileged"
-        android:featureFlag="android.media.tv.flags.tis_always_bound_permission"/>
+        android:featureFlag="android.media.tv.flags.tif_unbind_inactive_tis"/>
 
     <!-- @SystemApi This permission is required by Media Resource Manager Service when
          system services create MediaCodecs on behalf of other processes and apps.
@@ -5927,8 +5925,8 @@
                 android:description="@string/permdesc_deliverCompanionMessages"
                 android:protectionLevel="normal" />
 
-    <!-- @hide @FlaggedApi("android.companion.flags.companion_transport_apis")
-         Allows an application to send and receive messages via CDM transports.
+    <!-- Allows an application to send and receive messages via CDM transports.
+         @hide
     -->
     <permission android:name="android.permission.USE_COMPANION_TRANSPORTS"
         android:protectionLevel="signature" />
@@ -7830,6 +7828,41 @@
     <permission android:name="android.permission.EXECUTE_APP_ACTION"
                 android:protectionLevel="internal|role" />
 
+    <!-- Must be required by an {@link android.app.appfunctions.AppFunctionService},
+         to ensure that only the system can bind to it.
+         <p>Protection level: signature
+         @FlaggedApi("android.app.appfunctions.flags.enable_app_function_manager")  -->
+    <permission android:name="android.permission.BIND_APP_FUNCTION_SERVICE"
+        android:featureFlag="android.app.appfunctions.flags.enable_app_function_manager"
+        android:protectionLevel="signature" />
+
+    <!-- @SystemApi Allows a trusted application to perform actions on behalf of users inside of
+         applications with privacy guarantees from the system.
+         <p>This permission is currently only granted to system packages in the
+         {@link android.app.role.SYSTEM_UI_INTELLIGENCE} role which complies with privacy
+         requirements outlined in the Android CDD section "9.8.6 Content Capture".
+         <p>Apps are not able to opt-out from caller having this permission.
+         <p>Protection level: internal|role
+         @hide
+         @FlaggedApi("android.app.appfunctions.flags.enable_app_function_manager")  -->
+    <permission android:name="android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED"
+        android:featureFlag="android.app.appfunctions.flags.enable_app_function_manager"
+        android:protectionLevel="internal|role" />
+
+    <!-- @SystemApi Allows an application to perform actions on behalf of users inside of
+         applications.
+         <p>This permission is currently only granted to preinstalled / system apps having the
+         {@link android.app.role.ASSISTANT} role.
+         <p>Apps contributing app functions can opt to disallow callers with this permission,
+         limiting to only callers with {@link android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED}
+         instead.
+         <p>Protection level: internal|role
+         @hide
+         @FlaggedApi("android.app.appfunctions.flags.enable_app_function_manager")  -->
+    <permission android:name="android.permission.EXECUTE_APP_FUNCTIONS"
+        android:featureFlag="android.app.appfunctions.flags.enable_app_function_manager"
+        android:protectionLevel="internal|role" />
+
     <!-- Allows an application to display its suggestions using the autofill framework.
          <p>For now, this permission is only granted to the Browser application.
          <p>Protection level: internal|role
@@ -7951,6 +7984,14 @@
          @hide -->
     <permission android:name="android.permission.MONITOR_STICKY_MODIFIER_STATE"
                 android:protectionLevel="signature" />
+
+    <!-- Allows low-level access to manage key gestures
+         <p>Not for use by third-party applications.
+         @hide -->
+    <permission android:name="android.permission.MANAGE_KEY_GESTURES"
+                android:protectionLevel="signature"
+                android:featureFlag="missing"/> <!-- real flag needed, this is not compatible with
+                                                     24Q3 -->
 
     <uses-permission android:name="android.permission.HANDLE_QUERY_PACKAGE_RESTART" />
 
