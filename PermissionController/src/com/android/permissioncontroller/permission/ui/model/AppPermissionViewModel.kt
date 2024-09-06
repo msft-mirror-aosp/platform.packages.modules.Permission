@@ -127,6 +127,7 @@ class AppPermissionViewModel(
             oneTime: Boolean
         )
 
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         fun showAdvancedConfirmDialog(args: AdvancedConfirmDialogArgs)
     }
 
