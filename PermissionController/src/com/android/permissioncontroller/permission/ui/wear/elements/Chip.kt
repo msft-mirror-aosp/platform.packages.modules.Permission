@@ -34,7 +34,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -54,7 +53,7 @@ import androidx.wear.compose.material.contentColorFor
  *   by the Wear guidelines;
  */
 @Composable
-fun Chip(
+public fun Chip(
     label: String,
     labelMaxLines: Int? = null,
     onClick: () -> Unit,
@@ -131,7 +130,7 @@ fun Chip(
  *   by the Wear guidelines;
  */
 @Composable
-fun Chip(
+public fun Chip(
     @StringRes labelId: Int,
     labelMaxLines: Int? = null,
     onClick: () -> Unit,
@@ -168,7 +167,7 @@ fun Chip(
 // Setting the color as per
 // https://source.corp.google.com/piper///depot/google3/java/com/google/android/clockwork/common/wearable/wearmaterial/button/res/color/wear_button_secondary_text_stateful.xml?q=wear_button_secondary_text_stateful
 @Composable
-fun Chip(
+public fun Chip(
     label: String,
     labelMaxLines: Int? = null,
     onClick: () -> Unit,
@@ -193,11 +192,7 @@ fun Chip(
             textAlign = if (hasSecondaryLabel || hasIcon) TextAlign.Start else TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
             maxLines = labelMaxLines ?: if (hasSecondaryLabel) 1 else 2,
-            style =
-                MaterialTheme.typography.button.copy(
-                    fontWeight = FontWeight.W600,
-                    hyphens = Hyphens.Auto
-                )
+            style = MaterialTheme.typography.button.copy(fontWeight = FontWeight.W600)
         )
     }
 

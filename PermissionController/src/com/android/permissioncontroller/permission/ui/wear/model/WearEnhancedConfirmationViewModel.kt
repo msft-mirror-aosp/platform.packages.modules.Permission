@@ -68,8 +68,9 @@ class WearEnhancedConfirmationViewModel : ViewModel() {
         val text = SpannableStringBuilder.valueOf(message)
         text.getSpans(0, message.length, URLSpan::class.java).map {
             val spanStart = text.getSpanStart(it)
+            val spanEnd = text.getSpanEnd(it)
             text.removeSpan(it)
-            text.delete(spanStart, message.length)
+            text.delete(spanStart, spanEnd)
         }
         return text
     }

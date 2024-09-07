@@ -674,7 +674,6 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
     }
 
     @Override
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public void showAdvancedConfirmDialog(AdvancedConfirmDialogArgs args) {
         AlertDialog.Builder b = new AlertDialog.Builder(getContext())
                 .setIcon(args.getIconId())

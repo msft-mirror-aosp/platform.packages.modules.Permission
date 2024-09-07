@@ -19,13 +19,11 @@ package com.android.permissioncontroller.permission.ui.wear
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.UserHandle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.os.BundleCompat
@@ -273,7 +271,6 @@ class WearAppPermissionFragment : Fragment(), ConfirmDialogShowingFragment {
         confirmDialogViewModel.showConfirmDialogLiveData.value = true
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun showAdvancedConfirmDialog(args: AdvancedConfirmDialogArgs) {
         confirmDialogViewModel.advancedConfirmDialogArgs = args
         confirmDialogViewModel.showAdvancedConfirmDialogLiveData.value = true

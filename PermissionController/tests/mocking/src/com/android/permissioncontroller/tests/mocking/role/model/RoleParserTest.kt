@@ -34,18 +34,10 @@ class RoleParserTest {
         }
     }
 
-    private val instrumentation = InstrumentationRegistry.getInstrumentation()
-    private val uiAutomation = instrumentation.uiAutomation
-    private val targetContext = instrumentation.targetContext
+    private val targetContext = InstrumentationRegistry.getInstrumentation().getTargetContext()
 
     @Test
     fun testParseRolesWithValidation() {
-        // We may need to call privileged APIs to determine availability of things.
-        uiAutomation.adoptShellPermissionIdentity()
-        try {
-            RoleParser(targetContext, true).parse()
-        } finally {
-            uiAutomation.dropShellPermissionIdentity()
-        }
+        RoleParser(targetContext, true).parse()
     }
 }
