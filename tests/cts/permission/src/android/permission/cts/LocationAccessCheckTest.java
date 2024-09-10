@@ -193,12 +193,15 @@ public class LocationAccessCheckTest {
                     PROPERTY_LOCATION_ACCESS_CHECK_DELAY_MILLIS,
                     "50");
 
+    @Rule
+    public CtsNotificationListenerHelperRule ctsNotificationListenerHelper =
+            new CtsNotificationListenerHelperRule(sContext);
+
     private static boolean sWasLocationEnabled = true;
 
     @BeforeClass
     public static void beforeClassSetup() throws Exception {
         reduceDelays();
-        allowNotificationAccess();
         installBackgroundAccessApp();
         runWithShellPermissionIdentity(() -> {
             sWasLocationEnabled = sLocationManager.isLocationEnabled();
@@ -225,7 +228,6 @@ public class LocationAccessCheckTest {
     public static void cleanupAfterClass() throws Throwable {
         resetDelays();
         uninstallTestApp();
-        disallowNotificationAccess();
         runWithShellPermissionIdentity(() -> {
             if (!sWasLocationEnabled) {
                 sLocationManager.setLocationEnabledForUser(false, Process.myUserHandle());
@@ -400,14 +402,6 @@ public class LocationAccessCheckTest {
         sUiAutomation.grantRuntimePermission(TEST_APP_PKG, permission);
     }
 
-    /**
-     * Register {@link CtsNotificationListenerService}.
-     */
-    public static void allowNotificationAccess() {
-        runShellCommand("cmd notification allow_listener " + (new ComponentName(sContext,
-                CtsNotificationListenerService.class).flattenToString()));
-    }
-
     public static void installBackgroundAccessApp() throws Exception {
         String output =
                 runShellCommandOrThrow("pm install -r -g " + TEST_APP_LOCATION_BG_ACCESS_APK);
@@ -474,7 +468,6 @@ public class LocationAccessCheckTest {
         wakeUpAndDismissKeyguard();
         bindService();
         resetPermissionControllerBeforeEachTest();
-        bypassBatterySavingRestrictions();
         assumeCanGetFineLocation();
     }
 
@@ -495,11 +488,6 @@ public class LocationAccessCheckTest {
                 "cmd jobscheduler reset-execution-quota -u " + myUserHandle().getIdentifier() + " "
                         + PERMISSION_CONTROLLER_PKG);
         runShellCommand("cmd jobscheduler reset-schedule-quota");
-    }
-
-    public void bypassBatterySavingRestrictions() {
-        runShellCommand("cmd tare set-vip " + myUserHandle().getIdentifier()
-                + " " + PERMISSION_CONTROLLER_PKG + " true");
     }
 
     /**
@@ -552,19 +540,10 @@ public class LocationAccessCheckTest {
                 ACTION_SET_UP_LOCATION_ACCESS_CHECK, LocationAccessCheckOnBootReceiver);
     }
 
-    /**
-     * Unregister {@link CtsNotificationListenerService}.
-     */
-    public static void disallowNotificationAccess() {
-        runShellCommand("cmd notification disallow_listener " + (new ComponentName(sContext,
-                CtsNotificationListenerService.class)).flattenToString());
-    }
-
     @After
     public void cleanupAfterEachTest() throws Throwable {
         resetPrivacyConfig();
         locationUnbind();
-        resetBatterySavingRestrictions();
     }
 
     /**
@@ -577,11 +556,6 @@ public class LocationAccessCheckTest {
 
     public void locationUnbind() throws Throwable {
         unbindService();
-    }
-
-    public void resetBatterySavingRestrictions() {
-        runShellCommand("cmd tare set-vip " + myUserHandle().getIdentifier()
-                + " " + PERMISSION_CONTROLLER_PKG + " default");
     }
 
     @Test
