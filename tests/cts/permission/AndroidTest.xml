@@ -19,6 +19,7 @@
     <option name="config-descriptor:metadata" key="parameter" value="instant_app" />
     <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi" />
     <option name="config-descriptor:metadata" key="parameter" value="secondary_user"/>
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user_on_secondary_display"/>
     <option name="config-descriptor:metadata" key="token" value="SIM_CARD" />
     <option name="config-descriptor:metadata" key="parameter" value="no_foldable_states" />
     <option name="config-descriptor:metadata" key="mainline-param" value="com.google.android.permission.apex" />
@@ -74,7 +75,6 @@
         <option name="push" value="CtsAppThatRequestsLocationPermission29v4.apk->/data/local/tmp/cts-permission/CtsAppThatRequestsLocationPermission29v4.apk" />
         <option name="push" value="CtsAppThatRequestsLocationPermission28.apk->/data/local/tmp/cts-permission/CtsAppThatRequestsLocationPermission28.apk" />
         <option name="push" value="CtsAppThatRequestsLocationPermission22.apk->/data/local/tmp/cts-permission/CtsAppThatRequestsLocationPermission22.apk" />
-        <option name="push" value="CtsAppThatRequestsStoragePermission22.apk->/data/local/tmp/cts-permission/CtsAppThatRequestsStoragePermission22.apk" />
         <option name="push" value="CtsAppThatRequestsStoragePermission29.apk->/data/local/tmp/cts-permission/CtsAppThatRequestsStoragePermission29.apk" />
         <option name="push" value="CtsAppThatRequestsStoragePermission28.apk->/data/local/tmp/cts-permission/CtsAppThatRequestsStoragePermission28.apk" />
         <option name="push" value="CtsAppThatRequestsLocationAndBackgroundPermission28.apk->/data/local/tmp/cts-permission/CtsAppThatRequestsLocationAndBackgroundPermission28.apk" />

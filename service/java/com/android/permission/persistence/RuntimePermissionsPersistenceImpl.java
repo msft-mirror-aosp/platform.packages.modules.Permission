@@ -214,6 +214,9 @@ public class RuntimePermissionsPersistenceImpl implements RuntimePermissionsPers
     @Override
     public void writeForUser(@NonNull RuntimePermissionsState runtimePermissions,
             @NonNull UserHandle user) {
+        File reserveFile = getReserveCopyFile(user);
+        reserveFile.delete();
+
         File file = getFile(user);
         AtomicFile atomicFile = new AtomicFile(file);
         FileOutputStream outputStream = null;
@@ -237,8 +240,6 @@ public class RuntimePermissionsPersistenceImpl implements RuntimePermissionsPers
             IoUtils.closeQuietly(outputStream);
         }
 
-        File reserveFile = getReserveCopyFile(user);
-        reserveFile.delete();
         try (FileInputStream in = new FileInputStream(file);
              FileOutputStream out = new FileOutputStream(reserveFile)) {
             FileUtils.copy(in, out);
