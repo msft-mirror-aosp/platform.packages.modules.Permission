@@ -222,7 +222,7 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
         permissionSelector.addPreference(mDenyPermissionPreference);
 
 
-        Log.w(LOG_TAG, "enableCoarseFineLocationPromptForAaos flag set to: "
+        Log.i(LOG_TAG, "enableCoarseFineLocationPromptForAaos flag set to: "
                 + Flags.enableCoarseFineLocationPromptForAaos());
         if (Flags.enableCoarseFineLocationPromptForAaos()) {
             mToggleFineLocationPreference = new SelectedSwitchPermissionPreference(
@@ -674,6 +674,7 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
     }
 
     @Override
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public void showAdvancedConfirmDialog(AdvancedConfirmDialogArgs args) {
         AlertDialog.Builder b = new AlertDialog.Builder(getContext())
                 .setIcon(args.getIconId())
