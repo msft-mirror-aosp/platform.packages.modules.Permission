@@ -28,10 +28,13 @@ import android.platform.test.annotations.SystemUserOnly;
 import android.telephony.SmsManager;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
 import android.test.AndroidTestCase;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -55,6 +58,14 @@ public class NoReceiveSmsPermissionTest extends AndroidTestCase {
 
     private static final String LOG_TAG = "NoReceiveSmsPermissionTest";
 
+    // List of carrier-id that does not support loop back messages
+    // This is copied from
+    // cts/tests/tests/telephony/current/src/android/telephony/cts/CarrierCapability.java
+    public static final List<Integer> UNSUPPORT_LOOP_BACK_MESSAGES =
+            Arrays.asList(
+                    1           // "T-Mobile - US"
+            );
+
     private Semaphore mSemaphore = new Semaphore(0);
 
     /**
@@ -66,7 +77,7 @@ public class NoReceiveSmsPermissionTest extends AndroidTestCase {
      */
     public void testReceiveTextMessage() {
         PackageManager packageManager = mContext.getPackageManager();
-        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
+        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY_MESSAGING)) {
             return;
         }
 
@@ -97,9 +108,14 @@ public class NoReceiveSmsPermissionTest extends AndroidTestCase {
      */
     public void testAppSpecificSmsToken() {
         PackageManager packageManager = mContext.getPackageManager();
-        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
+        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY_MESSAGING)) {
             return;
         }
+
+        int carrierId = getContext().getSystemService(TelephonyManager.class).getSimCarrierId();
+        assertFalse("[RERUN] Carrier [carrier-id: " + carrierId + "] does not support "
+                        + "loop back messages. Use another carrier.",
+                UNSUPPORT_LOOP_BACK_MESSAGES.contains(carrierId));
 
         AppSpecificSmsReceiver receiver = new AppSpecificSmsReceiver();
         IntentFilter filter = new IntentFilter();
