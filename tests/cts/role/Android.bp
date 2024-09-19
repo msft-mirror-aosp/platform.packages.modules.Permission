@@ -48,6 +48,6 @@ android_test {
         ":CtsRoleTestApp",
         ":CtsRoleTestApp28",
         ":CtsRoleTestApp33WithoutInCallService",
-        ":CtsRoleTestAppForProfile",
+        ":CtsRoleTestAppClone",
     ],
 }
