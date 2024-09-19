@@ -48,6 +48,35 @@
             <item type="style" name="PermissionFooterPreferenceTitleTextStyle" />
             <item type="style" name="PermissionFooterPreferenceLearnMoreTextStyle" />
 
+            <item type="style" name="PermissionSelectorWithWidgetPreferenceRootLayoutStyle" />
+            <item type="style" name="PermissionSelectorWithWidgetPreferenceWidgetFrameStyle" />
+            <item type="style" name="PermissionSelectorWithWidgetPreferenceIconFrameStyle" />
+            <item type="style" name="PermissionSelectorWithWidgetPreferenceIconStyle" />
+            <item type="style" name="PermissionSelectorWithWidgetPreferenceTextContainerStyle" />
+            <item type="style" name="PermissionSelectorWithWidgetPreferenceTitleStyle" />
+            <item type="style" name="PermissionSelectorWithWidgetPreferenceSummaryContainerStyle" />
+            <item type="style" name="PermissionSelectorWithWidgetPreferenceSummaryStyle" />
+            <item type="style" name="PermissionSelectorWithWidgetPreferenceAppendixStyle" />
+            <item type="style" name="PermissionSelectorWithWidgetPreferenceExtraWidgetContainerStyle" />
+            <item type="style" name="PermissionSelectorWithWidgetPreferenceExtraWidgetDividerStyle" />
+            <item type="style" name="PermissionSelectorWithWidgetPreferenceExtraWidgetImageStyle" />
+            <item type="style" name="PermissionSelectorWithWidgetPreferenceWidgetRadioButton" />
+
+            <item type="style" name="PermissionTwoTargetPreferenceRootLayoutStyle" />
+            <item type="style" name="PermissionTwoTargetPreferenceTextContainerStyle" />
+            <item type="style" name="PermissionTwoTargetPreferenceTitleStyle" />
+            <item type="style" name="PermissionTwoTargetPreferenceSummaryStyle" />
+            <item type="style" name="PermissionTwoTargetPreferenceWidgetFrameStyle" />
+            <item type="style" name="PermissionTwoTargetPreferenceIconFrameStyle" />
+            <item type="style" name="PermissionTwoTargetPreferenceIconStyle" />
+            <item type="style" name="PermissionTwoTargetPreferenceDividerContainerStyle" />
+            <item type="style" name="PermissionTwoTargetPreferenceDividerStyle" />
+
+            <item type="style" name="AppPermissionFooterLinkPreferenceRootLayoutStyle" />
+            <item type="style" name="AppPermissionFooterLinkPreferenceTextLayoutStyle" />
+            <item type="style" name="AppPermissionFooterLinkPreferenceSummaryStyle" />
+
+            <item type="bool" name="config_usePreferenceForAppPermissionSettings" />
             <item type="bool" name="config_permissionFooterPreferenceIconVisible" />
             <item type="dimen" name="permission_preference_app_icon_size" />
             <item type="dimen" name="permission_preference_permission_group_icon_size" />
