@@ -2023,4 +2023,13 @@ Allow <xliff:g id="app_name" example="Gmail">%4$s</xliff:g> to upload a bug repo
 
     <!-- Descriptions for the warning dialog that shows when permission grant dialog is blocked from streaming to a remote device [CHAR LIMIT=200] -->
     <string name="permission_grant_dialog_streaming_blocked_description">This app is requesting additional permissions, but permissions can’t be granted in a streaming session. Grant the permission on your phone first.</string>
+
+    <!-- Text instructing user to check their paired phone-->
+    <string name="wear_check_your_phone_title">Check your phone</string>
+
+    <!-- Text letting the user to know that companion phone couldn't be reached -->
+    <string name="wear_phone_connection_error">Couldn\'t reach your phone</string>
+
+    <!-- Text asking the user if they want to retry connecting to the paired phone -->
+    <string name="wear_phone_connection_should_retry">Retry?</string>
 </resources>
