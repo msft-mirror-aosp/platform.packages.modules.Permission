@@ -66,7 +66,7 @@ import androidx.test.uiautomator.Until;
 
 import com.android.bedstead.harrier.BedsteadJUnit4;
 import com.android.bedstead.harrier.DeviceState;
-import com.android.bedstead.harrier.annotations.EnsureHasPrivateProfile;
+import com.android.bedstead.multiuser.annotations.EnsureHasPrivateProfile;
 import com.android.bedstead.nene.types.OptionalBoolean;
 import com.android.compatibility.common.util.DisableAnimationRule;
 import com.android.compatibility.common.util.FreezeRotationRule;
