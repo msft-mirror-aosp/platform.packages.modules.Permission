@@ -108,10 +108,10 @@ public class RoleManagerTest {
     private static final String APP_APK_PATH = "/data/local/tmp/cts-role/CtsRoleTestApp.apk";
     private static final String APP_PACKAGE_NAME = "android.app.role.cts.app";
     private static final String APP_LABEL = "CtsRoleTestApp";
-    private static final String APP_FOR_PROFILE_APK_PATH =
-            "/data/local/tmp/cts-role/CtsRoleTestAppForProfile.apk";
-    private static final String APP_FOR_PROFILE_PACKAGE_NAME = "android.app.role.cts.appForProfile";
-    private static final String APP_FOR_PROFILE = "CtsRoleTestAppForProfile";
+    private static final String APP_CLONE_APK_PATH =
+            "/data/local/tmp/cts-role/CtsRoleTestAppClone.apk";
+    private static final String APP_CLONE_PACKAGE_NAME = "android.app.role.cts.appClone";
+    private static final String APP_CLONE = "CtsRoleTestAppClone";
     private static final String APP_IS_ROLE_HELD_ACTIVITY_NAME = APP_PACKAGE_NAME
             + ".IsRoleHeldActivity";
     private static final String APP_IS_ROLE_HELD_EXTRA_IS_ROLE_HELD = APP_PACKAGE_NAME
@@ -183,7 +183,20 @@ public class RoleManagerTest {
     private String mRoleHolder;
 
     @Before
-    public void saveRoleHolder() throws Exception {
+    public void setUp() throws Exception {
+        saveRoleHolder();
+        installApp();
+        wakeUpScreen();
+        closeNotificationShade();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        uninstallApp();
+        restoreRoleHolder();
+    }
+
+    private void saveRoleHolder() throws Exception {
         List<String> roleHolders = getRoleHolders(ROLE_NAME);
         mRoleHolder = !roleHolders.isEmpty() ? roleHolders.get(0) : null;
 
@@ -193,8 +206,7 @@ public class RoleManagerTest {
         }
     }
 
-    @After
-    public void restoreRoleHolder() throws Exception {
+    private void restoreRoleHolder() throws Exception {
         removeRoleHolder(ROLE_NAME, APP_PACKAGE_NAME);
 
         if (mRoleHolder != null) {
@@ -204,27 +216,27 @@ public class RoleManagerTest {
         assertIsRoleHolder(ROLE_NAME, APP_PACKAGE_NAME, false);
     }
 
-    @Before
-    public void installApp() throws Exception {
+    private void installApp() throws Exception {
         installPackage(APP_APK_PATH);
         installPackage(APP_28_APK_PATH);
         installPackage(APP_33_WITHOUT_INCALLSERVICE_APK_PATH);
+        // Install CtsRoleTestAppClone as default role holder for browser role
+        // in case no browser is installed on system
+        installPackage(APP_CLONE_APK_PATH);
     }
 
-    @After
-    public void uninstallApp() throws Exception {
+    private void uninstallApp() throws Exception {
         uninstallPackage(APP_PACKAGE_NAME);
         uninstallPackage(APP_28_PACKAGE_NAME);
         uninstallPackage(APP_33_WITHOUT_INCALLSERVICE_PACKAGE_NAME);
+        uninstallPackage(APP_CLONE_PACKAGE_NAME);
     }
 
-    @Before
-    public void wakeUpScreen() throws IOException {
+    private void wakeUpScreen() throws IOException {
         runShellCommand(sInstrumentation, "input keyevent KEYCODE_WAKEUP");
     }
 
-    @Before
-    public void closeNotificationShade() {
+    private void closeNotificationShade() {
         sContext.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
     }
 
@@ -855,15 +867,15 @@ public class RoleManagerTest {
         UserHandle privateProfile = sDeviceState.privateProfile().userHandle();
         assertThat(privateProfile).isNotNull();
         installPackage(APP_APK_PATH, privateProfile);
-        installPackage(APP_FOR_PROFILE_APK_PATH, privateProfile);
-        addRoleHolderAsUser(ROLE_NAME, APP_FOR_PROFILE_PACKAGE_NAME, privateProfile);
+        installPackage(APP_CLONE_APK_PATH, privateProfile);
+        addRoleHolderAsUser(ROLE_NAME, APP_CLONE_PACKAGE_NAME, privateProfile);
 
         sContext.startActivity(new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
                 .addCategory(Intent.CATEGORY_DEFAULT)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
         waitForIdle();
 
-        waitFindObject(By.hasDescendant(By.text(APP_FOR_PROFILE))).click();
+        waitFindObject(By.hasDescendant(By.text(APP_CLONE))).click();
 
         waitForIdle();
         waitFindObject(By.clickable(true).hasDescendant(By.checkable(true).checked(false))
@@ -877,7 +889,7 @@ public class RoleManagerTest {
         pressBack();
 
         uninstallPackage(APP_PACKAGE_NAME, privateProfile);
-        uninstallPackage(APP_FOR_PROFILE_APK_PATH, privateProfile);
+        uninstallPackage(APP_CLONE_PACKAGE_NAME, privateProfile);
     }
 
     @Test
