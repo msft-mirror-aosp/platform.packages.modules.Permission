@@ -282,6 +282,7 @@ internal fun Scaffold(
                                             color = MaterialTheme.colors.onSurfaceVariant
                                         ),
                                     modifier = modifier,
+                                    shouldCapitalize = true
                                 )
                             }
                         }
