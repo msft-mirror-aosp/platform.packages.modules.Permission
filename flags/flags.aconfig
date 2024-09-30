@@ -117,3 +117,12 @@ flag {
     bug: "369606734"
     is_fixed_read_only: true
 }
+
+flag {
+    name: "wear_compose_material3"
+    is_exported: true
+    namespace: "permissions"
+    description: "This flag enables material3 design system for wear ui components (to support BC25)"
+    bug: "370489422"
+    is_fixed_read_only: true
+}
