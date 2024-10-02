@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.permissioncontroller.permission.ui.handheld
+package com.android.permissioncontroller.permission.ui.handheld.v36
 
 import android.content.Context
+import android.os.Build
 import android.util.AttributeSet
 import androidx.annotation.AttrRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.StyleRes
-import androidx.preference.Preference
-import com.android.modules.utils.build.SdkLevel
-import com.android.permissioncontroller.DeviceUtils
 import com.android.permissioncontroller.R
+import com.android.permissioncontroller.permission.ui.handheld.PermissionPreference
 
-open class PermissionPreference : Preference {
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+class AppPermissionFooterLinkPreference : PermissionPreference {
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
@@ -44,8 +45,6 @@ open class PermissionPreference : Preference {
     ) : super(context, attrs, defStyleAttr, defStyleRes)
 
     init {
-        if (SdkLevel.isAtLeastV() && DeviceUtils.isHandheld(context)) {
-            layoutResource = R.layout.permission_preference
-        }
+        layoutResource = R.layout.app_permission_footer_link_preference
     }
 }
