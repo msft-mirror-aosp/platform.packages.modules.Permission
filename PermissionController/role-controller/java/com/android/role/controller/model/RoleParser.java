@@ -94,6 +94,8 @@ public class RoleParser {
     private static final String ATTRIBUTE_EXCLUSIVE = "exclusive";
     private static final String ATTRIBUTE_FALL_BACK_TO_DEFAULT_HOLDER = "fallBackToDefaultHolder";
     private static final String ATTRIBUTE_FEATURE_FLAG = "featureFlag";
+    private static final String ATTRIBUTE_IGNORE_DISABLED_SYSTEM_PACKAGE_WHEN_GRANTING =
+            "ignoreDisabledSystemPackageWhenGranting";
     private static final String ATTRIBUTE_LABEL = "label";
     private static final String ATTRIBUTE_MAX_SDK_VERSION = "maxSdkVersion";
     private static final String ATTRIBUTE_MIN_SDK_VERSION = "minSdkVersion";
@@ -156,16 +158,16 @@ public class RoleParser {
     @NonNull
     private final Context mContext;
 
-    private final boolean mValidationEnabled;
+    private final boolean mThrowOnError;
 
     public RoleParser(@NonNull Context context) {
         this(context, false);
     }
 
     @VisibleForTesting
-    public RoleParser(@NonNull Context context, boolean validationEnabled) {
+    public RoleParser(@NonNull Context context, boolean throwOnError) {
         mContext = context;
-        mValidationEnabled = validationEnabled;
+        mThrowOnError = throwOnError;
     }
 
     /**
@@ -175,18 +177,21 @@ public class RoleParser {
      */
     @NonNull
     public ArrayMap<String, Role> parse() {
+        Pair<ArrayMap<String, PermissionSet>, ArrayMap<String, Role>> xml = parseRolesXml();
+        if (xml == null) {
+            return new ArrayMap<>();
+        }
+        return xml.second;
+    }
+
+    @Nullable
+    @VisibleForTesting
+    public Pair<ArrayMap<String, PermissionSet>, ArrayMap<String, Role>> parseRolesXml() {
         try (XmlResourceParser parser = getRolesXml()) {
-            Pair<ArrayMap<String, PermissionSet>, ArrayMap<String, Role>> xml = parseXml(parser);
-            if (xml == null) {
-                return new ArrayMap<>();
-            }
-            ArrayMap<String, PermissionSet> permissionSets = xml.first;
-            ArrayMap<String, Role> roles = xml.second;
-            validateResult(permissionSets, roles);
-            return roles;
+            return parseXml(parser);
         } catch (XmlPullParserException | IOException e) {
             throwOrLogMessage("Unable to parse roles.xml", e);
-            return new ArrayMap<>();
+            return null;
         }
     }
 
@@ -426,6 +431,11 @@ public class RoleParser {
         Supplier<Boolean> featureFlag = getAttributeMethodValue(parser, ATTRIBUTE_FEATURE_FLAG,
                 boolean.class, sFeatureFlagFallback, TAG_ROLE);
 
+        boolean systemOnly = getAttributeBooleanValue(parser, ATTRIBUTE_SYSTEM_ONLY, false);
+        boolean ignoreDisabledSystemPackageWhenGranting = getAttributeBooleanValue(parser,
+                ATTRIBUTE_IGNORE_DISABLED_SYSTEM_PACKAGE_WHEN_GRANTING,
+                SdkLevel.isAtLeastS() ? !systemOnly : true);
+
         int maxSdkVersion = getAttributeIntValue(parser, ATTRIBUTE_MAX_SDK_VERSION,
                 Build.VERSION_CODES.CUR_DEVELOPMENT);
         int minSdkVersion = getAttributeIntValue(parser, ATTRIBUTE_MIN_SDK_VERSION,
@@ -483,8 +493,6 @@ public class RoleParser {
             skipCurrentTag(parser);
             return null;
         }
-
-        boolean systemOnly = getAttributeBooleanValue(parser, ATTRIBUTE_SYSTEM_ONLY, false);
 
         String uiBehaviorName = getAttributeValue(parser, ATTRIBUTE_UI_BEHAVIOR);
 
@@ -567,8 +575,9 @@ public class RoleParser {
             preferredActivities = Collections.emptyList();
         }
         return new Role(name, allowBypassingQualification, behavior, defaultHoldersResourceName,
-                descriptionResource, exclusive, fallBackToDefaultHolder, featureFlag, labelResource,
-                maxSdkVersion, minSdkVersion, onlyGrantWhenAdded, overrideUserWhenGranting,
+                descriptionResource, exclusive, fallBackToDefaultHolder, featureFlag,
+                ignoreDisabledSystemPackageWhenGranting, labelResource, maxSdkVersion,
+                minSdkVersion, onlyGrantWhenAdded, overrideUserWhenGranting,
                 requestDescriptionResource, requestTitleResource, requestable,
                 searchKeywordsResource, shortLabelResource, showNone, statik, systemOnly, visible,
                 requiredComponents, permissions, appOpPermissions, appOps, preferredActivities,
@@ -624,7 +633,7 @@ public class RoleParser {
         int queryFlags = getAttributeIntValue(parser, ATTRIBUTE_QUERY_FLAGS, 0);
         IntentFilterData intentFilterData = null;
         List<RequiredMetaData> metaData = new ArrayList<>();
-        List<String> validationMetaDataNames = mValidationEnabled ? new ArrayList<>() : null;
+        List<String> validationMetaDataNames = mThrowOnError ? new ArrayList<>() : null;
 
         int type;
         int depth;
@@ -651,7 +660,7 @@ public class RoleParser {
                     if (metaDataName == null) {
                         continue;
                     }
-                    if (mValidationEnabled) {
+                    if (mThrowOnError) {
                         validateNoDuplicateElement(metaDataName, validationMetaDataNames,
                                 "meta data");
                     }
@@ -668,7 +677,7 @@ public class RoleParser {
                     RequiredMetaData requiredMetaData = new RequiredMetaData(metaDataName,
                             metaDataValue, metaDataProhibited);
                     metaData.add(requiredMetaData);
-                    if (mValidationEnabled) {
+                    if (mThrowOnError) {
                         validationMetaDataNames.add(metaDataName);
                     }
                     break;
@@ -1204,7 +1213,7 @@ public class RoleParser {
     }
 
     private void throwOrLogMessage(String message) {
-        if (mValidationEnabled) {
+        if (mThrowOnError) {
             throw new IllegalArgumentException(message);
         } else {
             Log.wtf(LOG_TAG, message);
@@ -1212,7 +1221,7 @@ public class RoleParser {
     }
 
     private void throwOrLogMessage(String message, Throwable cause) {
-        if (mValidationEnabled) {
+        if (mThrowOnError) {
             throw new IllegalArgumentException(message, cause);
         } else {
             Log.wtf(LOG_TAG, message, cause);
@@ -1221,169 +1230,5 @@ public class RoleParser {
 
     private void throwOrLogForUnknownTag(@NonNull XmlResourceParser parser) {
         throwOrLogMessage("Unknown tag: " + parser.getName());
-    }
-
-    /**
-     * Validates the permission names with {@code PackageManager} and ensures that all app ops with
-     * a permission in {@code AppOpsManager} have declared that permission in its role and ensures
-     * that all preferred activities are listed in the required components.
-     */
-    private void validateResult(@NonNull ArrayMap<String, PermissionSet> permissionSets,
-            @NonNull ArrayMap<String, Role> roles) {
-        if (!mValidationEnabled) {
-            return;
-        }
-
-        int permissionSetsSize = permissionSets.size();
-        for (int permissionSetsIndex = 0; permissionSetsIndex < permissionSetsSize;
-                permissionSetsIndex++) {
-            PermissionSet permissionSet = permissionSets.valueAt(permissionSetsIndex);
-
-            List<Permission> permissions = permissionSet.getPermissions();
-            int permissionsSize = permissions.size();
-            for (int permissionsIndex = 0; permissionsIndex < permissionsSize; permissionsIndex++) {
-                Permission permission = permissions.get(permissionsIndex);
-
-                validatePermission(permission);
-            }
-        }
-
-        int rolesSize = roles.size();
-        for (int rolesIndex = 0; rolesIndex < rolesSize; rolesIndex++) {
-            Role role = roles.valueAt(rolesIndex);
-
-            if (!role.isAvailableByFeatureFlagAndSdkVersion()) {
-                continue;
-            }
-
-            List<RequiredComponent> requiredComponents = role.getRequiredComponents();
-            int requiredComponentsSize = requiredComponents.size();
-            for (int requiredComponentsIndex = 0; requiredComponentsIndex < requiredComponentsSize;
-                    requiredComponentsIndex++) {
-                RequiredComponent requiredComponent = requiredComponents.get(
-                        requiredComponentsIndex);
-
-                String permission = requiredComponent.getPermission();
-                if (permission != null) {
-                    validatePermission(permission);
-                }
-            }
-
-            List<Permission> permissions = role.getPermissions();
-            int permissionsSize = permissions.size();
-            for (int i = 0; i < permissionsSize; i++) {
-                Permission permission = permissions.get(i);
-
-                validatePermission(permission);
-            }
-
-            List<AppOp> appOps = role.getAppOps();
-            int appOpsSize = appOps.size();
-            for (int i = 0; i < appOpsSize; i++) {
-                AppOp appOp = appOps.get(i);
-
-                validateAppOp(appOp);
-            }
-
-            List<Permission> appOpPermissions = role.getAppOpPermissions();
-            int appOpPermissionsSize = appOpPermissions.size();
-            for (int i = 0; i < appOpPermissionsSize; i++) {
-                validateAppOpPermission(appOpPermissions.get(i));
-            }
-
-            List<PreferredActivity> preferredActivities = role.getPreferredActivities();
-            int preferredActivitiesSize = preferredActivities.size();
-            for (int preferredActivitiesIndex = 0;
-                    preferredActivitiesIndex < preferredActivitiesSize;
-                    preferredActivitiesIndex++) {
-                PreferredActivity preferredActivity = preferredActivities.get(
-                        preferredActivitiesIndex);
-
-                if (!role.getRequiredComponents().contains(preferredActivity.getActivity())) {
-                    throw new IllegalArgumentException("<activity> of <preferred-activity> not"
-                            + " required in <required-components>, role: " + role.getName()
-                            + ", preferred activity: " + preferredActivity);
-                }
-            }
-        }
-    }
-
-    private void validatePermission(@NonNull Permission permission) {
-        if (!permission.isAvailableAsUser(Process.myUserHandle(), mContext)) {
-            return;
-        }
-        validatePermission(permission.getName(), true);
-    }
-
-    private void validatePermission(@NonNull String permission) {
-        validatePermission(permission, false);
-    }
-
-    private void validatePermission(@NonNull String permission, boolean enforceIsRuntimeOrRole) {
-        PackageManager packageManager = mContext.getPackageManager();
-        boolean isAutomotive = packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
-        // Skip validation for car permissions which may not be available on all build targets.
-        if (!isAutomotive && permission.startsWith("android.car")) {
-            return;
-        }
-
-        PermissionInfo permissionInfo;
-        try {
-            permissionInfo = packageManager.getPermissionInfo(permission, 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            throw new IllegalArgumentException("Unknown permission: " + permission, e);
-        }
-
-        if (enforceIsRuntimeOrRole) {
-            if (!(permissionInfo.getProtection() == PermissionInfo.PROTECTION_DANGEROUS
-                    || (permissionInfo.getProtectionFlags() & PermissionInfo.PROTECTION_FLAG_ROLE)
-                            == PermissionInfo.PROTECTION_FLAG_ROLE)) {
-                throw new IllegalArgumentException(
-                        "Permission is not a runtime or role permission: " + permission);
-            }
-        }
-    }
-
-    private void validateAppOpPermission(@NonNull Permission appOpPermission) {
-        if (!appOpPermission.isAvailableAsUser(Process.myUserHandle(), mContext)) {
-            return;
-        }
-        validateAppOpPermission(appOpPermission.getName());
-    }
-
-    private void validateAppOpPermission(@NonNull String appOpPermission) {
-        PackageManager packageManager = mContext.getPackageManager();
-        PermissionInfo permissionInfo;
-        try {
-            permissionInfo = packageManager.getPermissionInfo(appOpPermission, 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            throw new IllegalArgumentException("Unknown app op permission: " + appOpPermission, e);
-        }
-        if ((permissionInfo.getProtectionFlags() & PermissionInfo.PROTECTION_FLAG_APPOP)
-                != PermissionInfo.PROTECTION_FLAG_APPOP) {
-            throw new IllegalArgumentException("Permission is not an app op permission: "
-                    + appOpPermission);
-        }
-    }
-
-    private void validateAppOp(@NonNull AppOp appOp) {
-        if (!appOp.isAvailableByFeatureFlagAndSdkVersion()) {
-            return;
-        }
-        // This throws IllegalArgumentException if app op is unknown.
-        String permission = AppOpsManager.opToPermission(appOp.getName());
-        if (permission != null) {
-            PackageManager packageManager = mContext.getPackageManager();
-            PermissionInfo permissionInfo;
-            try {
-                permissionInfo = packageManager.getPermissionInfo(permission, 0);
-            } catch (PackageManager.NameNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            if (permissionInfo.getProtection() == PermissionInfo.PROTECTION_DANGEROUS) {
-                throw new IllegalArgumentException("App op has an associated runtime permission: "
-                        + appOp.getName());
-            }
-        }
     }
 }
