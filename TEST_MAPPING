@@ -1,12 +1,22 @@
 {
-  "presubmit" : [
+  "presubmit": [
     {
-      "name" : "PermissionApexTests"
+      "name": "PermissionApexTests"
     }
   ],
-  "carpermission-presubmit" : [
+  "carpermission-presubmit": [
     {
-      "name" : "CtsPermission3TestCases"
+      "name": "CtsPermission3TestCases",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+    }
+  ],
+  "carpermission-postsubmit": [
+    {
+      "name": "CtsPermission3TestCases"
     }
   ]
 }
