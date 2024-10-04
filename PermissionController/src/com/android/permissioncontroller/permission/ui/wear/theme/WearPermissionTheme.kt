@@ -29,11 +29,61 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.wear.compose.material.Colors
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Typography
+import androidx.wear.compose.material3.MaterialTheme as Material3Theme
+import com.android.permission.flags.Flags
 import com.android.permissioncontroller.R
+import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionThemeVersion.LEGACY
+import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionThemeVersion.MATERIAL3
 
-/** The Material 2.5 Theme Wrapper for Supporting RRO. */
+enum class WearPermissionThemeVersion {
+    LEGACY,
+    MATERIAL3,
+}
+
+/**
+ * Supports both Material 3 and Material 2 theme. default version for permission theme will be
+ * LEGACY until we migrate enough screens to 3. LEGACY version will use material 3 overlay resources
+ * by default.
+ */
 @Composable
-fun WearPermissionTheme(content: @Composable () -> Unit) {
+fun WearPermissionTheme(
+    version: WearPermissionThemeVersion = LEGACY,
+    content: @Composable () -> Unit,
+) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        WearPermissionLegacyTheme(content)
+    } else {
+        val material3OverlayResourcesEnabled = Flags.wearComposeMaterial3()
+        if (version == MATERIAL3) {
+            val material3Theme = WearOverlayableMaterial3Theme(LocalContext.current)
+            Material3Theme(
+                colorScheme = material3Theme.colorScheme,
+                typography = material3Theme.typography,
+                shapes = material3Theme.shapes,
+                content = content,
+            )
+        } else if (version == LEGACY && material3OverlayResourcesEnabled) {
+            val material3Theme = WearOverlayableMaterial3Theme(LocalContext.current)
+            val bridgedLegacyTheme = WearMaterialBridgedLegacyTheme.createFrom(material3Theme)
+            MaterialTheme(
+                colors = bridgedLegacyTheme.colors,
+                typography = bridgedLegacyTheme.typography,
+                shapes = bridgedLegacyTheme.shapes,
+                content = content,
+            )
+        } else {
+            WearPermissionLegacyTheme(content)
+        }
+    }
+}
+
+/**
+ * The Material 2.5 Theme Wrapper for Supporting RRO with legacy resources. This theme is kept here
+ * for backward compatibility. When grant screen is updated to material3 will clean up legacy
+ * resources.
+ */
+@Composable
+fun WearPermissionLegacyTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
     val colors =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
