@@ -1281,6 +1281,7 @@
         name="android.app.role.SYSTEM_SUPERVISION"
         defaultHolders="config_systemSupervision"
         exclusive="true"
+        ignoreDisabledSystemPackageWhenGranting="true"
         minSdkVersion="33"
         static="true"
         systemOnly="true"
