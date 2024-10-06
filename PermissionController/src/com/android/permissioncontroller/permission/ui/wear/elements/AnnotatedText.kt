@@ -32,47 +32,70 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.wear.compose.material.MaterialTheme
+import com.android.permissioncontroller.permission.ui.wear.WearUtils.capitalize
 
 const val CLICKABLE_SPAN_TAG = "CLICKABLE_SPAN_TAG"
 
 @Composable
-fun AnnotatedText(text: CharSequence, style: TextStyle, modifier: Modifier = Modifier) {
+fun AnnotatedText(
+    text: CharSequence,
+    style: TextStyle,
+    modifier: Modifier = Modifier,
+    shouldCapitalize: Boolean
+) {
     val onClickCallbacks = mutableMapOf<String, (View) -> Unit>()
     val context = LocalContext.current
     val listener = LinkInteractionListener {
         if (it is LinkAnnotation.Clickable) {
-            onClickCallbacks.get(it.tag)?.invoke(View(context))
+            onClickCallbacks[it.tag]?.invoke(View(context))
         }
     }
 
     val annotatedString =
-        spannableStringToAnnotatedString(text, onClickCallbacks, listener = listener)
+        spannableStringToAnnotatedString(
+            text,
+            shouldCapitalize,
+            onClickCallbacks,
+            listener = listener
+        )
     BasicText(text = annotatedString, style = style, modifier = modifier)
 }
 
 @Composable
 private fun spannableStringToAnnotatedString(
     text: CharSequence,
+    shouldCapitalize: Boolean,
     onClickCallbacks: MutableMap<String, (View) -> Unit>,
     spanColor: Color = MaterialTheme.colors.primary,
     listener: LinkInteractionListener
-) =
-    if (text is Spanned) {
-        buildAnnotatedString {
-            append((text.toString()))
-            for (span in text.getSpans(0, text.length, Any::class.java)) {
-                val start = text.getSpanStart(span)
-                val end = text.getSpanEnd(span)
-                when (span) {
-                    is ClickableSpan ->
-                        addClickableSpan(span, spanColor, start, end, onClickCallbacks, listener)
-                    else -> addStyle(SpanStyle(), start, end)
+): AnnotatedString {
+    val finalString = if (shouldCapitalize) text.toString().capitalize() else text.toString()
+    val annotatedString =
+        if (text is Spanned) {
+            buildAnnotatedString {
+                append(finalString)
+                for (span in text.getSpans(0, text.length, Any::class.java)) {
+                    val start = text.getSpanStart(span)
+                    val end = text.getSpanEnd(span)
+                    when (span) {
+                        is ClickableSpan ->
+                            addClickableSpan(
+                                span,
+                                spanColor,
+                                start,
+                                end,
+                                onClickCallbacks,
+                                listener
+                            )
+                        else -> addStyle(SpanStyle(), start, end)
+                    }
                 }
             }
+        } else {
+            AnnotatedString(text.toString())
         }
-    } else {
-        AnnotatedString(text.toString())
-    }
+    return annotatedString
+}
 
 private fun AnnotatedString.Builder.addClickableSpan(
     span: ClickableSpan,
