@@ -52,6 +52,7 @@ android_test {
         "cts",
         "general-tests",
         "mts-permission",
+        "mcts-permission",
     ],
     resource_dirs: [
         "res",
