@@ -250,7 +250,7 @@
     <string name="app_permission_most_recent_denied_summary" msgid="7659497197737708112">"Une honetan ukatuta / Azken sarbide-data: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
     <string name="app_permission_never_accessed_summary" msgid="401346181461975090">"Ez da erabili inoiz"</string>
     <string name="app_permission_never_accessed_denied_summary" msgid="6596000497490905146">"Ukatuta / Ez da erabili inoiz"</string>
-    <string name="allowed_header" msgid="7769277978004790414">"Baimenduta"</string>
+    <string name="allowed_header" msgid="7769277978004790414">"Baimendutakoak"</string>
     <string name="allowed_always_header" msgid="6455903312589013545">"Beti baimendutakoak"</string>
     <string name="allowed_foreground_header" msgid="6845655788447833353">"Erabili bitartean soilik baimendutakoak"</string>
     <string name="allowed_storage_scoped" msgid="5383645873719086975">"Multimedia-fitx. soilik erabiltzeko baimena dutenak"</string>
@@ -359,7 +359,7 @@
     <string name="role_browser_label" msgid="2877796144554070207">"Arakatzaile lehenetsia"</string>
     <string name="role_browser_short_label" msgid="6745009127123292296">"Arakatzaile-aplikazioa"</string>
     <string name="role_browser_description" msgid="3465253637499842671">"Interneteko sarbidea ematen dizuten eta sakatzen dituzun estekak bistaratzen dituzten aplikazioak"</string>
-    <string name="role_browser_request_title" msgid="2895200507835937192">"<xliff:g id="APP_NAME">%1$s</xliff:g> ezarri nahi duzu arakatzaile-aplikazio lehenetsi gisa?"</string>
+    <string name="role_browser_request_title" msgid="2895200507835937192">"<xliff:g id="APP_NAME">%1$s</xliff:g> ezarri nahi duzu arakatzaile lehenetsi gisa?"</string>
     <string name="role_browser_request_description" msgid="5888803407905985941">"Ez du behar baimenik"</string>
     <string name="role_dialer_label" msgid="1100224146343237968">"Telefono lehenetsia"</string>
     <string name="role_dialer_short_label" msgid="7186888549465352489">"Telefonoa aplikazioa"</string>
@@ -423,7 +423,7 @@
     <string name="system_uses_camera" msgid="1911223105234441470">"Sistemaren zerbitzu bat kamera erabiltzen ari da"</string>
     <string name="other_use" msgid="6564855051022776692">"Besta erabilera bat:"</string>
     <string name="ongoing_usage_dialog_ok" msgid="103556809118460072">"Ados"</string>
-    <string name="ongoing_usage_dialog_title" msgid="683836493556628569">"<xliff:g id="TYPES_LIST">%s</xliff:g> erabilitako azken aplikazioak"</string>
+    <string name="ongoing_usage_dialog_title" msgid="683836493556628569">"Azkenaldian <xliff:g id="TYPES_LIST">%s</xliff:g> erabilitako aplikazioak"</string>
     <string name="ongoing_usage_dialog_title_mic" msgid="5966714811125593992">"Mikrofonoa duela gutxi erabili dutenak"</string>
     <string name="ongoing_usage_dialog_title_camera" msgid="7819329688650711470">"Kamera duela gutxi erabili dutenak"</string>
     <string name="ongoing_usage_dialog_title_mic_camera" msgid="9079747867228772797">"Mikrofonoa eta kamera duela gutxi erabili dituztenak"</string>

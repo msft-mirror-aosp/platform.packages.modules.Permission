@@ -96,6 +96,9 @@
         <permission name="android.permission.CREATE_VIRTUAL_DEVICE" minSdkVersion="33" />
         <permission name="android.permission.ADD_TRUSTED_DISPLAY" minSdkVersion="33" />
         <permission name="android.permission.ADD_ALWAYS_UNLOCKED_DISPLAY" minSdkVersion="33" />
+        <permission
+            name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE"
+            featureFlag="android.companion.virtualdevice.flags.Flags.activityControlApi" />
     </permission-set>
 
     <role
@@ -703,6 +706,10 @@
                 minSdkVersion="35" />
             <permission name="android.permission.MANAGE_DEVICE_POLICY_AUDIT_LOGGING"
                 minSdkVersion="35" />
+            <permission name="android.permission.EXECUTE_APP_FUNCTIONS"
+                featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
+            <permission name="android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED"
+                featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
         </permissions>
     </role>
 
@@ -866,6 +873,8 @@
             <permission name="android.permission.READ_SMS" minSdkVersion="33" />
             <permission name="android.permission.READ_PEOPLE_DATA" />
             <permission name="android.permission.READ_GLOBAL_APP_SEARCH_DATA" />
+            <permission name="android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED"
+                featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
         </permissions>
     </role>
 
@@ -1272,6 +1281,7 @@
         name="android.app.role.SYSTEM_SUPERVISION"
         defaultHolders="config_systemSupervision"
         exclusive="true"
+        ignoreDisabledSystemPackageWhenGranting="true"
         minSdkVersion="33"
         static="true"
         systemOnly="true"

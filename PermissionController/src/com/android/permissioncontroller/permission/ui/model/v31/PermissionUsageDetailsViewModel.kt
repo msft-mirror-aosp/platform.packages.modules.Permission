@@ -35,6 +35,7 @@ import android.os.Bundle
 import android.os.UserHandle
 import android.os.UserManager
 import android.permission.flags.Flags
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.LiveData
@@ -42,6 +43,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
 import com.android.modules.utils.build.SdkLevel
+import com.android.permissioncontroller.DeviceUtils
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.compat.IntentCompat
 import com.android.permissioncontroller.permission.data.AppPermGroupUiInfoLiveData
@@ -58,7 +60,6 @@ import com.android.permissioncontroller.permission.model.livedatatypes.v31.Light
 import com.android.permissioncontroller.permission.model.livedatatypes.v31.LightHistoricalPackageOps.DiscreteAccess
 import com.android.permissioncontroller.permission.ui.handheld.v31.getDurationUsedStr
 import com.android.permissioncontroller.permission.ui.handheld.v31.shouldShowSubattributionInPermissionsDashboard
-import com.android.permissioncontroller.permission.utils.KotlinUtils
 import com.android.permissioncontroller.permission.utils.PermissionMapping
 import com.android.permissioncontroller.permission.utils.Utils
 import com.android.permissioncontroller.permission.utils.v31.SubattributionUtils
@@ -109,7 +110,7 @@ class PermissionUsageDetailsViewModel(
         val showSystem: Boolean = state[SHOULD_SHOW_SYSTEM_KEY] ?: false
         val show7Days: Boolean = state[SHOULD_SHOW_7_DAYS_KEY] ?: false
         val showPermissionUsagesDuration =
-            if (KotlinUtils.is7DayToggleEnabled() && show7Days) {
+            if (show7Days && DeviceUtils.isHandheld()) {
                 TIME_7_DAYS_DURATION
             } else {
                 TIME_24_HOURS_DURATION
@@ -125,7 +126,9 @@ class PermissionUsageDetailsViewModel(
                 startTime,
                 showSystem
             ),
-            containsSystemAppUsages(allLightHistoricalPackageOpsLiveData, startTime)
+            containsSystemAppUsages(allLightHistoricalPackageOpsLiveData, startTime),
+            showSystem,
+            show7Days
         )
     }
 
@@ -570,7 +573,9 @@ class PermissionUsageDetailsViewModel(
 
         data class Success(
             val appPermissionAccessUiInfoList: List<AppPermissionAccessUiInfo>,
-            val containsSystemAppAccesses: Boolean,
+            val containsSystemAppUsage: Boolean,
+            val showSystem: Boolean,
+            val show7Days: Boolean,
         ) : PermissionUsageDetailsUiState()
     }
 
@@ -808,6 +813,7 @@ class PermissionUsageDetailsViewModel(
             return if (
                 com.android.permission.flags.Flags.livedataRefactorPermissionTimelineEnabled()
             ) {
+                Log.d("PermissionTimeline", "timeline refactor flag enabled..")
                 PermissionUsageDetailsViewModelV2.create(app, handle, permissionGroup) as T
             } else {
                 PermissionUsageDetailsViewModel(app, handle, permissionGroup) as T
