@@ -321,8 +321,7 @@ class GrantPermissionsViewModel(
                         for ((key, state) in states) {
                             val allAffectedGranted =
                                 state.affectedPermissions.all { perm ->
-                                    appPermGroup.permissions[perm]?.isGrantedIncludingAppOp ==
-                                        true &&
+                                    appPermGroup.permissions[perm]?.isGranted == true &&
                                         appPermGroup.permissions[perm]?.isRevokeWhenRequested ==
                                             false
                                 }
@@ -365,7 +364,7 @@ class GrantPermissionsViewModel(
                                     minSdkForOrderedSplitPermissions,
                                     splitPermissionTargetSdkMap.getOrDefault(perm, 0)
                                 )
-                            if (fgGroup.permissions[perm]?.isGrantedIncludingAppOp == false) {
+                            if (fgGroup.permissions[perm]?.isGranted == false) {
                                 // If any of the requested permissions is not granted,
                                 // needFgPermissions = true
                                 needFgPermissions = true
@@ -401,7 +400,7 @@ class GrantPermissionsViewModel(
                         // requesting USER_SELECTED, direct straight to photo picker
                         val userPerm = groupState.group.permissions[READ_MEDIA_VISUAL_USER_SELECTED]
                         if (
-                            (userPerm?.isUserFixed == true && userPerm.isGrantedIncludingAppOp) ||
+                            (userPerm?.isUserFixed == true && userPerm.isGranted) ||
                                 groupState.affectedPermissions ==
                                     listOf(READ_MEDIA_VISUAL_USER_SELECTED)
                         ) {
@@ -469,8 +468,8 @@ class GrantPermissionsViewModel(
                                         Log.e(
                                             LOG_TAG,
                                             "For R+ apps, background permissions must be " +
-                                                "requested after foreground permissions are already" +
-                                                " granted"
+                                                "requested after foreground permissions are " +
+                                                "already granted"
                                         )
                                         value = null
                                         return
@@ -586,7 +585,7 @@ class GrantPermissionsViewModel(
                             ) {
                                 val coarseLocationPerm =
                                     groupState.group.allPermissions[ACCESS_COARSE_LOCATION]
-                                if (coarseLocationPerm?.isGrantedIncludingAppOp == true) {
+                                if (coarseLocationPerm?.isGranted == true) {
                                     // Upgrade flow
                                     locationVisibilities[DIALOG_WITH_FINE_LOCATION_ONLY] = true
                                     message = RequestMessage.FG_FINE_LOCATION_MESSAGE
@@ -868,7 +867,7 @@ class GrantPermissionsViewModel(
                 }
             } else if (
                 perm in getPartialStorageGrantPermissionsForGroup(group) &&
-                    lightPermission.isGrantedIncludingAppOp
+                    lightPermission.isGranted
             ) {
                 // If a partial storage permission is granted as fixed, we should immediately show
                 // the photo picker
@@ -927,9 +926,7 @@ class GrantPermissionsViewModel(
 
         // Do not attempt to grant background access if foreground access is not either already
         // granted or requested
-        if (
-            isBackground && !group.foreground.isGrantedExcludingRWROrAllRWR && !hasForegroundRequest
-        ) {
+        if (isBackground && !group.foreground.allowFullGroupGrant && !hasForegroundRequest) {
             Log.w(
                 LOG_TAG,
                 "Cannot grant $perm as the matching foreground permission is not " +
@@ -945,11 +942,11 @@ class GrantPermissionsViewModel(
         }
 
         if (
-            (isBackground && group.background.isGrantedExcludingRWROrAllRWR ||
-                !isBackground && group.foreground.isGrantedExcludingRWROrAllRWR) &&
+            (isBackground && group.background.allowFullGroupGrant ||
+                !isBackground && group.foreground.allowFullGroupGrant) &&
                 canAutoGrantWholeGroup(group)
         ) {
-            if (group.permissions[perm]?.isGrantedIncludingAppOp == false) {
+            if (group.permissions[perm]?.isGranted == false) {
                 if (isBackground) {
                     grantBackgroundRuntimePermissions(app, group, listOf(perm))
                 } else {
@@ -987,7 +984,7 @@ class GrantPermissionsViewModel(
         if (
             group.permGroupName == LOCATION &&
                 isLocationAccuracyEnabledForApp(group) &&
-                group.allPermissions[ACCESS_FINE_LOCATION]?.isGrantedIncludingAppOp == false
+                group.allPermissions[ACCESS_FINE_LOCATION]?.isGranted == false
         ) {
             return false
         }
@@ -1012,7 +1009,7 @@ class GrantPermissionsViewModel(
         val partialPerms = getPartialStorageGrantPermissionsForGroup(group)
         return group.isGranted &&
             group.permissions.values.all {
-                it.name in partialPerms || (it.name !in partialPerms && !it.isGrantedIncludingAppOp)
+                it.name in partialPerms || (it.name !in partialPerms && !it.isGranted)
             }
     }
 
@@ -1341,18 +1338,15 @@ class GrantPermissionsViewModel(
                 } else {
                     PERMISSION_GRANT_REQUEST_RESULT_REPORTED__RESULT__USER_GRANTED
                 }
+            var affectedPermissions: List<String> = groupState.affectedPermissions
             if (groupState.isBackground) {
-                grantBackgroundRuntimePermissions(
-                    app,
-                    groupState.group,
-                    groupState.affectedPermissions
-                )
+                grantBackgroundRuntimePermissions(app, groupState.group, affectedPermissions)
             } else {
                 if (affectedForegroundPermissions == null) {
                     grantForegroundRuntimePermissions(
                         app,
                         groupState.group,
-                        groupState.affectedPermissions,
+                        affectedPermissions,
                         isOneTime
                     )
                     // This prevents weird flag state when app targetSDK switches from S+ to R-
@@ -1360,11 +1354,12 @@ class GrantPermissionsViewModel(
                         KotlinUtils.setFlagsWhenLocationAccuracyChanged(app, groupState.group, true)
                     }
                 } else {
+                    affectedPermissions = affectedForegroundPermissions
                     val newGroup =
                         grantForegroundRuntimePermissions(
                             app,
                             groupState.group,
-                            affectedForegroundPermissions,
+                            affectedPermissions,
                             isOneTime
                         )
                     if (!isOneTime || newGroup.isOneTime) {
@@ -1376,7 +1371,17 @@ class GrantPermissionsViewModel(
                     }
                 }
             }
-            groupState.state = STATE_ALLOWED
+            val shouldDenyFullGroupGrant =
+                groupState.group.isPlatformPermissionGroup &&
+                    affectedPermissions.none {
+                        groupState.group.permissions[it]?.isPlatformOrSystem == true
+                    }
+            groupState.state =
+                if (shouldDenyFullGroupGrant) {
+                    STATE_UNKNOWN
+                } else {
+                    STATE_ALLOWED
+                }
         } else {
             if (groupState.isBackground) {
                 revokeBackgroundRuntimePermissions(
@@ -1607,22 +1612,21 @@ class GrantPermissionsViewModel(
                         if (data?.getStringExtra(EXTRA_RESULT_PERMISSION_INTERACTED) == null) {
                             // User didn't interact, count against rate limit
                             val group =
-                                    groupStates[groupName to false]?.group
-                                            ?: groupStates[groupName to true]?.group
-                                            ?: return@Consumer
+                                groupStates[groupName to false]?.group
+                                    ?: groupStates[groupName to true]?.group ?: return@Consumer
                             if (group.background.isUserSet) {
                                 KotlinUtils.setGroupFlags(
-                                        app,
-                                        group,
-                                        FLAG_PERMISSION_USER_FIXED to true,
-                                        filterPermissions = group.backgroundPermNames
+                                    app,
+                                    group,
+                                    FLAG_PERMISSION_USER_FIXED to true,
+                                    filterPermissions = group.backgroundPermNames
                                 )
                             } else {
                                 KotlinUtils.setGroupFlags(
-                                        app,
-                                        group,
-                                        FLAG_PERMISSION_USER_SET to true,
-                                        filterPermissions = group.backgroundPermNames
+                                    app,
+                                    group,
+                                    FLAG_PERMISSION_USER_SET to true,
+                                    filterPermissions = group.backgroundPermNames
                                 )
                             }
                         }
