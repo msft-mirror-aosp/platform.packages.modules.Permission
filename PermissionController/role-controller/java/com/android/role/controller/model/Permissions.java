@@ -86,8 +86,9 @@ public class Permissions {
      *
      * @param packageName the package name of the application to be granted permissions to
      * @param permissions the list of permissions to be granted
-     * @param overrideDisabledSystemPackage whether to ignore the permissions of a disabled system
-     *                                      package (if this package is an updated system package)
+     * @param ignoreDisabledSystemPackage whether to ignore the requested permissions of a disabled
+     *                                    system package (if this package is an updated system
+     *                                    package)
      * @param overrideUserSetAndFixed whether to override user set and fixed flags on the permission
      * @param setGrantedByRole whether the permissions will be granted as granted-by-role
      * @param setGrantedByDefault whether the permissions will be granted as granted-by-default
@@ -101,7 +102,7 @@ public class Permissions {
      *      PackageInfo, java.util.Set, boolean, boolean, int)
      */
     public static boolean grantAsUser(@NonNull String packageName,
-            @NonNull List<String> permissions, boolean overrideDisabledSystemPackage,
+            @NonNull List<String> permissions, boolean ignoreDisabledSystemPackage,
             boolean overrideUserSetAndFixed, boolean setGrantedByRole, boolean setGrantedByDefault,
             boolean setSystemFixed, @NonNull UserHandle user, @NonNull Context context) {
         if (setGrantedByRole == setGrantedByDefault) {
@@ -145,7 +146,7 @@ public class Permissions {
         // choice to grant this app the permissions needed to function. For all other
         // apps, (default grants on first boot and user creation) we don't grant default
         // permissions if the version on the system image does not declare them.
-        if (!overrideDisabledSystemPackage && isUpdatedSystemApp(packageInfo)) {
+        if (!ignoreDisabledSystemPackage && isUpdatedSystemApp(packageInfo)) {
             PackageInfo disabledSystemPackageInfo = getFactoryPackageInfoAsUser(packageName, user,
                     context);
             if (disabledSystemPackageInfo != null) {
