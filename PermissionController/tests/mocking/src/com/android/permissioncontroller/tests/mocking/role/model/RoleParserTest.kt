@@ -22,6 +22,7 @@ import android.content.pm.PermissionInfo
 import android.os.Process
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.modules.utils.build.SdkLevel
 import com.android.permissioncontroller.role.model.RoleParserInitializer
 import com.android.role.controller.model.AppOp
 import com.android.role.controller.model.Permission
@@ -94,8 +95,10 @@ class RoleParserTest {
                 // Prevent system-only roles that ignore disabled system packages from
                 // granting runtime permissions for now, since that may allow apps to update and
                 // silently obtain a new runtime permission.
-                val enforceNotRuntime = role.isSystemOnly
-                        && role.shouldIgnoreDisabledSystemPackageWhenGranting()
+                val enforceNotRuntime =
+                    SdkLevel.isAtLeastS() &&
+                        role.isSystemOnly &&
+                        role.shouldIgnoreDisabledSystemPackageWhenGranting()
                 validatePermission(permission, enforceNotRuntime)
             }
 
@@ -110,7 +113,7 @@ class RoleParserTest {
             for (preferredActivity in role.preferredActivities) {
                 require(preferredActivity.activity in role.requiredComponents) {
                     "<activity> of <preferred-activity> not required in <required-components>," +
-                    " role: ${role.name}, preferred activity: $preferredActivity"
+                        " role: ${role.name}, preferred activity: $preferredActivity"
                 }
             }
         }
@@ -148,9 +151,11 @@ class RoleParserTest {
         if (enforceIsRuntimeOrRole) {
             require(
                 permissionInfo.protection == PermissionInfo.PROTECTION_DANGEROUS ||
-                    permissionInfo.protectionFlags and PermissionInfo.PROTECTION_FLAG_ROLE
-                        == PermissionInfo.PROTECTION_FLAG_ROLE
-            ) { "Permission is not a runtime or role permission: $permissionName" }
+                    permissionInfo.protectionFlags and PermissionInfo.PROTECTION_FLAG_ROLE ==
+                        PermissionInfo.PROTECTION_FLAG_ROLE
+            ) {
+                "Permission is not a runtime or role permission: $permissionName"
+            }
         }
 
         if (enforceNotRuntime) {
@@ -175,9 +180,11 @@ class RoleParserTest {
                 throw IllegalArgumentException("Unknown app op permission: $permissionName", e)
             }
         require(
-            permissionInfo.protectionFlags and PermissionInfo.PROTECTION_FLAG_APPOP
-                == PermissionInfo.PROTECTION_FLAG_APPOP
-        ) { "Permission is not an app op permission: $permissionName" }
+            permissionInfo.protectionFlags and PermissionInfo.PROTECTION_FLAG_APPOP ==
+                PermissionInfo.PROTECTION_FLAG_APPOP
+        ) {
+            "Permission is not an app op permission: $permissionName"
+        }
     }
 
     private fun validateAppOp(appOp: AppOp) {
