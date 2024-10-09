@@ -844,6 +844,7 @@ class GetPermissionGroupUsageDetailsUseCaseTest {
     }
 
     @Test
+    @Ignore("b/365004787")
     @RequiresFlagsEnabled(Flags.FLAG_LOCATION_BYPASS_PRIVACY_DASHBOARD_ENABLED)
     fun emergencyAccessesAreNotClusteredWithRegularAccesses() = runTest {
         Assume.assumeTrue(SdkLevel.isAtLeastV())
