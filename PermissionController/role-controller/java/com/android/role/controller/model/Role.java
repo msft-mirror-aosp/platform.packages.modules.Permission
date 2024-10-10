@@ -126,12 +126,6 @@ public class Role {
     private final Supplier<Boolean> mFeatureFlag;
 
     /**
-     * Whether this role should ignore the requested permissions of a disabled system package when
-     * granting.
-     */
-    private final boolean mIgnoreDisabledSystemPackageWhenGranting;
-
-    /**
      * The string resource for the label of this role.
      */
     @StringRes
@@ -248,8 +242,7 @@ public class Role {
     public Role(@NonNull String name, boolean allowBypassingQualification,
             @Nullable RoleBehavior behavior, @Nullable String defaultHoldersResourceName,
             @StringRes int descriptionResource, boolean exclusive, boolean fallBackToDefaultHolder,
-            @Nullable Supplier<Boolean> featureFlag,
-            boolean ignoreDisabledSystemPackageWhenGranting, @StringRes int labelResource,
+            @Nullable Supplier<Boolean> featureFlag, @StringRes int labelResource,
             int maxSdkVersion, int minSdkVersion, boolean onlyGrantWhenAdded,
             boolean overrideUserWhenGranting, @StringRes int requestDescriptionResource,
             @StringRes int requestTitleResource, boolean requestable,
@@ -267,7 +260,6 @@ public class Role {
         mExclusive = exclusive;
         mFallBackToDefaultHolder = fallBackToDefaultHolder;
         mFeatureFlag = featureFlag;
-        mIgnoreDisabledSystemPackageWhenGranting = ignoreDisabledSystemPackageWhenGranting;
         mLabelResource = labelResource;
         mMaxSdkVersion = maxSdkVersion;
         mMinSdkVersion = minSdkVersion;
@@ -312,13 +304,6 @@ public class Role {
     @Nullable
     public Supplier<Boolean> getFeatureFlag() {
         return mFeatureFlag;
-    }
-
-    /**
-     * @see #mIgnoreDisabledSystemPackageWhenGranting
-     */
-    public boolean shouldIgnoreDisabledSystemPackageWhenGranting() {
-        return mIgnoreDisabledSystemPackageWhenGranting;
     }
 
     @StringRes
@@ -369,10 +354,6 @@ public class Role {
      */
     public boolean shouldShowNone() {
         return mShowNone;
-    }
-
-    public boolean isSystemOnly() {
-        return mSystemOnly;
     }
 
     public boolean isVisible() {
@@ -840,7 +821,7 @@ public class Role {
             boolean overrideUser, @NonNull UserHandle user, @NonNull Context context) {
         boolean permissionOrAppOpChanged = Permissions.grantAsUser(packageName,
                 Permissions.filterBySdkVersionAsUser(mPermissions, user, context),
-                mIgnoreDisabledSystemPackageWhenGranting, overrideUser, true, false, false,
+                SdkLevel.isAtLeastS() ? !mSystemOnly : true, overrideUser, true, false, false,
                 user, context);
 
         List<String> appOpPermissionsToGrant =
@@ -1126,8 +1107,6 @@ public class Role {
                 + ", mExclusive=" + mExclusive
                 + ", mFallBackToDefaultHolder=" + mFallBackToDefaultHolder
                 + ", mFeatureFlag=" + mFeatureFlag
-                + ", mIgnoreDisabledSystemPackageWhenGranting="
-                + mIgnoreDisabledSystemPackageWhenGranting
                 + ", mLabelResource=" + mLabelResource
                 + ", mMaxSdkVersion=" + mMaxSdkVersion
                 + ", mMinSdkVersion=" + mMinSdkVersion
