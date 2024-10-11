@@ -32,11 +32,11 @@ import androidx.wear.compose.material.Typography
 import androidx.wear.compose.material3.MaterialTheme as Material3Theme
 import com.android.permission.flags.Flags
 import com.android.permissioncontroller.R
-import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionThemeVersion.LEGACY
-import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionThemeVersion.MATERIAL3
+import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
+import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL3
 
-enum class WearPermissionThemeVersion {
-    LEGACY,
+enum class WearPermissionMaterialUIVersion {
+    MATERIAL2_5,
     MATERIAL3,
 }
 
@@ -47,13 +47,13 @@ enum class WearPermissionThemeVersion {
  */
 @Composable
 fun WearPermissionTheme(
-    version: WearPermissionThemeVersion = LEGACY,
+    version: WearPermissionMaterialUIVersion = MATERIAL2_5,
     content: @Composable () -> Unit,
 ) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
         WearPermissionLegacyTheme(content)
     } else {
-        val material3OverlayResourcesEnabled = Flags.wearComposeMaterial3()
+        val useBridgedTheme = Flags.wearComposeMaterial3()
         if (version == MATERIAL3) {
             val material3Theme = WearOverlayableMaterial3Theme(LocalContext.current)
             Material3Theme(
@@ -62,7 +62,7 @@ fun WearPermissionTheme(
                 shapes = material3Theme.shapes,
                 content = content,
             )
-        } else if (version == LEGACY && material3OverlayResourcesEnabled) {
+        } else if (version == MATERIAL2_5 && useBridgedTheme) {
             val material3Theme = WearOverlayableMaterial3Theme(LocalContext.current)
             val bridgedLegacyTheme = WearMaterialBridgedLegacyTheme.createFrom(material3Theme)
             MaterialTheme(
