@@ -110,6 +110,15 @@ flag {
 }
 
 flag {
+    name: "cross_user_role_enabled"
+    is_exported: true
+    namespace: "permissions"
+    description: "This flag enables cross-user roles support and API"
+    bug: "367732307"
+    is_fixed_read_only: true
+}
+
+flag {
     name: "permission_timeline_attribution_label_fix"
     is_exported: true
     namespace: "permissions"
