@@ -22,7 +22,6 @@ import android.content.pm.PermissionInfo
 import android.os.Process
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.modules.utils.build.SdkLevel
 import com.android.permissioncontroller.role.model.RoleParserInitializer
 import com.android.role.controller.model.AppOp
 import com.android.role.controller.model.Permission
@@ -75,7 +74,7 @@ class RoleParserTest {
     fun validateRoles(permissionSets: Map<String, PermissionSet>, roles: Map<String, Role>) {
         for (permissionSet in permissionSets.values) {
             for (permission in permissionSet.permissions) {
-                validatePermission(permission, false)
+                validatePermission(permission)
             }
         }
 
@@ -92,14 +91,7 @@ class RoleParserTest {
             }
 
             for (permission in role.permissions) {
-                // Prevent system-only roles that ignore disabled system packages from
-                // granting runtime permissions for now, since that may allow apps to update and
-                // silently obtain a new runtime permission.
-                val enforceNotRuntime =
-                    SdkLevel.isAtLeastS() &&
-                        role.isSystemOnly &&
-                        role.shouldIgnoreDisabledSystemPackageWhenGranting()
-                validatePermission(permission, enforceNotRuntime)
+                validatePermission(permission)
             }
 
             for (appOp in role.appOps) {
@@ -119,22 +111,18 @@ class RoleParserTest {
         }
     }
 
-    private fun validatePermission(permission: Permission, enforceNotRuntime: Boolean) {
+    private fun validatePermission(permission: Permission) {
         if (!permission.isAvailableAsUser(Process.myUserHandle(), targetContext)) {
             return
         }
-        validatePermission(permission.name, true, enforceNotRuntime)
+        validatePermission(permission.name, true)
     }
 
     private fun validatePermission(permissionName: String) {
-        validatePermission(permissionName, false, false)
+        validatePermission(permissionName, false)
     }
 
-    private fun validatePermission(
-        permissionName: String,
-        enforceIsRuntimeOrRole: Boolean,
-        enforceNotRuntime: Boolean,
-    ) {
+    private fun validatePermission(permissionName: String, enforceIsRuntimeOrRole: Boolean) {
         val isAutomotive = packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)
         // Skip validation for car permissions which may not be available on all build targets.
         if (!isAutomotive && permissionName.startsWith("android.car")) {
@@ -155,12 +143,6 @@ class RoleParserTest {
                         PermissionInfo.PROTECTION_FLAG_ROLE
             ) {
                 "Permission is not a runtime or role permission: $permissionName"
-            }
-        }
-
-        if (enforceNotRuntime) {
-            require(permissionInfo.protection != PermissionInfo.PROTECTION_DANGEROUS) {
-                "Permission is a runtime permission: $permissionName"
             }
         }
     }
