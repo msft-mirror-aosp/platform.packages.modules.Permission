@@ -19,12 +19,9 @@ package com.android.role.controller.model;
 import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.PermissionInfo;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.os.Build;
-import android.os.Process;
 import android.permission.flags.Flags;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -94,8 +91,6 @@ public class RoleParser {
     private static final String ATTRIBUTE_EXCLUSIVE = "exclusive";
     private static final String ATTRIBUTE_FALL_BACK_TO_DEFAULT_HOLDER = "fallBackToDefaultHolder";
     private static final String ATTRIBUTE_FEATURE_FLAG = "featureFlag";
-    private static final String ATTRIBUTE_IGNORE_DISABLED_SYSTEM_PACKAGE_WHEN_GRANTING =
-            "ignoreDisabledSystemPackageWhenGranting";
     private static final String ATTRIBUTE_LABEL = "label";
     private static final String ATTRIBUTE_MAX_SDK_VERSION = "maxSdkVersion";
     private static final String ATTRIBUTE_MIN_SDK_VERSION = "minSdkVersion";
@@ -431,11 +426,6 @@ public class RoleParser {
         Supplier<Boolean> featureFlag = getAttributeMethodValue(parser, ATTRIBUTE_FEATURE_FLAG,
                 boolean.class, sFeatureFlagFallback, TAG_ROLE);
 
-        boolean systemOnly = getAttributeBooleanValue(parser, ATTRIBUTE_SYSTEM_ONLY, false);
-        boolean ignoreDisabledSystemPackageWhenGranting = getAttributeBooleanValue(parser,
-                ATTRIBUTE_IGNORE_DISABLED_SYSTEM_PACKAGE_WHEN_GRANTING,
-                SdkLevel.isAtLeastS() ? !systemOnly : true);
-
         int maxSdkVersion = getAttributeIntValue(parser, ATTRIBUTE_MAX_SDK_VERSION,
                 Build.VERSION_CODES.CUR_DEVELOPMENT);
         int minSdkVersion = getAttributeIntValue(parser, ATTRIBUTE_MIN_SDK_VERSION,
@@ -493,6 +483,8 @@ public class RoleParser {
             skipCurrentTag(parser);
             return null;
         }
+
+        boolean systemOnly = getAttributeBooleanValue(parser, ATTRIBUTE_SYSTEM_ONLY, false);
 
         String uiBehaviorName = getAttributeValue(parser, ATTRIBUTE_UI_BEHAVIOR);
 
@@ -575,9 +567,8 @@ public class RoleParser {
             preferredActivities = Collections.emptyList();
         }
         return new Role(name, allowBypassingQualification, behavior, defaultHoldersResourceName,
-                descriptionResource, exclusive, fallBackToDefaultHolder, featureFlag,
-                ignoreDisabledSystemPackageWhenGranting, labelResource, maxSdkVersion,
-                minSdkVersion, onlyGrantWhenAdded, overrideUserWhenGranting,
+                descriptionResource, exclusive, fallBackToDefaultHolder, featureFlag, labelResource,
+                maxSdkVersion, minSdkVersion, onlyGrantWhenAdded, overrideUserWhenGranting,
                 requestDescriptionResource, requestTitleResource, requestable,
                 searchKeywordsResource, shortLabelResource, showNone, statik, systemOnly, visible,
                 requiredComponents, permissions, appOpPermissions, appOps, preferredActivities,
