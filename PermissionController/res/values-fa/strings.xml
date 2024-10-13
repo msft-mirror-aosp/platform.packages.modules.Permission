@@ -471,7 +471,7 @@
     <string name="permgrouprequest_device_aware_storage_isolated" msgid="6463062962458809752">"به «<xliff:g id="APP_NAME">%1$s</xliff:g>» اجازه می‌دهید به عکس‌ها و رسانه‌های «<xliff:g id="DEVICE_NAME">%2$s</xliff:g>» دسترسی داشته باشد؟"</string>
     <string name="permgrouprequest_contacts" msgid="8391550064551053695">"‏به &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; اجازه دسترسی به مخاطبینتان می‌دهید؟"</string>
     <string name="permgrouprequest_device_aware_contacts" msgid="731025863972535928">"به «<xliff:g id="APP_NAME">%1$s</xliff:g>» اجازه می‌دهید به مخاطبین شما در «<xliff:g id="DEVICE_NAME">%2$s</xliff:g>» دسترسی داشته باشد؟"</string>
-    <string name="permgrouprequest_location" msgid="6990232580121067883">"‏به &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; اجازه دسترسی به مکان این دستگاه می‌دهید؟"</string>
+    <string name="permgrouprequest_location" msgid="6990232580121067883">"‏به &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; اجازه دسترسی به مکان این دستگاه را می‌دهید؟"</string>
     <string name="permgrouprequest_device_aware_location" msgid="6075412127429878638">"به «<xliff:g id="APP_NAME">%1$s</xliff:g>» اجازه می‌دهید به مکان «<xliff:g id="DEVICE_NAME">%2$s</xliff:g>» دسترسی داشته باشد؟"</string>
     <string name="permgrouprequestdetail_location" msgid="2635935335778429894">"این برنامه فقط وقتی از آن استفاده می‌کنید، به مکان دسترسی خواهد داشت"</string>
     <string name="permgroupbackgroundrequest_location" msgid="1085680897265734809">"‏به &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; اجازه داده شود به مکان این دستگاه دسترسی پیدا کند؟"</string>

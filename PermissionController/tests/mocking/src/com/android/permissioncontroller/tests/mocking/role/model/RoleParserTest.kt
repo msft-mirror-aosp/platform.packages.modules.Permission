@@ -74,7 +74,7 @@ class RoleParserTest {
     fun validateRoles(permissionSets: Map<String, PermissionSet>, roles: Map<String, Role>) {
         for (permissionSet in permissionSets.values) {
             for (permission in permissionSet.permissions) {
-                validatePermission(permission, false)
+                validatePermission(permission)
             }
         }
 
@@ -91,12 +91,7 @@ class RoleParserTest {
             }
 
             for (permission in role.permissions) {
-                // Prevent system-only roles that ignore disabled system packages from
-                // granting runtime permissions for now, since that may allow apps to update and
-                // silently obtain a new runtime permission.
-                val enforceNotRuntime = role.isSystemOnly
-                        && role.shouldIgnoreDisabledSystemPackageWhenGranting()
-                validatePermission(permission, enforceNotRuntime)
+                validatePermission(permission)
             }
 
             for (appOp in role.appOps) {
@@ -110,28 +105,24 @@ class RoleParserTest {
             for (preferredActivity in role.preferredActivities) {
                 require(preferredActivity.activity in role.requiredComponents) {
                     "<activity> of <preferred-activity> not required in <required-components>," +
-                    " role: ${role.name}, preferred activity: $preferredActivity"
+                        " role: ${role.name}, preferred activity: $preferredActivity"
                 }
             }
         }
     }
 
-    private fun validatePermission(permission: Permission, enforceNotRuntime: Boolean) {
+    private fun validatePermission(permission: Permission) {
         if (!permission.isAvailableAsUser(Process.myUserHandle(), targetContext)) {
             return
         }
-        validatePermission(permission.name, true, enforceNotRuntime)
+        validatePermission(permission.name, true)
     }
 
     private fun validatePermission(permissionName: String) {
-        validatePermission(permissionName, false, false)
+        validatePermission(permissionName, false)
     }
 
-    private fun validatePermission(
-        permissionName: String,
-        enforceIsRuntimeOrRole: Boolean,
-        enforceNotRuntime: Boolean,
-    ) {
+    private fun validatePermission(permissionName: String, enforceIsRuntimeOrRole: Boolean) {
         val isAutomotive = packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)
         // Skip validation for car permissions which may not be available on all build targets.
         if (!isAutomotive && permissionName.startsWith("android.car")) {
@@ -148,14 +139,10 @@ class RoleParserTest {
         if (enforceIsRuntimeOrRole) {
             require(
                 permissionInfo.protection == PermissionInfo.PROTECTION_DANGEROUS ||
-                    permissionInfo.protectionFlags and PermissionInfo.PROTECTION_FLAG_ROLE
-                        == PermissionInfo.PROTECTION_FLAG_ROLE
-            ) { "Permission is not a runtime or role permission: $permissionName" }
-        }
-
-        if (enforceNotRuntime) {
-            require(permissionInfo.protection != PermissionInfo.PROTECTION_DANGEROUS) {
-                "Permission is a runtime permission: $permissionName"
+                    permissionInfo.protectionFlags and PermissionInfo.PROTECTION_FLAG_ROLE ==
+                        PermissionInfo.PROTECTION_FLAG_ROLE
+            ) {
+                "Permission is not a runtime or role permission: $permissionName"
             }
         }
     }
@@ -175,9 +162,11 @@ class RoleParserTest {
                 throw IllegalArgumentException("Unknown app op permission: $permissionName", e)
             }
         require(
-            permissionInfo.protectionFlags and PermissionInfo.PROTECTION_FLAG_APPOP
-                == PermissionInfo.PROTECTION_FLAG_APPOP
-        ) { "Permission is not an app op permission: $permissionName" }
+            permissionInfo.protectionFlags and PermissionInfo.PROTECTION_FLAG_APPOP ==
+                PermissionInfo.PROTECTION_FLAG_APPOP
+        ) {
+            "Permission is not an app op permission: $permissionName"
+        }
     }
 
     private fun validateAppOp(appOp: AppOp) {
