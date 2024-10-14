@@ -176,6 +176,7 @@ public class RoleService extends SystemService implements RoleUserState.Callback
         registerUserRemovedReceiver();
     }
 
+    // TODO(b/375029649): enforce single active user for all cross-user roles
     private void registerUserRemovedReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_USER_REMOVED);
@@ -191,6 +192,7 @@ public class RoleService extends SystemService implements RoleUserState.Callback
         }, intentFilter, null, null);
     }
 
+    // TODO(b/375029649): enforce single active user for all cross-user roles
     @Override
     public void onStart() {
         publishBinderService(Context.ROLE_SERVICE, new Stub());

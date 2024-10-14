@@ -447,6 +447,8 @@ public class Role {
         if (!isAvailableByFeatureFlagAndSdkVersion()) {
             return false;
         }
+        // TODO(b/376133070): ensure that cross-user role is only available if also available for
+        //  the profile-group's full user
         if (mBehavior != null) {
             return mBehavior.isAvailableAsUser(this, user, context);
         }
