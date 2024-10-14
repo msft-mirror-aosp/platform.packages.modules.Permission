@@ -19,9 +19,11 @@ package com.android.permissioncontroller.permission.ui.handheld.v36
 import android.content.Context
 import android.os.Build
 import android.util.AttributeSet
+import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.RequiresApi
 import androidx.annotation.StyleRes
+import androidx.preference.PreferenceViewHolder
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.handheld.PermissionPreference
 
@@ -46,5 +48,17 @@ class AppPermissionFooterLinkPreference : PermissionPreference {
 
     init {
         layoutResource = R.layout.app_permission_footer_link_preference
+    }
+
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
+        super.onBindViewHolder(holder)
+        if (
+            context.resources.getBoolean(
+                R.bool.config_appPermissionFooterLinkPreferenceSummaryUnderlined
+            )
+        ) {
+            val summary = holder.findViewById(android.R.id.summary) as TextView
+            summary.paint.isUnderlineText = true
+        }
     }
 }
