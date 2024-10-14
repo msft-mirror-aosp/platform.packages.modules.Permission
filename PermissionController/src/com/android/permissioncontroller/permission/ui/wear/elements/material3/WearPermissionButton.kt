@@ -20,10 +20,13 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.Hyphens
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonColors
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.LocalTextConfiguration
+import androidx.wear.compose.material3.LocalTextStyle
 import androidx.wear.compose.material3.Text
 import com.android.permissioncontroller.permission.ui.wear.elements.Chip
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
@@ -94,6 +97,8 @@ private fun WearPermissionButtonInternal(
             text = label,
             modifier = Modifier.fillMaxWidth(),
             maxLines = labelMaxLines ?: LocalTextConfiguration.current.maxLines,
+            style =
+                LocalTextStyle.current.copy(fontWeight = FontWeight.W600, hyphens = Hyphens.Auto),
         )
     }
 
