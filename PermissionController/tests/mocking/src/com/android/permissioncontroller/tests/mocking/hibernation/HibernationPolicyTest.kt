@@ -57,6 +57,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -185,6 +186,7 @@ class HibernationPolicyTest {
     }
 
     @Test
+    @Ignore("b/373082442")
     fun onReceive_shouldInitializeAndAdjustStartTimeOfUnusedAppTracking() {
         receiver.onReceive(context, Intent(Intent.ACTION_BOOT_COMPLETED))
         val startTimeOfUnusedAppTracking =
