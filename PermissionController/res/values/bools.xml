@@ -21,4 +21,5 @@
     <bool name="is_at_least_u">false</bool>
     <bool name="is_at_least_v">false</bool>
     <bool name="config_usePreferenceForAppPermissionSettings">false</bool>
+    <bool name="config_appPermissionFooterLinkPreferenceSummaryUnderlined">false</bool>
 </resources>
