@@ -15,23 +15,27 @@
  */
 package com.android.permissioncontroller.permission.ui.wear.theme
 
+import android.content.Context
 import android.os.Build
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-import androidx.wear.compose.material3.MaterialTheme
+import androidx.annotation.RequiresApi
 
-/** The Material 3 Theme Wrapper for Supporting RRO. */
-@Composable
-fun WearOverlayableMaterial3Theme(content: @Composable () -> Unit) {
-    val context = LocalContext.current
-    if (Build.VERSION.SDK_INT >= 36) {
-        MaterialTheme(
-            colorScheme = WearComposeMaterial3ColorScheme.dynamicColorScheme(context),
-            typography = WearComposeMaterial3Typography.dynamicTypography(context),
-            shapes = WearComposeMaterial3Shapes.dynamicShapes(context),
-            content = content,
-        )
-    } else {
-        MaterialTheme(content = content)
-    }
+/**
+ * Theme wrapper providing Material 3 styling while maintaining compatibility with Runtime Resource
+ * Overlay (RRO).
+ *
+ * Uses the tonal palette from the previous Material Design version until dynamic color tokens are
+ * available in SDK 36.
+ */
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+internal class WearOverlayableMaterial3Theme(context: Context) {
+    val colorScheme =
+        if (Build.VERSION.SDK_INT >= 36) {
+            WearComposeMaterial3ColorScheme.dynamicColorScheme(context)
+        } else {
+            WearComposeMaterial3ColorScheme.tonalColorScheme(context)
+        }
+
+    val typography = WearComposeMaterial3Typography.dynamicTypography(context)
+
+    val shapes = WearComposeMaterial3Shapes.dynamicShapes(context)
 }
