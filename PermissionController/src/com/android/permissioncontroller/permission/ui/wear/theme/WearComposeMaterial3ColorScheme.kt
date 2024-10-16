@@ -29,11 +29,41 @@ import androidx.wear.compose.material3.ColorScheme
  */
 internal object WearComposeMaterial3ColorScheme {
 
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun tonalColorScheme(context: Context): ColorScheme {
+        val tonalPalette = dynamicTonalPalette(context)
+        return ColorScheme(
+            background = tonalPalette.neutral0,
+            onBackground = tonalPalette.neutral100,
+            onPrimary = tonalPalette.primary10,
+            onPrimaryContainer = tonalPalette.primary90,
+            onSecondary = tonalPalette.secondary10,
+            onSecondaryContainer = tonalPalette.secondary90,
+            onSurface = tonalPalette.neutral95,
+            onSurfaceVariant = tonalPalette.neutralVariant80,
+            onTertiary = tonalPalette.tertiary10,
+            onTertiaryContainer = tonalPalette.tertiary90,
+            outline = tonalPalette.neutralVariant60,
+            outlineVariant = tonalPalette.neutralVariant40,
+            primary = tonalPalette.primary90,
+            primaryContainer = tonalPalette.primary30,
+            primaryDim = tonalPalette.primary80,
+            secondary = tonalPalette.secondary90,
+            secondaryContainer = tonalPalette.secondary30,
+            secondaryDim = tonalPalette.secondary80,
+            surfaceContainer = tonalPalette.neutral20,
+            surfaceContainerHigh = tonalPalette.neutral30,
+            tertiary = tonalPalette.tertiary90,
+            tertiaryContainer = tonalPalette.tertiary30,
+            tertiaryDim = tonalPalette.tertiary80,
+        )
+    }
+
     private fun Color.updatedColor(context: Context, @ColorRes colorRes: Int): Color {
         return ResourceHelper.getColor(context, colorRes) ?: this
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @RequiresApi(36)
     fun dynamicColorScheme(context: Context): ColorScheme {
         val defaultColorScheme = ColorScheme()
         return ColorScheme(
