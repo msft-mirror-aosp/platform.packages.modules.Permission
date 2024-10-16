@@ -16,6 +16,7 @@
 
 package android.app.role.cts;
 
+import static com.android.bedstead.multiuser.MultiUserDeviceStateExtensionsKt.privateProfile;
 import static com.android.compatibility.common.util.SystemUtil.callWithShellPermissionIdentity;
 import static com.android.compatibility.common.util.SystemUtil.runShellCommand;
 import static com.android.compatibility.common.util.SystemUtil.runShellCommandOrThrow;
@@ -864,7 +865,7 @@ public class RoleManagerTest {
             return;
         }
 
-        UserHandle privateProfile = sDeviceState.privateProfile().userHandle();
+        UserHandle privateProfile = privateProfile(sDeviceState).userHandle();
         assertThat(privateProfile).isNotNull();
         installPackage(APP_APK_PATH, privateProfile);
         installPackage(APP_CLONE_APK_PATH, privateProfile);
