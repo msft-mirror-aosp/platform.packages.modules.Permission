@@ -500,7 +500,8 @@ class PermissionUsageDetailsViewModelTest {
             permissionRepository,
             appOpUsageRepository,
             roleRepository,
-            userRepository
+            userRepository,
+            false,
         )
     }
 
