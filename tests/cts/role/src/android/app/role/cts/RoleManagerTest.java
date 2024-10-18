@@ -184,6 +184,7 @@ public class RoleManagerTest {
 
     @Before
     public void setUp() throws Exception {
+        assumeTrue(RoleManagerUtil.INSTANCE.isCddCompliantScreenSize());
         saveRoleHolder();
         installApp();
         wakeUpScreen();
