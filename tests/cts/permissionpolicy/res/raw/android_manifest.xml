@@ -3915,6 +3915,20 @@
                 android:protectionLevel="signature|installer" />
     <uses-permission android:name="android.permission.MANAGE_ENHANCED_CONFIRMATION_STATES" />
 
+    <!-- Allows an application to toggle the device's advanced protection mode status.
+        @FlaggedApi("android.security.aapm_api")
+        @SystemApi
+        @hide -->
+    <permission android:name="android.permission.SET_ADVANCED_PROTECTION_MODE"
+        android:protectionLevel="signature|privileged"
+        android:featureFlag="android.security.aapm_api"/>
+
+    <!-- Allows an application to query the device's advanced protection mode status.
+        @FlaggedApi("android.security.aapm_api") -->
+    <permission android:name="android.permission.QUERY_ADVANCED_PROTECTION_MODE"
+        android:protectionLevel="normal"
+        android:featureFlag="android.security.aapm_api"/>
+
     <!-- @SystemApi @hide Allows an application to set a device owner on retail demo devices.-->
     <permission android:name="android.permission.PROVISION_DEMO_DEVICE"
                 android:protectionLevel="signature|setup|knownSigner"
