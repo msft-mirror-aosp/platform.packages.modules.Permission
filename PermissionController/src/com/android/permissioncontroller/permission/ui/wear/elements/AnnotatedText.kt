@@ -41,7 +41,7 @@ fun AnnotatedText(
     text: CharSequence,
     style: TextStyle,
     modifier: Modifier = Modifier,
-    shouldCapitalize: Boolean
+    shouldCapitalize: Boolean,
 ) {
     val onClickCallbacks = mutableMapOf<String, (View) -> Unit>()
     val context = LocalContext.current
@@ -56,7 +56,7 @@ fun AnnotatedText(
             text,
             shouldCapitalize,
             onClickCallbacks,
-            listener = listener
+            listener = listener,
         )
     BasicText(text = annotatedString, style = style, modifier = modifier)
 }
@@ -67,7 +67,7 @@ private fun spannableStringToAnnotatedString(
     shouldCapitalize: Boolean,
     onClickCallbacks: MutableMap<String, (View) -> Unit>,
     spanColor: Color = MaterialTheme.colors.primary,
-    listener: LinkInteractionListener
+    listener: LinkInteractionListener,
 ): AnnotatedString {
     val finalString = if (shouldCapitalize) text.toString().capitalize() else text.toString()
     val annotatedString =
@@ -85,14 +85,14 @@ private fun spannableStringToAnnotatedString(
                                 start,
                                 end,
                                 onClickCallbacks,
-                                listener
+                                listener,
                             )
                         else -> addStyle(SpanStyle(), start, end)
                     }
                 }
             }
         } else {
-            AnnotatedString(text.toString())
+            AnnotatedString(finalString)
         }
     return annotatedString
 }
@@ -103,14 +103,10 @@ private fun AnnotatedString.Builder.addClickableSpan(
     start: Int,
     end: Int,
     onClickCallbacks: MutableMap<String, (View) -> Unit>,
-    listener: LinkInteractionListener
+    listener: LinkInteractionListener,
 ) {
     val key = "${CLICKABLE_SPAN_TAG}:$start:$end"
     onClickCallbacks[key] = span::onClick
     addLink(LinkAnnotation.Clickable(key, linkInteractionListener = listener), start, end)
-    addStyle(
-        SpanStyle(color = spanColor, textDecoration = TextDecoration.Underline),
-        start,
-        end,
-    )
+    addStyle(SpanStyle(color = spanColor, textDecoration = TextDecoration.Underline), start, end)
 }
