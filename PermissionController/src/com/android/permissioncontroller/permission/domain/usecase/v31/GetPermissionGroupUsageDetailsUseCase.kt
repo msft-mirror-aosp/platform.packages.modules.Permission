@@ -50,6 +50,9 @@ class GetPermissionGroupUsageDetailsUseCase(
     private val appOpRepository: AppOpRepository,
     private val roleRepository: RoleRepository,
     private val userRepository: UserRepository,
+    // Allow tests to inject as on T- READ_DEVICE_CONFIG permission check is enforced.
+    private val attributionLabelFix: Boolean =
+        com.android.permission.flags.Flags.permissionTimelineAttributionLabelFix(),
 ) {
     operator fun invoke(coroutineScope: CoroutineScope): Flow<PermissionTimelineUsageModelWrapper> {
         val opNames = requireNotNull(permissionGroupToOpNames[permissionGroup])
@@ -90,7 +93,7 @@ class GetPermissionGroupUsageDetailsUseCase(
 
     // show attribution on T+ for location provider only..
     private fun shouldShowAttributionLabel(packageName: String): Boolean {
-        return if (com.android.permission.flags.Flags.permissionTimelineAttributionLabelFix()) {
+        return if (attributionLabelFix) {
             SdkLevel.isAtLeastT() &&
                 LocationUtils.isLocationProvider(PermissionControllerApplication.get(), packageName)
         } else true
