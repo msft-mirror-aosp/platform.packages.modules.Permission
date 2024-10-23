@@ -8301,6 +8301,14 @@
         android:protectionLevel="internal"
         android:featureFlag="android.content.pm.verification_service" />
 
+    <!-- Allows app to enter trade-in-mode.
+        <p>Protection level: signature|privileged
+        @hide
+    -->
+    <permission android:name="android.permission.ENTER_TRADE_IN_MODE"
+        android:protectionLevel="signature|privileged"
+        android:featureFlag="com.android.tradeinmode.flags.enable_trade_in_mode" />
+
     <!-- Attribution for Geofencing service. -->
     <attribution android:tag="GeofencingService" android:label="@string/geofencing_service"/>
     <!-- Attribution for Country Detector. -->
