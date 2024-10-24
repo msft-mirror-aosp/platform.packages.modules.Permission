@@ -144,3 +144,12 @@ flag {
     bug: "365823624"
     is_fixed_read_only: true
 }
+
+flag {
+    name: "expressive_design_enabled"
+    is_exported: true
+    namespace: "permissions"
+    description: "This flag is used to enable Expressive Design for Settings pages inside PermissionController"
+    bug: "375480184"
+    is_fixed_read_only: true
+}
