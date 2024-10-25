@@ -104,7 +104,7 @@ flag {
     name: "app_permission_fragment_uses_preferences"
     is_exported: true
     namespace: "permissions"
-    description: "This flag enables AppPermissionFragment rather than LegacyAppPermissionFragment (to support BC25)"
+    description: "This flag enables AppPermissionFragment rather than LegacyAppPermissionFragment"
     bug: "349675008"
     is_fixed_read_only: true
 }
@@ -131,7 +131,7 @@ flag {
     name: "wear_compose_material3"
     is_exported: true
     namespace: "permissions"
-    description: "This flag enables material3 design system for wear ui components (to support BC25)"
+    description: "This flag enables material3 design system for wear ui components"
     bug: "370489422"
     is_fixed_read_only: true
 }
