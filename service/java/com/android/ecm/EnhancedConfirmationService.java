@@ -228,7 +228,8 @@ public class EnhancedConfirmationService extends SystemService {
         }
 
         private void enforcePermissions(@NonNull String methodName, @UserIdInt int userId) {
-            UserUtils.enforceCrossUserPermission(userId, false, methodName, mContext);
+            UserUtils.enforceCrossUserPermission(userId, /* allowAll= */ false,
+                    /* enforceForProfileGroup= */ false, methodName, mContext);
             mContext.enforceCallingOrSelfPermission(
                     android.Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES, methodName);
         }

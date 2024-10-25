@@ -87,6 +87,10 @@ class RoleShellCommand extends BasicShellCommandHandler {
                     return runClearRoleHolders();
                 case "set-bypassing-role-qualification":
                     return runSetBypassingRoleQualification();
+                case "get-active-user-for-role":
+                    return runGetActiveUserForRole();
+                case "set-active-user-for-role":
+                    return runSetActiveUserForRole();
                 default:
                     return handleDefaultCommands(cmd);
             }
@@ -162,6 +166,27 @@ class RoleShellCommand extends BasicShellCommandHandler {
         return 0;
     }
 
+    private int runGetActiveUserForRole() throws RemoteException {
+        int userId = getUserIdMaybe();
+        String roleName = getNextArgRequired();
+
+        int activeUserId = mRoleManager.getActiveUserForRoleAsUser(roleName, userId);
+        if (activeUserId != UserHandleCompat.USER_NULL) {
+            getOutPrintWriter().println(activeUserId);
+        }
+        return 0;
+    }
+
+    private int runSetActiveUserForRole() throws RemoteException {
+        int userId = getUserIdMaybe();
+        String roleName = getNextArgRequired();
+        int activeUserId = Integer.parseInt(getNextArgRequired());
+        int flags = getFlagsMaybe();
+
+        mRoleManager.setActiveUserForRoleAsUser(roleName, activeUserId, flags, userId);
+        return 0;
+    }
+
     @Override
     public void onHelp() {
         PrintWriter pw = getOutPrintWriter();
@@ -174,6 +199,8 @@ class RoleShellCommand extends BasicShellCommandHandler {
         pw.println("  remove-role-holder [--user USER_ID] ROLE PACKAGE [FLAGS]");
         pw.println("  clear-role-holders [--user USER_ID] ROLE [FLAGS]");
         pw.println("  set-bypassing-role-qualification true|false");
+        pw.println("  get-active-user-for-role [--user USER_ID] ROLE");
+        pw.println("  set-active-user-for-role [--user USER_ID] ROLE ACTIVE_USER_ID [FLAGS]");
         pw.println();
     }
 }
