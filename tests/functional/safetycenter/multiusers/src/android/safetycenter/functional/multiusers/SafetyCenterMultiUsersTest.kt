@@ -51,6 +51,10 @@ import com.android.bedstead.multiuser.annotations.EnsureHasNoPrivateProfile
 import com.android.bedstead.enterprise.annotations.EnsureHasWorkProfile
 import com.android.bedstead.enterprise.annotations.EnsureHasDeviceOwner
 import com.android.bedstead.enterprise.annotations.EnsureHasNoDeviceOwner
+import com.android.bedstead.enterprise.workProfile
+import com.android.bedstead.multiuser.additionalUser
+import com.android.bedstead.multiuser.cloneProfile
+import com.android.bedstead.multiuser.privateProfile
 import com.android.bedstead.nene.TestApis
 import com.android.bedstead.nene.types.OptionalBoolean.TRUE
 import com.android.compatibility.common.util.DisableAnimationRule
