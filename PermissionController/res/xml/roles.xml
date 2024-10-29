@@ -1630,9 +1630,6 @@
                 name="android.permission.health.READ_HEART_RATE"
                 featureFlag="android.permission.flags.Flags.replaceBodySensorPermissionEnabled" />
             <permission
-                name="android.permission.health.READ_SKIN_TEMPERATURE"
-                featureFlag="android.permission.flags.Flags.platformSkinTemperatureEnabled" />
-            <permission
                 name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND"
                 featureFlag="android.permission.flags.Flags.replaceBodySensorPermissionEnabled"  />
         </permissions>
