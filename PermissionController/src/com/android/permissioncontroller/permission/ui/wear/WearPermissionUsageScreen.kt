@@ -17,6 +17,7 @@
 package com.android.permissioncontroller.permission.ui.wear
 
 import android.os.Build
+import android.permission.flags.Flags
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -70,7 +71,13 @@ fun WearPermissionUsageScreen(sessionId: Long, viewModel: PermissionUsageViewMod
     val permissionGroupPreferences =
         permissionGroupWithUsageCountsEntries
             // Removing Health Connect from the list of permissions to fix b/331260850
-            .filterNot { Utils.isHealthPermissionGroup(it.key) }
+            .let {
+                if (Flags.replaceBodySensorPermissionEnabled()) {
+                    it
+                } else {
+                    it.filterNot { Utils.isHealthPermissionGroup(it.key) }
+                }
+            }
             .map {
                 PermissionUsageControlPreference(
                     context,
