@@ -24,6 +24,7 @@ import android.content.pm.PackageManager
 import android.os.UserHandle
 import android.permission.flags.Flags
 import android.platform.test.annotations.RequiresFlagsEnabled
+import android.platform.test.flag.junit.DeviceFlagsValueProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.android.dx.mockito.inline.extended.ExtendedMockito
 import com.android.modules.utils.build.SdkLevel
@@ -57,7 +58,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
-import org.junit.Ignore
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -71,6 +72,7 @@ import org.mockito.quality.Strictness
 class GetPermissionGroupUsageDetailsUseCaseTest {
     @Mock private lateinit var application: PermissionControllerApplication
     @Mock private lateinit var context: Context
+    @JvmField @Rule val checkFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule()
 
     private var mockitoSession: MockitoSession? = null
     private lateinit var packageInfos: MutableMap<String, PackageInfoModel>
@@ -700,7 +702,6 @@ class GetPermissionGroupUsageDetailsUseCaseTest {
     @RequiresFlagsEnabled(
         com.android.permission.flags.Flags.FLAG_PERMISSION_TIMELINE_ATTRIBUTION_LABEL_FIX
     )
-    @Ignore("b/365004787")
     fun verifyAccessIsNotGroupedByAttributionLabelAndClustered() = runTest {
         // The package is not a location provider.
         val appOpEvents =
@@ -756,6 +757,7 @@ class GetPermissionGroupUsageDetailsUseCaseTest {
                 LOCATION_PERMISSION_GROUP,
                 discretePackageOps,
                 packageRepository = FakePackageRepository(packageInfos, packageAttributions),
+                attributionLabelFix = true,
             )
         val permissionTimelineUsages = getResult(underTest, this)
 
@@ -844,7 +846,6 @@ class GetPermissionGroupUsageDetailsUseCaseTest {
     }
 
     @Test
-    @Ignore("b/365004787")
     @RequiresFlagsEnabled(Flags.FLAG_LOCATION_BYPASS_PRIVACY_DASHBOARD_ENABLED)
     fun emergencyAccessesAreNotClusteredWithRegularAccesses() = runTest {
         Assume.assumeTrue(SdkLevel.isAtLeastV())
@@ -906,6 +907,7 @@ class GetPermissionGroupUsageDetailsUseCaseTest {
         permissionFlags: Map<String, Int> = emptyMap(),
         userRepository: UserRepository = FakeUserRepository(listOf(currentUser.identifier)),
         packageRepository: PackageRepository = FakePackageRepository(packageInfos),
+        attributionLabelFix: Boolean = false,
     ): GetPermissionGroupUsageDetailsUseCase {
         val permissionRepository = FakePermissionRepository(permissionFlags)
         val appOpUsageRepository = FakeAppOpRepository(emptyFlow(), discreteUsageFlow)
@@ -917,6 +919,7 @@ class GetPermissionGroupUsageDetailsUseCaseTest {
             appOpUsageRepository,
             roleRepository,
             userRepository,
+            attributionLabelFix,
         )
     }
 
