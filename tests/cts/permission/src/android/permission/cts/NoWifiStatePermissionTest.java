@@ -30,6 +30,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.android.compatibility.common.util.UserHelper;
+
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -214,6 +217,11 @@ public class NoWifiStatePermissionTest {
      */
     @Test(expected = SecurityException.class)
     public void testSetWifiEnabled() {
+        // Skip the test for passenger on Multi-user-multi-display devices for Automotive
+        UserHelper userHelper = new UserHelper(sContext);
+        Assume.assumeFalse(
+                "Skipped for visible background User as wifi is disabled for visible background "
+                        + "user.", userHelper.isVisibleBackgroundUser());
         mWifiManager.setWifiEnabled(true);
     }
 }
