@@ -209,8 +209,8 @@
     <string name="unused_apps_label_v2" msgid="7058776770056517980">"暂停闲置应用的活动"</string>
     <string name="unused_apps_label_v3" msgid="693340578642156657">"管理闲置应用"</string>
     <string name="unused_apps_summary" msgid="8839466950318403115">"移除权限、删除临时文件并停止发送通知"</string>
-    <string name="unused_apps_summary_v2" msgid="5011313200815115802">"撤消权限、删除临时文件、停止发送通知并归档应用"</string>
-    <string name="auto_revoke_summary" msgid="5867548789805911683">"为了保护您的数据，如果您连续几个月未使用此应用，系统会移除它的权限。"</string>
+    <string name="unused_apps_summary_v2" msgid="5011313200815115802">"移除权限、删除临时文件、停止发送通知并归档应用"</string>
+    <string name="auto_revoke_summary" msgid="5867548789805911683">"为了保护您的数据，如果您连续几个月未使用此应用，系统会移除其权限。"</string>
     <string name="auto_revoke_summary_with_permissions" msgid="389712086597285013">"为了保护您的数据，如果您连续几个月未使用此应用，系统会移除其以下权限：<xliff:g id="PERMS">%1$s</xliff:g>"</string>
     <string name="auto_revoked_apps_page_summary" msgid="6594753657893756536">"为了保护您的数据，对于您连续几个月未使用过的应用，系统已将其权限移除。"</string>
     <string name="auto_revoke_open_app_message" msgid="8075556291711205039">"如果您想重新授予权限，请打开应用。"</string>
