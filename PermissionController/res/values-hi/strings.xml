@@ -74,13 +74,13 @@
     <string name="days_ago" msgid="6650359081551335629">"{count,plural, =0{आज}=1{1 दिन पहले}one{# दिन पहले}other{# दिन पहले}}"</string>
     <string name="app_disable_dlg_positive" msgid="7418444149981904940">"ऐप्लिकेशन बंद करें"</string>
     <string name="app_disable_dlg_text" msgid="3126943217146120240">"अगर आप इस ऐप्लिकेशन को बंद कर देते हैं, तो हो सकता है कि Android और दूसरे ऐप्लिकेशन ठीक से काम न करें. ध्यान रखें कि आप इस ऐप्लिकेशन को मिटा नहीं सकते, क्योंकि यह आपके डिवाइस पर पहले से इंस्टॉल होकर आया है. इसे बंद करने पर ऐप्लिकेशन बंद हो जाएगा और आपके डिवाइस पर नहीं दिखेगा."</string>
-    <string name="app_permission_manager" msgid="3903811137630909550">"अनुमतियों को मैनेज करना"</string>
+    <string name="app_permission_manager" msgid="3903811137630909550">"अनुमतियों को मैनेज करें"</string>
     <string name="never_ask_again" msgid="4728762438198560329">"दोबारा न पूछें"</string>
     <string name="no_permissions" msgid="3881676756371148563">"किसी अनुमति की ज़रूरत नहीं है"</string>
     <string name="additional_permissions" msgid="5801285469338873430">"दूसरी अनुमतियां"</string>
     <string name="app_permissions_info_button_label" msgid="7633312050729974623">"ऐप्लिकेशन के बारे में जानकारी देखें"</string>
     <string name="additional_permissions_more" msgid="5681220714755304407">"{count,plural, =1{# और अनुमति}one{# और अनुमति}other{# और अनुमतियां}}"</string>
-    <string name="old_sdk_deny_warning" msgid="2382236998845153919">"यह ऐप्लिकेशन Android के पुराने वर्शन के लिए बनाया गया था. अगर आप अनुमति नहीं देते हैं, तो हो सकता है कि यह ठीक तरह से काम न करे."</string>
+    <string name="old_sdk_deny_warning" msgid="2382236998845153919">"इस ऐप्लिकेशन को Android के पुराने वर्शन के लिए बनाया गया था. अगर अनुमति नहीं दी जाती है, तो हो सकता है कि यह ठीक तरह से काम न करे."</string>
     <string name="storage_supergroup_warning_allow" msgid="103093462784523190">"यह ऐप्लिकेशन, Android के पुराने वर्शन के लिए बनाया गया था. यह अनुमति देने पर, ऐप्लिकेशन को आपके डिवाइस में मौजूद सभी फ़ाइलों का ऐक्सेस मिल जाएगा. इसमें फ़ोटो, वीडियो, संगीत, ऑडियो, और दूसरी फ़ाइलें शामिल हैं."</string>
     <string name="storage_supergroup_warning_deny" msgid="6420765672683284347">"यह ऐप्लिकेशन, Android के पुराने वर्शन के लिए बनाया गया था. यह अनुमति न देने पर, ऐप्लिकेशन को आपके डिवाइस में मौजूद किसी भी फ़ाइल का ऐक्सेस नहीं मिलेगा. इसमें फ़ोटो, वीडियो, संगीत, ऑडियो, और दूसरी फ़ाइलें शामिल हैं."</string>
     <string name="default_permission_description" msgid="4624464917726285203">"ऐसी कार्रवाई करें जिसकी जानकारी नहीं है"</string>
@@ -207,7 +207,7 @@
     <string name="auto_revoke_label" msgid="5068393642936571656">"ऐप्लिकेशन का इस्तेमाल न होने पर अनुमतियां हटाएं"</string>
     <string name="unused_apps_label" msgid="2595428768404901064">"अनुमतियां हटाएं और जगह खाली करें"</string>
     <string name="unused_apps_label_v2" msgid="7058776770056517980">"इस्तेमाल न होने पर ऐप गतिविधि रोकें"</string>
-    <string name="unused_apps_label_v3" msgid="693340578642156657">"इस्तेमाल नहीं हुआ ऐप्लिकेशन मैनेज करें"</string>
+    <string name="unused_apps_label_v3" msgid="693340578642156657">"इस्तेमाल नहीं हो रहा ऐप्लिकेशन मैनेज करें"</string>
     <string name="unused_apps_summary" msgid="8839466950318403115">"ऐप्लिकेशन की अनुमतियां हटाएं, डिवाइस में कुछ समय के लिए रहने वाली फ़ाइलें मिटाएं, और सूचनाएं रोकें"</string>
     <string name="unused_apps_summary_v2" msgid="5011313200815115802">"ऐप्लिकेशन की अनुमतियां हटाएं, डिवाइस में कुछ समय के लिए रहने वाली फ़ाइलें मिटाएं, सूचनाएं रोकें, और ऐप्लिकेशन संग्रहित करें"</string>
     <string name="auto_revoke_summary" msgid="5867548789805911683">"अगर इस ऐप्लिकेशन का इस्तेमाल कुछ महीनों तक नहीं किया गया, तो इसे दी गई अनुमतियां हटा दी जाएंगी. ऐसा आपके डेटा को सुरक्षित रखने के लिए किया जाएगा."</string>

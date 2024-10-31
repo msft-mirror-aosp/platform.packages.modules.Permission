@@ -41,6 +41,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.annotation.VisibleForTesting;
 
 import com.android.modules.utils.build.SdkLevel;
 import com.android.role.controller.util.CollectionUtils;
@@ -424,7 +425,8 @@ public class Role {
      *
      * @return whether this role is available based on SDK version
      */
-    boolean isAvailableByFeatureFlagAndSdkVersion() {
+    @VisibleForTesting
+    public boolean isAvailableByFeatureFlagAndSdkVersion() {
         if (mFeatureFlag != null && !mFeatureFlag.get()) {
             return false;
         }
