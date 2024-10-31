@@ -230,6 +230,11 @@ class HibernationPolicyTest {
     }
 
     @Test
+    @Ignore("b/371061181")
+    // This method under test initializes several SmartAsyncMediatorLiveData classes which run code
+    // on GlobalScope which the unit test has no control over. This can lead to the code running
+    // during other tests which may not have the right static mocks.
+    // Until this is fixed, this test should be ignored to prevent flaky test faliures.
     fun isPackageExemptBySystem_isCallingApp_returnsTrue() = runBlocking<Unit> {
         val pkgInfo = makePackageInfo(TEST_PKG_NAME)
 
