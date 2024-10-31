@@ -22,6 +22,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
+import com.android.permission.flags.Flags
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_ALWAYS_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_BUTTON
@@ -37,17 +38,19 @@ import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.N
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.NO_UPGRADE_OT_AND_DONT_ASK_AGAIN_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.NO_UPGRADE_OT_BUTTON
 import com.android.permissioncontroller.permission.ui.wear.GrantPermissionsWearViewHandler.BUTTON_RES_ID_TO_NUM
-import com.android.permissioncontroller.permission.ui.wear.elements.Chip
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChip
 import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChipToggleControl
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControl
 import com.android.permissioncontroller.permission.ui.wear.model.WearGrantPermissionsViewModel
+import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
+import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL3
 
 @Composable
 fun WearGrantPermissionsScreen(
     viewModel: WearGrantPermissionsViewModel,
     onButtonClicked: (Int) -> Unit,
-    onLocationSwitchChanged: (Boolean) -> Unit
+    onLocationSwitchChanged: (Boolean) -> Unit,
 ) {
     val groupMessage = viewModel.groupMessageLiveData.observeAsState("")
     val icon = viewModel.iconLiveData.observeAsState(null)
@@ -55,8 +58,16 @@ fun WearGrantPermissionsScreen(
     val locationVisibilities = viewModel.locationVisibilitiesLiveData.observeAsState(emptyList())
     val preciseLocationChecked = viewModel.preciseLocationCheckedLiveData.observeAsState(false)
     val buttonVisibilities = viewModel.buttonVisibilitiesLiveData.observeAsState(emptyList())
+    val useMaterial3Controls = Flags.wearComposeMaterial3()
+    val materialUIVersion =
+        if (useMaterial3Controls) {
+            MATERIAL3
+        } else {
+            MATERIAL2_5
+        }
 
     ScrollableScreen(
+        materialUIVersion = materialUIVersion,
         showTimeText = false,
         image = icon.value,
         title = groupMessage.value,
@@ -69,13 +80,14 @@ fun WearGrantPermissionsScreen(
                 locationVisibilities.value.getOrElse(DIALOG_WITH_BOTH_LOCATIONS) { false }
         ) {
             item {
-                ToggleChip(
+                WearPermissionToggleControl(
                     checked = preciseLocationChecked.value,
-                    onCheckedChanged = { onLocationSwitchChanged(it) },
+                    onCheckedChanged = onLocationSwitchChanged,
                     label = stringResource(R.string.app_permission_location_accuracy),
                     toggleControl = ToggleChipToggleControl.Switch,
                     modifier = Modifier.fillMaxWidth(),
-                    labelMaxLine = Integer.MAX_VALUE
+                    labelMaxLines = Integer.MAX_VALUE,
+                    materialUIVersion = materialUIVersion,
                 )
             }
         }
@@ -87,16 +99,17 @@ fun WearGrantPermissionsScreen(
             }
             if (buttonVisibilities.value[pos]) {
                 item {
-                    Chip(
+                    WearPermissionButton(
                         label =
                             getPrimaryText(
-                                pos,
-                                locationVisibilities.value,
-                                labelsByButton(BUTTON_RES_ID_TO_NUM.valueAt(i))
+                                pos = pos,
+                                locationVisibilities = locationVisibilities.value,
+                                default = labelsByButton(BUTTON_RES_ID_TO_NUM.valueAt(i)),
                             ),
                         onClick = { onButtonClicked(BUTTON_RES_ID_TO_NUM.keyAt(i)) },
                         modifier = Modifier.fillMaxWidth(),
-                        labelMaxLines = Integer.MAX_VALUE
+                        labelMaxLines = Integer.MAX_VALUE,
+                        materialUIVersion = materialUIVersion,
                     )
                 }
             }
@@ -108,7 +121,7 @@ fun setContent(
     composeView: ComposeView,
     viewModel: WearGrantPermissionsViewModel,
     onButtonClicked: (Int) -> Unit,
-    onLocationSwitchChanged: (Boolean) -> Unit
+    onLocationSwitchChanged: (Boolean) -> Unit,
 ) {
     composeView.setContent {
         WearGrantPermissionsScreen(viewModel, onButtonClicked, onLocationSwitchChanged)
