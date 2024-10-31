@@ -42,8 +42,8 @@ android_test {
     ],
 
     libs: [
-        "android.test.base",
-        "android.test.runner",
+        "android.test.base.stubs.system",
+        "android.test.runner.stubs.system",
         "safety-center-annotations",
     ],
 
@@ -86,7 +86,4 @@ android_test {
     ],
 
     kotlincflags: ["-Xjvm-default=all"],
-
-    // TODO(b/313706381): Remove jarjar once flagging lib is fixed
-    jarjar_rules: ":PermissionController-jarjar-rules",
 }

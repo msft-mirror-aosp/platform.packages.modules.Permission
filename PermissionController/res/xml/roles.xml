@@ -625,7 +625,6 @@
         visible="false">
         <permissions>
             <!-- Used for CTS testing -->
-            <permission name="android.permission.CREATE_VIRTUAL_DEVICE" minSdkVersion="33" />
             <permission name="android.permission.ACCESS_RCS_USER_CAPABILITY_EXCHANGE" />
             <permission name="android.permission.ACCESS_AMBIENT_CONTEXT_EVENT" minSdkVersion="33"/>
             <permission name="android.permission.PERFORM_IMS_SINGLE_REGISTRATION" />
@@ -642,8 +641,6 @@
                 minSdkVersion="33" />
             <permission name="android.permission.MANAGE_SAFETY_CENTER"
                 minSdkVersion="33" />
-            <permission name="android.permission.ADD_TRUSTED_DISPLAY" minSdkVersion="33" />
-            <permission name="android.permission.ADD_ALWAYS_UNLOCKED_DISPLAY" minSdkVersion="33" />
             <permission name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE"
                 minSdkVersion="33" />
             <permission name="android.permission.MANAGE_DEVICE_POLICY_ACCOUNT_MANAGEMENT"
@@ -706,6 +703,10 @@
                 minSdkVersion="35" />
             <permission name="android.permission.MANAGE_DEVICE_POLICY_AUDIT_LOGGING"
                 minSdkVersion="35" />
+            <permission name="android.permission.EXECUTE_APP_FUNCTIONS"
+                featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
+            <permission name="android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED"
+                featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
         </permissions>
     </role>
 
@@ -869,6 +870,8 @@
             <permission name="android.permission.READ_SMS" minSdkVersion="33" />
             <permission name="android.permission.READ_PEOPLE_DATA" />
             <permission name="android.permission.READ_GLOBAL_APP_SEARCH_DATA" />
+            <permission name="android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED"
+                featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
         </permissions>
     </role>
 
@@ -1623,6 +1626,12 @@
             <permission-set name="location" />
             <permission name="android.permission.ACCESS_BACKGROUND_LOCATION" />
             <permission name="android.permission.ACTIVITY_RECOGNITION" />
+            <permission
+                name="android.permission.health.READ_HEART_RATE"
+                featureFlag="android.permission.flags.Flags.replaceBodySensorPermissionEnabled" />
+            <permission
+                name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND"
+                featureFlag="android.permission.flags.Flags.replaceBodySensorPermissionEnabled"  />
         </permissions>
     </role>
 
