@@ -580,7 +580,7 @@
     <string name="security_settings" msgid="3808106921175271317">"إعدادات الأمان"</string>
     <string name="sensor_permissions_qs" msgid="1022267900031317472">"الأذونات"</string>
     <string name="safety_privacy_qs_tile_title" msgid="727301867710374052">"الأمان والخصوصية"</string>
-    <string name="safety_privacy_qs_tile_subtitle" msgid="3621544532041936749">"فحص الحالة"</string>
+    <string name="safety_privacy_qs_tile_subtitle" msgid="3621544532041936749">"التحقّق من الحالة"</string>
     <string name="privacy_controls_qs" msgid="5780144882040591169">"عناصر التحكّم في خصوصيتك"</string>
     <string name="security_settings_button_label_qs" msgid="8280343822465962330">"إعدادات إضافية"</string>
     <string name="camera_toggle_label_qs" msgid="3880261453066157285">"الوصول إلى الكاميرا"</string>
