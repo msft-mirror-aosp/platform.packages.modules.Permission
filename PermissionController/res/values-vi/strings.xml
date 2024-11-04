@@ -545,7 +545,7 @@
     <string name="not_used_permissions_description" msgid="7595514824169388718">"Quyền mà chỉ có ứng dụng hệ thống sử dụng."</string>
     <string name="additional_permissions_label" msgid="7693557637462569046">"Quyền bổ sung"</string>
     <string name="additional_permissions_description" msgid="2186611950890732112">"Quyền do ứng dụng xác định."</string>
-    <string name="privdash_label_camera" msgid="1426440033626198096">"Máy ảnh"</string>
+    <string name="privdash_label_camera" msgid="1426440033626198096">"Camera"</string>
     <string name="privdash_label_microphone" msgid="8415035835803511693">"Micrô"</string>
     <string name="privdash_label_location" msgid="6882400763866489291">"Vị trí"</string>
     <string name="privdash_label_other" msgid="3710394147423236033">"Khác"</string>

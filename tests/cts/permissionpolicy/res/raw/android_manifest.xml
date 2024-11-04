@@ -3915,6 +3915,20 @@
                 android:protectionLevel="signature|installer" />
     <uses-permission android:name="android.permission.MANAGE_ENHANCED_CONFIRMATION_STATES" />
 
+    <!-- Allows an application to toggle the device's advanced protection mode status.
+        @FlaggedApi("android.security.aapm_api")
+        @SystemApi
+        @hide -->
+    <permission android:name="android.permission.SET_ADVANCED_PROTECTION_MODE"
+        android:protectionLevel="signature|privileged"
+        android:featureFlag="android.security.aapm_api"/>
+
+    <!-- Allows an application to query the device's advanced protection mode status.
+        @FlaggedApi("android.security.aapm_api") -->
+    <permission android:name="android.permission.QUERY_ADVANCED_PROTECTION_MODE"
+        android:protectionLevel="normal"
+        android:featureFlag="android.security.aapm_api"/>
+
     <!-- @SystemApi @hide Allows an application to set a device owner on retail demo devices.-->
     <permission android:name="android.permission.PROVISION_DEMO_DEVICE"
                 android:protectionLevel="signature|setup|knownSigner"
@@ -8263,6 +8277,71 @@
     -->
     <permission android:name="android.permission.RESERVED_FOR_TESTING_SIGNATURE"
                 android:protectionLevel="signature"/>
+
+    <!-- @SystemApi
+        @FlaggedApi("android.content.pm.verification_service")
+        Allows app to be the verification agent to verify packages.
+        <p>Protection level: signature|privileged
+        @hide
+    -->
+    <permission android:name="android.permission.VERIFICATION_AGENT"
+        android:protectionLevel="signature|privileged"
+        android:featureFlag="android.content.pm.verification_service"/>
+
+    <!-- @SystemApi
+        @FlaggedApi("android.content.pm.verification_service")
+        Must be required by a privileged {@link android.content.pm.verify.pkg.VerifierService}
+        to ensure that only the system can bind to it.
+        This permission should not be held by anything other than the system.
+        <p>Not for use by third-party applications. </p>
+        <p>Protection level: signature
+        @hide
+    -->
+    <permission android:name="android.permission.BIND_VERIFICATION_AGENT"
+        android:protectionLevel="internal"
+        android:featureFlag="android.content.pm.verification_service" />
+
+    <!--
+        @SystemApi
+        @FlaggedApi("android.media.tv.flags.media_quality_fw")
+        Allows an application to access its picture profile from the media quality database.
+        <p> Protection level: signature|privileged|vendor privileged
+        @hide
+    -->
+    <permission android:name="android.permission.MANAGE_GLOBAL_PICTURE_QUALITY_SERVICE"
+                android:protectionLevel="signature|privileged|vendorPrivileged"
+                android:featureFlag="android.media.tv.flags.media_quality_fw"/>
+
+    <!--
+        @SystemApi
+        @FlaggedApi("android.media.tv.flags.media_quality_fw")
+        Allows an application to access its sound profile from the media quality database.
+        <p> Protection level: signature|privileged|vendor privileged
+        @hide
+    -->
+    <permission android:name="android.permission.MANAGE_GLOBAL_SOUND_QUALITY_SERVICE"
+                android:protectionLevel="signature|privileged|vendorPrivileged"
+                android:featureFlag="android.media.tv.flags.media_quality_fw"/>
+
+    <!-- Allows app to enter trade-in-mode.
+        <p>Protection level: signature|privileged
+        @hide
+    -->
+    <permission android:name="android.permission.ENTER_TRADE_IN_MODE"
+        android:protectionLevel="signature|privileged"
+        android:featureFlag="com.android.tradeinmode.flags.enable_trade_in_mode" />
+
+    <!-- @SystemApi
+        @FlaggedApi("android.media.tv.flags.kids_mode_tvdb_sharing")
+        This permission is required when accessing information related to
+        singleUser-ed TIS session.
+        <p>This should only be used by OEM.
+        <p>Protection level: signature|privileged|vendorPrivileged
+        @hide
+    -->
+    <permission android:name="android.permission.SINGLE_USER_TIS_ACCESS"
+        android:protectionLevel="signature|privileged|vendorPrivileged"
+        android:featureFlag="android.media.tv.flags.kids_mode_tvdb_sharing"/>
 
     <!-- Attribution for Geofencing service. -->
     <attribution android:tag="GeofencingService" android:label="@string/geofencing_service"/>

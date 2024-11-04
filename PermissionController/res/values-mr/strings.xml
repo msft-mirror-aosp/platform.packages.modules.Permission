@@ -87,7 +87,7 @@
     <string name="app_permissions_group_summary" msgid="8788419008958284002">"<xliff:g id="COUNT_1">%2$d</xliff:g> पैकी <xliff:g id="COUNT_0">%1$d</xliff:g> अ‍ॅप्सना परवानगी दिली"</string>
     <string name="app_permissions_group_summary2" msgid="4329922444840521150">"<xliff:g id="COUNT_0">%1$d</xliff:g>/<xliff:g id="COUNT_1">%2$d</xliff:g> अ‍ॅप्सना अनुमती आहे"</string>
     <string name="menu_show_system" msgid="4254021607027872504">"सिस्टीम दाखवा"</string>
-    <string name="menu_hide_system" msgid="3855390843744028465">"सिस्टम लपवा"</string>
+    <string name="menu_hide_system" msgid="3855390843744028465">"सिस्टीम लपवा"</string>
     <string name="menu_show_7_days_data" msgid="8979611198508523706">"सात दिवस दाखवा"</string>
     <string name="menu_show_24_hours_data" msgid="8228054833323380780">"२४ तास दाखवा"</string>
     <string name="manage_permission" msgid="2895385393037061964">"परवानगी व्यवस्थापित करा"</string>
@@ -209,7 +209,7 @@
     <string name="unused_apps_label_v2" msgid="7058776770056517980">"न वापरल्यास अ‍ॅप अ‍ॅक्टिव्हिटी थांबवा"</string>
     <string name="unused_apps_label_v3" msgid="693340578642156657">"वापरले नसल्यास ॲप व्यवस्थापित करा"</string>
     <string name="unused_apps_summary" msgid="8839466950318403115">"परवानग्या काढून टाका, तात्पुरत्या फाइल हटवा आणि सूचना थांबवा"</string>
-    <string name="unused_apps_summary_v2" msgid="5011313200815115802">"परवानग्या काढून टाका, तात्पुरत्या फाइल हटवा, सूचना थांबवा आणि ॲप संग्रहित करा"</string>
+    <string name="unused_apps_summary_v2" msgid="5011313200815115802">"परवानग्या काढून टाका, तात्पुरत्या फाइल हटवा, नोटिफिकेशन थांबवा आणि ॲप संग्रहित करा"</string>
     <string name="auto_revoke_summary" msgid="5867548789805911683">"तुमच्या डेटाचे संरक्षण करण्यासाठी, अ‍ॅप काही महिन्यांत वापरले गेले नसल्यास, या अ‍ॅपच्या परवानग्या काढल्या जातील."</string>
     <string name="auto_revoke_summary_with_permissions" msgid="389712086597285013">"तुमच्या डेटाचे संरक्षण करण्यासाठी, अ‍ॅप काही महिन्यांत वापरले गेले नसल्यास, पुढील परवानग्या काढल्या जातील: <xliff:g id="PERMS">%1$s</xliff:g>"</string>
     <string name="auto_revoked_apps_page_summary" msgid="6594753657893756536">"तुमच्या डेटाचे संरक्षण करण्यासाठी, तुम्ही काही महिन्यांत न वापरलेल्या ॲप्समधून परवानग्या काढल्या गेल्या आहेत."</string>
