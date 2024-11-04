@@ -10,6 +10,10 @@ rule android.companion.virtualdevice.flags.*FeatureFlags* com.android.permission
 rule android.companion.virtualdevice.flags.FeatureFlags* com.android.permission.jarjar.@0
 rule android.companion.virtualdevice.flags.FeatureFlags com.android.permission.jarjar.@0
 rule android.companion.virtualdevice.flags.Flags com.android.permission.jarjar.@0
+rule android.content.pm.*FeatureFlags* com.android.permission.jarjar.@0
+rule android.content.pm.FeatureFlags* com.android.permission.jarjar.@0
+rule android.content.pm.FeatureFlags com.android.permission.jarjar.@0
+rule android.content.pm.Flags com.android.permission.jarjar.@0
 rule android.os.*FeatureFlags* com.android.permission.jarjar.@0
 rule android.os.FeatureFlags* com.android.permission.jarjar.@0
 rule android.os.FeatureFlags com.android.permission.jarjar.@0
