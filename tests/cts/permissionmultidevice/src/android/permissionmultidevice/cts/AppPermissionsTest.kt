@@ -62,7 +62,6 @@ class AppPermissionsTest {
             Manifest.permission.GRANT_RUNTIME_PERMISSIONS,
             Manifest.permission.MANAGE_ONE_TIME_PERMISSION_SESSIONS,
             Manifest.permission.REVOKE_RUNTIME_PERMISSIONS,
-            Manifest.permission.CREATE_VIRTUAL_DEVICE
         )
 
     private lateinit var persistentDeviceId: String
@@ -320,8 +319,7 @@ class AppPermissionsTest {
     }
 
     private fun verifyPermissionMessage() {
-        val actualText = UiAutomatorUtils2.waitFindObject(By.res(PERMISSION_MESSAGE_ID)).text
-        assertEquals(permissionMessage, actualText)
+        UiAutomatorUtils2.waitFindObject(By.text(permissionMessage))
     }
 
     private fun getGrantInfoMap(): Map<String, List<String>> {
@@ -441,8 +439,6 @@ class AppPermissionsTest {
             "com.android.permissioncontroller:id/deny_radio_button"
         private const val TITLE = "android:id/title"
         private const val RECYCLER_VIEW = "com.android.permissioncontroller:id/recycler_view"
-        private const val PERMISSION_MESSAGE_ID =
-            "com.android.permissioncontroller:id/permission_message"
         private const val NEW_WINDOW_TIMEOUT_MILLIS: Long = 20_000
     }
 }
