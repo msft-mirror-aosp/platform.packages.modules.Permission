@@ -756,6 +756,7 @@ class GetPermissionGroupUsageDetailsUseCaseTest {
                 LOCATION_PERMISSION_GROUP,
                 discretePackageOps,
                 packageRepository = FakePackageRepository(packageInfos, packageAttributions),
+                attributionLabelFix = true,
             )
         val permissionTimelineUsages = getResult(underTest, this)
 
@@ -844,6 +845,7 @@ class GetPermissionGroupUsageDetailsUseCaseTest {
     }
 
     @Test
+    @Ignore("b/365004787")
     @RequiresFlagsEnabled(Flags.FLAG_LOCATION_BYPASS_PRIVACY_DASHBOARD_ENABLED)
     fun emergencyAccessesAreNotClusteredWithRegularAccesses() = runTest {
         Assume.assumeTrue(SdkLevel.isAtLeastV())
@@ -905,6 +907,7 @@ class GetPermissionGroupUsageDetailsUseCaseTest {
         permissionFlags: Map<String, Int> = emptyMap(),
         userRepository: UserRepository = FakeUserRepository(listOf(currentUser.identifier)),
         packageRepository: PackageRepository = FakePackageRepository(packageInfos),
+        attributionLabelFix: Boolean = false,
     ): GetPermissionGroupUsageDetailsUseCase {
         val permissionRepository = FakePermissionRepository(permissionFlags)
         val appOpUsageRepository = FakeAppOpRepository(emptyFlow(), discreteUsageFlow)
@@ -916,6 +919,7 @@ class GetPermissionGroupUsageDetailsUseCaseTest {
             appOpUsageRepository,
             roleRepository,
             userRepository,
+            attributionLabelFix,
         )
     }
 

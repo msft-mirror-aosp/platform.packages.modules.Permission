@@ -369,7 +369,7 @@
     <string name="role_dialer_search_keywords" msgid="3324448983559188087">"撥號器"</string>
     <string name="role_sms_label" msgid="8456999857547686640">"預設短訊應用程式"</string>
     <string name="role_sms_short_label" msgid="4371444488034692243">"短訊應用程式"</string>
-    <string name="role_sms_description" msgid="3424020199148153513">"此類應用程式允許你使用自己手機號碼傳送和接收短訊、相片、影片和其他資料"</string>
+    <string name="role_sms_description" msgid="3424020199148153513">"此類應用程式允許你使用自己的手機號碼傳送和接收短訊、相片、影片和其他資料"</string>
     <string name="role_sms_request_title" msgid="7953552109601185602">"要將「<xliff:g id="APP_NAME">%1$s</xliff:g>」設為預設短訊應用程式嗎？"</string>
     <string name="role_sms_request_description" msgid="2691004766132144886">"此應用程式將可存取你的相機、通訊錄、檔案和媒體、麥克風、電話及短訊"</string>
     <string name="role_sms_search_keywords" msgid="8022048144395047352">"短訊, 發短訊, 訊息, 傳送短訊"</string>

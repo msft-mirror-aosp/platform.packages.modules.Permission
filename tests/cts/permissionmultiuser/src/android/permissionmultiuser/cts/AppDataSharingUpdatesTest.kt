@@ -58,6 +58,7 @@ import com.android.bedstead.harrier.annotations.EnsureSecureSettingSet
 import com.android.bedstead.harrier.annotations.RequireDoesNotHaveFeature
 import com.android.bedstead.harrier.annotations.RequireNotWatch
 import com.android.bedstead.harrier.annotations.RequireSdkVersion
+import com.android.bedstead.multiuser.additionalUser
 import com.android.bedstead.multiuser.annotations.RequireRunOnAdditionalUser
 import com.android.bedstead.permissions.CommonPermissions.INTERACT_ACROSS_USERS
 import com.android.compatibility.common.util.ApiTest
