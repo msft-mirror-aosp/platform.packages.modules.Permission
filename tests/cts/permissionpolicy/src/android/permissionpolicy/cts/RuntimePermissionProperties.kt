@@ -33,6 +33,7 @@ import android.Manifest.permission.NEARBY_WIFI_DEVICES
 import android.Manifest.permission.PACKAGE_USAGE_STATS
 import android.Manifest.permission.POST_NOTIFICATIONS
 import android.Manifest.permission.PROCESS_OUTGOING_CALLS
+import android.Manifest.permission.RANGING
 import android.Manifest.permission.READ_CALENDAR
 import android.Manifest.permission.READ_CALL_LOG
 import android.Manifest.permission.READ_CELL_BROADCASTS
@@ -59,6 +60,7 @@ import android.content.pm.PackageManager.GET_PERMISSIONS
 import android.content.pm.PermissionInfo.PROTECTION_DANGEROUS
 import android.content.pm.PermissionInfo.PROTECTION_FLAG_APPOP
 import android.os.Build
+import android.permission.flags.Flags
 import android.permission.PermissionManager
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
@@ -186,6 +188,12 @@ class RuntimePermissionProperties {
         // Add runtime permissions added in U which were _not_ split from a previously existing
         // runtime permission
         expectedPerms.add(READ_MEDIA_VISUAL_USER_SELECTED)
+
+        // Add runtime permissions added in B which were _not_ split from a previously existing
+        // runtime permission
+        if (Flags.rangingPermissionEnabled()) {
+            expectedPerms.add(RANGING)
+        }
 
         assertThat(expectedPerms).containsExactlyElementsIn(platformRuntimePerms.map { it.name })
     }
