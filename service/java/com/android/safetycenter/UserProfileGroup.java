@@ -134,9 +134,9 @@ public final class UserProfileGroup {
      * is disabled.
      */
     public static UserProfileGroup fromUser(Context context, @UserIdInt int userId) {
-        UserManager userManager = getUserManagerForUser(userId, context);
-        List<UserHandle> userProfiles = getEnabledUserProfiles(userManager);
-        UserHandle profileParent = getProfileParent(userManager, userId);
+        Context userContext = UserUtils.getUserContext(userId, context);
+        List<UserHandle> userProfiles = UserUtils.getUserProfiles(userContext);
+        UserHandle profileParent = UserUtils.getProfileParent(userId, userContext);
         int profileParentUserId = userId;
         if (profileParent != null) {
             profileParentUserId = profileParent.getIdentifier();
@@ -192,21 +192,8 @@ public final class UserProfileGroup {
     }
 
     private static UserManager getUserManagerForUser(@UserIdInt int userId, Context context) {
-        Context userContext = getUserContext(context, UserHandle.of(userId));
+        Context userContext = UserUtils.getUserContext(userId, context);
         return requireNonNull(userContext.getSystemService(UserManager.class));
-    }
-
-    private static Context getUserContext(Context context, UserHandle userHandle) {
-        if (Process.myUserHandle().equals(userHandle)) {
-            return context;
-        } else {
-            try {
-                return context.createPackageContextAsUser(
-                        context.getPackageName(), /* flags= */ 0, userHandle);
-            } catch (PackageManager.NameNotFoundException doesNotHappen) {
-                throw new IllegalStateException(doesNotHappen);
-            }
-        }
     }
 
     private static boolean isProfile(@UserIdInt int userId, Context context) {
@@ -215,27 +202,6 @@ public final class UserProfileGroup {
         try {
             UserManager userManager = getUserManagerForUser(userId, context);
             return userManager.isProfile();
-        } finally {
-            Binder.restoreCallingIdentity(callingId);
-        }
-    }
-
-    private static List<UserHandle> getEnabledUserProfiles(UserManager userManager) {
-        // This call requires the QUERY_USERS permission.
-        final long callingId = Binder.clearCallingIdentity();
-        try {
-            return userManager.getUserProfiles();
-        } finally {
-            Binder.restoreCallingIdentity(callingId);
-        }
-    }
-
-    @Nullable
-    private static UserHandle getProfileParent(UserManager userManager, @UserIdInt int userId) {
-        // This call requires the INTERACT_ACROSS_USERS permission.
-        final long callingId = Binder.clearCallingIdentity();
-        try {
-            return userManager.getProfileParent(UserHandle.of(userId));
         } finally {
             Binder.restoreCallingIdentity(callingId);
         }
