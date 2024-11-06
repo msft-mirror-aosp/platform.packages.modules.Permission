@@ -181,13 +181,18 @@ object PermissionMapping {
                 Manifest.permission_group.CAMERA
         }
 
-        PLATFORM_PERMISSIONS[Manifest.permission.BODY_SENSORS] = Manifest.permission_group.SENSORS
-
         if (SdkLevel.isAtLeastT()) {
             PLATFORM_PERMISSIONS[Manifest.permission.POST_NOTIFICATIONS] =
                 Manifest.permission_group.NOTIFICATIONS
-            PLATFORM_PERMISSIONS[Manifest.permission.BODY_SENSORS_BACKGROUND] =
+        }
+
+        if (!Flags.replaceBodySensorPermissionEnabled()) {
+            PLATFORM_PERMISSIONS[Manifest.permission.BODY_SENSORS] =
                 Manifest.permission_group.SENSORS
+            if (SdkLevel.isAtLeastT()) {
+                PLATFORM_PERMISSIONS[Manifest.permission.BODY_SENSORS_BACKGROUND] =
+                    Manifest.permission_group.SENSORS
+            }
         }
 
         for ((permission, permissionGroup) in PLATFORM_PERMISSIONS) {
@@ -343,7 +348,7 @@ object PermissionMapping {
 
         val appSupportsPickerPrompt =
             group.permissions[Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED]?.isImplicit ==
-                false
+              false
 
         return if (appSupportsPickerPrompt) {
             PARTIAL_MEDIA_PERMISSIONS

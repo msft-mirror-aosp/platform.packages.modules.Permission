@@ -547,8 +547,14 @@ public final class Utils {
         if (group.equals(Manifest.permission_group.UNDEFINED)) {
             List<PermissionInfo> undefinedPerms = new ArrayList<>();
             for (PermissionInfo permissionInfo : installedRuntime) {
+                if (Flags.replaceBodySensorPermissionEnabled()
+                    && (permissionInfo.name.equals(Manifest.permission.BODY_SENSORS) ||
+                    permissionInfo.name.equals(Manifest.permission.BODY_SENSORS_BACKGROUND))) {
+                    continue;
+                }
+
                 String permGroup =
-                        PermissionMapping.getGroupOfPlatformPermission(permissionInfo.name);
+                    PermissionMapping.getGroupOfPlatformPermission(permissionInfo.name);
                 if (permGroup == null || permGroup.equals(Manifest.permission_group.UNDEFINED)) {
                     undefinedPerms.add(permissionInfo);
                 }
