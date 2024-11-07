@@ -195,7 +195,7 @@
     <string name="app_permission_button_allow_limited_access" msgid="8824410215149764113">"Дозволити обмежений доступ"</string>
     <string name="precise_image_description" msgid="6349638632303619872">"Точне місцезнаходження"</string>
     <string name="approximate_image_description" msgid="938803699637069884">"Приблизне місцезнаходження"</string>
-    <string name="app_permission_location_accuracy" msgid="7166912915040018669">"Використовувати точне місцезнаходження"</string>
+    <string name="app_permission_location_accuracy" msgid="7166912915040018669">"Точне місцезнаходження"</string>
     <string name="app_permission_location_accuracy_subtitle" msgid="2654077606404987210">"Якщо вимкнено доступ до точного місцезнаходження, додатки можуть отримувати дані про приблизне"</string>
     <string name="app_permission_title" msgid="2090897901051370711">"Дозвіл \"<xliff:g id="PERM">%1$s</xliff:g>\""</string>
     <string name="app_permission_header" msgid="2951363137032603806">"<xliff:g id="PERM">%1$s</xliff:g>: доступ для цього додатка"</string>
