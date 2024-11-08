@@ -78,6 +78,7 @@
 
             <item type="bool" name="config_usePreferenceForAppPermissionSettings" />
             <item type="bool" name="config_permissionFooterPreferenceIconVisible" />
+            <item type="bool" name="config_appPermissionFooterLinkPreferenceSummaryUnderlined" />
             <item type="dimen" name="permission_preference_app_icon_size" />
             <item type="dimen" name="permission_preference_permission_group_icon_size" />
 
