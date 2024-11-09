@@ -38,6 +38,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -49,6 +50,8 @@ import com.android.role.controller.util.PackageUtils;
 import com.android.role.controller.util.RoleManagerCompat;
 import com.android.role.controller.util.UserUtils;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -83,6 +86,27 @@ public class Role {
 
     private static final String CERTIFICATE_SEPARATOR = ":";
 
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+            EXCLUSIVITY_NONE,
+            EXCLUSIVITY_USER,
+            EXCLUSIVITY_PROFILE_GROUP
+    })
+    public @interface Exclusivity {}
+
+    /**
+     * Does not enforce any exclusivity, which means multiple apps may hold this role in a user.
+     */
+    public static final int EXCLUSIVITY_NONE = 0;
+
+    /** Enforces exclusivity within one user. */
+    public static final int EXCLUSIVITY_USER = 1;
+
+    /**
+     * Enforces exclusivity across all users (including profile users) in the same profile group.
+     */
+    public static final int EXCLUSIVITY_PROFILE_GROUP = 2;
+
     /**
      * The name of this role. Must be unique.
      */
@@ -110,9 +134,10 @@ public class Role {
     private final int mDescriptionResource;
 
     /**
-     * Whether this role is exclusive, i.e. allows at most one holder.
+     * The exclusivity of this role, i.e. whether this role allows multiple holders, or allows at
+     * most one holder within a user or a profile group.
      */
-    private final boolean mExclusive;
+    private final int mExclusivity;
 
     /**
      * Whether this role should fall back to the default holder.
@@ -186,8 +211,8 @@ public class Role {
 
     /**
      * Whether the UI for this role will show the "None" item. Only valid if this role is
-     * {@link #mExclusive exclusive}, and {@link #getFallbackHolder(Context)} should also return
-     * empty to allow actually selecting "None".
+     * {@link #isExclusive()}, and {@link #getFallbackHolder(Context)} should
+     * also return empty to allow actually selecting "None".
      */
     private final boolean mShowNone;
 
@@ -241,14 +266,14 @@ public class Role {
 
     public Role(@NonNull String name, boolean allowBypassingQualification,
             @Nullable RoleBehavior behavior, @Nullable String defaultHoldersResourceName,
-            @StringRes int descriptionResource, boolean exclusive, boolean fallBackToDefaultHolder,
-            @Nullable Supplier<Boolean> featureFlag, @StringRes int labelResource,
-            int maxSdkVersion, int minSdkVersion, boolean onlyGrantWhenAdded,
-            boolean overrideUserWhenGranting, @StringRes int requestDescriptionResource,
-            @StringRes int requestTitleResource, boolean requestable,
-            @StringRes int searchKeywordsResource, @StringRes int shortLabelResource,
-            boolean showNone, boolean statik, boolean systemOnly, boolean visible,
-            @NonNull List<RequiredComponent> requiredComponents,
+            @StringRes int descriptionResource, @Exclusivity int exclusivity,
+            boolean fallBackToDefaultHolder, @Nullable Supplier<Boolean> featureFlag,
+            @StringRes int labelResource, int maxSdkVersion, int minSdkVersion,
+            boolean onlyGrantWhenAdded, boolean overrideUserWhenGranting,
+            @StringRes int requestDescriptionResource, @StringRes int requestTitleResource,
+            boolean requestable, @StringRes int searchKeywordsResource,
+            @StringRes int shortLabelResource, boolean showNone, boolean statik, boolean systemOnly,
+            boolean visible, @NonNull List<RequiredComponent> requiredComponents,
             @NonNull List<Permission> permissions, @NonNull List<Permission> appOpPermissions,
             @NonNull List<AppOp> appOps, @NonNull List<PreferredActivity> preferredActivities,
             @Nullable String uiBehaviorName) {
@@ -257,7 +282,7 @@ public class Role {
         mBehavior = behavior;
         mDefaultHoldersResourceName = defaultHoldersResourceName;
         mDescriptionResource = descriptionResource;
-        mExclusive = exclusive;
+        mExclusivity = exclusivity;
         mFallBackToDefaultHolder = fallBackToDefaultHolder;
         mFeatureFlag = featureFlag;
         mLabelResource = labelResource;
@@ -298,7 +323,13 @@ public class Role {
     }
 
     public boolean isExclusive() {
-        return mExclusive;
+        // TODO(b/373390494): Allow RoleBehavior to override this getExclusivity
+        return  mExclusivity != EXCLUSIVITY_NONE;
+    }
+
+    public int getExclusivity() {
+        // TODO(b/373390494): Allow RoleBehavior to override this
+        return mExclusivity;
     }
 
     @Nullable
@@ -353,6 +384,8 @@ public class Role {
      * @see #mShowNone
      */
     public boolean shouldShowNone() {
+        // TODO(b/373390494): Ensure RoleBehavior override doesn't conflict with this.
+        //  mShowNone can only be true if isExclusive=true
         return mShowNone;
     }
 
@@ -414,6 +447,8 @@ public class Role {
         if (!isAvailableByFeatureFlagAndSdkVersion()) {
             return false;
         }
+        // TODO(b/376133070): ensure that cross-user role is only available if also available for
+        //  the profile-group's full user
         if (mBehavior != null) {
             return mBehavior.isAvailableAsUser(this, user, context);
         }
@@ -1041,7 +1076,7 @@ public class Role {
      */
     @Nullable
     public Intent getRestrictionIntentAsUser(@NonNull UserHandle user, @NonNull Context context) {
-        if (SdkLevel.isAtLeastU() && mExclusive) {
+        if (SdkLevel.isAtLeastU() && isExclusive()) {
             UserManager userManager = context.getSystemService(UserManager.class);
             if (userManager.hasUserRestrictionForUser(UserManager.DISALLOW_CONFIG_DEFAULT_APPS,
                     user)) {
@@ -1104,7 +1139,7 @@ public class Role {
                 + ", mBehavior=" + mBehavior
                 + ", mDefaultHoldersResourceName=" + mDefaultHoldersResourceName
                 + ", mDescriptionResource=" + mDescriptionResource
-                + ", mExclusive=" + mExclusive
+                + ", mExclusivity=" + mExclusivity
                 + ", mFallBackToDefaultHolder=" + mFallBackToDefaultHolder
                 + ", mFeatureFlag=" + mFeatureFlag
                 + ", mLabelResource=" + mLabelResource
