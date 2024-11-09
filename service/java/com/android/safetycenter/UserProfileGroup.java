@@ -30,6 +30,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.android.permission.compat.UserHandleCompat;
 import com.android.permission.util.UserUtils;
 
 import java.lang.annotation.Retention;
@@ -49,8 +50,6 @@ import java.util.Objects;
 public final class UserProfileGroup {
 
     private static final String TAG = "UserProfileGroup";
-    // UserHandle#USER_NULL is a @TestApi so it cannot be accessed from the mainline module.
-    public static final @UserIdInt int USER_NULL = -10000;
 
     @UserIdInt private final int mProfileParentUserId;
     private final int[] mManagedProfilesUserIds;
@@ -147,7 +146,7 @@ public final class UserProfileGroup {
         int managedProfilesUserIdsLen = 0;
         int managedRunningProfilesUserIdsLen = 0;
 
-        int privateProfileUserId = USER_NULL;
+        int privateProfileUserId = UserHandleCompat.USER_NULL;
         boolean privateProfileRunning = false;
 
         for (int i = 0; i < userProfiles.size(); i++) {
@@ -228,7 +227,7 @@ public final class UserProfileGroup {
                 /* destPos= */ 1,
                 mManagedProfilesUserIds.length);
 
-        if (mPrivateProfileUserId != USER_NULL) {
+        if (mPrivateProfileUserId != UserHandleCompat.USER_NULL) {
             allProfileIds[allProfileIds.length - 1] = mPrivateProfileUserId;
         }
 
@@ -269,7 +268,7 @@ public final class UserProfileGroup {
             case PROFILE_TYPE_MANAGED:
                 return mManagedProfilesUserIds;
             case PROFILE_TYPE_PRIVATE:
-                return mPrivateProfileUserId != USER_NULL
+                return mPrivateProfileUserId != UserHandleCompat.USER_NULL
                         ? new int[]{mPrivateProfileUserId} : new int[]{};
             default:
                 Log.w(TAG, "profiles requested for unexpected profile type " + profileType);
@@ -308,7 +307,7 @@ public final class UserProfileGroup {
     private int getNumProfiles() {
         return 1
                 + mManagedProfilesUserIds.length
-                + (mPrivateProfileUserId == USER_NULL ? 0 : 1);
+                + (mPrivateProfileUserId == UserHandleCompat.USER_NULL ? 0 : 1);
     }
 
     /**
@@ -361,7 +360,8 @@ public final class UserProfileGroup {
             }
         }
 
-        return USER_NULL != mPrivateProfileUserId && userId == mPrivateProfileUserId;
+        return UserHandleCompat.USER_NULL != mPrivateProfileUserId
+            && userId == mPrivateProfileUserId;
     }
 
     @Override
