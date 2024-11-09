@@ -21,6 +21,7 @@ import androidx.wear.compose.material.ChipColors
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material3.ButtonColors
 import androidx.wear.compose.material3.ButtonDefaults
+import com.android.permissioncontroller.permission.ui.wear.elements.chipDefaultColors
 import com.android.permissioncontroller.permission.ui.wear.elements.chipDisabledColors
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButtonStyle.DisabledLike
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButtonStyle.Primary
@@ -41,7 +42,7 @@ enum class WearPermissionButtonStyle {
 @Composable
 internal fun WearPermissionButtonStyle.material2ChipColors(): ChipColors {
     return when (this) {
-        Primary -> ChipDefaults.primaryChipColors()
+        Primary -> chipDefaultColors()
         Secondary -> ChipDefaults.secondaryChipColors()
         Transparent -> ChipDefaults.childChipColors()
         DisabledLike -> chipDisabledColors()
