@@ -29,6 +29,13 @@ public final class UserHandleCompat {
     public static final int USER_ALL = UserHandle.ALL.getIdentifier();
 
     /**
+     * A user ID to indicate an undefined user of the device.
+     *
+     * @see UserHandle#USER_NULL
+     */
+    public static final @UserIdInt int USER_NULL = -10000;
+
+    /**
      * A user ID to indicate the "system" user of the device.
      */
     public static final int USER_SYSTEM = UserHandle.SYSTEM.getIdentifier();

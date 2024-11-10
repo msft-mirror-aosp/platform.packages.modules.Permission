@@ -35,15 +35,16 @@ import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL3
 
+/** This enum is used to specify the material version used for a specific screen */
 enum class WearPermissionMaterialUIVersion {
     MATERIAL2_5,
     MATERIAL3,
 }
 
 /**
- * Supports both Material 3 and Material 2 theme. default version for permission theme will be
- * LEGACY until we migrate enough screens to 3. LEGACY version will use material 3 overlay resources
- * by default.
+ * Supports both Material 3 and Material 2_5 theme. default version for permission theme will be 2_5
+ * until we migrate enough screens to 3. 2_5 version will use material 3 overlay resources if we
+ * enable material3 for even one screen (Permission screens will be migrated in phases).
  */
 @Composable
 fun WearPermissionTheme(
@@ -53,7 +54,9 @@ fun WearPermissionTheme(
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
         WearPermissionLegacyTheme(content)
     } else {
+        // Whether we are ready to use material3 for any screen.
         val useBridgedTheme = Flags.wearComposeMaterial3()
+        // Material3 UI controls are still being used in the screen that the theme is applied
         if (version == MATERIAL3) {
             val material3Theme = WearOverlayableMaterial3Theme(LocalContext.current)
             Material3Theme(
@@ -62,7 +65,12 @@ fun WearPermissionTheme(
                 shapes = material3Theme.shapes,
                 content = content,
             )
-        } else if (version == MATERIAL2_5 && useBridgedTheme) {
+        }
+        // Material2_5 UI controls are still being used in the screen that the theme is applied,
+        // But some in-app screens(like permission grant screen) are migrated to material3.
+        // To avoid having two set of overlay resources, we will use material3 overlay resources to
+        // support material2_5 UI controls as well.
+        else if (version == MATERIAL2_5 && useBridgedTheme) {
             val material3Theme = WearOverlayableMaterial3Theme(LocalContext.current)
             val bridgedLegacyTheme = WearMaterialBridgedLegacyTheme.createFrom(material3Theme)
             MaterialTheme(
@@ -71,7 +79,9 @@ fun WearPermissionTheme(
                 shapes = bridgedLegacyTheme.shapes,
                 content = content,
             )
-        } else {
+        }
+        // We are not ready for material3 yet in any screens.
+        else {
             WearPermissionLegacyTheme(content)
         }
     }
