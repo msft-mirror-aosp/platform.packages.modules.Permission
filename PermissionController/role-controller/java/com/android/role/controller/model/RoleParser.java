@@ -89,6 +89,7 @@ public class RoleParser {
     private static final String ATTRIBUTE_DEFAULT_HOLDERS = "defaultHolders";
     private static final String ATTRIBUTE_DESCRIPTION = "description";
     private static final String ATTRIBUTE_EXCLUSIVE = "exclusive";
+    private static final String ATTRIBUTE_EXCLUSIVITY = "exclusivity";
     private static final String ATTRIBUTE_FALL_BACK_TO_DEFAULT_HOLDER = "fallBackToDefaultHolder";
     private static final String ATTRIBUTE_FEATURE_FLAG = "featureFlag";
     private static final String ATTRIBUTE_LABEL = "label";
@@ -134,6 +135,10 @@ public class RoleParser {
         sModeNameToMode.put(MODE_NAME_DEFAULT, AppOpsManager.MODE_DEFAULT);
         sModeNameToMode.put(MODE_NAME_FOREGROUND, AppOpsManager.MODE_FOREGROUND);
     }
+
+    private static final String EXCLUSIVITY_NONE = "none";
+    private static final String EXCLUSIVITY_USER = "user";
+    private static final String EXCLUSIVITY_PROFILE_GROUP = "profileGroup";
 
     private static final Supplier<Boolean> sFeatureFlagFallback = () -> false;
 
@@ -413,12 +418,44 @@ public class RoleParser {
             shortLabelResource = 0;
         }
 
-        Boolean exclusive = requireAttributeBooleanValue(parser, ATTRIBUTE_EXCLUSIVE, true,
-                TAG_ROLE);
-        if (exclusive == null) {
-            skipCurrentTag(parser);
-            return null;
+        int exclusivity;
+        if (com.android.permission.flags.Flags.crossUserRoleEnabled()) {
+            String exclusivityName = requireAttributeValue(parser, ATTRIBUTE_EXCLUSIVITY, TAG_ROLE);
+            if (exclusivityName == null) {
+                skipCurrentTag(parser);
+                return null;
+            }
+            switch (exclusivityName) {
+                case EXCLUSIVITY_NONE:
+                    exclusivity = Role.EXCLUSIVITY_NONE;
+                    break;
+                case EXCLUSIVITY_USER:
+                    exclusivity = Role.EXCLUSIVITY_USER;
+                    break;
+                case EXCLUSIVITY_PROFILE_GROUP:
+                    // TODO(b/372743073): change to isAtLeastB once available
+                    // EXCLUSIVITY_PROFILE behavior only available for B+
+                    // fallback to default of EXCLUSIVITY_USER
+                    exclusivity = SdkLevel.isAtLeastV()
+                            ? Role.EXCLUSIVITY_PROFILE_GROUP
+                            : Role.EXCLUSIVITY_USER;
+                    break;
+                default:
+                    throwOrLogMessage("Invalid value for \"exclusivity\" on <role>: " + name
+                            + ", exclusivity: " + exclusivityName);
+                    skipCurrentTag(parser);
+                    return null;
+            }
+        } else {
+            Boolean exclusive =
+                    requireAttributeBooleanValue(parser, ATTRIBUTE_EXCLUSIVE, true, TAG_ROLE);
+            if (exclusive == null) {
+                skipCurrentTag(parser);
+                return null;
+            }
+            exclusivity = exclusive ? Role.EXCLUSIVITY_USER : Role.EXCLUSIVITY_NONE;
         }
+
 
         boolean fallBackToDefaultHolder = getAttributeBooleanValue(parser,
                 ATTRIBUTE_FALL_BACK_TO_DEFAULT_HOLDER, false);
@@ -470,7 +507,7 @@ public class RoleParser {
                 0);
 
         boolean showNone = getAttributeBooleanValue(parser, ATTRIBUTE_SHOW_NONE, false);
-        if (showNone && !exclusive) {
+        if (showNone && exclusivity == Role.EXCLUSIVITY_NONE) {
             throwOrLogMessage("showNone=\"true\" is invalid for a non-exclusive role: " + name);
             skipCurrentTag(parser);
             return null;
@@ -567,12 +604,12 @@ public class RoleParser {
             preferredActivities = Collections.emptyList();
         }
         return new Role(name, allowBypassingQualification, behavior, defaultHoldersResourceName,
-                descriptionResource, exclusive, fallBackToDefaultHolder, featureFlag, labelResource,
-                maxSdkVersion, minSdkVersion, onlyGrantWhenAdded, overrideUserWhenGranting,
-                requestDescriptionResource, requestTitleResource, requestable,
-                searchKeywordsResource, shortLabelResource, showNone, statik, systemOnly, visible,
-                requiredComponents, permissions, appOpPermissions, appOps, preferredActivities,
-                uiBehaviorName);
+                descriptionResource, exclusivity, fallBackToDefaultHolder, featureFlag,
+                labelResource, maxSdkVersion, minSdkVersion, onlyGrantWhenAdded,
+                overrideUserWhenGranting, requestDescriptionResource, requestTitleResource,
+                requestable, searchKeywordsResource, shortLabelResource, showNone, statik,
+                systemOnly, visible, requiredComponents, permissions, appOpPermissions, appOps,
+                preferredActivities, uiBehaviorName);
     }
 
     @NonNull
@@ -1106,7 +1143,7 @@ public class RoleParser {
                     + ">");
             return fallbackValue;
         }
-        String className = applyJarjarTransformIfNeeded(value.substring(0, lastDotIndex));
+        String className = applyJarjarTransform(value.substring(0, lastDotIndex));
         String methodName = value.substring(lastDotIndex + 1);
         Method method;
         try {
@@ -1155,16 +1192,18 @@ public class RoleParser {
         };
     }
 
-    // LINT.IfChange(applyJarjarTransformIfNeeded)
+    // LINT.IfChange(applyJarjarTransform)
     /**
      * Simulate the jarjar transform that should happen on the class name.
      * <p>
      * Currently this only handles the {@code Flags} classes for feature flagging.
      */
     @NonNull
-    private String applyJarjarTransformIfNeeded(@NonNull String className) {
-        if (className.endsWith(".Flags") && Objects.equals(mContext.getPackageName(), "android")) {
-            return "com.android.permission.jarjar." + className;
+    private String applyJarjarTransform(@NonNull String className) {
+        if (className.endsWith(".Flags")) {
+            String jarjarPrefix = Objects.equals(mContext.getPackageName(), "android")
+                    ? "com.android.permission.jarjar." : "com.android.permissioncontroller.jarjar.";
+            return jarjarPrefix + className;
         }
         return className;
     }

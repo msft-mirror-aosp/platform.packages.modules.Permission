@@ -19,6 +19,7 @@ package com.android.permission.util;
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.Process;
 import android.os.UserHandle;
@@ -30,6 +31,7 @@ import com.android.permission.compat.UserHandleCompat;
 import com.android.permission.flags.Flags;
 
 import java.util.List;
+import java.util.Objects;
 
 /** Utility class to deal with Android users. */
 public final class UserUtils {
@@ -81,6 +83,32 @@ public final class UserUtils {
         }
     }
 
+    /** Returns all the enabled user profiles on the device. */
+    @NonNull
+    public static List<UserHandle> getUserProfiles(@NonNull Context context) {
+        UserManager userManager = context.getSystemService(UserManager.class);
+        // This call requires the QUERY_USERS permission.
+        final long identity = Binder.clearCallingIdentity();
+        try {
+            return userManager.getUserProfiles();
+        } finally {
+            Binder.restoreCallingIdentity(identity);
+        }
+    }
+
+    /** Returns the parent of a given user. */
+    public static UserHandle getProfileParent(@UserIdInt int userId, @NonNull Context context) {
+        Context userContext = getUserContext(userId, context);
+        UserManager userManager = userContext.getSystemService(UserManager.class);
+        // This call requires the INTERACT_ACROSS_USERS permission.
+        final long identity = Binder.clearCallingIdentity();
+        try {
+            return userManager.getProfileParent(UserHandle.of(userId));
+        } finally {
+            Binder.restoreCallingIdentity(identity);
+        }
+    }
+
     /** Returns whether a given {@code userId} corresponds to a managed profile. */
     public static boolean isManagedProfile(@UserIdInt int userId, @NonNull Context context) {
         UserManager userManager = context.getSystemService(UserManager.class);
@@ -107,8 +135,7 @@ public final class UserUtils {
         // MANAGE_USERS, QUERY_USERS, or INTERACT_ACROSS_USERS.
         final long identity = Binder.clearCallingIdentity();
         try {
-            Context userContext = context
-                    .createContextAsUser(UserHandle.of(userId), /* flags= */ 0);
+            Context userContext = getUserContext(userId, context);
             UserManager userManager = userContext.getSystemService(UserManager.class);
             return userManager != null && userManager.isPrivateProfile();
         } finally {
@@ -139,6 +166,15 @@ public final class UserUtils {
                     && !userManager.isQuietModeEnabled(UserHandle.of(userId));
         } finally {
             Binder.restoreCallingIdentity(identity);
+        }
+    }
+
+    @NonNull
+    public static Context getUserContext(@UserIdInt int userId, @NonNull Context context) {
+        if (SdkLevel.isAtLeastS() && context.getUser().getIdentifier() == userId) {
+            return context;
+        } else {
+            return context.createContextAsUser(UserHandle.of(userId), 0);
         }
     }
 }
