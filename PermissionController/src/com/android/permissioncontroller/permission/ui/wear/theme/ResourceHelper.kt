@@ -45,7 +45,7 @@ internal object ResourceHelper {
     @DoNotInline
     fun getDimen(context: Context, @DimenRes id: Int): Float? {
         return try {
-            context.resources.getDimension(id)
+            context.resources.getDimension(id) / context.resources.displayMetrics.density
         } catch (e: Exception) {
             null
         }
