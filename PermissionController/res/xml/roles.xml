@@ -855,7 +855,8 @@
       ~ In addition, packages MUST NOT:
       ~ - Request INTERNET permission. Instead packages MUST access the internet through
       ~   well-defined APIs in an open source project.
-      ~ - Perform direct binds to other applications, except the following system packages:
+      ~ - Perform direct binds to other applications, except the following system packages or
+      ~   other preloaded packages conforming with the requirements here:
       ~   - Bluetooth
       ~   - Contacts
       ~   - Media
@@ -1879,4 +1880,42 @@
         showNone="true"
         visible="false"/>
 
+    <!---
+      ~ A role for the vendor package that provides privacy-preserving intelligent processor for
+      ~ vendor specific features.
+      ~
+      ~ A package holding this role MUST comply with requirements outlined in the Android CDD
+      ~ section "9.8.6 Content Capture".
+      ~ Example link for Android 15:
+      ~ https://source.android.com/docs/compatibility/15/android-15-cdd#986_os-level_and_ambient_data
+      ~
+      ~ In addition, packages MUST NOT:
+      ~ - Request INTERNET permission. Instead packages MUST access the internet through
+      ~   well-defined APIs in an open source project.
+      ~ - Perform direct binds to other applications, except the following system packages or
+      ~   other preloaded packages conforming with the requirements here:
+      ~   - Bluetooth
+      ~   - Contacts
+      ~   - Media
+      ~   - Telephony
+      ~   - System UI
+      ~   - Component providing internet APIs (see above)
+      ~   To achieve this packages MUST set up explicit <allow-association> configuration in the
+      ~   system config.
+      -->
+    <role
+        name="android.app.role.SYSTEM_VENDOR_INTELLIGENCE"
+        defaultHolders="config_systemVendorIntelligence"
+        exclusive="true"
+        exclusivity="user"
+        featureFlag="android.permission.flags.Flags.systemVendorIntelligenceRoleEnabled"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission name="android.permission.READ_GLOBAL_APP_SEARCH_DATA" />
+            <permission name="android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED"
+                featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
+        </permissions>
+    </role>
 </roles>
