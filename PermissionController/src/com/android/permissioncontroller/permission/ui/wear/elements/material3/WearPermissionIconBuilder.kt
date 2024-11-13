@@ -23,8 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
-import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.IconButtonDefaults
 import com.android.permissioncontroller.permission.ui.wear.elements.rememberDrawablePainter
 
 /**
@@ -54,7 +54,7 @@ class WearPermissionIconBuilder private constructor() {
     var contentDescription: String? = null
         private set
 
-    var modifier: Modifier = Modifier.size(ButtonDefaults.IconSize)
+    var modifier: Modifier = Modifier.size(IconButtonDefaults.LargeIconSize)
         private set
 
     var tint: Color = Color.Unspecified
