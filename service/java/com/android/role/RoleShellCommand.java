@@ -22,11 +22,11 @@ import android.app.role.IRoleManager;
 import android.os.Build;
 import android.os.RemoteCallback;
 import android.os.RemoteException;
+import android.permission.internal.compat.UserHandleCompat;
 
 import androidx.annotation.RequiresApi;
 
 import com.android.modules.utils.BasicShellCommandHandler;
-import com.android.permission.compat.UserHandleCompat;
 
 import java.io.PrintWriter;
 import java.util.List;
