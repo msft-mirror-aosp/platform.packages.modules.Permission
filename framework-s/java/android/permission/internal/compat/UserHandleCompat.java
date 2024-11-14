@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.permission.compat;
+package android.permission.internal.compat;
 
 import android.annotation.UserIdInt;
 import android.os.UserHandle;

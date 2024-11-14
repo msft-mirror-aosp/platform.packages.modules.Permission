@@ -1322,6 +1322,46 @@
             <permission name="android.permission.MANAGE_DEFAULT_APPLICATIONS" minSdkVersion="34"/>
             <permission name="android.permission.SUSPEND_APPS"/>
             <permission name="android.permission.SYSTEM_APPLICATION_OVERLAY"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_ACCOUNT_MANAGEMENT"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_APP_RESTRICTIONS"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_APPS_CONTROL"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_DEBUGGING_FEATURES"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_DISPLAY"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_FACTORY_RESET"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_FUN"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_INSTALL_UNKNOWN_SOURCES"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_KEYGUARD"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCATION"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCK"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCK_CREDENTIALS"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCK_TASK"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_MODIFY_USERS"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_PACKAGE_STATE"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_RESET_PASSWORD"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_RUNTIME_PERMISSIONS"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_SAFE_BOOT"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_TIME"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_PROFILE_AND_DEVICE_OWNERS"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
         </permissions>
     </role>
 
