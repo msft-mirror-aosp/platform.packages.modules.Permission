@@ -119,7 +119,7 @@ class NumCustomPermGroupsWithPackagesLiveData() : SmartUpdateMediatorLiveData<In
 /**
  * A LiveData that tracks the names of the platform-defined permission groups, such that at least
  * one of the permissions in the group has been requested at runtime by at least one non-system
- * application or has been pregranted to a non-system application.
+ * application.
  *
  * @param app The current application of the fragment
  */
@@ -130,10 +130,7 @@ class UsedStandardPermGroupNamesLiveData(private val app: Application) :
             permGroups ->
             if (permGroups.values.any { it != null }) {
                 value =
-                    permGroups
-                        .filterValues { it != null && it.nonSystemUserSetOrPreGranted > 0 }
-                        .keys
-                        .toList()
+                    permGroups.filterValues { it != null && it.nonSystemTotal > 0 }.keys.toList()
             }
         }
     }
@@ -145,8 +142,7 @@ class UsedStandardPermGroupNamesLiveData(private val app: Application) :
 
 /**
  * A LiveData that tracks the names of the platform-defined permission groups, such that none of the
- * the permissions in the group has been requested at runtime by any non-system application nor has
- * been pregranted to any non-system application.
+ * the permissions in the group has been requested at runtime by any non-system application.
  *
  * @param app The current application of the fragment
  */
@@ -155,11 +151,7 @@ class UnusedStandardPermGroupNamesLiveData(private val app: Application) :
     init {
         addSource(PermGroupsPackagesUiInfoLiveData(app, StandardPermGroupNamesLiveData)) {
             permGroups ->
-            value =
-                permGroups
-                    .filterValues { it != null && it.nonSystemUserSetOrPreGranted == 0 }
-                    .keys
-                    .toList()
+            value = permGroups.filterValues { it != null && it.nonSystemTotal == 0 }.keys.toList()
         }
     }
 
