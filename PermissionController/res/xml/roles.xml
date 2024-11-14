@@ -1304,6 +1304,8 @@
         <permissions>
             <permission-set name="nearby_devices" />
             <permission-set name="virtual_device" />
+            <permission-set name="notifications"
+                featureFlag="android.companion.virtualdevice.flags.Flags.notificationsForDeviceStreaming" />
         </permissions>
     </role>
 
