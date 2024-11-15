@@ -16,18 +16,14 @@
 
 package com.android.permissioncontroller.permission.ui.wear.elements.material3
 
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.requiredHeightIn
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
-import androidx.wear.compose.material3.Text
 import com.android.permissioncontroller.permission.ui.wear.elements.ListFooter
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
 
+/** This component is creates a transparent styled button to use as a list footer. */
 @Composable
 fun WearPermissionListFooter(
     materialUIVersion: WearPermissionMaterialUIVersion,
@@ -42,26 +38,14 @@ fun WearPermissionListFooter(
             onClick = onClick,
         )
     } else {
-        WearPermissionListFooterInternal(label, iconBuilder, onClick)
+        WearPermissionButtonInternal(
+            iconBuilder = iconBuilder,
+            secondaryLabel = label,
+            secondaryLabelMaxLines = Int.MAX_VALUE,
+            onClick = onClick,
+            contentPadding = PaddingValues(0.dp),
+            colors = ButtonDefaults.childButtonColors(),
+            requiresMinimumHeight = false,
+        )
     }
-}
-
-@Composable
-private fun WearPermissionListFooterInternal(
-    label: String,
-    iconBuilder: WearPermissionIconBuilder?,
-    onClick: () -> Unit,
-) {
-    val footerTextComposable: (@Composable RowScope.() -> Unit) = {
-        Text(modifier = Modifier.fillMaxWidth(), text = label, maxLines = Int.MAX_VALUE)
-    }
-    Button(
-        icon = { iconBuilder?.build() },
-        label = {},
-        secondaryLabel = footerTextComposable,
-        enabled = true,
-        onClick = onClick,
-        modifier = Modifier.requiredHeightIn(min = 1.dp).fillMaxWidth(),
-        colors = ButtonDefaults.childButtonColors(),
-    )
 }
