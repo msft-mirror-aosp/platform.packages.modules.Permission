@@ -26,11 +26,11 @@ import android.os.Binder;
 import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.permission.internal.compat.UserHandleCompat;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.android.permission.compat.UserHandleCompat;
 import com.android.permission.util.UserUtils;
 
 import java.lang.annotation.Retention;

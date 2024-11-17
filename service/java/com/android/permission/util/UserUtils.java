@@ -24,10 +24,10 @@ import android.os.Binder;
 import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.permission.internal.compat.UserHandleCompat;
 
 import com.android.internal.util.Preconditions;
 import com.android.modules.utils.build.SdkLevel;
-import com.android.permission.compat.UserHandleCompat;
 import com.android.permission.flags.Flags;
 
 import java.util.List;
