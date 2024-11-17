@@ -37,6 +37,7 @@ import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -106,6 +107,14 @@ public class Role {
      * Enforces exclusivity across all users (including profile users) in the same profile group.
      */
     public static final int EXCLUSIVITY_PROFILE_GROUP = 2;
+
+    /** Set of valid exclusivity values. */
+    private static final SparseBooleanArray sExclusivityValues = new SparseBooleanArray();
+    static {
+        sExclusivityValues.put(EXCLUSIVITY_NONE, true);
+        sExclusivityValues.put(EXCLUSIVITY_USER, true);
+        sExclusivityValues.put(EXCLUSIVITY_PROFILE_GROUP, true);
+    }
 
     /**
      * The name of this role. Must be unique.
@@ -323,12 +332,24 @@ public class Role {
     }
 
     public boolean isExclusive() {
-        // TODO(b/373390494): Allow RoleBehavior to override this getExclusivity
-        return  mExclusivity != EXCLUSIVITY_NONE;
+        return  getExclusivity() != EXCLUSIVITY_NONE;
     }
 
+    @Exclusivity
     public int getExclusivity() {
-        // TODO(b/373390494): Allow RoleBehavior to override this
+        if (com.android.permission.flags.Flags.crossUserRoleEnabled() && mBehavior != null) {
+            Integer exclusivity = mBehavior.getExclusivity();
+            if (exclusivity != null) {
+                if (!sExclusivityValues.get(exclusivity)) {
+                    throw new IllegalArgumentException("Invalid exclusivity: " + exclusivity);
+                }
+                if (mShowNone && exclusivity == EXCLUSIVITY_NONE) {
+                    throw new IllegalArgumentException(
+                        "Role cannot be non-exclusive when showNone is true: " + exclusivity);
+                }
+                return exclusivity;
+            }
+        }
         return mExclusivity;
     }
 
@@ -384,8 +405,6 @@ public class Role {
      * @see #mShowNone
      */
     public boolean shouldShowNone() {
-        // TODO(b/373390494): Ensure RoleBehavior override doesn't conflict with this.
-        //  mShowNone can only be true if isExclusive=true
         return mShowNone;
     }
 
