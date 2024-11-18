@@ -8465,17 +8465,6 @@
     <permission android:name="android.permission.RESERVED_FOR_TESTING_SIGNATURE"
                 android:protectionLevel="signature"/>
 
-    <!-- @SystemApi
-        @FlaggedApi("android.content.pm.verification_service")
-        Allows app to be the verification agent to verify packages.
-        <p>Protection level: signature|privileged
-        @hide
-    -->
-    <permission android:name="android.permission.VERIFICATION_AGENT"
-        android:protectionLevel="signature|privileged"
-        android:featureFlag="android.content.pm.verification_service"/>
-
-
     <!-- Allows app to enter trade-in-mode.
         <p>Protection level: signature|privileged
         @hide
