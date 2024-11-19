@@ -95,8 +95,7 @@ public class BackgroundPermissionsTest {
         verifyBackgroundPermissionsProperties("android");
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM,
-            codeName = "VanillaIceCream")
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
     @RequiresFlagsEnabled({Flags.FLAG_REPLACE_BODY_SENSOR_PERMISSION_ENABLED})
     @Test
     @AppModeFull(reason = "Instant apps cannot read properties of other packages")
