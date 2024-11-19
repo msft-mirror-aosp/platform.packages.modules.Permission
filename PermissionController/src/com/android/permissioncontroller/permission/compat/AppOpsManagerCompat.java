@@ -16,6 +16,7 @@
 
 package com.android.permissioncontroller.permission.compat;
 
+import android.annotation.SuppressLint;
 import android.app.AppOpsManager;
 import android.permission.flags.Flags;
 
@@ -34,7 +35,9 @@ public class AppOpsManagerCompat {
      *
      * @return the raw mode of the op
      */
+    // TODO: b/379749734
     @SuppressWarnings("deprecation")
+    @SuppressLint("NewApi")
     public static int checkOpRawNoThrow(@NonNull AppOpsManager appOpsManager, @NonNull String op,
             int uid, @NonNull String packageName) {
         if (Flags.checkOpOverloadApiEnabled()) {
