@@ -59,6 +59,7 @@ import android.app.AppOpsManager.permissionToOp
 import android.content.pm.PackageManager.GET_PERMISSIONS
 import android.content.pm.PermissionInfo.PROTECTION_DANGEROUS
 import android.content.pm.PermissionInfo.PROTECTION_FLAG_APPOP
+import android.health.connect.HealthPermissions
 import android.os.Build
 import android.permission.flags.Flags
 import android.permission.PermissionManager
@@ -195,6 +196,19 @@ class RuntimePermissionProperties {
             expectedPerms.add(RANGING)
         }
 
-        assertThat(expectedPerms).containsExactlyElementsIn(platformRuntimePerms.map { it.name })
+        // Separately check health permissions.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA &&
+            Flags.replaceBodySensorPermissionEnabled()) {
+            assertThat(expectedPerms).contains(HealthPermissions.READ_HEART_RATE);
+            assertThat(expectedPerms).contains(HealthPermissions.READ_HEALTH_DATA_IN_BACKGROUND);
+
+            // Remove these from the expected list once we've confirmed their
+            // present. These are not permissions owned by "android" so won't be
+            // in the list of platform runtime permissions.
+            expectedPerms.remove(HealthPermissions.READ_HEART_RATE);
+            expectedPerms.remove(HealthPermissions.READ_HEALTH_DATA_IN_BACKGROUND);
+        }
+
+        assertThat(platformRuntimePerms.map { it.name }).containsExactlyElementsIn(expectedPerms)
     }
 }
