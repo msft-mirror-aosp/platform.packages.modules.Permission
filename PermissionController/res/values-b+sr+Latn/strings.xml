@@ -369,7 +369,7 @@
     <string name="role_dialer_search_keywords" msgid="3324448983559188087">"brojčanik"</string>
     <string name="role_sms_label" msgid="8456999857547686640">"Podrazumevana apl. za SMS"</string>
     <string name="role_sms_short_label" msgid="4371444488034692243">"Aplikacija za SMS"</string>
-    <string name="role_sms_description" msgid="3424020199148153513">"Aplikacije koje vam omogućavaju da koristite broj telefona da biste slali i primali kratke SMS-ove, slike, video snimke i još toga"</string>
+    <string name="role_sms_description" msgid="3424020199148153513">"Aplikacije koje vam omogućavaju da koristite broj telefona da biste slali i primali kratke tekstualne poruke, slike, video snimke i drugo"</string>
     <string name="role_sms_request_title" msgid="7953552109601185602">"Želite li da podesite <xliff:g id="APP_NAME">%1$s</xliff:g> kao podrazumevanu aplikacju za SMS?"</string>
     <string name="role_sms_request_description" msgid="2691004766132144886">"Ova aplikacija će dobiti pristup kameri, kontaktima, fajlovima i medijima, mikrofonu, telefonu i SMS-ovima"</string>
     <string name="role_sms_search_keywords" msgid="8022048144395047352">"SMS, slanje SMS-ova, poruke, slanje poruka"</string>

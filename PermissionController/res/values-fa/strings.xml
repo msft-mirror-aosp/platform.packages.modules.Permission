@@ -581,7 +581,7 @@
     <string name="sensor_permissions_qs" msgid="1022267900031317472">"اجازه‌ها"</string>
     <string name="safety_privacy_qs_tile_title" msgid="727301867710374052">"امنیت و حریم خصوصی"</string>
     <string name="safety_privacy_qs_tile_subtitle" msgid="3621544532041936749">"بررسی وضعیت"</string>
-    <string name="privacy_controls_qs" msgid="5780144882040591169">"تنظیمات حریم خصوصی شما"</string>
+    <string name="privacy_controls_qs" msgid="5780144882040591169">"کنترل‌های حریم خصوصی شما"</string>
     <string name="security_settings_button_label_qs" msgid="8280343822465962330">"تنظیمات بیشتر"</string>
     <string name="camera_toggle_label_qs" msgid="3880261453066157285">"دسترسی به دوربین"</string>
     <string name="microphone_toggle_label_qs" msgid="8132912469813396552">"دسترسی به میکروفون"</string>
@@ -624,7 +624,7 @@
     <string name="safety_center_background_location_access_reminder_summary" msgid="7431657777510537658">"این برنامه همیشه می‌تواند به مکانتان دسترسی داشته باشد، حتی وقتی بسته باشد.\n\nبرخی‌از برنامه‌های ایمنی و اضطراری برای اینکه عملکرد موردانتظار را داشته باشند باید به مکان شما در پس‌زمینه دسترسی داشته باشند."</string>
     <string name="safety_center_background_location_access_revoked" msgid="6972274943343442213">"دسترسی تغییر کرد"</string>
     <string name="safety_center_view_recent_location_access" msgid="3524391299490678243">"دیدن استفاده اخیر از مکان"</string>
-    <string name="privacy_controls_title" msgid="7605929972256835199">"تنظیمات حریم خصوصی"</string>
+    <string name="privacy_controls_title" msgid="7605929972256835199">"کنترل‌های حریم خصوصی"</string>
     <string name="camera_toggle_title" msgid="1251201397431837666">"دسترسی به دوربین"</string>
     <string name="mic_toggle_title" msgid="2649991093496110162">"دسترسی به میکروفون"</string>
     <string name="perm_toggle_description" msgid="7801326363741451379">"برای برنامه‌ها و سرویس‌ها"</string>
