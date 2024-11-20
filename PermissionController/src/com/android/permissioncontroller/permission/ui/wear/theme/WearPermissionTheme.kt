@@ -30,7 +30,6 @@ import androidx.wear.compose.material.Colors
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Typography
 import androidx.wear.compose.material3.MaterialTheme as Material3Theme
-import com.android.permission.flags.Flags
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL3
@@ -55,7 +54,8 @@ fun WearPermissionTheme(
         WearPermissionLegacyTheme(content)
     } else {
         // Whether we are ready to use material3 for any screen.
-        val useBridgedTheme = Flags.wearComposeMaterial3()
+        val useBridgedTheme = ResourceHelper.material3Enabled
+
         // Material3 UI controls are still being used in the screen that the theme is applied
         if (version == MATERIAL3) {
             val material3Theme = WearOverlayableMaterial3Theme(LocalContext.current)
