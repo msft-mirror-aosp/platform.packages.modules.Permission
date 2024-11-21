@@ -21,15 +21,11 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.IntDef;
 import android.annotation.UserIdInt;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Binder;
-import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.permission.internal.compat.UserHandleCompat;
 import android.util.Log;
-
-import androidx.annotation.Nullable;
 
 import com.android.permission.util.UserUtils;
 
@@ -135,11 +131,7 @@ public final class UserProfileGroup {
     public static UserProfileGroup fromUser(Context context, @UserIdInt int userId) {
         Context userContext = UserUtils.getUserContext(userId, context);
         List<UserHandle> userProfiles = UserUtils.getUserProfiles(userContext);
-        UserHandle profileParent = UserUtils.getProfileParent(userId, userContext);
-        int profileParentUserId = userId;
-        if (profileParent != null) {
-            profileParentUserId = profileParent.getIdentifier();
-        }
+        int profileParentUserId = UserUtils.getProfileParentIdOrSelf(userId, userContext);
 
         int[] managedProfilesUserIds = new int[userProfiles.size()];
         int[] managedRunningProfilesUserIds = new int[userProfiles.size()];
