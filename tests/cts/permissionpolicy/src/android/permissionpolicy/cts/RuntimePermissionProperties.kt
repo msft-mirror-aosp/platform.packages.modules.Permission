@@ -197,8 +197,7 @@ class RuntimePermissionProperties {
         }
 
         // Separately check health permissions.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA &&
-            Flags.replaceBodySensorPermissionEnabled()) {
+        if (Flags.replaceBodySensorPermissionEnabled()) {
             assertThat(expectedPerms).contains(HealthPermissions.READ_HEART_RATE);
             assertThat(expectedPerms).contains(HealthPermissions.READ_HEALTH_DATA_IN_BACKGROUND);
 

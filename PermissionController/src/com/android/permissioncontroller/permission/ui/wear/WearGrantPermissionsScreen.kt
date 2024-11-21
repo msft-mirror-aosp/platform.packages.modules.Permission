@@ -22,7 +22,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
-import com.android.permission.flags.Flags
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_ALWAYS_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_BUTTON
@@ -43,6 +42,7 @@ import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChipTo
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControl
 import com.android.permissioncontroller.permission.ui.wear.model.WearGrantPermissionsViewModel
+import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL3
 
@@ -58,9 +58,8 @@ fun WearGrantPermissionsScreen(
     val locationVisibilities = viewModel.locationVisibilitiesLiveData.observeAsState(emptyList())
     val preciseLocationChecked = viewModel.preciseLocationCheckedLiveData.observeAsState(false)
     val buttonVisibilities = viewModel.buttonVisibilitiesLiveData.observeAsState(emptyList())
-    val useMaterial3Controls = Flags.wearComposeMaterial3()
     val materialUIVersion =
-        if (useMaterial3Controls) {
+        if (ResourceHelper.material3Enabled) {
             MATERIAL3
         } else {
             MATERIAL2_5
