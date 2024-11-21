@@ -22,4 +22,8 @@ rule android.os.*FeatureFlags* com.android.permissioncontroller.jarjar.@0
 rule android.os.FeatureFlags* com.android.permissioncontroller.jarjar.@0
 rule android.os.FeatureFlags com.android.permissioncontroller.jarjar.@0
 rule android.os.Flags com.android.permissioncontroller.jarjar.@0
+rule com.android.permission.flags.*FeatureFlags* com.android.permissioncontroller.jarjar.@0
+rule com.android.permission.flags.FeatureFlags* com.android.permissioncontroller.jarjar.@0
+rule com.android.permission.flags.FeatureFlags com.android.permissioncontroller.jarjar.@0
+rule com.android.permission.flags.Flags com.android.permissioncontroller.jarjar.@0
 # LINT.ThenChange(PermissionController/role-controller/java/com/android/role/controller/model/RoleParser.java:applyJarjarTransform)
