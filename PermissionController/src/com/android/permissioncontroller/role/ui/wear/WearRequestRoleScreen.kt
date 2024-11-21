@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.android.permission.flags.Flags
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
 import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChipToggleControl
@@ -40,6 +39,7 @@ import com.android.permissioncontroller.permission.ui.wear.elements.material3.We
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionListFooter
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControl
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControlStyle
+import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL3
@@ -78,10 +78,8 @@ fun WearRequestRoleScreen(
             helper.initializeSelectedPackageName()
         }
     }
-
-    val useMaterial3Controls = Flags.wearComposeMaterial3()
     val materialUIVersion =
-        if (useMaterial3Controls) {
+        if (ResourceHelper.material3Enabled) {
             MATERIAL3
         } else {
             MATERIAL2_5

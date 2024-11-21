@@ -720,6 +720,10 @@
                 featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
             <permission name="android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED"
                 featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
+            <permission name="android.permission.COPY_ACCOUNTS"
+                featureFlag="android.permission.flags.Flags.devicePolicyManagementRoleSplitCreateManagedProfileEnabled" />
+            <permission name="android.permission.REMOVE_ACCOUNTS"
+                featureFlag="android.permission.flags.Flags.devicePolicyManagementRoleSplitCreateManagedProfileEnabled" />
         </permissions>
     </role>
 
@@ -1304,6 +1308,8 @@
         <permissions>
             <permission-set name="nearby_devices" />
             <permission-set name="virtual_device" />
+            <permission-set name="notifications"
+                featureFlag="android.companion.virtualdevice.flags.Flags.notificationsForDeviceStreaming" />
         </permissions>
     </role>
 
@@ -1480,6 +1486,10 @@
             <permission name="android.permission.MANAGE_DEVICE_POLICY_DISPLAY" minSdkVersion="35" />
             <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCALE" minSdkVersion="35" />
             <permission name="android.permission.MANAGE_DEVICE_POLICY_SMS" minSdkVersion="35" />
+            <permission name="android.permission.COPY_ACCOUNTS"
+                featureFlag="android.permission.flags.Flags.devicePolicyManagementRoleSplitCreateManagedProfileEnabled" />
+            <permission name="android.permission.REMOVE_ACCOUNTS"
+                featureFlag="android.permission.flags.Flags.devicePolicyManagementRoleSplitCreateManagedProfileEnabled" />
         </permissions>
     </role>
 
@@ -1829,5 +1839,40 @@
         showNone="true"
         shortLabel="@string/role_wallet_short_label"
         uiBehavior="v35.WalletRoleUiBehavior"/>
+
+    <role
+        name="android.app.role.SYSTEM_DEPENDENCY_INSTALLER"
+        allowBypassingQualification="true"
+        defaultHolders="config_systemDependencyInstaller"
+        exclusive="true"
+        exclusivity="user"
+        featureFlag="android.content.pm.Flags.sdkDependencyInstaller"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <required-components>
+            <service permission="android.permission.BIND_DEPENDENCY_INSTALLER">
+                <intent-filter>
+                    <action name="android.content.pm.action.INSTALL_DEPENDENCY" />
+                </intent-filter>
+            </service>
+        </required-components>
+        <permissions>
+            <permission name="android.permission.ACCESS_SHARED_LIBRARIES" />
+            <permission name="android.permission.INSTALL_DEPENDENCY_SHARED_LIBRARIES" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for testing cross-user roles (exclusivity="profileGroup"). This should never be used
+      ~ to gate any actual functionality.
+      -->
+    <role
+        name="android.app.role.RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY"
+        exclusive="true"
+        exclusivity="profileGroup"
+        featureFlag="com.android.permission.flags.Flags.crossUserRoleEnabled"
+        showNone="true"
+        visible="false"/>
 
 </roles>
