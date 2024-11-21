@@ -1863,4 +1863,16 @@
         </permissions>
     </role>
 
+    <!---
+      ~ A role for testing cross-user roles (exclusivity="profileGroup"). This should never be used
+      ~ to gate any actual functionality.
+      -->
+    <role
+        name="android.app.role.RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY"
+        exclusive="true"
+        exclusivity="profileGroup"
+        featureFlag="com.android.permission.flags.Flags.crossUserRoleEnabled"
+        showNone="true"
+        visible="false"/>
+
 </roles>
