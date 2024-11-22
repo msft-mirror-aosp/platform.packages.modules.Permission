@@ -1238,7 +1238,9 @@
             <permission-set name="virtual_device" />
             <!-- For capturing audio from the app on the device. -->
             <permission name="android.permission.RECORD_AUDIO" />
-
+            <permission
+                name="android.permission.ADD_MIRROR_DISPLAY"
+                featureFlag="android.companion.virtualdevice.flags.Flags.enableLimitedVdmRole" />
             <!--TODO(b/201605314) For calling Telecom framework API for audio streaming-->
             <!--<permission name="android.permission.PROVIDE_CALL_ENDPOINTS" />-->
        </permissions>
