@@ -20,6 +20,7 @@ import static android.annotation.SdkConstant.SdkConstantType.BROADCAST_INTENT_AC
 
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
+import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
 import android.annotation.SdkConstant;
 import android.annotation.SystemApi;
@@ -34,8 +35,6 @@ import android.os.Build;
 import android.os.RemoteException;
 import android.permission.flags.Flags;
 import android.util.ArraySet;
-
-import androidx.annotation.NonNull;
 
 import java.lang.annotation.Retention;
 
@@ -323,6 +322,23 @@ public final class EnhancedConfirmationManager {
             mService.setClearRestrictionAllowed(packageName, mContext.getUser().getIdentifier());
         } catch (IllegalArgumentException e) {
             throw new NameNotFoundException(packageName);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Returns whether the enhanced confirmation system thinks a call with an unknown party is
+     * occurring
+     *
+     * @hide
+     */
+    @SystemApi
+    @FlaggedApi(Flags.FLAG_ENHANCED_CONFIRMATION_IN_CALL_APIS_ENABLED)
+    @RequiresPermission(android.Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES)
+    public boolean isUnknownCallOngoing() {
+        try {
+            return mService.isUntrustedCallOngoing();
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
