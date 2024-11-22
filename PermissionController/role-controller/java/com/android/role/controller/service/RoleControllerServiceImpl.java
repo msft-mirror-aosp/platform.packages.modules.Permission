@@ -35,6 +35,7 @@ import com.android.role.controller.model.Roles;
 import com.android.role.controller.util.CollectionUtils;
 import com.android.role.controller.util.LegacyRoleFallbackEnabledUtils;
 import com.android.role.controller.util.PackageUtils;
+import com.android.role.controller.util.RoleFlags;
 import com.android.role.controller.util.UserUtils;
 
 import java.util.ArrayList;
@@ -131,6 +132,19 @@ public class RoleControllerServiceImpl extends RoleControllerService {
             Role role = roles.get(rolesIndex);
 
             String roleName = role.getName();
+
+            if (RoleFlags.isProfileGroupExclusivityAvailable()
+                    && role.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP) {
+                if (mUserRoleManager.getActiveUserForRole(roleName) == null) {
+                    UserHandle profileParent = UserUtils.getProfileParentOrSelf(mUser, mContext);
+                    if (Objects.equals(mUser, profileParent)) {
+                        Log.i(LOG_TAG, "No active user for role: " + roleName + ", setting "
+                                + "active user to user: " + mUser.getIdentifier());
+                        sSetActiveUserForRoleMethod.setActiveUserForRole(roleName,
+                                mUser.getIdentifier(), 0);
+                    }
+                }
+            }
 
             // For each of the current holders, check if it is still qualified, redo grant if so, or
             // remove it otherwise.
