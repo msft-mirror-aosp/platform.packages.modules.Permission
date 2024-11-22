@@ -1,4 +1,6 @@
-/*
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,25 +14,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ -->
 
-package android.app.ecm;
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="android.app.rolemultiuser.cts">
 
-import android.os.RemoteCallback;
+    <application>
+        <uses-library android:name="android.test.runner" />
+    </application>
 
-/**
- * @hide
- */
-interface IEnhancedConfirmationManager {
-
-    boolean isRestricted(in String packageName, in String settingIdentifier, int userId);
-
-    void clearRestriction(in String packageName, int userId);
-
-    boolean isClearRestrictionAllowed(in String packageName, int userId);
-
-    void setClearRestrictionAllowed(in String packageName, int userId);
-
-    boolean isUntrustedCallOngoing();
-
-}
+    <instrumentation
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:targetPackage="android.app.rolemultiuser.cts"
+        android:label="CTS multi-user tests of android.app.role">
+    </instrumentation>
+</manifest>
