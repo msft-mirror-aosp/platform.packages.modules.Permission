@@ -3968,7 +3968,7 @@
         @FlaggedApi("android.security.aapm_api")
         @SystemApi
         @hide -->
-    <permission android:name="android.permission.SET_ADVANCED_PROTECTION_MODE"
+    <permission android:name="android.permission.MANAGE_ADVANCED_PROTECTION_MODE"
         android:protectionLevel="signature|privileged"
         android:featureFlag="android.security.aapm_api"/>
 
@@ -6329,7 +6329,7 @@
          @hide -->
     <permission android:name="android.permission.BYPASS_CONCURRENT_RECORD_AUDIO_RESTRICTION"
         android:featureFlag="android.media.audio.concurrent_audio_record_bypass_permission"
-        android:protectionLevel="signature|privileged|role" />
+        android:protectionLevel="signature|privileged" />
 
     <!-- @SystemApi Allows an application to capture audio for hotword detection.
          <p>Not for use by third-party applications.</p>
@@ -7873,6 +7873,15 @@
     <permission android:name="android.permission.ADD_ALWAYS_UNLOCKED_DISPLAY"
                 android:protectionLevel="signature|role"/>
 
+    <!-- Allows an application to create displays that mirror other displays' content.
+         <p>Not for use by third-party applications.
+         <p>Protection level: internal|role
+         @FlaggedApi(android.companion.virtualdevice.flags.Flags.FLAG_ENABLE_LIMITED_VDM_ROLE)
+         @hide @SystemApi -->
+    <permission android:name="android.permission.ADD_MIRROR_DISPLAY"
+        android:protectionLevel="internal|role"
+        android:featureFlag="android.companion.virtualdevice.flags.enable_limited_vdm_role" />
+
     <!-- @hide @SystemApi Allows an application to access locusId events in the usage stats. -->
     <permission android:name="android.permission.ACCESS_LOCUS_ID_USAGE_STATS"
                 android:protectionLevel="signature|role" />
@@ -8500,29 +8509,6 @@
     -->
     <permission android:name="android.permission.RESERVED_FOR_TESTING_SIGNATURE"
                 android:protectionLevel="signature"/>
-
-    <!-- @SystemApi
-        @FlaggedApi("android.content.pm.verification_service")
-        Allows app to be the verification agent to verify packages.
-        <p>Protection level: signature|privileged
-        @hide
-    -->
-    <permission android:name="android.permission.VERIFICATION_AGENT"
-        android:protectionLevel="signature|privileged"
-        android:featureFlag="android.content.pm.verification_service"/>
-
-    <!-- @SystemApi
-        @FlaggedApi("android.content.pm.verification_service")
-        Must be required by a privileged {@link android.content.pm.verify.pkg.VerifierService}
-        to ensure that only the system can bind to it.
-        This permission should not be held by anything other than the system.
-        <p>Not for use by third-party applications. </p>
-        <p>Protection level: signature
-        @hide
-    -->
-    <permission android:name="android.permission.BIND_VERIFICATION_AGENT"
-        android:protectionLevel="internal"
-        android:featureFlag="android.content.pm.verification_service" />
 
     <!-- Allows app to enter trade-in-mode.
         <p>Protection level: signature|privileged
@@ -9154,6 +9140,17 @@
 
         <service android:name="com.android.server.art.BackgroundDexoptJobService"
                  android:permission="android.permission.BIND_JOB_SERVICE" >
+        </service>
+
+        <service android:name="android.app.ecm.EnhancedConfirmationCallTrackerService"
+            android:permission="android.permission.BIND_INCALL_SERVICE"
+            android:featureFlag="android.permission.flags.enhanced_confirmation_in_call_apis_enabled"
+            android:exported="true">
+            <meta-data android:name="android.telecom.INCLUDE_SELF_MANAGED_CALLS"
+                android:value="true" />
+            <intent-filter>
+                <action android:name="android.telecom.InCallService"/>
+            </intent-filter>
         </service>
 
         <service android:name="com.android.server.companion.datatransfer.contextsync.CallMetadataSyncInCallService"
