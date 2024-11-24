@@ -720,6 +720,10 @@
                 featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
             <permission name="android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED"
                 featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
+            <permission name="android.permission.COPY_ACCOUNTS"
+                featureFlag="android.permission.flags.Flags.devicePolicyManagementRoleSplitCreateManagedProfileEnabled" />
+            <permission name="android.permission.REMOVE_ACCOUNTS"
+                featureFlag="android.permission.flags.Flags.devicePolicyManagementRoleSplitCreateManagedProfileEnabled" />
         </permissions>
     </role>
 
@@ -1234,7 +1238,9 @@
             <permission-set name="virtual_device" />
             <!-- For capturing audio from the app on the device. -->
             <permission name="android.permission.RECORD_AUDIO" />
-
+            <permission
+                name="android.permission.ADD_MIRROR_DISPLAY"
+                featureFlag="android.companion.virtualdevice.flags.Flags.enableLimitedVdmRole" />
             <!--TODO(b/201605314) For calling Telecom framework API for audio streaming-->
             <!--<permission name="android.permission.PROVIDE_CALL_ENDPOINTS" />-->
        </permissions>
@@ -1482,6 +1488,10 @@
             <permission name="android.permission.MANAGE_DEVICE_POLICY_DISPLAY" minSdkVersion="35" />
             <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCALE" minSdkVersion="35" />
             <permission name="android.permission.MANAGE_DEVICE_POLICY_SMS" minSdkVersion="35" />
+            <permission name="android.permission.COPY_ACCOUNTS"
+                featureFlag="android.permission.flags.Flags.devicePolicyManagementRoleSplitCreateManagedProfileEnabled" />
+            <permission name="android.permission.REMOVE_ACCOUNTS"
+                featureFlag="android.permission.flags.Flags.devicePolicyManagementRoleSplitCreateManagedProfileEnabled" />
         </permissions>
     </role>
 
@@ -1854,5 +1864,17 @@
             <permission name="android.permission.INSTALL_DEPENDENCY_SHARED_LIBRARIES" />
         </permissions>
     </role>
+
+    <!---
+      ~ A role for testing cross-user roles (exclusivity="profileGroup"). This should never be used
+      ~ to gate any actual functionality.
+      -->
+    <role
+        name="android.app.role.RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY"
+        exclusive="true"
+        exclusivity="profileGroup"
+        featureFlag="com.android.permission.flags.Flags.crossUserRoleEnabled"
+        showNone="true"
+        visible="false"/>
 
 </roles>

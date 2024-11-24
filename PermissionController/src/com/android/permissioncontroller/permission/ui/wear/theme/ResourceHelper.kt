@@ -16,6 +16,7 @@
 package com.android.permissioncontroller.permission.ui.wear.theme
 
 import android.content.Context
+import android.os.SystemProperties
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.DoNotInline
@@ -23,6 +24,14 @@ import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
 
 internal object ResourceHelper {
+
+    private const val MATERIAL3_ENABLED_SYSPROP = "persist.cw_build.bluechip.enabled"
+
+    val material3Enabled: Boolean
+        get() {
+            return SystemProperties.getBoolean(MATERIAL3_ENABLED_SYSPROP, false)
+        }
+
     @DoNotInline
     fun getColor(context: Context, @ColorRes id: Int): Color? {
         return try {

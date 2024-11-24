@@ -24,6 +24,7 @@ import android.annotation.WorkerThread;
 import android.os.Build;
 import android.os.Handler;
 import android.os.UserHandle;
+import android.permission.internal.compat.UserHandleCompat;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
@@ -424,6 +425,42 @@ class RoleUserState {
                 }
             }
             return roleNames;
+        }
+    }
+
+    /**
+     * Return the active user for the role
+     *
+     * @param roleName the name of the role to get the active user for
+     */
+    public int getActiveUserForRole(@NonNull String roleName) {
+        synchronized (mLock) {
+            return mActiveUserIds.getOrDefault(roleName, UserHandleCompat.USER_NULL);
+        }
+    }
+
+    /**
+     * Set the active user for the role
+     *
+     * @param roleName the name of the role to set the active user for
+     * @param userId User id to set as active for this role
+     * @return whether any changes were made
+     */
+    public boolean setActiveUserForRole(@NonNull String roleName, @UserIdInt int userId) {
+        if (!com.android.permission.flags.Flags.crossUserRoleEnabled()) {
+            return false;
+        }
+        synchronized (mLock) {
+            Integer currentActiveUserId = mActiveUserIds.get(roleName);
+            // If we have pre-existing roles that weren't profile group exclusive and don't have an
+            // active user, ensure we set and write value, and return modified, otherwise other
+            // users might not have role holder revoked.
+            if (currentActiveUserId != null && currentActiveUserId == userId) {
+                return false;
+            }
+            mActiveUserIds.put(roleName, userId);
+            scheduleWriteFileLocked();
+            return true;
         }
     }
 
