@@ -39,6 +39,11 @@
         <option name="teardown-command" value="rm -rf /data/local/tmp/cts-role"/>
     </target_preparer>
 
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="cleanup" value="true" />
+        <option name="push" value="CtsRoleMultiUserTestApp.apk->/data/local/tmp/cts-role/CtsRoleMultiUserTestApp.apk" />
+    </target_preparer>
+
     <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
         <option name="package" value="android.app.rolemultiuser.cts" />
         <option name="exclude-annotation" value="com.android.bedstead.enterprise.annotations.RequireRunOnWorkProfile" />
