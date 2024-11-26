@@ -48,6 +48,7 @@ import androidx.annotation.VisibleForTesting;
 import com.android.modules.utils.build.SdkLevel;
 import com.android.role.controller.util.CollectionUtils;
 import com.android.role.controller.util.PackageUtils;
+import com.android.role.controller.util.RoleFlags;
 import com.android.role.controller.util.RoleManagerCompat;
 import com.android.role.controller.util.UserUtils;
 
@@ -113,7 +114,8 @@ public class Role {
     static {
         sExclusivityValues.put(EXCLUSIVITY_NONE, true);
         sExclusivityValues.put(EXCLUSIVITY_USER, true);
-        sExclusivityValues.put(EXCLUSIVITY_PROFILE_GROUP, true);
+        sExclusivityValues.put(EXCLUSIVITY_PROFILE_GROUP,
+            RoleFlags.isProfileGroupExclusivityAvailable());
     }
 
     /**
@@ -346,6 +348,10 @@ public class Role {
                 if (mShowNone && exclusivity == EXCLUSIVITY_NONE) {
                     throw new IllegalArgumentException(
                         "Role cannot be non-exclusive when showNone is true: " + exclusivity);
+                }
+                if (!mPreferredActivities.isEmpty() && exclusivity == EXCLUSIVITY_PROFILE_GROUP) {
+                    throw new IllegalArgumentException(
+                        "Role cannot have preferred activities when exclusivity is profileGroup");
                 }
                 return exclusivity;
             }
