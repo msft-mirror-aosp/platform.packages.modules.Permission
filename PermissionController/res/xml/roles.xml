@@ -1234,7 +1234,9 @@
             <permission-set name="virtual_device" />
             <!-- For capturing audio from the app on the device. -->
             <permission name="android.permission.RECORD_AUDIO" />
-
+            <permission
+                name="android.permission.ADD_MIRROR_DISPLAY"
+                featureFlag="android.companion.virtualdevice.flags.Flags.enableLimitedVdmRole" />
             <!--TODO(b/201605314) For calling Telecom framework API for audio streaming-->
             <!--<permission name="android.permission.PROVIDE_CALL_ENDPOINTS" />-->
        </permissions>
@@ -1304,6 +1306,8 @@
         <permissions>
             <permission-set name="nearby_devices" />
             <permission-set name="virtual_device" />
+            <permission-set name="notifications"
+                featureFlag="android.companion.virtualdevice.flags.Flags.notificationsForDeviceStreaming" />
         </permissions>
     </role>
 
@@ -1322,6 +1326,46 @@
             <permission name="android.permission.MANAGE_DEFAULT_APPLICATIONS" minSdkVersion="34"/>
             <permission name="android.permission.SUSPEND_APPS"/>
             <permission name="android.permission.SYSTEM_APPLICATION_OVERLAY"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_ACCOUNT_MANAGEMENT"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_APP_RESTRICTIONS"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_APPS_CONTROL"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_DEBUGGING_FEATURES"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_DISPLAY"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_FACTORY_RESET"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_FUN"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_INSTALL_UNKNOWN_SOURCES"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_KEYGUARD"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCATION"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCK"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCK_CREDENTIALS"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCK_TASK"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_MODIFY_USERS"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_PACKAGE_STATE"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_RESET_PASSWORD"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_RUNTIME_PERMISSIONS"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_SAFE_BOOT"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_TIME"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
+            <permission name="android.permission.MANAGE_PROFILE_AND_DEVICE_OWNERS"
+                featureFlag="android.permission.flags.Flags.supervisionRolePermissionUpdateEnabled"/>
         </permissions>
     </role>
 
@@ -1789,5 +1833,40 @@
         showNone="true"
         shortLabel="@string/role_wallet_short_label"
         uiBehavior="v35.WalletRoleUiBehavior"/>
+
+    <role
+        name="android.app.role.SYSTEM_DEPENDENCY_INSTALLER"
+        allowBypassingQualification="true"
+        defaultHolders="config_systemDependencyInstaller"
+        exclusive="true"
+        exclusivity="user"
+        featureFlag="android.content.pm.Flags.sdkDependencyInstaller"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <required-components>
+            <service permission="android.permission.BIND_DEPENDENCY_INSTALLER">
+                <intent-filter>
+                    <action name="android.content.pm.action.INSTALL_DEPENDENCY" />
+                </intent-filter>
+            </service>
+        </required-components>
+        <permissions>
+            <permission name="android.permission.ACCESS_SHARED_LIBRARIES" />
+            <permission name="android.permission.INSTALL_DEPENDENCY_SHARED_LIBRARIES" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for testing cross-user roles (exclusivity="profileGroup"). This should never be used
+      ~ to gate any actual functionality.
+      -->
+    <role
+        name="android.app.role.RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY"
+        exclusive="true"
+        exclusivity="profileGroup"
+        featureFlag="com.android.permission.flags.Flags.crossUserRoleEnabled"
+        showNone="true"
+        visible="false"/>
 
 </roles>
