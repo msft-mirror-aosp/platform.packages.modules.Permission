@@ -450,7 +450,7 @@
     <string name="special_app_access_no_apps" msgid="4102911722787886970">"Inga appar"</string>
     <string name="home_missing_work_profile_support" msgid="1756855847669387977">"Jobbprofiler stöds inte"</string>
     <string name="encryption_unaware_confirmation_message" msgid="8274491794636402484">"Obs! Om du startar om mobilen och har ställt in ett skärmlås kan appen inte startas förrän du låser upp mobilen."</string>
-    <string name="assistant_confirmation_message" msgid="7476540402884416212">"Assistenten kan läsa information om appar som används i systemet, inklusive information som visas på skärmen eller är åtkomlig i apparna."</string>
+    <string name="assistant_confirmation_message" msgid="7476540402884416212">"Assistent kan läsa information om appar som används i systemet, inklusive information som visas på skärmen eller är åtkomlig i apparna."</string>
     <string name="incident_report_channel_name" msgid="3144954065936288440">"Dela felsökningsinformation"</string>
     <string name="incident_report_notification_title" msgid="4635984625656519773">"Vill du dela detaljerad felsökningsinformation?"</string>
     <string name="incident_report_notification_text" msgid="3376480583513587923">"<xliff:g id="APP_NAME">%1$s</xliff:g> vill ladda upp felsökningsinformation."</string>
