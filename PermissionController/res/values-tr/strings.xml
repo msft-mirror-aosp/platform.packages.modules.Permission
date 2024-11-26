@@ -368,7 +368,7 @@
     <string name="role_dialer_search_keywords" msgid="3324448983559188087">"çevirici"</string>
     <string name="role_sms_label" msgid="8456999857547686640">"Varsayılan SMS uygulaması"</string>
     <string name="role_sms_short_label" msgid="4371444488034692243">"SMS uygulaması"</string>
-    <string name="role_sms_description" msgid="3424020199148153513">"Kısa mesajlar, fotoğraflar, videolar ve başka içerikler göndermek ve almak için telefon numaranızı kullanmanıza olanak tanıyan uygulamalar"</string>
+    <string name="role_sms_description" msgid="3424020199148153513">"Kısa mesaj, fotoğraf ve video gibi içerikleri göndermek ve almak için telefon numaranızı kullanabileceğiniz uygulamalar"</string>
     <string name="role_sms_request_title" msgid="7953552109601185602">"<xliff:g id="APP_NAME">%1$s</xliff:g> varsayılan SMS uygulamanız olarak ayarlansın mı?"</string>
     <string name="role_sms_request_description" msgid="2691004766132144886">"Bu uygulama Kamera, Kişiler, Dosyalar ve medya, Mikrofon, Telefon ve SMS\'inize erişebilecek"</string>
     <string name="role_sms_search_keywords" msgid="8022048144395047352">"kısa mesaj, kısa mesaj gönderme, mesajlar, mesajlaşma"</string>
@@ -380,7 +380,7 @@
     <string name="role_emergency_search_keywords" msgid="1920007722599213358">"acil durumda"</string>
     <string name="role_home_label" msgid="3871847846649769412">"Varsayılan ana ekran uygulaması"</string>
     <string name="role_home_short_label" msgid="8544733747952272337">"Ana ekran uygulaması"</string>
-    <string name="role_home_description" msgid="7997371519626556675">"Android cihazınızın Ana ekranı yerine geçen ve cihazınızın içeriklerine ve özelliklerine erişmenizi sağlayan, genellikle başlatıcı olarak adlandırılan uygulamalar"</string>
+    <string name="role_home_description" msgid="7997371519626556675">"Android cihazınızın ana ekranı yerine geçen, cihazınızın içeriklerine ve özelliklerine erişmenizi sağlayan, genellikle başlatıcılar olarak adlandırılan uygulamalar"</string>
     <string name="role_home_request_title" msgid="738136983453341081">"<xliff:g id="APP_NAME">%1$s</xliff:g>, varsayılan ana ekran uygulamanız olarak ayarlansın mı?"</string>
     <string name="role_home_request_description" msgid="2658833966716057673">"Herhangi bir izin gerekli değil"</string>
     <string name="role_home_search_keywords" msgid="3830755001192666285">"başlatıcı"</string>
@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"Tamam"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"İzin isteği reddedildi"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Bu uygulama ek izinler istiyor ancak akış oturumundayken izin verilemez. Önce telefonunuzda ilgili izni verin."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Telefonunuzu kontrol edin"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"Telefonunuza ulaşılamadı"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"Yeniden denemek istiyor musunuz?"</string>
 </resources>

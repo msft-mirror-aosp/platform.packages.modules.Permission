@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"ຕົກລົງ"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"ຄຳຮ້ອງຂໍການອະນຸຍາດຖືກລະງັບ"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"ແອັບນີ້ກຳລັງຮ້ອງຂໍການອະນຸຍາດເພີ່ມເຕີມ, ແຕ່ບໍ່ສາມາດໃຫ້ການອະນຸຍາດໃນເຊດຊັນການສະຕຣີມໄດ້. ກະລຸນາໃຫ້ການອະນຸຍາດໃນໂທລະສັບຂອງທ່ານກ່ອນ."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"ກວດເບິ່ງໂທລະສັບຂອງທ່ານ"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"ບໍ່ສາມາດເຂົ້າເຖິງໂທລະສັບຂອງທ່ານໄດ້"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"ລອງໃໝ່ບໍ?"</string>
 </resources>

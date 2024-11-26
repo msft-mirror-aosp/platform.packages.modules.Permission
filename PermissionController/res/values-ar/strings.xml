@@ -578,7 +578,7 @@
     <string name="security_settings" msgid="3808106921175271317">"إعدادات الأمان"</string>
     <string name="sensor_permissions_qs" msgid="1022267900031317472">"الأذونات"</string>
     <string name="safety_privacy_qs_tile_title" msgid="727301867710374052">"الأمان والخصوصية"</string>
-    <string name="safety_privacy_qs_tile_subtitle" msgid="3621544532041936749">"فحص الحالة"</string>
+    <string name="safety_privacy_qs_tile_subtitle" msgid="3621544532041936749">"التحقّق من الحالة"</string>
     <string name="privacy_controls_qs" msgid="5780144882040591169">"عناصر التحكّم في خصوصيتك"</string>
     <string name="security_settings_button_label_qs" msgid="8280343822465962330">"إعدادات إضافية"</string>
     <string name="camera_toggle_label_qs" msgid="3880261453066157285">"الوصول إلى الكاميرا"</string>
@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"حسنًا"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"تم إلغاء طلب الحصول على الإذن"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"يطلب هذا التطبيق الحصول على أذونات إضافية، ولكن لا يمكن منح أذونات في جلسة بث. امنح الإذن على هاتفك أولاً."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"يرجى التحقّق من هاتفك"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"تعذَّر الوصول إلى هاتفك"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"هل تريد إعادة المحاولة؟"</string>
 </resources>

@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"ઓકે"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"પરવાનગીની વિનંતી નકારવામાં આવી"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"આ ઍપ વધારાની પરવાનગીઓની વિનંતી કરી રહી છે પણ સ્ટ્રીમિંગ સત્રમાં પરવાનગીઓને મંજૂરી આપી શકાતી નથી. પહેલા તમારા ફોન પર પરવાનગીની મંજૂરી આપો."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"તમારો ફોન ચેક કરો"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"તમારા ફોન સુધી પહોંચી શકાયું નથી"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"ફરી પ્રયાસ કરીએ?"</string>
 </resources>

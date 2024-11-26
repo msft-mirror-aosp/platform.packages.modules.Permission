@@ -361,14 +361,14 @@
     <string name="role_browser_request_title" msgid="2895200507835937192">"要將 <xliff:g id="APP_NAME">%1$s</xliff:g> 設為預設瀏覽器應用程式嗎？"</string>
     <string name="role_browser_request_description" msgid="5888803407905985941">"無需任何權限"</string>
     <string name="role_dialer_label" msgid="1100224146343237968">"預設電話應用程式"</string>
-    <string name="role_dialer_short_label" msgid="7186888549465352489">"手機應用程式"</string>
+    <string name="role_dialer_short_label" msgid="7186888549465352489">"電話應用程式"</string>
     <string name="role_dialer_description" msgid="8768708633696539612">"此類應用程式允許你使用自己的裝置撥打和接聽電話"</string>
     <string name="role_dialer_request_title" msgid="5959618560705912058">"要將「<xliff:g id="APP_NAME">%1$s</xliff:g>」設為預設手機應用程式嗎？"</string>
     <string name="role_dialer_request_description" msgid="6288839625724909320">"此應用程式將可存取你的相機、通訊錄、麥克風、電話及短訊"</string>
     <string name="role_dialer_search_keywords" msgid="3324448983559188087">"撥號器"</string>
     <string name="role_sms_label" msgid="8456999857547686640">"預設短訊應用程式"</string>
     <string name="role_sms_short_label" msgid="4371444488034692243">"短訊應用程式"</string>
-    <string name="role_sms_description" msgid="3424020199148153513">"此類應用程式允許你使用自己手機號碼傳送和接收短訊、相片、影片和其他資料"</string>
+    <string name="role_sms_description" msgid="3424020199148153513">"此類應用程式允許你使用自己的手機號碼傳送和接收短訊、相片、影片和其他資料"</string>
     <string name="role_sms_request_title" msgid="7953552109601185602">"要將「<xliff:g id="APP_NAME">%1$s</xliff:g>」設為預設短訊應用程式嗎？"</string>
     <string name="role_sms_request_description" msgid="2691004766132144886">"此應用程式將可存取你的相機、通訊錄、檔案和媒體、麥克風、電話及短訊"</string>
     <string name="role_sms_search_keywords" msgid="8022048144395047352">"短訊, 發短訊, 訊息, 傳送短訊"</string>
@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"確定"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"權限要求被拒"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"此應用程式要求額外的權限，但串流工作階段期間無法授予權限。請先在手機上授予權限。"</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"請查看手機"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"無法連接你的手機"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"要重試嗎？"</string>
 </resources>

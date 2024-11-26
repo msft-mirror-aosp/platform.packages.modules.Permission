@@ -79,7 +79,7 @@
     <string name="additional_permissions" msgid="5801285469338873430">"Izin tambahan"</string>
     <string name="app_permissions_info_button_label" msgid="7633312050729974623">"Buka info aplikasi"</string>
     <string name="additional_permissions_more" msgid="5681220714755304407">"{count,plural, =1{# lainnya}other{# lainnya}}"</string>
-    <string name="old_sdk_deny_warning" msgid="2382236998845153919">"Aplikasi ini dirancang untuk versi lama Android. Menolak izin dapat menyebabkan aplikasi tidak berfungsi lagi sesuai harapan."</string>
+    <string name="old_sdk_deny_warning" msgid="2382236998845153919">"Aplikasi ini dirancang untuk versi lama Android. Menolak izin dapat membuat aplikasi tidak lagi berfungsi sebagaimana mestinya."</string>
     <string name="storage_supergroup_warning_allow" msgid="103093462784523190">"Aplikasi ini dirancang untuk versi lama Android. Jika Anda memberikan izin ini, akses ke semua penyimpanan (termasuk foto, video, musik, audio, dan file lainnya) akan diizinkan."</string>
     <string name="storage_supergroup_warning_deny" msgid="6420765672683284347">"Aplikasi ini dirancang untuk versi lama Android. Jika Anda menolak izin ini, akses ke semua penyimpanan (termasuk foto, video, musik, audio, dan file lainnya) akan ditolak."</string>
     <string name="default_permission_description" msgid="4624464917726285203">"melakukan tindakan yang tidak dikenal"</string>
@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"Oke"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Permintaan izin diblokir"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Aplikasi ini meminta izin tambahan, tetapi izin tidak dapat diberikan dalam sesi streaming. Berikan izin di ponsel terlebih dahulu."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Periksa ponsel Anda"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"Tidak dapat terhubung ke ponsel"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"Coba lagi?"</string>
 </resources>

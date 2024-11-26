@@ -680,5 +680,8 @@
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"Saznajte više"</string>
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"Uredu"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Zahtjev za odobrenje je potisnut"</string>
-    <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Aplikacija traži dodatna odobrenja, ali se ona ne mogu dati u sesiji prijenosa. Najprije dajte odobrenje na telefonu."</string>
+    <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Aplikacija traži dodatna odobrenja, ali se ona ne mogu dati u sesiji prenosa. Najprije dajte odobrenje na telefonu."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Provjerite telefon"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"Nije se moguće povezati s telefonom"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"Pokušati ponovo?"</string>
 </resources>

@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"OK"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Žiadosť o povolenie bola zablokovaná"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Táto aplikácia požaduje ďalšie povolenia, ale povolenia nie je možné udeliť v relácii streamovania. Najprv udeľte povolenie v telefóne."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Skontrolovať telefón"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"S telefónom sa nepodarilo spojiť"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"Chcete to skúsiť znova?"</string>
 </resources>
