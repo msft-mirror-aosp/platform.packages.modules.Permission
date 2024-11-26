@@ -720,10 +720,6 @@
                 featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
             <permission name="android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED"
                 featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
-            <permission name="android.permission.COPY_ACCOUNTS"
-                featureFlag="android.permission.flags.Flags.devicePolicyManagementRoleSplitCreateManagedProfileEnabled" />
-            <permission name="android.permission.REMOVE_ACCOUNTS"
-                featureFlag="android.permission.flags.Flags.devicePolicyManagementRoleSplitCreateManagedProfileEnabled" />
         </permissions>
     </role>
 
@@ -1488,10 +1484,6 @@
             <permission name="android.permission.MANAGE_DEVICE_POLICY_DISPLAY" minSdkVersion="35" />
             <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCALE" minSdkVersion="35" />
             <permission name="android.permission.MANAGE_DEVICE_POLICY_SMS" minSdkVersion="35" />
-            <permission name="android.permission.COPY_ACCOUNTS"
-                featureFlag="android.permission.flags.Flags.devicePolicyManagementRoleSplitCreateManagedProfileEnabled" />
-            <permission name="android.permission.REMOVE_ACCOUNTS"
-                featureFlag="android.permission.flags.Flags.devicePolicyManagementRoleSplitCreateManagedProfileEnabled" />
         </permissions>
     </role>
 
