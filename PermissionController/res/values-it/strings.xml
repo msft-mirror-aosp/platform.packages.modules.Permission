@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" msgid="6098036489833144040">"App di controllo autorizzazioni"</string>
-    <string name="ok" msgid="1936281769725676272">"OK"</string>
+    <string name="ok" msgid="1936281769725676272">"Ok"</string>
     <string name="permission_search_keyword" msgid="1214451577494730543">"autorizzazioni"</string>
     <string name="cancel" msgid="8943320028373963831">"Annulla"</string>
     <string name="back" msgid="6249950659061523680">"Indietro"</string>
@@ -421,7 +421,7 @@
     <string name="system_uses_microphone_and_camera" msgid="5124478304275138804">"La videocamera e il microfono sono in uso per un servizio di sistema"</string>
     <string name="system_uses_camera" msgid="1911223105234441470">"La videocamera è in uso per un servizio di sistema"</string>
     <string name="other_use" msgid="6564855051022776692">"Altro uso:"</string>
-    <string name="ongoing_usage_dialog_ok" msgid="103556809118460072">"OK"</string>
+    <string name="ongoing_usage_dialog_ok" msgid="103556809118460072">"Ok"</string>
     <string name="ongoing_usage_dialog_title" msgid="683836493556628569">"Uso recente di <xliff:g id="TYPES_LIST">%s</xliff:g>"</string>
     <string name="ongoing_usage_dialog_title_mic" msgid="5966714811125593992">"Utilizzo recente di Microfono"</string>
     <string name="ongoing_usage_dialog_title_camera" msgid="7819329688650711470">"Utilizzo recente di Fotocamera"</string>
@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"Ok"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Richiesta di autorizzazione rifiutata"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Questa app richiede autorizzazioni aggiuntive, ma non è possibile concedere autorizzazioni in una sessione di streaming. Devi prima concedere l\'autorizzazione sul tuo smartphone."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Controlla il tuo smartphone"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"Impossibile collegarsi allo smartphone"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"Vuoi riprovare?"</string>
 </resources>

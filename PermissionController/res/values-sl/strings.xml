@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"V redu"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Zahteva za dovoljenje je bila prezrta"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Ta aplikacija zahteva dodatna dovoljenja, vendar teh ni mogoče odobriti med sejo pretočnega predvajanja. Dovoljenje najprej odobrite v telefonu."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Preverite telefon"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"Telefona ni bilo mogoče doseči"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"Ali želite poskusiti znova?"</string>
 </resources>

@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"හරි"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"අවසර ඉල්ලීම වළක්වා ඇත"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"මෙම යෙදුම අතිරේක අවසර ඉල්ලා සිටින නමුත්, ප්‍රවාහ කිරීමේ සැසියක අවසර ලබා දිය නොහැක. පළමුව ඔබේ දුරකථනයෙන් අවසරය ලබා දෙන්න."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"ඔබේ දුරකථනය පරීක්ෂා කරන්න"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"ඔබේ දුරකථනය වෙත ළඟා විය නොහැකි විය"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"යළි උත්සාහ කරන්න ද?"</string>
 </resources>

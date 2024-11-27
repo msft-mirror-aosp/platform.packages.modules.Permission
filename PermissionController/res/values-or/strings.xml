@@ -59,7 +59,7 @@
     <string name="grant_dialog_button_allow_all_files" msgid="4955436994954829894">"ସମସ୍ତ ଫାଇଲର ପରିଚାଳନା ପାଇଁ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="grant_dialog_button_allow_media_only" msgid="4832877658422573832">"ମିଡିଆ ଫାଇଲଗୁଡ଼ିକୁ ଆକ୍ସେସ୍ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="app_permissions_breadcrumb" msgid="5136969550489411650">"ଆପ୍ସ"</string>
-    <string name="app_permissions" msgid="3369917736607944781">"ଆପ ଅନୁମତିଗୁଡ଼ିକ"</string>
+    <string name="app_permissions" msgid="3369917736607944781">"ଆପ ଅନୁମତି"</string>
     <string name="unused_apps" msgid="2058057455175955094">"ଅବ୍ୟବହୃତ ଆପ୍ସ"</string>
     <string name="edit_photos_description" msgid="5540108003480078892">"ଏହି ଆପ ପାଇଁ ଚୟନିତ ଫଟୋଗୁଡ଼ିକୁ ଏଡିଟ କରନ୍ତୁ"</string>
     <string name="no_unused_apps" msgid="12809387670415295">"କୌଣସି ଅବ୍ୟବହୃତ ଆପ୍ ନାହିଁ"</string>
@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"ଠିକ ଅଛି"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"ଅନୁମତି ଅନୁରୋଧକୁ ବନ୍ଦ କରାଯାଇଛି"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"ଏହି ଆପ ଅତିରିକ୍ତ ଅନୁମତି ପାଇଁ ଅନୁରୋଧ କରୁଛି, ଏକ ଷ୍ଟ୍ରିମିଂ ସେସନରେ ଅନୁମତି ଦିଆଯାଇପାରିବ ନାହିଁ। ପ୍ରଥମେ ଆପଣଙ୍କ ଫୋନରେ ଅନୁମତି ଦିଅନ୍ତୁ।"</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"ଆପଣଙ୍କ ଫୋନ ଯାଞ୍ଚ କରନ୍ତୁ"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"ଆପଣଙ୍କ ଫୋନ ସହ କନେକ୍ଟ କରାଯାଇପାରିଲା ନାହିଁ"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"ପୁଣି ଚେଷ୍ଟା କରିବେ?"</string>
 </resources>

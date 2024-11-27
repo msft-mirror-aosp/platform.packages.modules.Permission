@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"ঠিক আছে"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"অনুমতিৰ অনুৰোধ অৱদমন কৰা হৈছে"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"এই এপ্‌টোৱে অতিৰিক্ত অনুমতিৰ বাবে অনুৰোধ কৰিছে, কিন্তু ষ্ট্ৰীমিং ছেশ্বনত অনুমতি দিব নোৱাৰি। আপোনাৰ ফ’নটোত প্ৰথমে অনুমতি দিয়ক।"</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"আপোনাৰ ফ’নটো চাওক"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"আপোনাৰ ফ’নটোৰ সৈতে সংযোগ কৰিব পৰা নগ’ল"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"পুনৰ চেষ্টা কৰিবনে?"</string>
 </resources>
