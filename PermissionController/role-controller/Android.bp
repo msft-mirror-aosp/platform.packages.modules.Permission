@@ -37,7 +37,6 @@ java_library {
         "android.content.pm.flags-aconfig-java-export",
         "android.permission.flags-aconfig-java-export",
         "android.os.flags-aconfig-java-export",
-        "device_policy_aconfig_flags_java_export",
     ],
     apex_available: [
         "com.android.permission",
