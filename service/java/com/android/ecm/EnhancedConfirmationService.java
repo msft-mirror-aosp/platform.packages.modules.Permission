@@ -158,9 +158,16 @@ public class EnhancedConfirmationService extends SystemService {
 
     private @CallType int getCallType(Call call) {
         String number = getPhoneNumber(call);
-        if (number != null && mTelephonyManager.isEmergencyNumber(number)) {
-            return CALL_TYPE_EMERGENCY;
-        } else if (number != null) {
+        try {
+            if (number != null && mTelephonyManager.isEmergencyNumber(number)) {
+                return CALL_TYPE_EMERGENCY;
+            }
+        } catch (IllegalStateException | UnsupportedOperationException e) {
+            // If either of these are thrown, the telephony service is not available on the current
+            // device, either because the device lacks telephony calling, or the telephony service
+            // is unavailable.
+        }
+        if (number != null) {
             return hasContactWithPhoneNumber(number) ? CALL_TYPE_TRUSTED : CALL_TYPE_UNTRUSTED;
         } else {
             return hasContactWithDisplayName(call.getDetails().getCallerDisplayName())
