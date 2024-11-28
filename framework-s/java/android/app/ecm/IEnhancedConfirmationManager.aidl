@@ -30,4 +30,7 @@ interface IEnhancedConfirmationManager {
     boolean isClearRestrictionAllowed(in String packageName, int userId);
 
     void setClearRestrictionAllowed(in String packageName, int userId);
+
+    boolean isUntrustedCallOngoing();
+
 }

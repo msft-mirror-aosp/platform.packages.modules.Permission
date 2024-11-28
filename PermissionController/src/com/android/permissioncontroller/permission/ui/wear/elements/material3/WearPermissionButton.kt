@@ -16,14 +16,21 @@
 package com.android.permissioncontroller.permission.ui.wear.elements.material3
 
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonColors
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.LocalTextConfiguration
+import androidx.wear.compose.material3.LocalTextStyle
 import androidx.wear.compose.material3.Text
 import com.android.permissioncontroller.permission.ui.wear.elements.Chip
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
@@ -76,9 +83,9 @@ fun WearPermissionButton(
 }
 
 @Composable
-private fun WearPermissionButtonInternal(
-    label: String,
+internal fun WearPermissionButtonInternal(
     modifier: Modifier = Modifier,
+    label: String? = null,
     iconBuilder: WearPermissionIconBuilder? = null,
     labelMaxLines: Int? = null,
     secondaryLabel: String? = null,
@@ -86,16 +93,31 @@ private fun WearPermissionButtonInternal(
     onClick: () -> Unit,
     enabled: Boolean = true,
     colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    requiresMinimumHeight: Boolean = true,
 ) {
+    val minHeight: Dp =
+        if (requiresMinimumHeight) {
+            0.dp
+        } else {
+            1.dp
+        }
     val iconParam: (@Composable BoxScope.() -> Unit)? = iconBuilder?.let { { it.build() } }
-
-    val labelParam: (@Composable RowScope.() -> Unit) = {
-        Text(
-            text = label,
-            modifier = Modifier.fillMaxWidth(),
-            maxLines = labelMaxLines ?: LocalTextConfiguration.current.maxLines,
-        )
-    }
+    val labelParam: (@Composable RowScope.() -> Unit)? =
+        label?.let {
+            {
+                Text(
+                    text = label,
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = labelMaxLines ?: LocalTextConfiguration.current.maxLines,
+                    style =
+                        LocalTextStyle.current.copy(
+                            fontWeight = FontWeight.W600,
+                            hyphens = Hyphens.Auto,
+                        ),
+                )
+            }
+        }
 
     val secondaryLabelParam: (@Composable RowScope.() -> Unit)? =
         secondaryLabel?.let {
@@ -110,11 +132,12 @@ private fun WearPermissionButtonInternal(
 
     Button(
         icon = iconParam,
-        label = labelParam,
+        label = labelParam ?: {},
         secondaryLabel = secondaryLabelParam,
         enabled = enabled,
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.requiredSizeIn(minHeight = minHeight).fillMaxWidth(),
+        contentPadding = contentPadding,
         colors = colors,
     )
 }
