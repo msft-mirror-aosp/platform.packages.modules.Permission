@@ -16,6 +16,7 @@
 
 package com.android.role.controller.service;
 
+import android.annotation.UserIdInt;
 import android.app.role.RoleControllerService;
 import android.app.role.RoleManager;
 import android.content.Context;
@@ -49,10 +50,20 @@ public class RoleControllerServiceImpl extends RoleControllerService {
 
     private static final boolean DEBUG = false;
 
+    public static volatile SetActiveUserForRoleMethod sSetActiveUserForRoleMethod;
 
     private UserHandle mUser;
     private Context mContext;
     private RoleManager mUserRoleManager;
+
+    /** Method for setting active user from role controller */
+    public interface SetActiveUserForRoleMethod {
+        /**
+         * Sets user as active for the given role.
+         * @see RoleManager#setActiveUserForRole(String, UserHandle, int)
+         */
+        void setActiveUserForRole(@NonNull String roleName, @UserIdInt int userId, int flags);
+    }
 
     public RoleControllerServiceImpl() {}
 
@@ -232,6 +243,11 @@ public class RoleControllerServiceImpl extends RoleControllerService {
 
         boolean added = false;
         if (role.isExclusive()) {
+            if (role.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP) {
+                sSetActiveUserForRoleMethod.setActiveUserForRole(roleName, mUser.getIdentifier(),
+                        flags);
+            }
+
             List<String> currentPackageNames = mUserRoleManager.getRoleHolders(roleName);
             int currentPackageNamesSize = currentPackageNames.size();
             for (int i = 0; i < currentPackageNamesSize; i++) {
