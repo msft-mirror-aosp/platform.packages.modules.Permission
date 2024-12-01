@@ -507,7 +507,7 @@
     <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"Cho phép &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; ghi âm?"</string>
     <string name="permgroupbackgroundrequest_device_aware_microphone" msgid="3321823187623762958">"Cho phép &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; ghi âm trên &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;?"</string>
     <string name="permgroupbackgroundrequestdetail_microphone" msgid="553702902263681838">"Ứng dụng này có thể muốn ghi âm mọi lúc, ngay cả khi bạn không dùng ứng dụng. "<annotation id="link">"Cho phép trong phần cài đặt."</annotation></string>
-    <string name="permgroupupgraderequest_microphone" msgid="1362781696161233341">"Thay đổi quyền sử dụng micrô của &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupupgraderequest_microphone" msgid="1362781696161233341">"Thay đổi quyền truy cập micrô của &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;?"</string>
     <string name="permgroupupgraderequest_device_aware_microphone" msgid="8722411173971679806">"Thay đổi quyền truy cập vào micrô của &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; trên &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;?"</string>
     <string name="permgroupupgraderequestdetail_microphone" msgid="2870497719571464239">"Ứng dụng này muốn ghi âm mọi lúc, ngay cả khi bạn không dùng ứng dụng. "<annotation id="link">"Cho phép trong phần cài đặt."</annotation></string>
     <string name="permgrouprequest_activityRecognition" msgid="5415121592794230330">"Cho phép &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; truy cập vào dữ liệu hoạt động thể chất?"</string>
@@ -543,7 +543,7 @@
     <string name="not_used_permissions_description" msgid="7595514824169388718">"Quyền mà chỉ có ứng dụng hệ thống sử dụng."</string>
     <string name="additional_permissions_label" msgid="7693557637462569046">"Quyền bổ sung"</string>
     <string name="additional_permissions_description" msgid="2186611950890732112">"Quyền do ứng dụng xác định."</string>
-    <string name="privdash_label_camera" msgid="1426440033626198096">"Máy ảnh"</string>
+    <string name="privdash_label_camera" msgid="1426440033626198096">"Camera"</string>
     <string name="privdash_label_microphone" msgid="8415035835803511693">"Micrô"</string>
     <string name="privdash_label_location" msgid="6882400763866489291">"Vị trí"</string>
     <string name="privdash_label_other" msgid="3710394147423236033">"Khác"</string>
@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"OK"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Yêu cầu quyền đã bị chặn"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Ứng dụng này đang yêu cầu thêm quyền, nhưng bạn không thể cấp quyền trong một phiên truyền trực tuyến. Trước tiên, hãy cấp quyền trên điện thoại của bạn."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Kiểm tra điện thoại của bạn"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"Không kết nối được với điện thoại của bạn"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"Thử lại?"</string>
 </resources>

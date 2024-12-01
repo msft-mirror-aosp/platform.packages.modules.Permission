@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"ОК"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Зөвшөөрлийн хүсэлтийг зогсоосон"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Энэ апп нэмэлт зөвшөөрөл хүсэж байгаа ч дамжуулалтын харилцан үйлдлийн үеэр зөвшөөрөл олгох боломжгүй. Эхлээд утсан дээрээ зөвшөөрөл олгоно уу."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Утсаа шалгах"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"Таны утастай холбогдож чадсангүй"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"Дахин оролдох уу?"</string>
 </resources>

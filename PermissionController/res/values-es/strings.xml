@@ -582,7 +582,7 @@
     <string name="privacy_controls_qs" msgid="5780144882040591169">"Tus controles de privacidad"</string>
     <string name="security_settings_button_label_qs" msgid="8280343822465962330">"Más ajustes"</string>
     <string name="camera_toggle_label_qs" msgid="3880261453066157285">"Acceso a la cámara"</string>
-    <string name="microphone_toggle_label_qs" msgid="8132912469813396552">"Acceso al micrófono"</string>
+    <string name="microphone_toggle_label_qs" msgid="8132912469813396552">"Acceso a micro"</string>
     <string name="permissions_removed_qs" msgid="8957319130625294572">"Permiso retirado"</string>
     <string name="camera_usage_qs" msgid="4394233566086665994">"Ver el uso reciente de la cámara"</string>
     <string name="microphone_usage_qs" msgid="8527666682168170417">"Ver el uso reciente del micrófono"</string>
@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"Aceptar"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Solicitud de permiso rechazada"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Esta aplicación está solicitando permisos adicionales, pero no se pueden dar durante una sesión de streaming. Da primero el permiso en tu teléfono."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Consulta tu teléfono"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"No se ha podido conectar con tu teléfono"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"¿Reintentar?"</string>
 </resources>

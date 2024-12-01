@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"OK"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Loataotlus peideti"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"See rakendus taotleb lisalube, kuid lube ei saa voogesituse seansis anda. Kõigepealt andke luba oma telefonile."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Kontrollige oma telefoni"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"Teie telefoniga ei saanud ühendust"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"Kas soovite uuesti proovida?"</string>
 </resources>

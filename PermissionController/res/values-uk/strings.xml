@@ -194,7 +194,7 @@
     <string name="app_permission_button_allow_limited_access" msgid="8824410215149764113">"Дозволити обмежений доступ"</string>
     <string name="precise_image_description" msgid="6349638632303619872">"Точне місцезнаходження"</string>
     <string name="approximate_image_description" msgid="938803699637069884">"Приблизне місцезнаходження"</string>
-    <string name="app_permission_location_accuracy" msgid="7166912915040018669">"Використовувати точне місцезнаходження"</string>
+    <string name="app_permission_location_accuracy" msgid="7166912915040018669">"Точне місцезнаходження"</string>
     <string name="app_permission_location_accuracy_subtitle" msgid="2654077606404987210">"Якщо вимкнено доступ до точного місцезнаходження, додатки можуть отримувати дані про приблизне"</string>
     <string name="app_permission_title" msgid="2090897901051370711">"Дозвіл \"<xliff:g id="PERM">%1$s</xliff:g>\""</string>
     <string name="app_permission_header" msgid="2951363137032603806">"<xliff:g id="PERM">%1$s</xliff:g>: доступ для цього додатка"</string>
@@ -361,7 +361,7 @@
     <string name="role_browser_request_title" msgid="2895200507835937192">"Зробити <xliff:g id="APP_NAME">%1$s</xliff:g> веб-переглядачем за умовчанням?"</string>
     <string name="role_browser_request_description" msgid="5888803407905985941">"Дозволи не потрібні"</string>
     <string name="role_dialer_label" msgid="1100224146343237968">"Дзвінки за умовчанням"</string>
-    <string name="role_dialer_short_label" msgid="7186888549465352489">"Додаток для викликів"</string>
+    <string name="role_dialer_short_label" msgid="7186888549465352489">"Додаток для дзвінків"</string>
     <string name="role_dialer_description" msgid="8768708633696539612">"Додатки, у яких можна здійснювати й приймати виклики на пристрої"</string>
     <string name="role_dialer_request_title" msgid="5959618560705912058">"Чи має <xliff:g id="APP_NAME">%1$s</xliff:g> використовуватись як додаток для викликів за умовчанням?"</string>
     <string name="role_dialer_request_description" msgid="6288839625724909320">"Цьому додатку буде надано дозволи \"Камера\", \"Контакти\", \"Мікрофон\", \"Телефон\" і \"SMS\""</string>
@@ -380,7 +380,7 @@
     <string name="role_emergency_search_keywords" msgid="1920007722599213358">"в екстреному випадку"</string>
     <string name="role_home_label" msgid="3871847846649769412">"Додаток головного екрана за умовчанням"</string>
     <string name="role_home_short_label" msgid="8544733747952272337">"Додаток головного екрана"</string>
-    <string name="role_home_description" msgid="7997371519626556675">"Додатки, які заміняють головний екран і забезпечують доступ до вмісту та функцій пристрою Android (так звані панелі запуску)"</string>
+    <string name="role_home_description" msgid="7997371519626556675">"Додатки, які заміняють головний екран і забезпечують доступ до вмісту й функцій пристрою Android (так звані панелі запуску)"</string>
     <string name="role_home_request_title" msgid="738136983453341081">"Чи має <xliff:g id="APP_NAME">%1$s</xliff:g> використовуватись як додаток головного екрана за умовчанням?"</string>
     <string name="role_home_request_description" msgid="2658833966716057673">"Дозволи не потрібні"</string>
     <string name="role_home_search_keywords" msgid="3830755001192666285">"панель запуску"</string>
@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"ОК"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Запит на доступ відхилено"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Цьому додатку потрібно більше дозволів, але їх не можна надати під час потокового передавання. Спершу надайте дозвіл на телефоні."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Перевірте телефон"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"Не вдалося підключитися до телефона"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"Повторити?"</string>
 </resources>

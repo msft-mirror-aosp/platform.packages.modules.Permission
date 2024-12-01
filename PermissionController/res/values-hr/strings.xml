@@ -681,4 +681,7 @@
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"U redu"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Upit za dopuštenje je spriječen"</string>
     <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Aplikacija zahtijeva dodatna dopuštenja, no dopuštenja se ne mogu odobriti u sesiji streaminga. Dopuštenje najprije odobrite na telefonu."</string>
+    <string name="wear_check_your_phone_title" msgid="7957291983474981420">"Provjerite telefon"</string>
+    <string name="wear_phone_connection_error" msgid="8934350845737930783">"Nije moguće dohvatiti telefon"</string>
+    <string name="wear_phone_connection_should_retry" msgid="2835355845567088003">"Želite li pokušati ponovo?"</string>
 </resources>
