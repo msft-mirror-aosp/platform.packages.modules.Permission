@@ -28,6 +28,7 @@ java_library {
     libs: [
         "androidx.annotation_annotation",
         "com.android.permission.flags-aconfig-java",
+        "framework-annotations-lib",
     ],
     static_libs: [
         "modules-utils-build_system",

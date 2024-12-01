@@ -16,35 +16,8 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-android_test {
-    name: "CtsRoleMultiUserTestCases",
+android_test_helper_app {
+    name: "CtsRoleMultiUserTestApp",
     defaults: ["mts-target-sdk-version-current"],
-    sdk_version: "test_current",
     min_sdk_version: "30",
-
-    srcs: [
-        "src/**/*.kt",
-    ],
-
-    static_libs: [
-        "bedstead-flags",
-        "bedstead-multiuser",
-        "com.android.permission.flags-aconfig-java-export",
-        "ctstestrunner-axt",
-        "Harrier",
-        "flag-junit",
-        "Nene",
-        "truth",
-    ],
-
-    test_suites: [
-        "cts",
-        "general-tests",
-        "mts-permission",
-        "mcts-permission",
-    ],
-
-    data: [
-        ":CtsRoleMultiUserTestApp",
-    ],
 }

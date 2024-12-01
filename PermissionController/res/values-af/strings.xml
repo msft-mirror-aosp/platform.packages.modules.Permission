@@ -288,17 +288,17 @@
     <string name="auto_revoke_preference_summary" msgid="5517958331781391481">"Toestemmings is verwyder om jou privaatheid te beskerm"</string>
     <string name="background_location_access_reminder_notification_title" msgid="1140797924301941262">"<xliff:g id="APP_NAME">%s</xliff:g> het jou ligging op die agtergrond gekry"</string>
     <string name="background_location_access_reminder_notification_content" msgid="7787084707336546245">"Hierdie program het altyd toegang tot jou ligging. Tik om te verander."</string>
-    <string name="notification_listener_reminder_notification_title" msgid="3747210460187479091">"Gaan program met toegang tot jou kennisgewings na"</string>
+    <string name="notification_listener_reminder_notification_title" msgid="3747210460187479091">"Gaan app met toegang tot jou kennisgewings na"</string>
     <string name="notification_listener_reminder_notification_content" msgid="831476101108863427">"<xliff:g id="APP_NAME">%s</xliff:g> kan inhoud in jou kennisgewings toemaak, daarop reageer en toegang daartoe kry"</string>
-    <string name="notification_listener_warning_card_content" msgid="7840973324284115893">"Hierdie program kan inhoud in jou kennisgewings toemaak, daarop reageer en toegang daartoe kry. Sommige programme het hierdie toegang nodig om te werk soos hulle moet."</string>
+    <string name="notification_listener_warning_card_content" msgid="7840973324284115893">"Hierdie app kan inhoud in jou kennisgewings toemaak, daarop reageer en toegang daartoe kry. Sommige apps het hierdie toegang nodig om te werk soos hulle moet."</string>
     <string name="notification_listener_remove_access_button_label" msgid="7101898782417817097">"Verwyder toegang"</string>
     <string name="notification_listener_review_app_button_label" msgid="3433073281029143924">"Sien meer opsies"</string>
     <string name="notification_listener_remove_access_success_label" msgid="2477611529875633107">"Toegang is verwyder"</string>
-    <string name="accessibility_access_reminder_notification_title" msgid="2971317234668807566">"Gaan program met volle toesteltoegang na"</string>
+    <string name="accessibility_access_reminder_notification_title" msgid="2971317234668807566">"Gaan app met volle toesteltoegang na"</string>
     <string name="accessibility_access_reminder_notification_content" msgid="7389454158175306720">"<xliff:g id="APP_NAME">%s</xliff:g> kan jou skerm sien en handelinge op jou toestel uitvoer. Toeganklikheidprogramme het hierdie soort toegang nodig om te werk soos hulle moet."</string>
-    <string name="accessibility_access_warning_card_content" msgid="4370327190293217358">"Hierdie program kan jou skerm sien en handelinge op jou toestel uitvoer. Toeganklikheidprogramme het hierdie soort toegang nodig om te werk soos hulle moet, maar gaan die program na en maak seker dat jy dit kan vertrou."</string>
+    <string name="accessibility_access_warning_card_content" msgid="4370327190293217358">"Hierdie app kan jou skerm sien en handelinge op jou toestel uitvoer. Toeganklikheidapps het hierdie soort toegang nodig om te werk soos hulle moet, maar gaan die app na en maak seker dat jy dit kan vertrou."</string>
     <string name="accessibility_remove_access_button_label" msgid="44145801526711640">"Verwyder toegang"</string>
-    <string name="accessibility_show_all_apps_button_label" msgid="960067249326392280">"Bekyk program met volle toegang"</string>
+    <string name="accessibility_show_all_apps_button_label" msgid="960067249326392280">"Bekyk apps met volle toegang"</string>
     <string name="accessibility_remove_access_success_label" msgid="4380995302917014670">"Toegang is verwyder"</string>
     <string name="safety_center_notification_app_label" msgid="2457720616141926534">"Android-stelsel"</string>
     <string name="auto_revoke_after_notification_title" msgid="5417761027669887431">"Programtoestemmings is verwyder om privaatheid te beskerm"</string>
@@ -618,8 +618,8 @@
     <string name="media_confirm_dialog_message_q_to_s_aural_deny" msgid="6832087393653561911">"Hierdie program steun nie die jongste weergawe van Android nie. As hierdie program nie toegang tot musiek- en oudiolêers het nie, sal dit ook nie toegelaat word om toegang tot foto\'s en video\'s te kry nie."</string>
     <string name="media_confirm_dialog_message_q_to_s_visual_allow" msgid="3504335060843147760">"Hierdie program steun nie die jongste weergawe van Android nie. As hierdie program toegang tot foto\'s en video\'s het, sal dit ook toegelaat word toegang tot musiek-, oudio- en ander lêers te kry."</string>
     <string name="media_confirm_dialog_message_q_to_s_visual_deny" msgid="2145973462806481992">"Hierdie program steun nie die jongste weergawe van Android nie. As hierdie program nie toegang tot musiek- en oudiolêers het nie, sal dit ook nie toegelaat word om toegang tot foto\'s en video\'s te kry nie."</string>
-    <string name="safety_center_background_location_access_notification_title" msgid="8933610618810588237">"Gaan program met agtergrondliggingtoegang na"</string>
-    <string name="safety_center_background_location_access_reminder_notification_content" msgid="4066560182507301022">"<xliff:g id="APP_NAME">%s</xliff:g> het altyd toegang tot jou ligging, selfs wanneer die program toe is"</string>
+    <string name="safety_center_background_location_access_notification_title" msgid="8933610618810588237">"Gaan app met agtergrondliggingtoegang na"</string>
+    <string name="safety_center_background_location_access_reminder_notification_content" msgid="4066560182507301022">"<xliff:g id="APP_NAME">%s</xliff:g> het altyd toegang tot jou ligging, selfs wanneer die app toe is"</string>
     <string name="safety_center_background_location_access_reminder_title" msgid="5477847038103863843">"Gaan app met agtergrondliggingtoegang na"</string>
     <string name="safety_center_background_location_access_reminder_summary" msgid="7431657777510537658">"Hierdie app het altyd toegang tot jou ligging, selfs wanneer dit toe is.\n\nSekere veiligheid- en noodapps moet op die agtergrond toegang tot jou ligging hê om te kan werk soos hulle moet."</string>
     <string name="safety_center_background_location_access_revoked" msgid="6972274943343442213">"Toegang is verander"</string>
