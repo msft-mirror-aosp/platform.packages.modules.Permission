@@ -1871,8 +1871,10 @@
       -->
     <role
         name="android.app.role.RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY"
+        behavior="ReservedForTestingProfileGroupExclusivityRoleBehavior"
         exclusive="true"
         exclusivity="profileGroup"
+        fallBackToDefaultHolder="true"
         featureFlag="com.android.permission.flags.Flags.crossUserRoleEnabled"
         showNone="true"
         visible="false"/>
