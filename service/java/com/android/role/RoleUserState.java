@@ -447,6 +447,22 @@ class RoleUserState {
         }
     }
 
+    @NonNull
+    public List<String> getActiveRolesForUser(@UserIdInt int userId) {
+        synchronized (mLock) {
+            List<String> activeRoleNames = new ArrayList<>();
+            int activeUserIdsSize = mActiveUserIds.size();
+            for (int i = 0; i < activeUserIdsSize; i++) {
+                int activeUserId = mActiveUserIds.valueAt(i);
+                if (activeUserId == userId) {
+                    String roleName = mActiveUserIds.keyAt(i);
+                    activeRoleNames.add(roleName);
+                }
+            }
+            return activeRoleNames;
+        }
+    }
+
     /**
      * Set the active user for the role
      *
