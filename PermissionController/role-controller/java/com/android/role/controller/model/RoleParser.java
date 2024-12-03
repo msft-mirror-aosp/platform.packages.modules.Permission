@@ -580,6 +580,12 @@ public class RoleParser {
                         skipCurrentTag(parser);
                         continue;
                     }
+                    if (exclusivity == Role.EXCLUSIVITY_PROFILE_GROUP) {
+                        throwOrLogMessage("<preferred-activities> is not supported for a"
+                                + " profile-group-exclusive role: " + name);
+                        skipCurrentTag(parser);
+                        continue;
+                    }
                     preferredActivities = parsePreferredActivities(parser);
                     break;
                 default:
