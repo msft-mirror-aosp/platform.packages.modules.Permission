@@ -520,6 +520,12 @@ public class Role {
     @NonNull
     public List<String> getDefaultHoldersAsUser(@NonNull UserHandle user,
             @NonNull Context context) {
+        // Do not allow default role holder for non-active user if the role is exclusive to profile
+        // group
+        if (isNonActiveUserForProfileGroupExclusiveRole(user, context)) {
+            return Collections.emptyList();
+        }
+
         if (mBehavior != null) {
             List<String> defaultHolders = mBehavior.getDefaultHoldersAsUser(this, user, context);
             if (defaultHolders != null) {
@@ -631,6 +637,10 @@ public class Role {
         if (!RoleManagerCompat.isRoleFallbackEnabledAsUser(this, user, context)) {
             return null;
         }
+        // Do not fall back for non-active user if the role is exclusive to profile group
+        if (isNonActiveUserForProfileGroupExclusiveRole(user, context)) {
+            return null;
+        }
         if (mFallBackToDefaultHolder) {
             return CollectionUtils.firstOrNull(getDefaultHoldersAsUser(user, context));
         }
@@ -638,6 +648,17 @@ public class Role {
             return mBehavior.getFallbackHolderAsUser(this, user, context);
         }
         return null;
+    }
+
+    private boolean isNonActiveUserForProfileGroupExclusiveRole(@NonNull UserHandle user,
+            @NonNull Context context) {
+        if (RoleFlags.isProfileGroupExclusivityAvailable()
+                && getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP) {
+            Context userContext = UserUtils.getUserContext(context, user);
+            RoleManager userRoleManager = userContext.getSystemService(RoleManager.class);
+            return !Objects.equals(userRoleManager.getActiveUserForRole(mName), user);
+        }
+        return false;
     }
 
     /**
