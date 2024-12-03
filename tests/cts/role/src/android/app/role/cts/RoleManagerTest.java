@@ -1352,6 +1352,7 @@ public class RoleManagerTest {
     }
 
     @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
     @Test
     public void cannotGetActiveUserForRoleWithoutPermission() throws Exception {
         assertThrows(SecurityException.class, ()->
@@ -1359,6 +1360,7 @@ public class RoleManagerTest {
     }
 
     @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
     @Test
     public void cannotGetActiveUserForNonProfileGroupExclusiveRole() throws Exception {
         runWithShellPermissionIdentity(() ->
@@ -1368,6 +1370,7 @@ public class RoleManagerTest {
     }
 
     @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
     @Test
     public void cannotSetActiveUserForRoleWithoutPermission() throws Exception {
         assertThrows(SecurityException.class, ()->
@@ -1376,6 +1379,7 @@ public class RoleManagerTest {
     }
 
     @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
     @Test
     public void cannotSetActiveUserForNonProfileGroupExclusiveRole() throws Exception {
         runWithShellPermissionIdentity(() ->
@@ -1386,6 +1390,7 @@ public class RoleManagerTest {
     }
 
     @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
     @Test
     public void setAndGetActiveUserForRole() throws Exception {
         runWithShellPermissionIdentity(() -> {
