@@ -254,7 +254,7 @@ object SafetyCenterFlags {
      * expand-and-collapse list.
      */
     private val showSubpagesFlag =
-        Flag("safety_center_show_subpages", defaultValue = false, BooleanParser())
+        Flag("safety_center_show_subpages", defaultValue = SdkLevel.isAtLeastU(), BooleanParser())
 
     private val overrideRefreshOnPageOpenSourcesFlag =
         Flag(
