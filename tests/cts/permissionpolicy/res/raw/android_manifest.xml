@@ -8573,6 +8573,17 @@
         android:protectionLevel="signature|privileged|vendorPrivileged"
         android:featureFlag="android.media.tv.flags.kids_mode_tvdb_sharing"/>
 
+    <!-- @SystemApi
+        @FlaggedApi("android.permission.flags.text_classifier_choice_api_enabled")
+        This permission is required to access the specific text classifier you need from the
+        TextClassificationManager.
+        <p>Protection level: signature|role
+    @hide
+    -->
+    <permission android:name="android.permission.ACCESS_TEXT_CLASSIFIER_BY_TYPE"
+        android:protectionLevel="signature|role"
+        android:featureFlag="android.permission.flags.text_classifier_choice_api_enabled"/>
+
     <!--
         This permission allows the system to receive PACKAGE_CHANGED broadcasts when the component
         state of a non-exported component has been changed.
