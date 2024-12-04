@@ -115,7 +115,7 @@ public class Role {
         sExclusivityValues.put(EXCLUSIVITY_NONE, true);
         sExclusivityValues.put(EXCLUSIVITY_USER, true);
         sExclusivityValues.put(EXCLUSIVITY_PROFILE_GROUP,
-            RoleFlags.isProfileGroupExclusivityAvailable());
+                RoleFlags.isProfileGroupExclusivityAvailable());
     }
 
     /**
