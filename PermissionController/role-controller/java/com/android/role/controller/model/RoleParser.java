@@ -580,6 +580,12 @@ public class RoleParser {
                         skipCurrentTag(parser);
                         continue;
                     }
+                    if (exclusivity == Role.EXCLUSIVITY_PROFILE_GROUP) {
+                        throwOrLogMessage("<preferred-activities> is not supported for a"
+                                + " profile-group-exclusive role: " + name);
+                        skipCurrentTag(parser);
+                        continue;
+                    }
                     preferredActivities = parsePreferredActivities(parser);
                     break;
                 default:
@@ -1143,7 +1149,7 @@ public class RoleParser {
                     + ">");
             return fallbackValue;
         }
-        String className = applyJarjarTransformIfNeeded(value.substring(0, lastDotIndex));
+        String className = applyJarjarTransform(value.substring(0, lastDotIndex));
         String methodName = value.substring(lastDotIndex + 1);
         Method method;
         try {
@@ -1192,16 +1198,18 @@ public class RoleParser {
         };
     }
 
-    // LINT.IfChange(applyJarjarTransformIfNeeded)
+    // LINT.IfChange(applyJarjarTransform)
     /**
      * Simulate the jarjar transform that should happen on the class name.
      * <p>
      * Currently this only handles the {@code Flags} classes for feature flagging.
      */
     @NonNull
-    private String applyJarjarTransformIfNeeded(@NonNull String className) {
-        if (className.endsWith(".Flags") && Objects.equals(mContext.getPackageName(), "android")) {
-            return "com.android.permission.jarjar." + className;
+    private String applyJarjarTransform(@NonNull String className) {
+        if (className.endsWith(".Flags")) {
+            String jarjarPrefix = Objects.equals(mContext.getPackageName(), "android")
+                    ? "com.android.permission.jarjar." : "com.android.permissioncontroller.jarjar.";
+            return jarjarPrefix + className;
         }
         return className;
     }
