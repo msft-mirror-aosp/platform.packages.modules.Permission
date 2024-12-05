@@ -472,6 +472,12 @@ public class Role {
         if (!isAvailableByFeatureFlagAndSdkVersion()) {
             return false;
         }
+
+        if (getExclusivity() == EXCLUSIVITY_PROFILE_GROUP
+                && UserUtils.isPrivateProfile(user, context)) {
+            return false;
+        }
+
         if (mBehavior != null) {
             boolean isAvailableAsUser = mBehavior.isAvailableAsUser(this, user, context);
             // Ensure that cross-user role is only available if also available for

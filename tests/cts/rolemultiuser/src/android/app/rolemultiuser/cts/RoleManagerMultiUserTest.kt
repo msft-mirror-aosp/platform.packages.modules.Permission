@@ -77,6 +77,25 @@ class RoleManagerMultiUserTest {
 
     @RequireFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
     @EnsureHasPermission(INTERACT_ACROSS_USERS_FULL, MANAGE_ROLE_HOLDERS)
+    @EnsureHasWorkProfile(installInstrumentedApp = OptionalBoolean.TRUE)
+    @EnsureHasPrivateProfile(installInstrumentedApp = OptionalBoolean.TRUE)
+    @RequireRunOnPrimaryUser
+    @Test
+    @Throws(Exception::class)
+    fun isAvailableAsUserForProfileGroupExclusiveRole() {
+        val workProfileRoleManager = getRoleManagerForUser(deviceState.workProfile().userHandle())
+        val privateProfileRoleManager =
+            getRoleManagerForUser(deviceState.privateProfile().userHandle())
+
+        assertThat(roleManager.isRoleAvailable(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME)).isTrue()
+        assertThat(workProfileRoleManager.isRoleAvailable(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
+            .isTrue()
+        assertThat(privateProfileRoleManager.isRoleAvailable(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
+            .isFalse()
+    }
+
+    @RequireFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @EnsureHasPermission(INTERACT_ACROSS_USERS_FULL, MANAGE_ROLE_HOLDERS)
     @Test
     @Throws(Exception::class)
     fun cannotGetActiveUserForNonCrossUserRole() {
