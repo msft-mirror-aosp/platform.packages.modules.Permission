@@ -186,7 +186,6 @@ class HibernationPolicyTest {
     }
 
     @Test
-    @Ignore("b/373082442")
     fun onReceive_shouldInitializeAndAdjustStartTimeOfUnusedAppTracking() {
         receiver.onReceive(context, Intent(Intent.ACTION_BOOT_COMPLETED))
         val startTimeOfUnusedAppTracking =

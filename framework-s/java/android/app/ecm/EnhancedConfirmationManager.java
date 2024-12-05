@@ -20,6 +20,7 @@ import static android.annotation.SdkConstant.SdkConstantType.BROADCAST_INTENT_AC
 
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
+import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
 import android.annotation.SdkConstant;
 import android.annotation.SystemApi;
@@ -34,8 +35,6 @@ import android.os.Build;
 import android.os.RemoteException;
 import android.permission.flags.Flags;
 import android.util.ArraySet;
-
-import androidx.annotation.NonNull;
 
 import java.lang.annotation.Retention;
 
@@ -200,6 +199,15 @@ public final class EnhancedConfirmationManager {
     public static final String ACTION_SHOW_ECM_RESTRICTED_SETTING_DIALOG =
             "android.app.ecm.action.SHOW_ECM_RESTRICTED_SETTING_DIALOG";
 
+    /**
+     * Shows a dialog indicating a setting has been blocked due to the phone state (such as being
+     * on a call with an unknown number). Opened when a setting is blocked.
+     */
+    @SdkConstant(BROADCAST_INTENT_ACTION)
+    @FlaggedApi(Flags.FLAG_ENHANCED_CONFIRMATION_IN_CALL_APIS_ENABLED)
+    public static final String ACTION_SHOW_ECM_PHONE_STATE_BLOCKED_SETTING_DIALOG =
+            "android.app.ecm.action.SHOW_ECM_PHONE_STATE_BLOCKED_SETTING_DIALOG";
+
     /** A map of ECM states to their corresponding app op states */
     @Retention(java.lang.annotation.RetentionPolicy.SOURCE)
     @IntDef(prefix = {"ECM_STATE_"}, value = {EcmState.ECM_STATE_NOT_GUARDED,
@@ -323,6 +331,23 @@ public final class EnhancedConfirmationManager {
             mService.setClearRestrictionAllowed(packageName, mContext.getUser().getIdentifier());
         } catch (IllegalArgumentException e) {
             throw new NameNotFoundException(packageName);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Returns whether the enhanced confirmation system thinks a call with an unknown party is
+     * occurring
+     *
+     * @hide
+     */
+    @SystemApi
+    @FlaggedApi(Flags.FLAG_ENHANCED_CONFIRMATION_IN_CALL_APIS_ENABLED)
+    @RequiresPermission(android.Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES)
+    public boolean isUnknownCallOngoing() {
+        try {
+            return mService.isUntrustedCallOngoing();
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }

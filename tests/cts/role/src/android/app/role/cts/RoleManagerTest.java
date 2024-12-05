@@ -104,6 +104,8 @@ public class RoleManagerTest {
     private static final String ROLE_NAME = RoleManager.ROLE_BROWSER;
     private static final String ROLE_PHONE_NAME = RoleManager.ROLE_DIALER;
     private static final String ROLE_SMS_NAME = RoleManager.ROLE_SMS;
+    private static final String PROFILE_GROUP_EXCLUSIVE_ROLE_NAME =
+            RoleManager.ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY;
     private static final String ROLE_SHORT_LABEL = "Browser app";
 
     private static final String APP_APK_PATH = "/data/local/tmp/cts-role/CtsRoleTestApp.apk";
@@ -1346,6 +1348,56 @@ public class RoleManagerTest {
         runWithShellPermissionIdentity(() -> {
             sRoleManager.setRoleFallbackEnabled(RoleManager.ROLE_SMS, true);
             assertThat(sRoleManager.isRoleFallbackEnabled(RoleManager.ROLE_SMS)).isTrue();
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetActiveUserForRoleWithoutPermission() throws Exception {
+        assertThrows(SecurityException.class, ()->
+                sRoleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetActiveUserForNonProfileGroupExclusiveRole() throws Exception {
+        runWithShellPermissionIdentity(() ->
+                assertThrows(IllegalArgumentException.class, () ->
+                        sRoleManager.getActiveUserForRole(
+                                RoleManager.ROLE_SYSTEM_ACTIVITY_RECOGNIZER)));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetActiveUserForRoleWithoutPermission() throws Exception {
+        assertThrows(SecurityException.class, ()->
+                sRoleManager.setActiveUserForRole(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
+                        Process.myUserHandle(), 0));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetActiveUserForNonProfileGroupExclusiveRole() throws Exception {
+        runWithShellPermissionIdentity(() ->
+                assertThrows(IllegalArgumentException.class, () ->
+                        sRoleManager.setActiveUserForRole(
+                                RoleManager.ROLE_SYSTEM_ACTIVITY_RECOGNIZER, Process.myUserHandle(),
+                                0)));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void setAndGetActiveUserForRole() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            sRoleManager.setActiveUserForRole(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
+                    Process.myUserHandle(), 0);
+            assertThat(sRoleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME))
+                    .isEqualTo(Process.myUserHandle());
         });
     }
 
