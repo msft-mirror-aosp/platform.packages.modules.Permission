@@ -27,9 +27,12 @@ android_test {
     ],
     static_libs: [
         "service-permission.impl",
+        "services.core",
         "androidx.test.rules",
         "androidx.test.ext.junit",
         "androidx.test.ext.truth",
+        "com.android.permission.flags-aconfig-java",
+        "flag-junit",
         "mockito-target-extended-minus-junit4",
     ],
     jni_libs: [

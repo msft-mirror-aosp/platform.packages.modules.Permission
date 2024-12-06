@@ -16,6 +16,7 @@
 
 package android.app.role.cts;
 
+import static com.android.bedstead.multiuser.MultiUserDeviceStateExtensionsKt.privateProfile;
 import static com.android.compatibility.common.util.SystemUtil.callWithShellPermissionIdentity;
 import static com.android.compatibility.common.util.SystemUtil.runShellCommand;
 import static com.android.compatibility.common.util.SystemUtil.runShellCommandOrThrow;
@@ -66,7 +67,7 @@ import androidx.test.uiautomator.Until;
 
 import com.android.bedstead.harrier.BedsteadJUnit4;
 import com.android.bedstead.harrier.DeviceState;
-import com.android.bedstead.harrier.annotations.EnsureHasPrivateProfile;
+import com.android.bedstead.multiuser.annotations.EnsureHasPrivateProfile;
 import com.android.bedstead.nene.types.OptionalBoolean;
 import com.android.compatibility.common.util.DisableAnimationRule;
 import com.android.compatibility.common.util.FreezeRotationRule;
@@ -103,15 +104,17 @@ public class RoleManagerTest {
     private static final String ROLE_NAME = RoleManager.ROLE_BROWSER;
     private static final String ROLE_PHONE_NAME = RoleManager.ROLE_DIALER;
     private static final String ROLE_SMS_NAME = RoleManager.ROLE_SMS;
+    private static final String PROFILE_GROUP_EXCLUSIVE_ROLE_NAME =
+            RoleManager.ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY;
     private static final String ROLE_SHORT_LABEL = "Browser app";
 
     private static final String APP_APK_PATH = "/data/local/tmp/cts-role/CtsRoleTestApp.apk";
     private static final String APP_PACKAGE_NAME = "android.app.role.cts.app";
     private static final String APP_LABEL = "CtsRoleTestApp";
-    private static final String APP_FOR_PROFILE_APK_PATH =
-            "/data/local/tmp/cts-role/CtsRoleTestAppForProfile.apk";
-    private static final String APP_FOR_PROFILE_PACKAGE_NAME = "android.app.role.cts.appForProfile";
-    private static final String APP_FOR_PROFILE = "CtsRoleTestAppForProfile";
+    private static final String APP_CLONE_APK_PATH =
+            "/data/local/tmp/cts-role/CtsRoleTestAppClone.apk";
+    private static final String APP_CLONE_PACKAGE_NAME = "android.app.role.cts.appClone";
+    private static final String APP_CLONE = "CtsRoleTestAppClone";
     private static final String APP_IS_ROLE_HELD_ACTIVITY_NAME = APP_PACKAGE_NAME
             + ".IsRoleHeldActivity";
     private static final String APP_IS_ROLE_HELD_EXTRA_IS_ROLE_HELD = APP_PACKAGE_NAME
@@ -183,7 +186,21 @@ public class RoleManagerTest {
     private String mRoleHolder;
 
     @Before
-    public void saveRoleHolder() throws Exception {
+    public void setUp() throws Exception {
+        assumeTrue(RoleManagerUtil.INSTANCE.isCddCompliantScreenSize());
+        saveRoleHolder();
+        installApp();
+        wakeUpScreen();
+        closeNotificationShade();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        uninstallApp();
+        restoreRoleHolder();
+    }
+
+    private void saveRoleHolder() throws Exception {
         List<String> roleHolders = getRoleHolders(ROLE_NAME);
         mRoleHolder = !roleHolders.isEmpty() ? roleHolders.get(0) : null;
 
@@ -193,8 +210,7 @@ public class RoleManagerTest {
         }
     }
 
-    @After
-    public void restoreRoleHolder() throws Exception {
+    private void restoreRoleHolder() throws Exception {
         removeRoleHolder(ROLE_NAME, APP_PACKAGE_NAME);
 
         if (mRoleHolder != null) {
@@ -204,27 +220,27 @@ public class RoleManagerTest {
         assertIsRoleHolder(ROLE_NAME, APP_PACKAGE_NAME, false);
     }
 
-    @Before
-    public void installApp() throws Exception {
+    private void installApp() throws Exception {
         installPackage(APP_APK_PATH);
         installPackage(APP_28_APK_PATH);
         installPackage(APP_33_WITHOUT_INCALLSERVICE_APK_PATH);
+        // Install CtsRoleTestAppClone as default role holder for browser role
+        // in case no browser is installed on system
+        installPackage(APP_CLONE_APK_PATH);
     }
 
-    @After
-    public void uninstallApp() throws Exception {
+    private void uninstallApp() throws Exception {
         uninstallPackage(APP_PACKAGE_NAME);
         uninstallPackage(APP_28_PACKAGE_NAME);
         uninstallPackage(APP_33_WITHOUT_INCALLSERVICE_PACKAGE_NAME);
+        uninstallPackage(APP_CLONE_PACKAGE_NAME);
     }
 
-    @Before
-    public void wakeUpScreen() throws IOException {
+    private void wakeUpScreen() throws IOException {
         runShellCommand(sInstrumentation, "input keyevent KEYCODE_WAKEUP");
     }
 
-    @Before
-    public void closeNotificationShade() {
+    private void closeNotificationShade() {
         sContext.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
     }
 
@@ -852,18 +868,18 @@ public class RoleManagerTest {
             return;
         }
 
-        UserHandle privateProfile = sDeviceState.privateProfile().userHandle();
+        UserHandle privateProfile = privateProfile(sDeviceState).userHandle();
         assertThat(privateProfile).isNotNull();
         installPackage(APP_APK_PATH, privateProfile);
-        installPackage(APP_FOR_PROFILE_APK_PATH, privateProfile);
-        addRoleHolderAsUser(ROLE_NAME, APP_FOR_PROFILE_PACKAGE_NAME, privateProfile);
+        installPackage(APP_CLONE_APK_PATH, privateProfile);
+        addRoleHolderAsUser(ROLE_NAME, APP_CLONE_PACKAGE_NAME, privateProfile);
 
         sContext.startActivity(new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
                 .addCategory(Intent.CATEGORY_DEFAULT)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
         waitForIdle();
 
-        waitFindObject(By.hasDescendant(By.text(APP_FOR_PROFILE))).click();
+        waitFindObject(By.hasDescendant(By.text(APP_CLONE))).click();
 
         waitForIdle();
         waitFindObject(By.clickable(true).hasDescendant(By.checkable(true).checked(false))
@@ -877,7 +893,7 @@ public class RoleManagerTest {
         pressBack();
 
         uninstallPackage(APP_PACKAGE_NAME, privateProfile);
-        uninstallPackage(APP_FOR_PROFILE_APK_PATH, privateProfile);
+        uninstallPackage(APP_CLONE_PACKAGE_NAME, privateProfile);
     }
 
     @Test
@@ -1332,6 +1348,56 @@ public class RoleManagerTest {
         runWithShellPermissionIdentity(() -> {
             sRoleManager.setRoleFallbackEnabled(RoleManager.ROLE_SMS, true);
             assertThat(sRoleManager.isRoleFallbackEnabled(RoleManager.ROLE_SMS)).isTrue();
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetActiveUserForRoleWithoutPermission() throws Exception {
+        assertThrows(SecurityException.class, ()->
+                sRoleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetActiveUserForNonProfileGroupExclusiveRole() throws Exception {
+        runWithShellPermissionIdentity(() ->
+                assertThrows(IllegalArgumentException.class, () ->
+                        sRoleManager.getActiveUserForRole(
+                                RoleManager.ROLE_SYSTEM_ACTIVITY_RECOGNIZER)));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetActiveUserForRoleWithoutPermission() throws Exception {
+        assertThrows(SecurityException.class, ()->
+                sRoleManager.setActiveUserForRole(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
+                        Process.myUserHandle(), 0));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetActiveUserForNonProfileGroupExclusiveRole() throws Exception {
+        runWithShellPermissionIdentity(() ->
+                assertThrows(IllegalArgumentException.class, () ->
+                        sRoleManager.setActiveUserForRole(
+                                RoleManager.ROLE_SYSTEM_ACTIVITY_RECOGNIZER, Process.myUserHandle(),
+                                0)));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void setAndGetActiveUserForRole() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            sRoleManager.setActiveUserForRole(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
+                    Process.myUserHandle(), 0);
+            assertThat(sRoleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME))
+                    .isEqualTo(Process.myUserHandle());
         });
     }
 
