@@ -74,7 +74,7 @@
     <string name="days_ago" msgid="6650359081551335629">"{count,plural, =0{今日}=1{1 日前}other{# 日前}}"</string>
     <string name="app_disable_dlg_positive" msgid="7418444149981904940">"アプリを無効にする"</string>
     <string name="app_disable_dlg_text" msgid="3126943217146120240">"このアプリを無効にすると、Android などの他のアプリが正しく動作しなくなるおそれがあります。このアプリはデバイスにプリインストールされているため、削除できません。無効にするには、このアプリをオフにし、デバイスにアプリが表示されないようにします。"</string>
-    <string name="app_permission_manager" msgid="3903811137630909550">"権限マネージャ"</string>
+    <string name="app_permission_manager" msgid="3903811137630909550">"権限マネージャー"</string>
     <string name="never_ask_again" msgid="4728762438198560329">"今後表示しない"</string>
     <string name="no_permissions" msgid="3881676756371148563">"権限がありません"</string>
     <string name="additional_permissions" msgid="5801285469338873430">"その他の権限"</string>
@@ -185,7 +185,7 @@
     <string name="app_permission_usage_summary" msgid="390383661936709672">"アクセス: <xliff:g id="NUM">%1$s</xliff:g> 回。合計時間: <xliff:g id="DURATION">%2$s</xliff:g>。最終使用: <xliff:g id="TIME">%3$s</xliff:g>前。"</string>
     <string name="app_permission_usage_summary_no_duration" msgid="3698475875179457400">"アクセス: <xliff:g id="NUM">%1$s</xliff:g> 回。最終使用: <xliff:g id="TIME">%2$s</xliff:g>前。"</string>
     <string name="app_permission_button_allow" msgid="5808039516494774647">"許可する"</string>
-    <string name="app_permission_button_allow_all_files" msgid="1792232272599018825">"すべてのファイルの管理を許可"</string>
+    <string name="app_permission_button_allow_all_files" msgid="1792232272599018825">"すべての管理を許可"</string>
     <string name="app_permission_button_allow_media_only" msgid="2834282724426046154">"アクセスのみ許可"</string>
     <string name="app_permission_button_allow_always" msgid="4573292371734011171">"常に許可"</string>
     <string name="app_permission_button_allow_foreground" msgid="1991570451498943207">"アプリの使用中のみ許可"</string>

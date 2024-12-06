@@ -17,6 +17,7 @@
 package com.android.safetycenter.testing
 
 import android.Manifest.permission.READ_DEVICE_CONFIG
+import android.Manifest.permission.WRITE_ALLOWLISTED_DEVICE_CONFIG
 import android.Manifest.permission.WRITE_DEVICE_CONFIG
 import android.annotation.TargetApi
 import android.app.job.JobInfo
@@ -532,7 +533,7 @@ object SafetyCenterFlags {
         }
 
     private fun writeDeviceConfigProperty(name: String, stringValue: String?) {
-        callWithShellPermissionIdentity(WRITE_DEVICE_CONFIG) {
+        callWithShellPermissionIdentity(WRITE_DEVICE_CONFIG, WRITE_ALLOWLISTED_DEVICE_CONFIG) {
             val valueWasSet =
                 DeviceConfig.setProperty(
                     NAMESPACE_PRIVACY,
