@@ -28,6 +28,7 @@ java_library {
     libs: [
         "androidx.annotation_annotation",
         "com.android.permission.flags-aconfig-java",
+        "framework-annotations-lib",
     ],
     static_libs: [
         "modules-utils-build_system",
@@ -36,6 +37,7 @@ java_library {
         "android.content.pm.flags-aconfig-java-export",
         "android.permission.flags-aconfig-java-export",
         "android.os.flags-aconfig-java-export",
+        "device_policy_aconfig_flags_java_export",
     ],
     apex_available: [
         "com.android.permission",
