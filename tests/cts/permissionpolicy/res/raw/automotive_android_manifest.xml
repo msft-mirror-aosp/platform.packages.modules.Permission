@@ -88,6 +88,12 @@
          android:protectionLevel="signature|privileged"
          android:label="@string/car_permission_label_mileage"
          android:description="@string/car_permission_desc_mileage"/>
+    <permission android:name="android.car.permission.CAR_MILEAGE_3P"
+        android:permissionGroup="android.permission-group.LOCATION"
+        android:protectionLevel="dangerous"
+        android:label="@string/car_permission_label_mileage_3p"
+        android:description="@string/car_permission_desc_mileage_3p"
+        android:featureFlag="android.car.feature.android_b_vehicle_properties" />
     <permission android:name="android.car.permission.CAR_TIRES"
          android:protectionLevel="signature|privileged"
          android:label="@string/car_permission_label_car_tires"
