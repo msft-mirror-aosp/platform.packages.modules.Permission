@@ -96,6 +96,12 @@
          android:protectionLevel="signature|privileged"
          android:label="@string/car_permission_label_car_steering"
          android:description="@string/car_permission_desc_car_steering"/>
+    <permission android:name="android.car.permission.READ_CAR_STEERING_3P"
+         android:permissionGroup="android.permission-group.LOCATION"
+         android:protectionLevel="dangerous"
+         android:label="@string/car_permission_label_read_car_steering_3p"
+         android:description="@string/car_permission_desc_read_car_steering_3p"
+         android:featureFlag="android.car.feature.vehicle_property_25q2_3p_permissions"/>
     <permission android:name="android.car.permission.READ_CAR_DISPLAY_UNITS"
          android:protectionLevel="normal"
          android:label="@string/car_permission_label_read_car_display_units"
