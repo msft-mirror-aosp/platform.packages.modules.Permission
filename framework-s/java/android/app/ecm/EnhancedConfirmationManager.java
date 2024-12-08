@@ -42,7 +42,7 @@ import java.lang.annotation.Retention;
  * This class provides the core API for ECM (Enhanced Confirmation Mode). ECM is a feature that
  * restricts access to protected **settings** (i.e., sensitive resources) by restricted **apps**
  * (apps from from dangerous sources, such as sideloaded packages or packages downloaded from a web
- * browser).
+ * browser), or restricts settings globally based on device state.
  *
  * <p>Specifically, this class provides the ability to:
  *
@@ -70,6 +70,9 @@ import java.lang.annotation.Retention;
  *       particular app restricted is an implementation detail of ECM. However, the user is able to
  *       clear any restricted app's restriction status (i.e, un-restrict it), after which ECM will
  *       consider the app **not restricted**.
+ *   <li>A setting may be globally restricted based on device state. In this case, any app may be
+ *       automatically considered *restricted*, regardless of the app's restriction state. Users
+ *       cannot un-restrict the app, in these cases.
  * </ol>
  *
  * Why is ECM needed? Consider the following (pre-ECM) scenario:
@@ -312,6 +315,9 @@ public final class EnhancedConfirmationManager {
      * <p>This should be called from the "Restricted setting" dialog (which {@link
      * #createRestrictedSettingDialogIntent} directs to) upon being presented to the user.
      *
+     * <p>This restriction clearing does not apply to any settings that are restricted based on
+     * global device state
+     *
      * @param packageName package name of the application which should be considered acknowledged
      * @throws NameNotFoundException if the provided package was not found
      */
@@ -322,23 +328,6 @@ public final class EnhancedConfirmationManager {
             mService.setClearRestrictionAllowed(packageName, mContext.getUser().getIdentifier());
         } catch (IllegalArgumentException e) {
             throw new NameNotFoundException(packageName);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        }
-    }
-
-    /**
-     * Returns whether the enhanced confirmation system thinks a call with an unknown party is
-     * occurring
-     *
-     * @hide
-     */
-    @SystemApi
-    @FlaggedApi(Flags.FLAG_ENHANCED_CONFIRMATION_IN_CALL_APIS_ENABLED)
-    @RequiresPermission(android.Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES)
-    public boolean isUnknownCallOngoing() {
-        try {
-            return mService.isUntrustedCallOngoing();
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
