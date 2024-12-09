@@ -133,7 +133,7 @@ public class EnhancedConfirmationService extends SystemService {
     }
 
     void addOngoingCall(Call call) {
-        if (!Flags.enhancedConfirmationInCallApisEnabled()) {
+        if (!Flags.unknownCallPackageInstallBlockingEnabled()) {
             return;
         }
         if (call.getDetails() == null) {
@@ -143,7 +143,7 @@ public class EnhancedConfirmationService extends SystemService {
     }
 
     void removeOngoingCall(String callId) {
-        if (!Flags.enhancedConfirmationInCallApisEnabled()) {
+        if (!Flags.unknownCallPackageInstallBlockingEnabled()) {
             return;
         }
         Integer returned = mOngoingCalls.remove(callId);
