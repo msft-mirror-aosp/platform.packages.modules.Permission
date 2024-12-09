@@ -16,7 +16,7 @@
 
 package android.permissionui.cts
 
-import android.app.AppOpsManager
+import android.Manifest
 import android.app.Instrumentation
 import android.app.ecm.EnhancedConfirmationManager
 import android.content.ContentProviderOperation
@@ -37,6 +37,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.compatibility.common.util.SystemUtil.callWithShellPermissionIdentity
 import com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity
+import java.util.concurrent.Callable
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert
@@ -151,18 +152,47 @@ class EnhancedConfirmationInCallTest {
         addedContacts.keys.forEach { removeContact(it) }
     }
 
-    private fun isSettingRestricted(): Boolean {
-        return callWithShellPermissionIdentity {
-            ecm.isRestricted(context.packageName, AppOpsManager.OPSTR_REQUEST_INSTALL_PACKAGES)
+    private fun getInUnknownCallState(): Boolean {
+        return callWithShellPermissionIdentity { ecm.isUnknownCallOngoing }
+    }
+
+    @Test
+    fun testCannotReadOngoingState_WithoutPermission() {
+        try {
+            ecm.isUnknownCallOngoing
+            Assert.fail()
+        } catch (expected: SecurityException) {
+            Assert.assertTrue(
+                expected.message?.contains(
+                    Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES
+                ) == true
+            )
         }
+
+        val unexpectedException =
+            callWithShellPermissionIdentity(
+                Callable {
+                    try {
+                        ecm.isUnknownCallOngoing
+                        null
+                    } catch (unexpected: SecurityException) {
+                        // Catching the exception, because exceptions thrown inside
+                        // run/callWithShellPermissionIdentity are obscured by the rethrow
+                        // from run/call.
+                        unexpected
+                    }
+                },
+                Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES,
+            )
+        Assert.assertNull(unexpectedException)
     }
 
     @Test
     fun testIncomingCall_NonContact() {
         voipService.createCallAndWaitForActive(NON_CONTACT_DISPLAY_NAME, NON_CONTACT_PHONE_NUMBER)
-        Assert.assertTrue(isSettingRestricted())
+        Assert.assertTrue(getInUnknownCallState())
         voipService.endCallAndWaitForInactive()
-        Assert.assertFalse(isSettingRestricted())
+        Assert.assertFalse(getInUnknownCallState())
     }
 
     @Test
@@ -170,9 +200,9 @@ class EnhancedConfirmationInCallTest {
         addContact(CONTACT_DISPLAY_NAME, CONTACT_PHONE_NUMBER)
         // If no phone number is given, the display name will be checked
         voipService.createCallAndWaitForActive(CONTACT_DISPLAY_NAME, CONTACT_PHONE_NUMBER)
-        Assert.assertFalse(isSettingRestricted())
+        Assert.assertFalse(getInUnknownCallState())
         voipService.endCallAndWaitForInactive()
-        Assert.assertFalse(isSettingRestricted())
+        Assert.assertFalse(getInUnknownCallState())
     }
 
     @Test
@@ -180,9 +210,9 @@ class EnhancedConfirmationInCallTest {
         addContact(CONTACT_DISPLAY_NAME, CONTACT_PHONE_NUMBER)
         // If the phone number matches, the display name is not checked
         voipService.createCallAndWaitForActive(NON_CONTACT_DISPLAY_NAME, CONTACT_PHONE_NUMBER)
-        Assert.assertFalse(isSettingRestricted())
+        Assert.assertFalse(getInUnknownCallState())
         voipService.endCallAndWaitForInactive()
-        Assert.assertFalse(isSettingRestricted())
+        Assert.assertFalse(getInUnknownCallState())
     }
 
     @Test
@@ -192,10 +222,10 @@ class EnhancedConfirmationInCallTest {
         voipService.createCallAndWaitForActive(tempContactDisplay, tempContactPhone)
         addContact(tempContactDisplay, tempContactPhone)
         // State should not be recomputed just because the contact is newly added
-        Assert.assertTrue(isSettingRestricted())
+        Assert.assertTrue(getInUnknownCallState())
         voipService.endCallAndWaitForInactive()
         voipService.createCallAndWaitForActive(tempContactDisplay, tempContactPhone)
         // A new call should recognize our contact, and mark the call as trusted
-        Assert.assertFalse(isSettingRestricted())
+        Assert.assertFalse(getInUnknownCallState())
     }
 }

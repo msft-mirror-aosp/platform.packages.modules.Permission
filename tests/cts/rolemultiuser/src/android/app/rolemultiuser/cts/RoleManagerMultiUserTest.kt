@@ -77,25 +77,6 @@ class RoleManagerMultiUserTest {
 
     @RequireFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
     @EnsureHasPermission(INTERACT_ACROSS_USERS_FULL, MANAGE_ROLE_HOLDERS)
-    @EnsureHasWorkProfile(installInstrumentedApp = OptionalBoolean.TRUE)
-    @EnsureHasPrivateProfile(installInstrumentedApp = OptionalBoolean.TRUE)
-    @RequireRunOnPrimaryUser
-    @Test
-    @Throws(Exception::class)
-    fun isAvailableAsUserForProfileGroupExclusiveRole() {
-        val workProfileRoleManager = getRoleManagerForUser(deviceState.workProfile().userHandle())
-        val privateProfileRoleManager =
-            getRoleManagerForUser(deviceState.privateProfile().userHandle())
-
-        assertThat(roleManager.isRoleAvailable(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME)).isTrue()
-        assertThat(workProfileRoleManager.isRoleAvailable(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
-            .isTrue()
-        assertThat(privateProfileRoleManager.isRoleAvailable(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
-            .isFalse()
-    }
-
-    @RequireFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
-    @EnsureHasPermission(INTERACT_ACROSS_USERS_FULL, MANAGE_ROLE_HOLDERS)
     @Test
     @Throws(Exception::class)
     fun cannotGetActiveUserForNonCrossUserRole() {
@@ -244,20 +225,9 @@ class RoleManagerMultiUserTest {
     @Test
     @Throws(java.lang.Exception::class)
     fun ensureOnlyActiveUserIsRoleHolder() {
-        try {
-            // Set test default role holder. Ensures fallbacks to a default holder
-            roleManager.setDefaultHoldersForTest(
-                PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME,
-                listOf(APP_PACKAGE_NAME),
-            )
-
-            val activeUser = roleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME)!!
-            // Test app install might take a moment
-            eventually { assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(activeUser) }
-        } finally {
-            // Clear test default role holder
-            roleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME, null)
-        }
+        val activeUser = roleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME)!!
+        // Test app install might take a moment
+        eventually { assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(activeUser) }
     }
 
     @RequireFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
@@ -316,26 +286,11 @@ class RoleManagerMultiUserTest {
             }
         roleManager.setActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME, initialUser, 0)
 
-        try {
-            // Set test default role holder. Ensures fallbacks to a default holder
-            roleManager.setDefaultHoldersForTest(
-                PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME,
-                listOf(APP_PACKAGE_NAME),
-            )
-
-            roleManager.setActiveUserForRole(
-                PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME,
-                targetActiveUser,
-                0,
-            )
-            assertThat(roleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
-                .isEqualTo(targetActiveUser)
-            // We can assume targetActiveUser is role holder since fallback is enabled
-            eventually { assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(targetActiveUser) }
-        } finally {
-            // Clear test default role holder
-            roleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME, null)
-        }
+        roleManager.setActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME, targetActiveUser, 0)
+        assertThat(roleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
+            .isEqualTo(targetActiveUser)
+        // We can assume targetActiveUser is role holder since fallback is enabled
+        assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(targetActiveUser)
     }
 
     @RequireFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
@@ -344,28 +299,13 @@ class RoleManagerMultiUserTest {
     @Test
     @Throws(Exception::class)
     fun setAndGetActiveUserForRoleSetWorkProfile() {
-        try {
-            // Set test default role holder. Ensures fallbacks to a default holder
-            roleManager.setDefaultHoldersForTest(
-                PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME,
-                listOf(APP_PACKAGE_NAME),
-            )
+        val targetActiveUser = deviceState.workProfile().userHandle()
+        roleManager.setActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME, targetActiveUser, 0)
 
-            val targetActiveUser = deviceState.workProfile().userHandle()
-            roleManager.setActiveUserForRole(
-                PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME,
-                targetActiveUser,
-                0,
-            )
-
-            assertThat(roleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
-                .isEqualTo(targetActiveUser)
-            // We can assume targetActiveUser is role holder since fallback is enabled
-            eventually { assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(targetActiveUser) }
-        } finally {
-            // Clear test default role holder
-            roleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME, null)
-        }
+        assertThat(roleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
+            .isEqualTo(targetActiveUser)
+        // We can assume targetActiveUser is role holder since fallback is enabled
+        assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(targetActiveUser)
     }
 
     @RequireFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
@@ -579,13 +519,13 @@ class RoleManagerMultiUserTest {
     private fun assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(
         expectedActiveUser: UserHandle
     ) {
-        for (userReference in users().profileGroup()) {
+        users().profileGroup().forEach { userReference ->
             val user = userReference.userHandle()
             if (Objects.equals(user, expectedActiveUser)) {
                 val roleHolders =
                     roleManager.getRoleHoldersAsUser(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME, user)
                 assertWithMessage(
-                        "Expected user ${user.identifier} to have a role holder for " +
+                        "Expected user ${user.identifier} to have a role holder for" +
                             " $PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME"
                     )
                     .that(roleHolders)
@@ -613,7 +553,7 @@ class RoleManagerMultiUserTest {
     private fun assertExpectedProfileHasRoleUsingGetDefaultApplication(
         expectedActiveUser: UserHandle
     ) {
-        for (userReference in users().profileGroup()) {
+        users().profileGroup().forEach { userReference ->
             val user = userReference.userHandle()
             val userRoleManager = getRoleManagerForUser(user)
             if (Objects.equals(user, expectedActiveUser)) {

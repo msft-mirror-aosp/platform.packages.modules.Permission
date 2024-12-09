@@ -16,7 +16,6 @@
 
 package com.android.role.controller.behavior;
 
-import android.app.role.RoleManager;
 import android.content.Context;
 import android.os.UserHandle;
 
@@ -25,34 +24,20 @@ import androidx.annotation.Nullable;
 
 import com.android.role.controller.model.Role;
 import com.android.role.controller.model.RoleBehavior;
-import com.android.role.controller.util.RoleFlags;
-import com.android.role.controller.util.UserUtils;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ReservedForTestingProfileGroupExclusivityRoleBehavior implements RoleBehavior {
+    // TODO(b/381315745): Update to use API for setting and getting test role default holders.
+    //  This role doesn't grant any privileges, so this should be ok.
+    private static final List<String> DEFAULT_HOLDERS =
+            Arrays.asList("android.app.rolemultiuser.cts.app");
+
     @Nullable
     @Override
     public List<String> getDefaultHoldersAsUser(@NonNull Role role, @NonNull UserHandle user,
             @NonNull Context context) {
-        if (RoleFlags.isProfileGroupExclusivityAvailable()) {
-            Context userContext = UserUtils.getUserContext(context, user);
-            RoleManager roleManager = userContext.getSystemService(RoleManager.class);
-            return roleManager.getDefaultHoldersForTest(role.getName());
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public boolean isVisibleAsUser(@NonNull Role role, @NonNull UserHandle user,
-            @NonNull Context context) {
-        if (RoleFlags.isProfileGroupExclusivityAvailable()) {
-            Context userContext = UserUtils.getUserContext(context, user);
-            RoleManager roleManager = userContext.getSystemService(RoleManager.class);
-            return roleManager.isRoleVisibleForTest(role.getName());
-        } else {
-            return false;
-        }
+        return DEFAULT_HOLDERS;
     }
 }

@@ -239,10 +239,6 @@ public class EnhancedConfirmationService extends SystemService {
 
         private static final ArraySet<String> PROTECTED_SETTINGS = new ArraySet<>();
 
-        // Settings restricted when an untrusted call is ongoing. These must also be added to
-        // PROTECTED_SETTINGS
-        private static final ArraySet<String> UNTRUSTED_CALL_RESTRICTED_SETTINGS = new ArraySet<>();
-
         static {
             // Runtime permissions
             PROTECTED_SETTINGS.add(Manifest.permission.SEND_SMS);
@@ -263,13 +259,6 @@ public class EnhancedConfirmationService extends SystemService {
             // Default application roles.
             PROTECTED_SETTINGS.add(RoleManager.ROLE_DIALER);
             PROTECTED_SETTINGS.add(RoleManager.ROLE_SMS);
-
-            if (Flags.unknownCallPackageInstallBlockingEnabled()) {
-                // Requesting package installs, limited during phone calls
-                PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_REQUEST_INSTALL_PACKAGES);
-                UNTRUSTED_CALL_RESTRICTED_SETTINGS.add(
-                        AppOpsManager.OPSTR_REQUEST_INSTALL_PACKAGES);
-            }
         }
 
         private final @NonNull Context mContext;
@@ -298,13 +287,8 @@ public class EnhancedConfirmationService extends SystemService {
                     "settingIdentifier cannot be null or empty");
 
             try {
-                if (!isSettingEcmProtected(settingIdentifier)) {
-                    return false;
-                }
-                if (isSettingProtectedGlobally(settingIdentifier)) {
-                    return true;
-                }
-                return isPackageEcmGuarded(packageName, userId);
+                return isSettingEcmProtected(settingIdentifier) && isPackageEcmGuarded(packageName,
+                        userId);
             } catch (NameNotFoundException e) {
                 throw new IllegalArgumentException(e);
             }
@@ -367,11 +351,10 @@ public class EnhancedConfirmationService extends SystemService {
             }
         }
 
-        private boolean isUntrustedCallOngoing() {
-            if (!Flags.unknownCallPackageInstallBlockingEnabled()) {
-                return false;
-            }
-
+        @Override
+        public boolean isUntrustedCallOngoing() {
+            enforcePermissions("isUntrustedCallOngoing",
+                    UserHandle.getUserHandleForUid(Binder.getCallingUid()).getIdentifier());
             if (hasCallOfType(CALL_TYPE_EMERGENCY)) {
                 // If we have an emergency call, return false always.
                 return false;
@@ -510,14 +493,6 @@ public class EnhancedConfirmationService extends SystemService {
                 return true;
             }
             // TODO(b/310218979): Add role selections as protected settings
-            return false;
-        }
-
-        private boolean isSettingProtectedGlobally(@NonNull String settingIdentifier) {
-            if (UNTRUSTED_CALL_RESTRICTED_SETTINGS.contains(settingIdentifier)) {
-                return isUntrustedCallOngoing();
-            }
-
             return false;
         }
 
