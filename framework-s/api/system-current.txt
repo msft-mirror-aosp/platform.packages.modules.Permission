@@ -6,9 +6,7 @@ package android.app.ecm {
     method @NonNull public android.content.Intent createRestrictedSettingDialogIntent(@NonNull String, @NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
     method @RequiresPermission(android.Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES) public boolean isClearRestrictionAllowed(@NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
     method @RequiresPermission(android.Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES) public boolean isRestricted(@NonNull String, @NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
-    method @FlaggedApi("android.permission.flags.enhanced_confirmation_in_call_apis_enabled") @RequiresPermission(android.Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES) public boolean isUnknownCallOngoing();
     method @RequiresPermission(android.Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES) public void setClearRestrictionAllowed(@NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
-    field @FlaggedApi("android.permission.flags.enhanced_confirmation_in_call_apis_enabled") public static final String ACTION_SHOW_ECM_PHONE_STATE_BLOCKED_SETTING_DIALOG = "android.app.ecm.action.SHOW_ECM_PHONE_STATE_BLOCKED_SETTING_DIALOG";
     field public static final String ACTION_SHOW_ECM_RESTRICTED_SETTING_DIALOG = "android.app.ecm.action.SHOW_ECM_RESTRICTED_SETTING_DIALOG";
   }
 

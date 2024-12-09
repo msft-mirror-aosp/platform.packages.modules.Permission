@@ -2016,6 +2016,13 @@ Allow <xliff:g id="app_name" example="Gmail">%4$s</xliff:g> to upload a bug repo
     <!--Content for dialog displayed to tell user that settings are blocked by setting restrictions [CHAR LIMIT=NONE] -->
     <string name="enhanced_confirmation_dialog_desc">For your security, this setting is currently unavailable.</string>
 
+    <!--Title for dialog displayed to tell user that settings are blocked due to the phone state (such as being in a call with an unknown number) [CHAR LIMIT=50] -->
+    <string name="enhanced_confirmation_phone_state_dialog_title">Action not available while on a phone call</string>
+    <!--Content for dialog displayed to tell user that settings are blocked due to the phone state (such as being in a call with an unknown number) [CHAR LIMIT=NONE] -->
+    <string name="enhanced_confirmation_phone_state_dialog_desc">Allowing apps to install other apps is not allowed during a phone call.\n\n
+    Scammers often request this type of action during phone call conversations, so it\u2019s blocked to protect you. If you are being guided to take this action
+    by someone you don\u2019t know, it might be a scam.</string>
+
     <!--Title for dialog displayed to tell user that permissions are blocked by setting restrictions [CHAR LIMIT=50] -->
     <string name="enhanced_confirmation_dialog_title_permission">App was denied access to <xliff:g id="permission_name" example="contacts">%1$s</xliff:g></string>
     <!--Content for dialog displayed to tell user that settings are blocked by setting restrictions [CHAR LIMIT=NONE] -->
