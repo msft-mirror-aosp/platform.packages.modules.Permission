@@ -163,6 +163,7 @@ class RoleShellCommandTest {
     }
 
     @RequiresFlagsEnabled(Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
     @Test
     fun setActiveUserForProfileGroupExclusiveRoleAsUser() {
         val activeUser = userId
@@ -173,12 +174,14 @@ class RoleShellCommandTest {
     }
 
     @RequiresFlagsEnabled(Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
     @Test
     fun setActiveUserForNonProfileGroupExclusiveRoleThenFails() {
         assertThrows(AssertionError::class.java) { setActiveUserForRole(ROLE_NAME, userId) }
     }
 
     @RequiresFlagsEnabled(Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
     @Test
     fun getActiveUserForNonProfileGroupExclusiveRoleThenFails() {
         assertThrows(AssertionError::class.java) { getActiveUserForRole(ROLE_NAME) }

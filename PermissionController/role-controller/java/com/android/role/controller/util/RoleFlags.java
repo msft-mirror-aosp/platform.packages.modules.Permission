@@ -20,7 +20,7 @@ import android.os.Build;
 
 import androidx.annotation.ChecksSdkIntAtLeast;
 
-import com.android.modules.utils.build.SdkLevel;
+import java.util.Objects;
 
 /** Util class for getting shared feature flag check logic. */
 public final class RoleFlags {
@@ -30,9 +30,16 @@ public final class RoleFlags {
      * Returns whether profile group exclusive roles are available. Profile exclusive roles are
      * available on B+
      */
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.BAKLAVA)
     public static boolean isProfileGroupExclusivityAvailable() {
         // TODO(b/372743073): change to isAtLeastB once available
-        return SdkLevel.isAtLeastV() && com.android.permission.flags.Flags.crossUserRoleEnabled();
+        return isAtLeastB() && com.android.permission.flags.Flags.crossUserRoleEnabled();
+    }
+
+    // TODO(b/372743073): remove once SdkLevel.isAtLeastB available
+    @ChecksSdkIntAtLeast(api = 36 /* BUILD_VERSION_CODES.Baklava */)
+    public static boolean isAtLeastB() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+                || Objects.equals(Build.VERSION.CODENAME, "Baklava");
     }
 }
