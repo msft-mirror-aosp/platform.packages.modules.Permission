@@ -52,7 +52,7 @@ import org.junit.Test
  */
 @AppModeFull(reason = "Instant apps cannot install packages")
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
-@RequiresFlagsEnabled(Flags.FLAG_ENHANCED_CONFIRMATION_IN_CALL_APIS_ENABLED)
+@RequiresFlagsEnabled(Flags.FLAG_UNKNOWN_CALL_PACKAGE_INSTALL_BLOCKING_ENABLED)
 // @CddTest(requirement = "TBD")
 class EnhancedConfirmationInCallTest {
     private val ecm = context.getSystemService(EnhancedConfirmationManager::class.java)!!
