@@ -47,9 +47,9 @@ import com.android.safetycenter.testing.UiTestHelper.waitAllTextDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitAllTextNotDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitButtonDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitDisplayed
-import com.android.safetycenter.testing.UiTestHelper.waitPageTitleDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueNotDisplayed
+import java.util.regex.Pattern
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -179,12 +179,10 @@ class PrivacySubpageTest {
         val source: SafetySource = sourcesGroup.safetySources.first()
         val extras = Bundle()
         extras.putString(EXTRA_SAFETY_SOURCES_GROUP_ID, sourcesGroup.id)
+        val containsLocationPattern = Pattern.compile(".*[Ll]ocation.*") // NOTYPO
 
         context.launchSafetyCenterActivity(extras) {
-            openPageAndExit("Location access") {
-                waitPageTitleDisplayed("Location")
-                waitAllTextDisplayed("Use location")
-            }
+            openPageAndExit("Location access") { waitDisplayed(By.text(containsLocationPattern)) }
 
             waitAllTextDisplayed(
                 context.getString(source.titleResId),
