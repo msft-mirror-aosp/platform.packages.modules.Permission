@@ -1489,6 +1489,17 @@ public class RoleManagerTest {
     @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
     @Test
+    public void cannotSetDefaultHoldersForTestNullPackageNames() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(NullPointerException.class, () ->
+                    sRoleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
+                            null));
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
     public void setAndGetDefaultHolders() throws Exception {
         List<String> testRoleHolders = List.of("a", "b", "c");
         runWithShellPermissionIdentity(() -> {
@@ -1514,21 +1525,6 @@ public class RoleManagerTest {
             List<String> roleHolders =
                     sRoleManager.getDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME);
             assertThat(roleHolders).isEqualTo(testRoleHolders);
-        });
-    }
-
-    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
-    @Test
-    public void setAndGetDefaultHoldersNullRoleHolders() throws Exception {
-        List<String> initialRoleHolders = List.of("a", "b", "c");
-        runWithShellPermissionIdentity(() -> {
-            sRoleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
-                    initialRoleHolders);
-            sRoleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME, null);
-            List<String> roleHolders =
-                    sRoleManager.getDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME);
-            assertThat(roleHolders).isEqualTo(Collections.emptyList());
         });
     }
 
