@@ -558,6 +558,7 @@ class RoleManagerMultiUserTest {
     @Throws(java.lang.Exception::class)
     private fun installAppForAllUsers() {
         SystemUtil.runShellCommandOrThrow("pm install -r --user all $APP_APK_PATH")
+        SystemUtil.waitForBroadcasts()
     }
 
     private fun uninstallAppForAllUsers() {
