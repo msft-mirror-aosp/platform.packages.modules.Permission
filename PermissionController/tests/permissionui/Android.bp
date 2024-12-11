@@ -47,7 +47,7 @@ android_test {
         "androidx.test.ext.truth",
         "androidx.test.rules",
         "androidx.test.uiautomator_uiautomator",
-        "com.android.permission.flags-aconfig-java",
+        "com.android.permission.flags-aconfig-java-export",
         "compatibility-device-util-axt",
         "flag-junit",
         "permission-test-util-lib",
