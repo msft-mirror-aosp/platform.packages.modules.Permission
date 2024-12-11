@@ -1886,6 +1886,7 @@
         requestTitle="@string/role_for_testing_profile_group_exclusivity_request_title"
         shortLabel="@string/role_for_testing_profile_group_exclusivity_short_label"
         showNone="true"
+        uiBehavior="ReservedForTestingProfileGroupExclusivityRoleUiBehavior"
         visible="true"/>
 
     <!---

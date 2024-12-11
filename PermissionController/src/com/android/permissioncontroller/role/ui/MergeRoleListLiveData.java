@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.permissioncontroller.role.ui.specialappaccess;
+package com.android.permissioncontroller.role.ui;
 
 import android.util.ArrayMap;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-
-import com.android.permissioncontroller.role.ui.RoleItem;
-import com.android.permissioncontroller.role.ui.RoleListLiveData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,14 +31,14 @@ import java.util.List;
 public class MergeRoleListLiveData extends MediatorLiveData<List<RoleItem>> {
 
     @NonNull
-    private final RoleListLiveData[] mLiveDatas;
+    private final LiveData<List<RoleItem>>[] mLiveDatas;
 
-    public MergeRoleListLiveData(@NonNull RoleListLiveData... liveDatas) {
+    public MergeRoleListLiveData(@NonNull LiveData<List<RoleItem>>... liveDatas) {
         mLiveDatas = liveDatas;
 
         int liveDatasLength = mLiveDatas.length;
         for (int i = 0; i < liveDatasLength; i++) {
-            RoleListLiveData liveData = mLiveDatas[i];
+            LiveData<List<RoleItem>> liveData = mLiveDatas[i];
 
             addSource(liveData, roleItems -> onRoleListChanged());
         }
@@ -50,7 +48,7 @@ public class MergeRoleListLiveData extends MediatorLiveData<List<RoleItem>> {
         ArrayMap<String, RoleItem> mergedRoleItemMap = new ArrayMap<>();
         int liveDatasLength = mLiveDatas.length;
         for (int liveDatasIndex = 0; liveDatasIndex < liveDatasLength; liveDatasIndex++) {
-            RoleListLiveData liveData = mLiveDatas[liveDatasIndex];
+            LiveData<List<RoleItem>> liveData = mLiveDatas[liveDatasIndex];
 
             List<RoleItem> roleItems = liveData.getValue();
             if (roleItems == null) {
