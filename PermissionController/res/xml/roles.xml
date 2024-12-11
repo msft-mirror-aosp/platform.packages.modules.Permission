@@ -1926,4 +1926,20 @@
                 featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
         </permissions>
     </role>
+
+    <role
+        name="android.app.role.COMPANION_DEVICE_SENSOR_DEVICE_STREAMING"
+        allowBypassingQualification="true"
+        exclusive="false"
+        exclusivity="none"
+        featureFlag="android.companion.virtualdevice.flags.Flags.enableLimitedVdmRole"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="nearby_devices" />
+            <permission-set name="notifications" />
+            <permission name="android.permission.CREATE_VIRTUAL_DEVICE"/>
+        </permissions>
+    </role>
+
 </roles>
