@@ -37,8 +37,8 @@ public class ReservedForTestingProfileGroupExclusivityRoleBehavior implements Ro
             @NonNull Context context) {
         if (RoleFlags.isProfileGroupExclusivityAvailable()) {
             Context userContext = UserUtils.getUserContext(context, user);
-            RoleManager roleManager = userContext.getSystemService(RoleManager.class);
-            return roleManager.getDefaultHoldersForTest(role.getName());
+            RoleManager userRoleManager = userContext.getSystemService(RoleManager.class);
+            return userRoleManager.getDefaultHoldersForTest(role.getName());
         } else {
             return null;
         }
@@ -49,8 +49,8 @@ public class ReservedForTestingProfileGroupExclusivityRoleBehavior implements Ro
             @NonNull Context context) {
         if (RoleFlags.isProfileGroupExclusivityAvailable()) {
             Context userContext = UserUtils.getUserContext(context, user);
-            RoleManager roleManager = userContext.getSystemService(RoleManager.class);
-            return roleManager.isRoleVisibleForTest(role.getName());
+            RoleManager userRoleManager = userContext.getSystemService(RoleManager.class);
+            return userRoleManager.isRoleVisibleForTest(role.getName());
         } else {
             return false;
         }
