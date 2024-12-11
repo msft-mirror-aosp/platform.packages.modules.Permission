@@ -246,17 +246,13 @@ class RoleManagerMultiUserTest {
     fun ensureOnlyActiveUserIsRoleHolder() {
         try {
             // Set test default role holder. Ensures fallbacks to a default holder
-            roleManager.setDefaultHoldersForTest(
-                PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME,
-                listOf(APP_PACKAGE_NAME),
-            )
+            setDefaultHoldersForTestForAllUsers()
 
             val activeUser = roleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME)!!
             // Test app install might take a moment
             eventually { assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(activeUser) }
         } finally {
-            // Clear test default role holder
-            roleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME, null)
+            clearDefaultHoldersForTestForAllUsers()
         }
     }
 
@@ -318,10 +314,7 @@ class RoleManagerMultiUserTest {
 
         try {
             // Set test default role holder. Ensures fallbacks to a default holder
-            roleManager.setDefaultHoldersForTest(
-                PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME,
-                listOf(APP_PACKAGE_NAME),
-            )
+            setDefaultHoldersForTestForAllUsers()
 
             roleManager.setActiveUserForRole(
                 PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME,
@@ -333,8 +326,7 @@ class RoleManagerMultiUserTest {
             // We can assume targetActiveUser is role holder since fallback is enabled
             eventually { assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(targetActiveUser) }
         } finally {
-            // Clear test default role holder
-            roleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME, null)
+            clearDefaultHoldersForTestForAllUsers()
         }
     }
 
@@ -346,10 +338,7 @@ class RoleManagerMultiUserTest {
     fun setAndGetActiveUserForRoleSetWorkProfile() {
         try {
             // Set test default role holder. Ensures fallbacks to a default holder
-            roleManager.setDefaultHoldersForTest(
-                PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME,
-                listOf(APP_PACKAGE_NAME),
-            )
+            setDefaultHoldersForTestForAllUsers()
 
             val targetActiveUser = deviceState.workProfile().userHandle()
             roleManager.setActiveUserForRole(
@@ -363,8 +352,7 @@ class RoleManagerMultiUserTest {
             // We can assume targetActiveUser is role holder since fallback is enabled
             eventually { assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(targetActiveUser) }
         } finally {
-            // Clear test default role holder
-            roleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME, null)
+            setDefaultHoldersForTestForAllUsers()
         }
     }
 
@@ -630,6 +618,26 @@ class RoleManagerMultiUserTest {
                     )
                     .isNull()
             }
+        }
+    }
+
+    private fun setDefaultHoldersForTestForAllUsers() {
+        // Set test default role holder. Ensures fallbacks to a default holder
+        for (userRoleManager in users().all().map { getRoleManagerForUser(it.userHandle()) }) {
+            userRoleManager.setDefaultHoldersForTest(
+                PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME,
+                listOf(APP_PACKAGE_NAME),
+            )
+        }
+    }
+
+    private fun clearDefaultHoldersForTestForAllUsers() {
+        // Set test default role holder. Ensures fallbacks to a default holder
+        for (userRoleManager in users().all().map { getRoleManagerForUser(it.userHandle()) }) {
+            userRoleManager.setDefaultHoldersForTest(
+                PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME,
+                emptyList(),
+            )
         }
     }
 

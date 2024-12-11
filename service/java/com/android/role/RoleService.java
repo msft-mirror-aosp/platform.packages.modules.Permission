@@ -16,8 +16,6 @@
 
 package com.android.role;
 
-import static android.app.role.RoleManager.ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY;
-
 import android.Manifest;
 import android.annotation.AnyThread;
 import android.annotation.MainThread;
@@ -52,7 +50,6 @@ import android.permission.flags.Flags;
 import android.permission.internal.compat.UserHandleCompat;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
@@ -125,7 +122,8 @@ public class RoleService extends SystemService implements RoleUserState.Callback
             defaultApplicationRoles.add(RoleManager.ROLE_WALLET);
         }
         if (RoleFlags.isProfileGroupExclusivityAvailable()) {
-            defaultApplicationRoles.add(ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY);
+            defaultApplicationRoles.add(
+                    RoleManager.ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY);
         }
         DEFAULT_APPLICATION_ROLES = defaultApplicationRoles.toArray(new String[0]);
     }
@@ -134,7 +132,8 @@ public class RoleService extends SystemService implements RoleUserState.Callback
 
     static {
         if (RoleFlags.isProfileGroupExclusivityAvailable()) {
-            TEST_ROLES = new String[] {ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY};
+            TEST_ROLES =
+                    new String[] {RoleManager.ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY};
         } else {
             TEST_ROLES = new String[0];
         }
@@ -184,14 +183,6 @@ public class RoleService extends SystemService implements RoleUserState.Callback
     @NonNull
     private final SparseArray<ThrottledRunnable> mGrantDefaultRolesThrottledRunnables =
             new SparseArray<>();
-
-    @GuardedBy("mLock")
-    @NonNull
-    private final Map<String, List<String>> mDefaultHoldersForTest = new ArrayMap<>();
-
-    @GuardedBy("mLock")
-    @NonNull
-    private final Set<String> mRolesVisibleForTest = new ArraySet<>();
 
     public RoleService(@NonNull Context context) {
         super(context);
@@ -1192,8 +1183,10 @@ public class RoleService extends SystemService implements RoleUserState.Callback
             return getOrCreateController(userId).isApplicationVisibleForRole(roleName, packageName);
         }
 
+        @NonNull
         @Override
-        public List<String> getDefaultHoldersForTest(String roleName) {
+        public List<String> getDefaultHoldersForTestAsUser(@NonNull String roleName,
+                @UserIdInt int userId) {
             Preconditions.checkState(RoleFlags.isProfileGroupExclusivityAvailable(),
                     "getDefaultHoldersForTest not available");
             getContext().enforceCallingOrSelfPermission(Manifest.permission.MANAGE_ROLE_HOLDERS,
@@ -1201,31 +1194,25 @@ public class RoleService extends SystemService implements RoleUserState.Callback
             Preconditions.checkStringNotEmpty(roleName, "roleName cannot be null or empty");
             Preconditions.checkArgumentIsSupported(TEST_ROLES, roleName);
 
-            synchronized (mLock) {
-                return mDefaultHoldersForTest.getOrDefault(roleName, Collections.emptyList());
-            }
+            return getOrCreateUserState(userId).getDefaultHoldersForTest(roleName);
         }
 
         @Override
-        public void setDefaultHoldersForTest(String roleName, List<String> packageNames) {
+        public void setDefaultHoldersForTestAsUser(@NonNull String roleName,
+                @NonNull List<String> packageNames, @UserIdInt int userId) {
             Preconditions.checkState(RoleFlags.isProfileGroupExclusivityAvailable(),
                     "setDefaultHoldersForTest not available");
             getContext().enforceCallingOrSelfPermission(Manifest.permission.MANAGE_ROLE_HOLDERS,
                     "setDefaultHoldersForTest");
             Preconditions.checkStringNotEmpty(roleName, "roleName cannot be null or empty");
             Preconditions.checkArgumentIsSupported(TEST_ROLES, roleName);
+            Objects.requireNonNull(packageNames, "packageNames cannot be null");
 
-            synchronized (mLock) {
-                if (packageNames == null || packageNames.isEmpty()) {
-                    mDefaultHoldersForTest.remove(roleName);
-                } else {
-                    mDefaultHoldersForTest.put(roleName, packageNames);
-                }
-            }
+            getOrCreateUserState(userId).setDefaultHoldersForTest(roleName, packageNames);
         }
 
         @Override
-        public boolean isRoleVisibleForTest(String roleName) {
+        public boolean isRoleVisibleForTestAsUser(@NonNull String roleName, @UserIdInt int userId) {
             Preconditions.checkState(RoleFlags.isProfileGroupExclusivityAvailable(),
                     "isRoleVisibleForTest not available");
             getContext().enforceCallingOrSelfPermission(Manifest.permission.MANAGE_ROLE_HOLDERS,
@@ -1233,13 +1220,12 @@ public class RoleService extends SystemService implements RoleUserState.Callback
             Preconditions.checkStringNotEmpty(roleName, "roleName cannot be null or empty");
             Preconditions.checkArgumentIsSupported(TEST_ROLES, roleName);
 
-            synchronized (mLock) {
-                return mRolesVisibleForTest.contains(roleName);
-            }
+            return getOrCreateUserState(userId).isRoleVisibleForTest(roleName);
         }
 
         @Override
-        public void setRoleVisibleForTest(String roleName, boolean visible) {
+        public void setRoleVisibleForTestAsUser(@NonNull String roleName, boolean visible,
+                @UserIdInt int userId) {
             Preconditions.checkState(RoleFlags.isProfileGroupExclusivityAvailable(),
                     "setRoleVisibleForTest not available");
             getContext().enforceCallingOrSelfPermission(Manifest.permission.MANAGE_ROLE_HOLDERS,
@@ -1247,13 +1233,7 @@ public class RoleService extends SystemService implements RoleUserState.Callback
             Preconditions.checkStringNotEmpty(roleName, "roleName cannot be null or empty");
             Preconditions.checkArgumentIsSupported(TEST_ROLES, roleName);
 
-            synchronized (mLock) {
-                if (visible) {
-                    mRolesVisibleForTest.add(roleName);
-                } else {
-                    mRolesVisibleForTest.remove(roleName);
-                }
-            }
+            getOrCreateUserState(userId).setRoleVisibleForTest(roleName, visible);
         }
 
         @Override
