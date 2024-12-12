@@ -674,6 +674,10 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Дозволити налаштування з обмеженнями"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Налаштування з обмеженнями"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"З міркувань безпеки це налаштування наразі недоступне."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5230100829862738467) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8782160971908273849) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Додатку не надано дозвіл \"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>\""</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Додаток запитав дозвіл на доступ до чутливих даних, що може поставити під загрозу вашу особисту й фінансову інформацію.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Без цього обмеженого дозволу додаток може не працювати належним чином. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Як надати доступ&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Додатку не надано доступ до ролі \"<xliff:g id="ROLE_NAME">%1$s</xliff:g>\" за умовчанням"</string>

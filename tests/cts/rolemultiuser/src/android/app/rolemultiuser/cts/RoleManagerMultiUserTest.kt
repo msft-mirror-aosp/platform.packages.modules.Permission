@@ -17,10 +17,14 @@ package android.app.rolemultiuser.cts
 
 import android.app.role.RoleManager
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Process
 import android.os.UserHandle
+import android.provider.Settings
 import androidx.test.filters.SdkSuppress
+import androidx.test.uiautomator.By
 import com.android.bedstead.enterprise.annotations.EnsureHasWorkProfile
 import com.android.bedstead.enterprise.annotations.RequireRunOnWorkProfile
 import com.android.bedstead.enterprise.workProfile
@@ -43,8 +47,12 @@ import com.android.bedstead.permissions.CommonPermissions.MANAGE_DEFAULT_APPLICA
 import com.android.bedstead.permissions.CommonPermissions.MANAGE_ROLE_HOLDERS
 import com.android.bedstead.permissions.annotations.EnsureDoesNotHavePermission
 import com.android.bedstead.permissions.annotations.EnsureHasPermission
+import com.android.compatibility.common.util.DisableAnimationRule
+import com.android.compatibility.common.util.FreezeRotationRule
 import com.android.compatibility.common.util.SystemUtil
 import com.android.compatibility.common.util.SystemUtil.eventually
+import com.android.compatibility.common.util.UiAutomatorUtils2.getUiDevice
+import com.android.compatibility.common.util.UiAutomatorUtils2.waitFindObject
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.Objects
@@ -555,6 +563,234 @@ class RoleManagerMultiUserTest {
         assertExpectedProfileHasRoleUsingGetDefaultApplication(targetActiveUser)
     }
 
+    @RequireFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @EnsureHasPermission(INTERACT_ACROSS_USERS_FULL, MANAGE_ROLE_HOLDERS)
+    @EnsureHasWorkProfile
+    @RequireRunOnPrimaryUser
+    @Test
+    @Throws(java.lang.Exception::class)
+    fun openDefaultAppListAndSetDefaultAppThenIsDefaultApp() {
+        try {
+            // Set test default role holder. Ensures fallbacks to a default holder
+            setDefaultHoldersForTestForAllUsers()
+            setRoleVisibleForTestForAllUsers()
+
+            context.startActivity(
+                Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+                    .addCategory(Intent.CATEGORY_DEFAULT)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            )
+            getUiDevice().waitForIdle()
+            waitFindObject(By.text(PROFILE_GROUP_EXCLUSIVITY_ROLE_SHORT_LABEL)).click()
+            getUiDevice().waitForIdle()
+
+            val targetActiveUser = users().current().userHandle()
+            val targetAppLabel = "$APP_LABEL@${targetActiveUser.identifier}"
+            if (isWatch) {
+                waitFindObject(By.clickable(true).hasDescendant(By.text(targetAppLabel))).click()
+            } else {
+                waitFindObject(
+                        By.clickable(true)
+                            .hasDescendant(By.checkable(true))
+                            .hasDescendant(By.text(targetAppLabel))
+                    )
+                    .click()
+            }
+
+            if (isWatch) {
+                waitFindObject(
+                    By.clickable(true).checked(true).hasDescendant(By.text(targetAppLabel))
+                )
+            } else {
+                waitFindObject(
+                    By.clickable(true)
+                        .hasDescendant(By.checkable(true).checked(true))
+                        .hasDescendant(By.text(targetAppLabel))
+                )
+            }
+
+            assertThat(roleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
+                .isEqualTo(targetActiveUser)
+            assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(targetActiveUser)
+
+            pressBack()
+            pressBack()
+        } finally {
+            clearDefaultHoldersForTestForAllUsers()
+            clearRoleVisibleForTestForAllUsers()
+        }
+    }
+
+    @RequireFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @EnsureHasPermission(INTERACT_ACROSS_USERS_FULL, MANAGE_ROLE_HOLDERS)
+    @EnsureHasWorkProfile
+    @RequireRunOnPrimaryUser
+    @Test
+    @Throws(java.lang.Exception::class)
+    fun openDefaultAppListAndSetWorkDefaultAppThenIsDefaultApp() {
+        try {
+            // Set test default role holder. Ensures fallbacks to a default holder
+            setDefaultHoldersForTestForAllUsers()
+            setRoleVisibleForTestForAllUsers()
+
+            context.startActivity(
+                Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+                    .addCategory(Intent.CATEGORY_DEFAULT)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            )
+            getUiDevice().waitForIdle()
+            waitFindObject(By.text(PROFILE_GROUP_EXCLUSIVITY_ROLE_SHORT_LABEL)).click()
+            getUiDevice().waitForIdle()
+
+            val targetActiveUser = deviceState.workProfile().userHandle()
+            val targetAppLabel = "$APP_LABEL@${targetActiveUser.identifier}"
+            if (isWatch) {
+                waitFindObject(By.clickable(true).hasDescendant(By.text(targetAppLabel))).click()
+            } else {
+                waitFindObject(
+                        By.clickable(true)
+                            .hasDescendant(By.checkable(true))
+                            .hasDescendant(By.text(targetAppLabel))
+                    )
+                    .click()
+            }
+
+            if (isWatch) {
+                waitFindObject(
+                    By.clickable(true).checked(true).hasDescendant(By.text(targetAppLabel))
+                )
+            } else {
+                waitFindObject(
+                    By.clickable(true)
+                        .hasDescendant(By.checkable(true).checked(true))
+                        .hasDescendant(By.text(targetAppLabel))
+                )
+            }
+
+            assertThat(roleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
+                .isEqualTo(targetActiveUser)
+            assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(targetActiveUser)
+
+            pressBack()
+            pressBack()
+        } finally {
+            clearDefaultHoldersForTestForAllUsers()
+            clearRoleVisibleForTestForAllUsers()
+        }
+    }
+
+    @RequireFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @EnsureHasPermission(INTERACT_ACROSS_USERS_FULL, MANAGE_ROLE_HOLDERS)
+    @EnsureHasWorkProfile
+    @RequireRunOnPrimaryUser
+    @Test
+    @Throws(java.lang.Exception::class)
+    fun openDefaultAppListAndSetDefaultAppThenIsDefaultAppInList() {
+        try {
+            // Set test default role holder. Ensures fallbacks to a default holder
+            setDefaultHoldersForTestForAllUsers()
+            setRoleVisibleForTestForAllUsers()
+
+            context.startActivity(
+                Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+                    .addCategory(Intent.CATEGORY_DEFAULT)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            )
+            getUiDevice().waitForIdle()
+            waitFindObject(By.text(PROFILE_GROUP_EXCLUSIVITY_ROLE_SHORT_LABEL)).click()
+            getUiDevice().waitForIdle()
+
+            val targetActiveUser = users().current().userHandle()
+            val targetAppLabel = "$APP_LABEL@${targetActiveUser.identifier}"
+            if (isWatch) {
+                waitFindObject(By.clickable(true).hasDescendant(By.text(targetAppLabel))).click()
+                waitFindObject(
+                    By.clickable(true).checked(true).hasDescendant(By.text(targetAppLabel))
+                )
+            } else {
+                waitFindObject(
+                        By.clickable(true)
+                            .hasDescendant(By.checkable(true))
+                            .hasDescendant(By.text(targetAppLabel))
+                    )
+                    .click()
+                waitFindObject(
+                    By.clickable(true)
+                        .hasDescendant(By.checkable(true).checked(true))
+                        .hasDescendant(By.text(targetAppLabel))
+                )
+            }
+            pressBack()
+
+            waitFindObject(By.text(targetAppLabel))
+
+            assertThat(roleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
+                .isEqualTo(targetActiveUser)
+            assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(targetActiveUser)
+
+            pressBack()
+        } finally {
+            clearDefaultHoldersForTestForAllUsers()
+            clearRoleVisibleForTestForAllUsers()
+        }
+    }
+
+    @RequireFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @EnsureHasPermission(INTERACT_ACROSS_USERS_FULL, MANAGE_ROLE_HOLDERS)
+    @EnsureHasWorkProfile
+    @RequireRunOnPrimaryUser
+    @Test
+    @Throws(java.lang.Exception::class)
+    fun openDefaultAppListAndSetWorkDefaultAppThenIsDefaultAppInList() {
+        try {
+            // Set test default role holder. Ensures fallbacks to a default holder
+            setDefaultHoldersForTestForAllUsers()
+            setRoleVisibleForTestForAllUsers()
+
+            context.startActivity(
+                Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+                    .addCategory(Intent.CATEGORY_DEFAULT)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            )
+            getUiDevice().waitForIdle()
+            waitFindObject(By.text(PROFILE_GROUP_EXCLUSIVITY_ROLE_SHORT_LABEL)).click()
+            getUiDevice().waitForIdle()
+
+            val targetActiveUser = deviceState.workProfile().userHandle()
+            val targetAppLabel = "$APP_LABEL@${targetActiveUser.identifier}"
+            if (isWatch) {
+                waitFindObject(By.clickable(true).hasDescendant(By.text(targetAppLabel))).click()
+                waitFindObject(
+                    By.clickable(true).checked(true).hasDescendant(By.text(targetAppLabel))
+                )
+            } else {
+                waitFindObject(
+                        By.clickable(true)
+                            .hasDescendant(By.checkable(true))
+                            .hasDescendant(By.text(targetAppLabel))
+                    )
+                    .click()
+                waitFindObject(
+                    By.clickable(true)
+                        .hasDescendant(By.checkable(true).checked(true))
+                        .hasDescendant(By.text(targetAppLabel))
+                )
+            }
+            pressBack()
+
+            waitFindObject(By.text(targetAppLabel))
+
+            assertThat(roleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
+                .isEqualTo(targetActiveUser)
+            assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(targetActiveUser)
+
+            pressBack()
+        } finally {
+            clearDefaultHoldersForTestForAllUsers()
+            clearRoleVisibleForTestForAllUsers()
+        }
+    }
+
     @Throws(java.lang.Exception::class)
     private fun installAppForAllUsers() {
         SystemUtil.runShellCommandOrThrow("pm install -r --user all $APP_APK_PATH")
@@ -562,6 +798,11 @@ class RoleManagerMultiUserTest {
 
     private fun uninstallAppForAllUsers() {
         SystemUtil.runShellCommand("pm uninstall $APP_PACKAGE_NAME")
+    }
+
+    private fun pressBack() {
+        getUiDevice().pressBack()
+        getUiDevice().waitForIdle()
     }
 
     private fun assertExpectedProfileHasRoleUsingGetRoleHoldersAsUser(
@@ -641,6 +882,20 @@ class RoleManagerMultiUserTest {
         }
     }
 
+    private fun setRoleVisibleForTestForAllUsers() {
+        // Set test default role holder. Ensures fallbacks to a default holder
+        for (userRoleManager in users().all().map { getRoleManagerForUser(it.userHandle()) }) {
+            userRoleManager.setRoleVisibleForTest(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME, true)
+        }
+    }
+
+    private fun clearRoleVisibleForTestForAllUsers() {
+        // Set test default role holder. Ensures fallbacks to a default holder
+        for (userRoleManager in users().all().map { getRoleManagerForUser(it.userHandle()) }) {
+            userRoleManager.setRoleVisibleForTest(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME, false)
+        }
+    }
+
     private fun getRoleManagerForUser(user: UserHandle): RoleManager {
         val userContext = context.createContextAsUser(user, 0)
         return userContext.getSystemService(RoleManager::class.java)
@@ -656,13 +911,26 @@ class RoleManagerMultiUserTest {
         private const val TIMEOUT_MILLIS: Long = (15 * 1000).toLong()
         private const val PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME =
             RoleManager.ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY
+        private const val PROFILE_GROUP_EXCLUSIVITY_ROLE_SHORT_LABEL =
+            "Test profile group exclusive role app"
         private const val PRIVATE_PROFILE_TYPE_NAME = "android.os.usertype.profile.PRIVATE"
         private const val APP_APK_PATH: String =
             "/data/local/tmp/cts-role/CtsRoleMultiUserTestApp.apk"
         private const val APP_PACKAGE_NAME: String = "android.app.rolemultiuser.cts.app"
+        private const val APP_LABEL: String = "CtsRoleMultiUserTestApp"
+
         private val context: Context = context().instrumentedContext()
         private val roleManager: RoleManager = context.getSystemService(RoleManager::class.java)
+        private val packageManager: PackageManager = context.packageManager
+        private val isWatch = packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)
 
         @JvmField @ClassRule @Rule val deviceState = DeviceState()
+
+        @JvmField
+        @ClassRule
+        @Rule
+        var disableAnimationRule: DisableAnimationRule = DisableAnimationRule()
+
+        @JvmField @ClassRule @Rule var freezeRotationRule: FreezeRotationRule = FreezeRotationRule()
     }
 }
