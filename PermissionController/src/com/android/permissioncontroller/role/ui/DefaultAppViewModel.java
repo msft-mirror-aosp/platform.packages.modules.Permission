@@ -59,13 +59,16 @@ public class DefaultAppViewModel extends AndroidViewModel {
         super(application);
 
         mRole = role;
+        // If EXCLUSIVITY_PROFILE_GROUP this user should be profile parent
         mUser = mRole.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP
                 ? UserUtils.getProfileParentOrSelf(user, application)
                 : user;
         RoleLiveData liveData = new RoleLiveData(mRole, mUser, application);
         RoleSortFunction sortFunction = new RoleSortFunction(application);
         if (mRole.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP) {
-            UserHandle workProfile  = UserUtils.getWorkProfile(application);
+            // Context user might be work profile, ensure we get a non-null UserHandle if work
+            // profile exists. getWorkProfile returns null if context user is work profile.
+            UserHandle workProfile  = UserUtils.getWorkProfileOrSelf(application);
             if (workProfile != null) {
                 RoleLiveData workLiveData = new RoleLiveData(role, workProfile, application);
                 mRoleLiveData = Transformations.map(new MergeRoleLiveData(liveData, workLiveData),

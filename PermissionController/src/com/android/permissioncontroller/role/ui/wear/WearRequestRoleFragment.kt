@@ -32,6 +32,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.android.permissioncontroller.PermissionControllerStatsLog
 import com.android.permissioncontroller.permission.utils.PackageRemovalMonitor
+import com.android.permissioncontroller.role.UserPackage
 import com.android.permissioncontroller.role.model.UserDeniedManager
 import com.android.permissioncontroller.role.ui.ManageRoleHolderStateLiveData
 import com.android.permissioncontroller.role.ui.RequestRoleViewModel
@@ -56,7 +57,7 @@ class WearRequestRoleFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         roleName = arguments?.getString(Intent.EXTRA_ROLE_NAME) ?: ""
         packageName = arguments?.getString(Intent.EXTRA_PACKAGE_NAME) ?: ""
@@ -74,12 +75,12 @@ class WearRequestRoleFragment : Fragment() {
         if (currentPackageNames.contains(packageName)) {
             Log.i(
                 TAG,
-                "Application is already a role holder, role: $roleName, package: $packageName"
+                "Application is already a role holder, role: $roleName, package: $packageName",
             )
             reportRequestResult(
                 PermissionControllerStatsLog
                     .ROLE_REQUEST_RESULT_REPORTED__RESULT__IGNORED_ALREADY_GRANTED,
-                null
+                null,
             )
             clearDeniedSetResultOkAndFinish()
             return null
@@ -89,7 +90,7 @@ class WearRequestRoleFragment : Fragment() {
             Log.w(TAG, "Unknown application: $packageName")
             reportRequestResult(
                 PermissionControllerStatsLog.ROLE_REQUEST_RESULT_REPORTED__RESULT__IGNORED,
-                null
+                null,
             )
             finish()
             return null
@@ -98,7 +99,7 @@ class WearRequestRoleFragment : Fragment() {
         viewModel =
             ViewModelProvider(
                     this,
-                    RequestRoleViewModel.Factory(role, requireActivity().application)
+                    RequestRoleViewModel.Factory(role, requireActivity().application),
                 )
                 .get(RequestRoleViewModel::class.java)
         viewModel.manageRoleHolderStateLiveData.observe(this, this::onManageRoleHolderStateChanged)
@@ -117,25 +118,25 @@ class WearRequestRoleFragment : Fragment() {
                 roleName,
                 packageName,
                 viewModel,
-                wearViewModel
+                wearViewModel,
             )
 
-        val onSetAsDefault: (Boolean, String?) -> Unit = { dontAskAgain, selectedPackageName ->
+        val onSetAsDefault: (Boolean, UserPackage?) -> Unit = { dontAskAgain, selectedUserPackage ->
             run {
                 if (dontAskAgain) {
                     Log.i(
                         TAG,
                         "Request denied with don't ask again, role: $roleName" +
-                            ", package: $packageName"
+                            ", package: $packageName",
                     )
                     reportRequestResult(
                         PermissionControllerStatsLog
                             .ROLE_REQUEST_RESULT_REPORTED__RESULT__USER_DENIED_WITH_ALWAYS,
-                        null
+                        null,
                     )
                     setDeniedAlwaysAndFinish()
                 } else {
-                    setRoleHolder(selectedPackageName)
+                    setRoleHolder(selectedUserPackage)
                 }
             }
         }
@@ -143,7 +144,7 @@ class WearRequestRoleFragment : Fragment() {
             Log.i(TAG, "Dialog cancelled, role: $roleName , package: $packageName")
             reportRequestResult(
                 PermissionControllerStatsLog.ROLE_REQUEST_RESULT_REPORTED__RESULT__USER_DENIED,
-                null
+                null,
             )
             setDeniedOnceAndFinish()
         }
@@ -158,25 +159,28 @@ class WearRequestRoleFragment : Fragment() {
         when (state) {
             ManageRoleHolderStateLiveData.STATE_SUCCESS -> {
                 val lastPackageName = liveData.lastPackageName
+                val lastUser = liveData.lastUser
+                val lastUserPackage: UserPackage? =
+                    if (lastPackageName == null || lastUser == null) {
+                        null
+                    } else {
+                        UserPackage.of(lastUser, lastPackageName)
+                    }
                 if (lastPackageName != null) {
-                    role.onHolderSelectedAsUser(
-                        lastPackageName,
-                        liveData.lastUser,
-                        requireContext()
-                    )
+                    role.onHolderSelectedAsUser(lastPackageName, lastUser, requireContext())
                 }
-                if (lastPackageName == packageName) {
+                if (isRequestingApplication(lastUserPackage)) {
                     Log.i(
                         TAG,
                         "Application added as a role holder, role: $roleName, package: " +
-                            packageName
+                            packageName,
                     )
                     clearDeniedSetResultOkAndFinish()
                 } else {
                     Log.i(
                         TAG,
                         "Request denied with another application added as a role holder, " +
-                            "role: $roleName, package: $packageName"
+                            "role: $roleName, package: $packageName",
                     )
                     setDeniedOnceAndFinish()
                 }
@@ -196,23 +200,24 @@ class WearRequestRoleFragment : Fragment() {
         finish()
     }
 
-    private fun reportRequestResult(result: Int, grantedAnotherPackageName: String?) {
-        val holderPackageName: String? = getHolderPackageName()
+    private fun reportRequestResult(result: Int, grantedUserPackage: UserPackage?) {
+        val holderUserPackage: UserPackage? = getHolderUserPackage()
         reportRequestResult(
-            getApplicationUid(packageName),
+            getRequestingApplicationUid(),
             packageName,
             roleName,
             getQualifyingApplicationCount(),
-            getQualifyingApplicationUid(holderPackageName),
-            holderPackageName,
-            getQualifyingApplicationUid(grantedAnotherPackageName),
-            grantedAnotherPackageName,
-            result
+            getQualifyingApplicationUid(holderUserPackage),
+            holderUserPackage?.packageName,
+            getQualifyingApplicationUid(grantedUserPackage),
+            grantedUserPackage?.packageName,
+            result,
         )
     }
 
-    private fun getApplicationUid(packageName: String): Int {
-        val uid: Int = getQualifyingApplicationUid(packageName)
+    private fun getRequestingApplicationUid(): Int {
+        val uid: Int =
+            getQualifyingApplicationUid(UserPackage.of(Process.myUserHandle(), packageName))
         if (uid != -1) {
             return uid
         }
@@ -221,14 +226,15 @@ class WearRequestRoleFragment : Fragment() {
         return applicationInfo.uid
     }
 
-    private fun getQualifyingApplicationUid(packageName: String?): Int {
-        if (packageName == null) {
+    private fun getQualifyingApplicationUid(userPackage: UserPackage?): Int {
+        if (userPackage == null) {
             return -1
         }
         viewModel.roleLiveData.value?.let { qualifyingApplications ->
             for (qualifyingApplication in qualifyingApplications) {
                 val qualifyingApplicationInfo = qualifyingApplication.first
-                if (Objects.equals(qualifyingApplicationInfo.packageName, packageName)) {
+                val qualifyingAppUserPackage = UserPackage.from(qualifyingApplicationInfo)
+                if (Objects.equals(qualifyingAppUserPackage, userPackage)) {
                     return qualifyingApplicationInfo.uid
                 }
             }
@@ -236,12 +242,13 @@ class WearRequestRoleFragment : Fragment() {
         return -1
     }
 
-    private fun getHolderPackageName(): String? {
+    private fun getHolderUserPackage(): UserPackage? {
         viewModel.roleLiveData.value?.let { qualifyingApplications ->
             for (qualifyingApplication in qualifyingApplications) {
                 val isHolderApplication = qualifyingApplication.second
                 if (isHolderApplication) {
-                    return qualifyingApplication.first.packageName
+                    val applicationInfo = qualifyingApplication.first
+                    return UserPackage.from(applicationInfo)
                 }
             }
         }
@@ -261,47 +268,52 @@ class WearRequestRoleFragment : Fragment() {
         requireActivity().finish()
     }
 
-    private fun setRoleHolder(selectedPackageName: String?) {
+    private fun setRoleHolder(selectedUserPackage: UserPackage?) {
         val context: Context = requireContext()
-        val user: UserHandle = Process.myUserHandle()
-        if (selectedPackageName == null) {
+        if (selectedUserPackage == null) {
             reportRequestResult(
                 PermissionControllerStatsLog
                     .ROLE_REQUEST_RESULT_REPORTED__RESULT__USER_DENIED_GRANTED_ANOTHER,
-                null
+                null,
             )
+            // TODO(b/382688491): add support for "none" for profile group exclusive roles
+            val user: UserHandle = Process.myUserHandle()
             role.onNoneHolderSelectedAsUser(user, context)
             viewModel.manageRoleHolderStateLiveData.clearRoleHoldersAsUser(
                 roleName,
                 0,
                 user,
-                context
+                context,
             )
         } else {
-            val isRequestingApplication = selectedPackageName == packageName
+            val isRequestingApplication = isRequestingApplication(selectedUserPackage)
             if (isRequestingApplication) {
                 reportRequestResult(
                     PermissionControllerStatsLog.ROLE_REQUEST_RESULT_REPORTED__RESULT__USER_GRANTED,
-                    null
+                    null,
                 )
             } else {
                 reportRequestResult(
                     PermissionControllerStatsLog
                         .ROLE_REQUEST_RESULT_REPORTED__RESULT__USER_DENIED_GRANTED_ANOTHER,
-                    selectedPackageName
+                    selectedUserPackage,
                 )
             }
             val flags =
                 if (isRequestingApplication) RoleManager.MANAGE_HOLDERS_FLAG_DONT_KILL_APP else 0
             viewModel.manageRoleHolderStateLiveData.setRoleHolderAsUser(
                 roleName,
-                selectedPackageName,
+                selectedUserPackage.packageName,
                 true,
                 flags,
-                user,
-                context
+                selectedUserPackage.user,
+                context,
             )
         }
+    }
+
+    private fun isRequestingApplication(userPackage: UserPackage?): Boolean {
+        return Objects.equals(userPackage, UserPackage.of(Process.myUserHandle(), packageName))
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -318,12 +330,12 @@ class WearRequestRoleFragment : Fragment() {
                             TAG,
                             "Application is uninstalled, role: $roleName" +
                                 ", package: " +
-                                packageName
+                                packageName,
                         )
                         reportRequestResult(
                             PermissionControllerStatsLog
                                 .ROLE_REQUEST_RESULT_REPORTED__RESULT__IGNORED,
-                            null
+                            null,
                         )
                         finish()
                     }
@@ -364,7 +376,7 @@ class WearRequestRoleFragment : Fragment() {
             currentPackageName: String?,
             grantedAnotherUid: Int,
             grantedAnotherPackageName: String?,
-            result: Int
+            result: Int,
         ) {
             Log.i(
                 TAG,
@@ -376,7 +388,7 @@ class WearRequestRoleFragment : Fragment() {
                     " currentPackageName=$currentPackageName" +
                     " grantedAnotherUid=$grantedAnotherUid" +
                     " grantedAnotherPackageName=$grantedAnotherPackageName" +
-                    " result=$result"
+                    " result=$result",
             )
             PermissionControllerStatsLog.write(
                 PermissionControllerStatsLog.ROLE_REQUEST_RESULT_REPORTED,
@@ -388,7 +400,7 @@ class WearRequestRoleFragment : Fragment() {
                 currentPackageName,
                 grantedAnotherUid,
                 grantedAnotherPackageName,
-                result
+                result,
             )
         }
     }

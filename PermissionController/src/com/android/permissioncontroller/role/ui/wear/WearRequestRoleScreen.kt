@@ -43,12 +43,13 @@ import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL3
+import com.android.permissioncontroller.role.UserPackage
 import com.android.permissioncontroller.role.ui.ManageRoleHolderStateLiveData
 
 @Composable
 fun WearRequestRoleScreen(
     helper: WearRequestRoleHelper,
-    onSetAsDefault: (Boolean, String?) -> Unit,
+    onSetAsDefault: (Boolean, UserPackage?) -> Unit,
     onCanceled: () -> Unit,
 ) {
     val roleLiveData = helper.viewModel.roleLiveData.observeAsState(emptyList())
@@ -57,25 +58,26 @@ fun WearRequestRoleScreen(
             ManageRoleHolderStateLiveData.STATE_WORKING
         )
     val dontAskAgain = helper.wearViewModel.dontAskAgain.observeAsState(false)
-    val selectedPackageName = helper.wearViewModel.selectedPackageName.observeAsState(null)
+    val selectedPackage = helper.wearViewModel.selectedPackage.observeAsState(null)
     var isLoading by remember { mutableStateOf(true) }
 
     if (isLoading && roleLiveData.value.isNotEmpty()) {
-        helper.initializeHolderPackageName(roleLiveData.value)
-        helper.initializeSelectedPackageName()
+        helper.initializeHolderPackage(roleLiveData.value)
+        helper.initializeSelectedPackage()
     }
 
-    val onCheckedChanged: (Boolean, String?, Boolean) -> Unit = { checked, packageName, isHolder ->
-        if (checked) {
-            helper.wearViewModel.selectedPackageName.value = packageName
-            helper.wearViewModel.isHolderChecked = isHolder
+    val onCheckedChanged: (Boolean, UserPackage?, Boolean) -> Unit =
+        { checked, userPackage, isHolder ->
+            if (checked) {
+                helper.wearViewModel.selectedPackage.value = userPackage
+                helper.wearViewModel.isHolderChecked = isHolder
+            }
         }
-    }
 
     val onDontAskAgainCheckedChanged: (Boolean) -> Unit = { checked ->
         helper.wearViewModel.dontAskAgain.value = checked
         if (checked) {
-            helper.initializeSelectedPackageName()
+            helper.initializeSelectedPackage()
         }
     }
     val materialUIVersion =
@@ -91,7 +93,7 @@ fun WearRequestRoleScreen(
         roleLiveData.value,
         manageRoleHolderState.value == ManageRoleHolderStateLiveData.STATE_IDLE,
         dontAskAgain.value,
-        selectedPackageName.value,
+        selectedPackage.value,
         onCheckedChanged,
         onDontAskAgainCheckedChanged,
         onSetAsDefault,
@@ -111,10 +113,10 @@ internal fun WearRequestRoleContent(
     qualifyingApplications: List<Pair<ApplicationInfo, Boolean>>,
     enabled: Boolean,
     dontAskAgain: Boolean,
-    selectedPackageName: String?,
-    onCheckedChanged: (Boolean, String?, Boolean) -> Unit,
+    selectedPackage: UserPackage?,
+    onCheckedChanged: (Boolean, UserPackage?, Boolean) -> Unit,
     onDontAskAgainCheckedChanged: (Boolean) -> Unit,
-    onSetAsDefault: (Boolean, String?) -> Unit,
+    onSetAsDefault: (Boolean, UserPackage?) -> Unit,
     onCanceled: () -> Unit,
 ) {
     ScrollableScreen(
@@ -124,7 +126,7 @@ internal fun WearRequestRoleContent(
         showTimeText = false,
         isLoading = isLoading,
     ) {
-        helper.getNonePreference(qualifyingApplications, selectedPackageName)?.let { pref ->
+        helper.getNonePreference(qualifyingApplications, selectedPackage)?.let { pref ->
             item {
                 WearPermissionToggleControl(
                     materialUIVersion = materialUIVersion,
@@ -133,7 +135,7 @@ internal fun WearRequestRoleContent(
                     enabled = enabled && pref.enabled,
                     checked = pref.checked,
                     onCheckedChanged = { checked ->
-                        onCheckedChanged(checked, pref.packageName, pref.isHolder)
+                        onCheckedChanged(checked, pref.userPackage, pref.isHolder)
                     },
                     toggleControl = ToggleChipToggleControl.Radio,
                     labelMaxLines = Integer.MAX_VALUE,
@@ -149,7 +151,7 @@ internal fun WearRequestRoleContent(
             }
         }
 
-        for (pref in helper.getPreferences(qualifyingApplications, selectedPackageName)) {
+        for (pref in helper.getPreferences(qualifyingApplications, selectedPackage)) {
             item {
                 WearPermissionToggleControl(
                     materialUIVersion = materialUIVersion,
@@ -158,7 +160,7 @@ internal fun WearRequestRoleContent(
                     enabled = enabled && pref.enabled,
                     checked = pref.checked,
                     onCheckedChanged = { checked ->
-                        onCheckedChanged(checked, pref.packageName, pref.isHolder)
+                        onCheckedChanged(checked, pref.userPackage, pref.isHolder)
                     },
                     toggleControl = ToggleChipToggleControl.Radio,
                 )
@@ -197,7 +199,7 @@ internal fun WearRequestRoleContent(
                 label = stringResource(R.string.request_role_set_as_default),
                 style = WearPermissionButtonStyle.Primary,
                 enabled = helper.shouldSetAsDefaultEnabled(enabled),
-                onClick = { onSetAsDefault(dontAskAgain, selectedPackageName) },
+                onClick = { onSetAsDefault(dontAskAgain, selectedPackage) },
                 modifier = Modifier.testTag("android:id/button1"),
             )
         }

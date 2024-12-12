@@ -1138,6 +1138,8 @@ public class Role {
     @Nullable
     public Intent getRestrictionIntentAsUser(@NonNull UserHandle user, @NonNull Context context) {
         if (SdkLevel.isAtLeastU() && isExclusive()) {
+            // TODO(b/379143953): if role is profile group exclusive
+            //  check DISALLOW_CONFIG_DEFAULT_APPS for all users
             UserManager userManager = context.getSystemService(UserManager.class);
             if (userManager.hasUserRestrictionForUser(UserManager.DISALLOW_CONFIG_DEFAULT_APPS,
                     user)) {
