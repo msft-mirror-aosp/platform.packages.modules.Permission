@@ -44,7 +44,7 @@ public class EnhancedConfirmationCallTrackerService extends InCallService {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (Flags.enhancedConfirmationInCallApisEnabled()) {
+        if (Flags.unknownCallPackageInstallBlockingEnabled()) {
             mEnhancedConfirmationManagerLocal =
                     LocalManagerRegistry.getManager(EnhancedConfirmationManagerLocal.class);
         }
