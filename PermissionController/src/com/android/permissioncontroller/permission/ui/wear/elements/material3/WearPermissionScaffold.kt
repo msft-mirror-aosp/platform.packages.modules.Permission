@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -248,11 +249,13 @@ private fun Modifier.optionalTestTag(tag: String?): Modifier {
 private fun ScalingLazyListScope.iconItem(painter: Painter?, modifier: Modifier = Modifier) =
     painter?.let {
         item {
+            val iconColor = WearPermissionButtonStyle.Secondary.material3ButtonColors().iconColor
             Image(
                 painter = it,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = modifier,
+                colorFilter = ColorFilter.tint(iconColor),
             )
         }
     }
