@@ -674,6 +674,10 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"អនុញ្ញាតការកំណត់​ដែលបានដាក់កំហិត"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"ការកំណត់​ដែលបានដាក់កំហិត"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"ដើម្បីសុវត្ថិភាព​របស់អ្នក បច្ចុប្បន្នមិនអាចប្រើការកំណត់នេះបានទេ។"</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5230100829862738467) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8782160971908273849) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"កម្មវិធីត្រូវបានបដិសេធមិនឱ្យចូលប្រើ<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"កម្មវិធីបានស្នើសុំសិទ្ធិចូលប្រើការអនុញ្ញាត​ដែលមានលក្ខណៈរសើប ដែលអាចធ្វើឱ្យព័ត៌មានហិរញ្ញវត្ថុ និងព័ត៌មានផ្ទាល់ខ្លួនរបស់អ្នកប្រឈមនឹងហានិភ័យ។<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>កម្មវិធីអាចនឹងមិនដំណើរការបានត្រឹមត្រូវទេ ប្រសិនបើគ្មានការអនុញ្ញាតដែលមានការរឹតបន្តឹងនេះ។ &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;ស្វែងយល់អំពីរបៀបផ្ដល់សិទ្ធិចូលប្រើ&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"កម្មវិធីត្រូវបានបដិសេធមិនឱ្យចូលប្រើជា<xliff:g id="ROLE_NAME">%1$s</xliff:g>លំនាំដើម"</string>

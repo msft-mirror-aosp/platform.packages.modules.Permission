@@ -1875,12 +1875,19 @@
     <role
         name="android.app.role.RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY"
         behavior="ReservedForTestingProfileGroupExclusivityRoleBehavior"
+        description="@string/role_for_testing_profile_group_exclusivity_description"
         exclusive="true"
         exclusivity="profileGroup"
         fallBackToDefaultHolder="true"
         featureFlag="com.android.permission.flags.Flags.crossUserRoleEnabled"
+        label="@string/role_for_testing_profile_group_exclusivity_label"
+        requestable="true"
+        requestDescription="@string/role_for_testing_profile_group_exclusivity_request_description"
+        requestTitle="@string/role_for_testing_profile_group_exclusivity_request_title"
+        shortLabel="@string/role_for_testing_profile_group_exclusivity_short_label"
         showNone="true"
-        visible="false"/>
+        uiBehavior="ReservedForTestingProfileGroupExclusivityRoleUiBehavior"
+        visible="true"/>
 
     <!---
       ~ A role for the vendor package that provides privacy-preserving intelligent processor for
@@ -1920,4 +1927,20 @@
                 featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
         </permissions>
     </role>
+
+    <role
+        name="android.app.role.COMPANION_DEVICE_SENSOR_DEVICE_STREAMING"
+        allowBypassingQualification="true"
+        exclusive="false"
+        exclusivity="none"
+        featureFlag="android.companion.virtualdevice.flags.Flags.enableLimitedVdmRole"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="nearby_devices" />
+            <permission-set name="notifications" />
+            <permission name="android.permission.CREATE_VIRTUAL_DEVICE"/>
+        </permissions>
+    </role>
+
 </roles>

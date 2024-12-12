@@ -674,6 +674,10 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Autoriser les paramètres restreints"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Paramètre restreint"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Pour votre sécurité, ce paramètre est actuellement indisponible."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5230100829862738467) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8782160971908273849) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"L\'appli s\'est vu refuser l\'accès à <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Cette appli a demandé l\'accès à une autorisation sensible susceptible d\'exposer vos informations financières et personnelles à un risque.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Si elle ne dispose pas d\'un accès à cette autorisation restreinte, l\'appli peut ne pas fonctionner correctement. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Découvrez comment autoriser l\'accès&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"L\'appli s\'est vu refuser l\'accès au statut de <xliff:g id="ROLE_NAME">%1$s</xliff:g> par défaut"</string>
