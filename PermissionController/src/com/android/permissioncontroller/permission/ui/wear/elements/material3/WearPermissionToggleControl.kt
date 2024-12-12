@@ -129,7 +129,13 @@ private fun WearPermissionToggleControlInternal(
         ToggleChipToggleControl.Radio ->
             RadioButton(
                 selected = checked,
-                onSelect = { onCheckedChanged(true) },
+                onSelect = {
+                    // We do not want to call if it is already checked.
+                    // Radio button can't be toggled off
+                    if (!checked) {
+                        onCheckedChanged(true)
+                    }
+                },
                 modifier = updatedModifier,
                 enabled = enabled,
                 icon = iconParam,

@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.Dp
@@ -95,6 +96,7 @@ internal fun WearPermissionButtonInternal(
     colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     requiresMinimumHeight: Boolean = true,
+    shape: Shape = ButtonDefaults.shape,
 ) {
     val minHeight: Dp =
         if (requiresMinimumHeight) {
@@ -139,5 +141,6 @@ internal fun WearPermissionButtonInternal(
         modifier = modifier.requiredSizeIn(minHeight = minHeight).fillMaxWidth(),
         contentPadding = contentPadding,
         colors = colors,
+        shape = shape,
     )
 }

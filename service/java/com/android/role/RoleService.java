@@ -16,8 +16,6 @@
 
 package com.android.role;
 
-import static android.app.role.RoleManager.ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY;
-
 import android.Manifest;
 import android.annotation.AnyThread;
 import android.annotation.MainThread;
@@ -45,13 +43,13 @@ import android.os.ParcelFileDescriptor;
 import android.os.RemoteCallback;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.permission.flags.Flags;
 import android.permission.internal.compat.UserHandleCompat;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
@@ -103,6 +101,7 @@ import java.util.concurrent.TimeoutException;
 @RequiresApi(Build.VERSION_CODES.S)
 public class RoleService extends SystemService implements RoleUserState.Callback {
     private static final String LOG_TAG = RoleService.class.getSimpleName();
+    private static final String TRACE_TAG = RoleService.class.getSimpleName();
 
     private static final boolean DEBUG = false;
 
@@ -123,7 +122,8 @@ public class RoleService extends SystemService implements RoleUserState.Callback
             defaultApplicationRoles.add(RoleManager.ROLE_WALLET);
         }
         if (RoleFlags.isProfileGroupExclusivityAvailable()) {
-            defaultApplicationRoles.add(ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY);
+            defaultApplicationRoles.add(
+                    RoleManager.ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY);
         }
         DEFAULT_APPLICATION_ROLES = defaultApplicationRoles.toArray(new String[0]);
     }
@@ -132,7 +132,8 @@ public class RoleService extends SystemService implements RoleUserState.Callback
 
     static {
         if (RoleFlags.isProfileGroupExclusivityAvailable()) {
-            TEST_ROLES = new String[] {ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY};
+            TEST_ROLES =
+                    new String[] {RoleManager.ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY};
         } else {
             TEST_ROLES = new String[0];
         }
@@ -182,14 +183,6 @@ public class RoleService extends SystemService implements RoleUserState.Callback
     @NonNull
     private final SparseArray<ThrottledRunnable> mGrantDefaultRolesThrottledRunnables =
             new SparseArray<>();
-
-    @GuardedBy("mLock")
-    @NonNull
-    private final Map<String, List<String>> mDefaultHoldersForTest = new ArrayMap<>();
-
-    @GuardedBy("mLock")
-    @NonNull
-    private final Set<String> mRolesVisibleForTest = new ArraySet<>();
 
     public RoleService(@NonNull Context context) {
         super(context);
@@ -295,11 +288,16 @@ public class RoleService extends SystemService implements RoleUserState.Callback
 
     @Override
     public void onUserStarting(@NonNull TargetUser user) {
-        if (SdkLevel.isAtLeastV() && Flags.systemServerRoleControllerEnabled()) {
-            upgradeLegacyFallbackEnabledRolesIfNeeded(user);
-        }
+        Trace.beginSection(TRACE_TAG + "_onUserStarting");
+        try {
+            if (SdkLevel.isAtLeastV() && Flags.systemServerRoleControllerEnabled()) {
+                upgradeLegacyFallbackEnabledRolesIfNeeded(user);
+            }
 
-        maybeGrantDefaultRolesSync(user.getUserHandle().getIdentifier());
+            maybeGrantDefaultRolesSync(user.getUserHandle().getIdentifier());
+        } finally {
+            Trace.endSection();
+        }
     }
 
     private void upgradeLegacyFallbackEnabledRolesIfNeeded(@NonNull TargetUser user) {
@@ -762,40 +760,50 @@ public class RoleService extends SystemService implements RoleUserState.Callback
 
         @Override
         public int getActiveUserForRoleAsUser(@NonNull String roleName, @UserIdInt int userId) {
-            Preconditions.checkState(RoleFlags.isProfileGroupExclusivityAvailable(),
-                    "getActiveUserForRoleAsUser not available");
-            enforceProfileGroupExclusiveRole(roleName);
+            Trace.beginSection(TRACE_TAG + "_getActiveUserForRoleAsUser");
+            try {
+                Preconditions.checkState(RoleFlags.isProfileGroupExclusivityAvailable(),
+                        "getActiveUserForRoleAsUser not available");
+                enforceProfileGroupExclusiveRole(roleName);
 
-            UserUtils.enforceCrossUserPermission(userId, /* allowAll= */ false,
-                    /* enforceForProfileGroup= */ true, "getActiveUserForRole", getContext());
-            if (!UserUtils.isUserExistent(userId, getContext())) {
-                Log.e(LOG_TAG, "user " + userId + " does not exist");
-                return UserHandleCompat.USER_NULL;
+                UserUtils.enforceCrossUserPermission(userId, /* allowAll= */ false,
+                        /* enforceForProfileGroup= */ true, "getActiveUserForRole", getContext());
+                if (!UserUtils.isUserExistent(userId, getContext())) {
+                    Log.e(LOG_TAG, "user " + userId + " does not exist");
+                    return UserHandleCompat.USER_NULL;
+                }
+
+                enforceCallingOrSelfAnyPermissions(new String[] {
+                        Manifest.permission.MANAGE_DEFAULT_APPLICATIONS,
+                        Manifest.permission.MANAGE_ROLE_HOLDERS
+                }, "getActiveUserForRole");
+
+                int profileParentId = UserUtils.getProfileParentIdOrSelf(userId, getContext());
+                RoleUserState userState = getOrCreateUserState(profileParentId);
+                return userState.getActiveUserForRole(roleName);
+            } finally {
+                Trace.endSection();
             }
-
-            enforceCallingOrSelfAnyPermissions(new String[] {
-                    Manifest.permission.MANAGE_DEFAULT_APPLICATIONS,
-                    Manifest.permission.MANAGE_ROLE_HOLDERS
-            }, "getActiveUserForRole");
-
-            int profileParentId = UserUtils.getProfileParentIdOrSelf(userId, getContext());
-            RoleUserState userState = getOrCreateUserState(profileParentId);
-            return userState.getActiveUserForRole(roleName);
         }
 
         @Override
         public void setActiveUserForRoleAsUser(@NonNull String roleName,
                 @UserIdInt int activeUserId, @RoleManager.ManageHoldersFlags int flags,
                 @UserIdInt int userId) {
-            Preconditions.checkState(RoleFlags.isProfileGroupExclusivityAvailable(),
-                    "setActiveUserForRoleAsUser not available");
-            UserUtils.enforceCrossUserPermission(userId, /* allowAll= */ false,
-                    /* enforceForProfileGroup= */ true, "setActiveUserForRole", getContext());
-            enforceCallingOrSelfAnyPermissions(new String[] {
-                    Manifest.permission.MANAGE_DEFAULT_APPLICATIONS,
-                    Manifest.permission.MANAGE_ROLE_HOLDERS
-            }, "setActiveUserForRoleAsUser");
-            setActiveUserForRoleAsUserInternal(roleName, activeUserId, flags, true, userId);
+            Trace.beginSection(TRACE_TAG + "_setActiveUserForRoleAsUser");
+            try {
+                Preconditions.checkState(RoleFlags.isProfileGroupExclusivityAvailable(),
+                        "setActiveUserForRoleAsUser not available");
+                UserUtils.enforceCrossUserPermission(userId, /* allowAll= */ false,
+                        /* enforceForProfileGroup= */ true, "setActiveUserForRole", getContext());
+                enforceCallingOrSelfAnyPermissions(new String[] {
+                        Manifest.permission.MANAGE_DEFAULT_APPLICATIONS,
+                        Manifest.permission.MANAGE_ROLE_HOLDERS
+                }, "setActiveUserForRoleAsUser");
+                setActiveUserForRoleAsUserInternal(roleName, activeUserId, flags, true, userId);
+            } finally {
+                Trace.endSection();
+            }
         }
 
         @Override
@@ -1175,8 +1183,10 @@ public class RoleService extends SystemService implements RoleUserState.Callback
             return getOrCreateController(userId).isApplicationVisibleForRole(roleName, packageName);
         }
 
+        @NonNull
         @Override
-        public List<String> getDefaultHoldersForTest(String roleName) {
+        public List<String> getDefaultHoldersForTestAsUser(@NonNull String roleName,
+                @UserIdInt int userId) {
             Preconditions.checkState(RoleFlags.isProfileGroupExclusivityAvailable(),
                     "getDefaultHoldersForTest not available");
             getContext().enforceCallingOrSelfPermission(Manifest.permission.MANAGE_ROLE_HOLDERS,
@@ -1184,31 +1194,25 @@ public class RoleService extends SystemService implements RoleUserState.Callback
             Preconditions.checkStringNotEmpty(roleName, "roleName cannot be null or empty");
             Preconditions.checkArgumentIsSupported(TEST_ROLES, roleName);
 
-            synchronized (mLock) {
-                return mDefaultHoldersForTest.getOrDefault(roleName, Collections.emptyList());
-            }
+            return getOrCreateUserState(userId).getDefaultHoldersForTest(roleName);
         }
 
         @Override
-        public void setDefaultHoldersForTest(String roleName, List<String> packageNames) {
+        public void setDefaultHoldersForTestAsUser(@NonNull String roleName,
+                @NonNull List<String> packageNames, @UserIdInt int userId) {
             Preconditions.checkState(RoleFlags.isProfileGroupExclusivityAvailable(),
                     "setDefaultHoldersForTest not available");
             getContext().enforceCallingOrSelfPermission(Manifest.permission.MANAGE_ROLE_HOLDERS,
                     "setDefaultHoldersForTest");
             Preconditions.checkStringNotEmpty(roleName, "roleName cannot be null or empty");
             Preconditions.checkArgumentIsSupported(TEST_ROLES, roleName);
+            Objects.requireNonNull(packageNames, "packageNames cannot be null");
 
-            synchronized (mLock) {
-                if (packageNames == null || packageNames.isEmpty()) {
-                    mDefaultHoldersForTest.remove(roleName);
-                } else {
-                    mDefaultHoldersForTest.put(roleName, packageNames);
-                }
-            }
+            getOrCreateUserState(userId).setDefaultHoldersForTest(roleName, packageNames);
         }
 
         @Override
-        public boolean isRoleVisibleForTest(String roleName) {
+        public boolean isRoleVisibleForTestAsUser(@NonNull String roleName, @UserIdInt int userId) {
             Preconditions.checkState(RoleFlags.isProfileGroupExclusivityAvailable(),
                     "isRoleVisibleForTest not available");
             getContext().enforceCallingOrSelfPermission(Manifest.permission.MANAGE_ROLE_HOLDERS,
@@ -1216,13 +1220,12 @@ public class RoleService extends SystemService implements RoleUserState.Callback
             Preconditions.checkStringNotEmpty(roleName, "roleName cannot be null or empty");
             Preconditions.checkArgumentIsSupported(TEST_ROLES, roleName);
 
-            synchronized (mLock) {
-                return mRolesVisibleForTest.contains(roleName);
-            }
+            return getOrCreateUserState(userId).isRoleVisibleForTest(roleName);
         }
 
         @Override
-        public void setRoleVisibleForTest(String roleName, boolean visible) {
+        public void setRoleVisibleForTestAsUser(@NonNull String roleName, boolean visible,
+                @UserIdInt int userId) {
             Preconditions.checkState(RoleFlags.isProfileGroupExclusivityAvailable(),
                     "setRoleVisibleForTest not available");
             getContext().enforceCallingOrSelfPermission(Manifest.permission.MANAGE_ROLE_HOLDERS,
@@ -1230,13 +1233,7 @@ public class RoleService extends SystemService implements RoleUserState.Callback
             Preconditions.checkStringNotEmpty(roleName, "roleName cannot be null or empty");
             Preconditions.checkArgumentIsSupported(TEST_ROLES, roleName);
 
-            synchronized (mLock) {
-                if (visible) {
-                    mRolesVisibleForTest.add(roleName);
-                } else {
-                    mRolesVisibleForTest.remove(roleName);
-                }
-            }
+            getOrCreateUserState(userId).setRoleVisibleForTest(roleName, visible);
         }
 
         @Override
