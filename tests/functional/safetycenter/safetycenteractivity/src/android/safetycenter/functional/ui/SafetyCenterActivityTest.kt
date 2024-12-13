@@ -74,6 +74,7 @@ import com.android.safetycenter.testing.UiTestHelper.waitSourceDataDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueNotDisplayed
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -99,13 +100,13 @@ class SafetyCenterActivityTest {
     }
 
     @Test
-    fun launchActivity_allowingSettingsTrampoline() {
+    fun launchActivity_allowingSettingsTrampoline_showsSafetyCenter() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         val dataToDisplay = safetySourceTestData.criticalWithResolvingGeneralIssue
         safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, dataToDisplay)
 
         context.launchSafetyCenterActivity(preventTrampolineToSettings = false) {
-            waitSourceDataDisplayed(dataToDisplay)
+            waitSourceIssueDisplayed(dataToDisplay.issues[0])
         }
     }
 
@@ -131,7 +132,13 @@ class SafetyCenterActivityTest {
         val dataToDisplay = safetySourceTestData.criticalWithResolvingGeneralIssue
         safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, dataToDisplay)
 
-        context.launchSafetyCenterActivity { waitSourceDataDisplayed(dataToDisplay) }
+        context.launchSafetyCenterActivity {
+            if (SafetyCenterFlags.showSubpages) {
+                waitSourceIssueDisplayed(dataToDisplay.issues[0])
+            } else {
+                waitSourceDataDisplayed(dataToDisplay)
+            }
+        }
     }
 
     @Test
@@ -276,6 +283,8 @@ class SafetyCenterActivityTest {
 
     @Test
     fun launchActivity_displaysGroupsOfSingleSourceAsEntity() {
+        // Single source groups are displayed in the subpage when subpages enabled
+        assumeFalse(SafetyCenterFlags.showSubpages)
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.multipleSourceGroupsConfig)
 
         context.launchSafetyCenterActivity {
@@ -297,7 +306,11 @@ class SafetyCenterActivityTest {
             val dataToDisplay = safetySourceTestData.recommendationWithGeneralIssue
             safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, dataToDisplay)
 
-            waitSourceDataDisplayed(dataToDisplay)
+            if (SafetyCenterFlags.showSubpages) {
+                waitSourceIssueDisplayed(dataToDisplay.issues[0])
+            } else {
+                waitSourceDataDisplayed(dataToDisplay)
+            }
         }
     }
 
@@ -338,6 +351,8 @@ class SafetyCenterActivityTest {
 
     @Test
     fun entryListWithEntryGroup_informationState_hasContentDescription() {
+        // No custom content descriptions when using subpages
+        assumeFalse(SafetyCenterFlags.showSubpages)
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.multipleSourcesConfig)
         safetyCenterTestHelper.setData(SOURCE_ID_1, safetySourceTestData.information)
         safetyCenterTestHelper.setData(SOURCE_ID_2, safetySourceTestData.information)
@@ -355,6 +370,8 @@ class SafetyCenterActivityTest {
 
     @Test
     fun entryListWithEntryGroup_recommendationState_hasActionsNeededContentDescription() {
+        // No custom content descriptions when using subpages
+        assumeFalse(SafetyCenterFlags.showSubpages)
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.multipleSourcesConfig)
         safetyCenterTestHelper.setData(
             SOURCE_ID_1,
@@ -394,6 +411,8 @@ class SafetyCenterActivityTest {
 
     @Test
     fun entryListWithEntryGroup_unclickableDisabledEntry_hasContentDescription() {
+        // No custom content descriptions when using subpages
+        assumeFalse(SafetyCenterFlags.showSubpages)
         safetyCenterTestHelper.setConfig(
             safetyCenterTestConfigs.multipleSourcesConfigWithSourceWithInvalidIntent
         )
@@ -424,6 +443,8 @@ class SafetyCenterActivityTest {
 
     @Test
     fun entryListWithEntryGroup_clickableDisabledEntry_hasContentDescription() {
+        // No custom content descriptions when using subpages
+        assumeFalse(SafetyCenterFlags.showSubpages)
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.multipleSourcesConfig)
         safetyCenterTestHelper.setData(
             SOURCE_ID_1,
@@ -442,6 +463,8 @@ class SafetyCenterActivityTest {
 
     @Test
     fun entryListWithSingleSource_informationState_hasContentDescription() {
+        // No custom content descriptions when using subpages
+        assumeFalse(SafetyCenterFlags.showSubpages)
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, safetySourceTestData.information)
 
@@ -456,6 +479,9 @@ class SafetyCenterActivityTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
 
         context.launchSafetyCenterActivity {
+            if (SafetyCenterFlags.showSubpages) {
+                waitDisplayed(By.text("OK")) { it.click() } // Open subpage
+            }
             waitDisplayed(By.text("OK")) { it.click() }
             waitButtonDisplayed("Exit test activity") { it.click() }
             waitDisplayed(By.text("OK"))
@@ -467,6 +493,9 @@ class SafetyCenterActivityTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.implicitIntentSingleSourceConfig)
 
         context.launchSafetyCenterActivity {
+            if (SafetyCenterFlags.showSubpages) {
+                waitDisplayed(By.text("OK")) { it.click() } // Open subpage
+            }
             waitDisplayed(By.text("OK")) { it.click() }
             waitButtonDisplayed("Exit test activity") { it.click() }
         }
@@ -478,6 +507,9 @@ class SafetyCenterActivityTest {
         safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, safetySourceTestData.information)
 
         context.launchSafetyCenterActivity {
+            if (SafetyCenterFlags.showSubpages) {
+                waitDisplayed(By.text("OK")) { it.click() } // Open subpage
+            }
             waitDisplayed(By.text("Ok title")) { it.click() }
             waitButtonDisplayed("Exit test activity") { it.click() }
             waitDisplayed(By.text("Ok title"))
@@ -493,6 +525,9 @@ class SafetyCenterActivityTest {
         )
 
         context.launchSafetyCenterActivity {
+            if (SafetyCenterFlags.showSubpages) {
+                waitDisplayed(By.text("OK")) { it.click() } // Open subpage
+            }
             waitDisplayed(By.desc("Information")) { it.click() }
             waitButtonDisplayed("Exit test activity") { it.click() }
             waitDisplayed(By.text("Ok title"))
@@ -553,7 +588,6 @@ class SafetyCenterActivityTest {
             clickDismissIssueCard()
 
             waitSourceIssueNotDisplayed(safetySourceTestData.informationIssue)
-            waitSourceDataDisplayed(safetySourceTestData.information)
             waitButtonDisplayed(RESCAN_BUTTON_LABEL)
         }
     }
@@ -1173,7 +1207,7 @@ class SafetyCenterActivityTest {
     }
 
     @Test
-    fun collapsedEntryGroup_expandsWhenClicked() {
+    fun entryGroup_showsEntriesWhenClicked() {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.multipleSourceGroupsConfig)
         with(safetyCenterTestHelper) {
             setConfig(safetyCenterTestConfigs.multipleSourceGroupsConfig)
@@ -1245,6 +1279,7 @@ class SafetyCenterActivityTest {
 
     @Test
     fun expandedEntryGroup_collapsesWhenClicked() {
+        assumeFalse(SafetyCenterFlags.showSubpages) // No collapsible groups when using subpages
         with(safetyCenterTestHelper) {
             setConfig(safetyCenterTestConfigs.multipleSourceGroupsConfig)
             setData(
@@ -1339,6 +1374,7 @@ class SafetyCenterActivityTest {
 
     @Test
     fun expandedEntryGroup_otherGroupRemainsCollapsed() {
+        assumeFalse(SafetyCenterFlags.showSubpages) // No collapsible groups when using subpages
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.multipleSourceGroupsConfig)
         with(safetyCenterTestHelper) {
             setConfig(safetyCenterTestConfigs.multipleSourceGroupsConfig)
@@ -1444,6 +1480,9 @@ class SafetyCenterActivityTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.implicitIntentSingleSourceConfig)
 
         context.launchSafetyCenterActivity {
+            if (SafetyCenterFlags.showSubpages) {
+                waitDisplayed(By.text("OK")) { it.click() } // Open subpage
+            }
             waitDisplayed(By.text("OK")) { it.click() }
             waitDisplayed(By.text("is_from_settings_homepage false"))
             waitButtonDisplayed("Exit test activity") { it.click() }
