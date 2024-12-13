@@ -18,6 +18,7 @@ package com.android.permissioncontroller.permission.ui.wear.elements.material3
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.ButtonDefaults
 import com.android.permissioncontroller.permission.ui.wear.elements.ListFooter
@@ -46,6 +47,7 @@ fun WearPermissionListFooter(
             contentPadding = PaddingValues(0.dp),
             colors = ButtonDefaults.childButtonColors(),
             requiresMinimumHeight = false,
+            shape = RectangleShape,
         )
     }
 }

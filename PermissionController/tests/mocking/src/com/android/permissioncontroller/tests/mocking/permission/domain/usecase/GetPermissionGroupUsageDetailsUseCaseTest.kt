@@ -75,7 +75,7 @@ class GetPermissionGroupUsageDetailsUseCaseTest {
     private var mockitoSession: MockitoSession? = null
     private lateinit var packageInfos: MutableMap<String, PackageInfoModel>
 
-    private val currentUser = android.os.Process.myUserHandle()
+    private val currentUser = UserHandle.of(0)
     private val privateProfile = UserHandle.of(10)
     private val guestUser = UserHandle.of(20)
 
