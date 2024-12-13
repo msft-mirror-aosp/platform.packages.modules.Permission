@@ -382,6 +382,13 @@ object PermissionMapping {
         if (opName == AppOpsManager.OPSTR_PHONE_CALL_CAMERA) {
             return Manifest.permission_group.CAMERA
         }
+        if (
+            SdkLevel.isAtLeastV() &&
+                Flags.locationBypassPrivacyDashboardEnabled() &&
+                opName == AppOpsManager.OPSTR_EMERGENCY_LOCATION
+        ) {
+            return Manifest.permission_group.LOCATION
+        }
 
         return try {
             AppOpsManager.opToPermission(opName)?.let { getGroupOfPlatformPermission(it) }
