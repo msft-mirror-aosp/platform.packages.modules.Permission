@@ -6,9 +6,7 @@ package android.app.ecm {
     method @NonNull public android.content.Intent createRestrictedSettingDialogIntent(@NonNull String, @NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
     method @RequiresPermission(android.Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES) public boolean isClearRestrictionAllowed(@NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
     method @RequiresPermission(android.Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES) public boolean isRestricted(@NonNull String, @NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
-    method @FlaggedApi("android.permission.flags.enhanced_confirmation_in_call_apis_enabled") @RequiresPermission(android.Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES) public boolean isUnknownCallOngoing();
     method @RequiresPermission(android.Manifest.permission.MANAGE_ENHANCED_CONFIRMATION_STATES) public void setClearRestrictionAllowed(@NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
-    field @FlaggedApi("android.permission.flags.enhanced_confirmation_in_call_apis_enabled") public static final String ACTION_SHOW_ECM_PHONE_STATE_BLOCKED_SETTING_DIALOG = "android.app.ecm.action.SHOW_ECM_PHONE_STATE_BLOCKED_SETTING_DIALOG";
     field public static final String ACTION_SHOW_ECM_RESTRICTED_SETTING_DIALOG = "android.app.ecm.action.SHOW_ECM_RESTRICTED_SETTING_DIALOG";
   }
 
@@ -56,7 +54,7 @@ package android.app.role {
     method @FlaggedApi("com.android.permission.flags.cross_user_role_enabled") @RequiresPermission(allOf={android.Manifest.permission.INTERACT_ACROSS_USERS_FULL, android.Manifest.permission.MANAGE_ROLE_HOLDERS, android.Manifest.permission.MANAGE_DEFAULT_APPLICATIONS}, conditional=true) public void setActiveUserForRole(@NonNull String, @NonNull android.os.UserHandle, int);
     method @RequiresPermission(android.Manifest.permission.BYPASS_ROLE_QUALIFICATION) public void setBypassingRoleQualification(boolean);
     method @RequiresPermission(android.Manifest.permission.MANAGE_DEFAULT_APPLICATIONS) public void setDefaultApplication(@NonNull String, @Nullable String, int, @NonNull java.util.concurrent.Executor, @NonNull java.util.function.Consumer<java.lang.Boolean>);
-    method @FlaggedApi("com.android.permission.flags.cross_user_role_enabled") @RequiresPermission(android.Manifest.permission.MANAGE_ROLE_HOLDERS) public void setDefaultHoldersForTest(@NonNull String, @Nullable java.util.List<java.lang.String>);
+    method @FlaggedApi("com.android.permission.flags.cross_user_role_enabled") @RequiresPermission(android.Manifest.permission.MANAGE_ROLE_HOLDERS) public void setDefaultHoldersForTest(@NonNull String, @NonNull java.util.List<java.lang.String>);
     method @FlaggedApi("android.permission.flags.system_server_role_controller_enabled") @RequiresPermission(android.Manifest.permission.MANAGE_ROLE_HOLDERS) public void setRoleFallbackEnabled(@NonNull String, boolean);
     method @Deprecated @RequiresPermission("com.android.permissioncontroller.permission.MANAGE_ROLES_FROM_CONTROLLER") public void setRoleNamesFromController(@NonNull java.util.List<java.lang.String>);
     method @FlaggedApi("com.android.permission.flags.cross_user_role_enabled") @RequiresPermission(android.Manifest.permission.MANAGE_ROLE_HOLDERS) public void setRoleVisibleForTest(@NonNull String, boolean);

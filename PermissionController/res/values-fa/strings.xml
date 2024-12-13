@@ -674,6 +674,10 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"مجاز کردن تنظیمات محدودشده"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"تنظیم محدودشده"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"برای حفظ امنیت شما، درحال‌حاضر این تنظیم دردسترس نیست."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5230100829862738467) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8782160971908273849) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"درخواست برنامه برای دسترسی به <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> رد شد"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"‏این برنامه درخواست دسترسی به اجازه‌ای حساس را داشته است که می‌تواند اطلاعات شخصی و مالی‌تان را درمعرض خطر قرار دهد.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ممکن است برنامه بدون این اجازه محدودشده به‌درستی کار نکند. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;با نحوه اعطای دسترسی آشنا شوید&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"درخواست دسترسی برنامه برای تبدیل شدن به <xliff:g id="ROLE_NAME">%1$s</xliff:g> پیش‌فرض رد شد"</string>

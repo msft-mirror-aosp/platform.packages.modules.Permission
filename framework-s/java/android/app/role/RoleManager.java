@@ -1189,7 +1189,8 @@ public final class RoleManager {
     public List<String> getDefaultHoldersForTest(@NonNull String roleName) {
         Preconditions.checkStringNotEmpty(roleName, "roleName cannot be null or empty");
         try {
-            return mService.getDefaultHoldersForTest(roleName);
+            return mService.getDefaultHoldersForTestAsUser(roleName,
+                    mContext.getUser().getIdentifier());
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -1203,9 +1204,10 @@ public final class RoleManager {
      * not persisted.
      * <p>
      * Throws {@link IllegalArgumentException} if role is not a test role
+     * Throws {@link NullPointerException} if packageNames is {@code null}
      *
      * @param roleName the name of the role to set test default holders for
-     * @param packageNames a list of package names of the default holders or {@code null} to unset
+     * @param packageNames a list of package names of the default holders, or an empty list to unset
      *
      * @hide
      */
@@ -1215,10 +1217,12 @@ public final class RoleManager {
     @UserHandleAware
     @FlaggedApi(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
     public void setDefaultHoldersForTest(
-            @NonNull String roleName, @Nullable List<String> packageNames) {
+            @NonNull String roleName, @NonNull List<String> packageNames) {
         Preconditions.checkStringNotEmpty(roleName, "roleName cannot be null or empty");
+        Objects.requireNonNull(packageNames, "packageNames cannot be null");
         try {
-            mService.setDefaultHoldersForTest(roleName, packageNames);
+            mService.setDefaultHoldersForTestAsUser(roleName, packageNames,
+                    mContext.getUser().getIdentifier());
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -1245,7 +1249,8 @@ public final class RoleManager {
     public boolean isRoleVisibleForTest(@NonNull String roleName) {
         Preconditions.checkStringNotEmpty(roleName, "roleName cannot be null or empty");
         try {
-            return mService.isRoleVisibleForTest(roleName);
+            return mService.isRoleVisibleForTestAsUser(roleName,
+                    mContext.getUser().getIdentifier());
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -1272,7 +1277,8 @@ public final class RoleManager {
     public void setRoleVisibleForTest(@NonNull String roleName, boolean visible) {
         Preconditions.checkStringNotEmpty(roleName, "roleName cannot be null or empty");
         try {
-            mService.setRoleVisibleForTest(roleName, visible);
+            mService.setRoleVisibleForTestAsUser(roleName, visible,
+                    mContext.getUser().getIdentifier());
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }

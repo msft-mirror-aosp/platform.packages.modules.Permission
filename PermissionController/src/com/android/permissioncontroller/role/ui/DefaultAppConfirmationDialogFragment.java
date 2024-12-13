@@ -20,9 +20,11 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.UserHandle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.os.BundleCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -32,24 +34,27 @@ import androidx.fragment.app.Fragment;
 public class DefaultAppConfirmationDialogFragment extends DialogFragment {
 
     private String mPackageName;
+    private UserHandle mUser;
     private CharSequence mMessage;
 
     /**
      * Create a new instance of this fragment.
      *
      * @param packageName the package name of the application
+     * @param user the user the specified package is running in
      * @param message the confirmation message
      *
      * @return a new instance of this fragment
      *
-     * @see #show(String, CharSequence, Fragment)
+     * @see #show(String, UserHandle, CharSequence, Fragment)
      */
     @NonNull
     public static DefaultAppConfirmationDialogFragment newInstance(@NonNull String packageName,
-            @NonNull CharSequence message) {
+            @NonNull UserHandle user, @NonNull CharSequence message) {
         DefaultAppConfirmationDialogFragment fragment = new DefaultAppConfirmationDialogFragment();
         Bundle arguments = new Bundle();
         arguments.putString(Intent.EXTRA_PACKAGE_NAME, packageName);
+        arguments.putParcelable(Intent.EXTRA_USER, user);
         arguments.putCharSequence(Intent.EXTRA_TEXT, message);
         fragment.setArguments(arguments);
         return fragment;
@@ -59,14 +64,15 @@ public class DefaultAppConfirmationDialogFragment extends DialogFragment {
      * Show a new instance of this fragment.
      *
      * @param packageName the package name of the application
+     *  @param user the user the specified package is running in
      * @param message the confirmation message
      * @param fragment the parent fragment
      *
-     * @see #newInstance(String, CharSequence)
+     * @see #newInstance(String, UserHandle, CharSequence)
      */
-    public static void show(@NonNull String packageName, @NonNull CharSequence message,
-            @NonNull Fragment fragment) {
-        newInstance(packageName, message).show(fragment.getChildFragmentManager(), null);
+    public static void show(@NonNull String packageName, @NonNull UserHandle user,
+            @NonNull CharSequence message, @NonNull Fragment fragment) {
+        newInstance(packageName, user, message).show(fragment.getChildFragmentManager(), null);
     }
 
     @Override
@@ -75,6 +81,7 @@ public class DefaultAppConfirmationDialogFragment extends DialogFragment {
 
         Bundle arguments = getArguments();
         mPackageName = arguments.getString(Intent.EXTRA_PACKAGE_NAME);
+        mUser = BundleCompat.getParcelable(arguments, Intent.EXTRA_USER, UserHandle.class);
         mMessage = arguments.getCharSequence(Intent.EXTRA_TEXT);
     }
 
@@ -90,7 +97,7 @@ public class DefaultAppConfirmationDialogFragment extends DialogFragment {
 
     private void onOk() {
         Listener listener = (Listener) getParentFragment();
-        listener.setDefaultApp(mPackageName);
+        listener.setDefaultApp(mPackageName, mUser);
     }
 
     /**
@@ -103,6 +110,6 @@ public class DefaultAppConfirmationDialogFragment extends DialogFragment {
          *
          * @param packageName the package name of the application
          */
-        void setDefaultApp(@NonNull String packageName);
+        void setDefaultApp(@NonNull String packageName, @NonNull UserHandle user);
     }
 }
