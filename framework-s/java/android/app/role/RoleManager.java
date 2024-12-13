@@ -264,6 +264,19 @@ public final class RoleManager {
     public static final String PERMISSION_MANAGE_ROLES_FROM_CONTROLLER =
             "com.android.permissioncontroller.permission.MANAGE_ROLES_FROM_CONTROLLER";
 
+    /**
+     * The name of the system dependency installer role.
+     *
+     * A dependency installer installs missing SDK or static shared library dependencies that an app
+     * requires to be installed.
+     *
+     * @hide
+     */
+    @SuppressLint("UnflaggedApi")
+    @SystemApi
+    public static final String ROLE_SYSTEM_DEPENDENCY_INSTALLER =
+            "android.app.role.SYSTEM_DEPENDENCY_INSTALLER";
+
     @NonNull
     private final Context mContext;
 
