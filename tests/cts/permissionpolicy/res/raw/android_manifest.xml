@@ -4339,11 +4339,11 @@
     <permission android:name="android.permission.REQUEST_COMPANION_PROFILE_GLASSES"
         android:protectionLevel="normal" />
 
-    <!-- Allows application to request to be associated with a virtual display capable of streaming
+    <!-- Allows application to request to be associated with a virtual device capable of streaming
          Android applications
          ({@link android.companion.AssociationRequest#DEVICE_PROFILE_APP_STREAMING})
          by {@link android.companion.CompanionDeviceManager}.
-        <p>Not for use by third-party applications.
+         <p>Not for use by third-party applications.
     -->
     <permission android:name="android.permission.REQUEST_COMPANION_PROFILE_APP_STREAMING"
                 android:protectionLevel="signature|privileged" />
@@ -4351,16 +4351,26 @@
     <!-- Allows application to request to stream content from an Android host to a nearby device
          ({@link android.companion.AssociationRequest#DEVICE_PROFILE_NEARBY_DEVICE_STREAMING})
          by {@link android.companion.CompanionDeviceManager}.
-        <p>Not for use by third-party applications.
+         <p>Not for use by third-party applications.
     -->
     <permission android:name="android.permission.REQUEST_COMPANION_PROFILE_NEARBY_DEVICE_STREAMING"
         android:protectionLevel="signature|privileged" />
+
+    <!-- Allows application to request to stream sensor data such as camera, audio and IMU between
+         an Android host and a nearby device
+         ({@link android.companion.AssociationRequest#DEVICE_PROFILE_SENSOR_DEVICE_STREAMING})
+         by {@link android.companion.CompanionDeviceManager}.
+         <p>Not for use by third-party applications.
+    -->
+    <permission android:name="android.permission.REQUEST_COMPANION_PROFILE_SENSOR_DEVICE_STREAMING"
+        android:protectionLevel="signature|privileged"
+        android:featureFlag="android.companion.virtualdevice.flags.enable_limited_vdm_role"/>
 
     <!-- Allows application to request to be associated with a vehicle head unit capable of
          automotive projection
          ({@link android.companion.AssociationRequest#DEVICE_PROFILE_AUTOMOTIVE_PROJECTION})
          by {@link android.companion.CompanionDeviceManager}.
-        <p>Not for use by third-party applications.
+         <p>Not for use by third-party applications.
     -->
     <permission android:name="android.permission.REQUEST_COMPANION_PROFILE_AUTOMOTIVE_PROJECTION"
                 android:protectionLevel="internal|role" />
@@ -4369,7 +4379,7 @@
          and/or data with other devices, such as notifications, photos and media
          ({@link android.companion.AssociationRequest#DEVICE_PROFILE_COMPUTER})
          by {@link android.companion.CompanionDeviceManager}.
-        <p>Not for use by third-party applications.
+         <p>Not for use by third-party applications.
     -->
     <permission android:name="android.permission.REQUEST_COMPANION_PROFILE_COMPUTER"
                 android:protectionLevel="signature|privileged" />
@@ -5441,12 +5451,23 @@
     <permission android:name="android.permission.BIND_VISUAL_QUERY_DETECTION_SERVICE"
         android:protectionLevel="signature" />
 
-    <!-- Allows an application to subscribe to keyguard locked (i.e., showing) state.
-         <p>Protection level: signature|role
-         <p>Intended for use by ROLE_ASSISTANT and signature apps only.
+    <!-- Allows an application to subscribe to device locked and keyguard locked (i.e., showing)
+        state.
+         <p>Protection level: signature|module|role
+         <p>Intended for use by ROLE_ASSISTANT, VDM, and signature apps only.
     -->
     <permission android:name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE"
-                android:protectionLevel="signature|module|role"/>
+        android:protectionLevel="signature|module|role"
+        android:featureFlag="!android.security.subscribe_to_keyguard_locked_state_perm_priv_flag"/>
+
+    <!-- Allows an application to subscribe to device locked and keyguard locked (i.e., showing)
+        state.
+         <p>Protection level: signature|module|role|privileged
+         <p>Intended for use by ROLE_ASSISTANT, VDM, and signature / privileged apps only.
+    -->
+    <permission android:name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE"
+        android:protectionLevel="signature|module|role|privileged"
+        android:featureFlag="android.security.subscribe_to_keyguard_locked_state_perm_priv_flag"/>
 
     <!-- Must be required by a {@link android.service.autofill.AutofillService},
          to ensure that only the system can bind to it.

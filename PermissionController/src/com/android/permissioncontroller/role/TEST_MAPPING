@@ -46,6 +46,9 @@
     "postsubmit": [
         {
             "name": "CtsRoleTestCases"
+        },
+        {
+            "name": "CtsRoleMultiUserTestCases"
         }
     ],
     "mainline-postsubmit": [
@@ -60,6 +63,9 @@
                     "exclude-filter": "android.app.role.cts.RoleManagerTest#removeSmsRoleHolderThenPermissionIsRevoked"
                 }
             ]
+        },
+        {
+            "name": "CtsRoleMultiUserTestCases[com.google.android.permission.apex]"
         }
     ]
 }
