@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -220,6 +221,7 @@ internal fun Wear2Scaffold(
                 if (isLoading) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 } else {
+                    val iconColor = chipDefaultColors().iconColor(true).value
                     ScalingLazyColumn(
                         modifier = Modifier.fillMaxWidth(),
                         state = listState,
@@ -245,6 +247,7 @@ internal fun Wear2Scaffold(
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = imageModifier,
+                                            colorFilter = ColorFilter.tint(iconColor),
                                         )
                                     }
                                 is Drawable ->
@@ -254,6 +257,7 @@ internal fun Wear2Scaffold(
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = imageModifier,
+                                            colorFilter = ColorFilter.tint(iconColor),
                                         )
                                     }
                                 else -> {}

@@ -30,6 +30,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.android.permissioncontroller.role.utils.UserUtils;
 import com.android.role.controller.model.Role;
 
 import java.util.List;
@@ -58,10 +59,23 @@ public class DefaultAppViewModel extends AndroidViewModel {
         super(application);
 
         mRole = role;
-        mUser = user;
-
-        mRoleLiveData = Transformations.map(new RoleLiveData(mRole, mUser, application),
-                new RoleSortFunction(application));
+        mUser = mRole.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP
+                ? UserUtils.getProfileParentOrSelf(user, application)
+                : user;
+        RoleLiveData liveData = new RoleLiveData(mRole, mUser, application);
+        RoleSortFunction sortFunction = new RoleSortFunction(application);
+        if (mRole.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP) {
+            UserHandle workProfile  = UserUtils.getWorkProfile(application);
+            if (workProfile != null) {
+                RoleLiveData workLiveData = new RoleLiveData(role, workProfile, application);
+                mRoleLiveData = Transformations.map(new MergeRoleLiveData(liveData, workLiveData),
+                        sortFunction);
+            } else {
+                mRoleLiveData = Transformations.map(liveData, sortFunction);
+            }
+        } else {
+            mRoleLiveData = Transformations.map(liveData, sortFunction);
+        }
     }
 
     @NonNull
@@ -79,13 +93,13 @@ public class DefaultAppViewModel extends AndroidViewModel {
      *
      * @param packageName the package name of the application
      */
-    public void setDefaultApp(@NonNull String packageName) {
+    public void setDefaultApp(@NonNull String packageName, @NonNull UserHandle user) {
         if (mManageRoleHolderStateLiveData.getValue() != ManageRoleHolderStateLiveData.STATE_IDLE) {
             Log.i(LOG_TAG, "Trying to set default app while another request is on-going");
             return;
         }
         mManageRoleHolderStateLiveData.setRoleHolderAsUser(mRole.getName(), packageName, true, 0,
-                mUser, getApplication());
+                user, getApplication());
     }
 
     /**

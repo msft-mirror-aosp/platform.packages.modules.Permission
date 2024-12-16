@@ -125,7 +125,12 @@ fun ToggleChip(
 
     ToggleChip(
         checked = checked,
-        onCheckedChange = onCheckedChanged,
+        onCheckedChange = { newChecked ->
+            // Radio buttons cannot be toggled off by tapping on it again.
+            if (toggleControl != ToggleChipToggleControl.Radio || newChecked) {
+                onCheckedChanged.invoke(newChecked)
+            }
+        },
         label = labelParam,
         toggleControl = toggleControlParam,
         modifier = modifier.fillMaxWidth().toggleControlSemantics(toggleControl, checked),

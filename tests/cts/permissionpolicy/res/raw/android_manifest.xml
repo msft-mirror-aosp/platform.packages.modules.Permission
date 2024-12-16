@@ -2083,6 +2083,21 @@
     <permission android:name="android.permission.CONTROL_AUTOMOTIVE_GNSS"
         android:protectionLevel="signature|privileged" />
 
+    <!-- @SystemApi @hide Allows an application to bind to a
+         android.service.PopulationDensityProviderService for the purpose of
+         querying population density. This prevents arbitrary clients connecting
+         to the service. The system server checks that the provider's intent
+         service explicitly sets this permission via the android:permission
+         attribute of the service.
+         This is only expected to be possessed by the system server outside of
+         tests.
+         @FlaggedApi(android.location.flags.Flags.FLAG_POPULATION_DENSITY_PROVIDER)
+         <p>Protection level: signature
+    -->
+    <permission android:name="android.permission.BIND_POPULATION_DENSITY_PROVIDER_SERVICE"
+        android:featureFlag="android.location.flags.population_density_provider"
+        android:protectionLevel="signature" />
+
     <!-- ======================================= -->
     <!-- Permissions for accessing networks -->
     <!-- ======================================= -->
@@ -3906,6 +3921,14 @@
     <permission android:name="android.permission.MANAGE_DEVICE_POLICY_CONTENT_PROTECTION"
                 android:protectionLevel="internal|role" />
 
+    <!-- Allows an application to manage policy related to executing app functions.
+        <p>Protection level: internal|role
+        @FlaggedApi(android.app.appfunctions.flags.Flags.FLAG_ENABLE_APP_FUNCTION_MANAGER)
+    -->
+    <permission android:name="android.permission.MANAGE_DEVICE_POLICY_APP_FUNCTIONS"
+        android:protectionLevel="internal|role"
+        android:featureFlag="android.app.appfunctions.flags.enable_app_function_manager" />
+
     <!-- Allows an application to set policy related to subscriptions downloaded by an admin.
         <p>{@link Manifest.permission#MANAGE_DEVICE_POLICY_ACROSS_USERS_FULL} is required to call
             APIs protected by this permission on users different to the calling user.
@@ -4197,6 +4220,16 @@
                 android:protectionLevel="signature|privileged|vendorPrivileged"
                 android:featureFlag="android.media.tv.flags.media_quality_fw"/>
 
+    <!--
+        @FlaggedApi(android.media.tv.flags.Flags.FLAG_MEDIA_QUALITY_FW)
+        Allows an application to read the aggregated color zones on the screen for use cases like
+        TV ambient backlight usages.
+        <p> Protection level: normal
+    -->
+    <permission android:name="android.permission.READ_COLOR_ZONES"
+                android:protectionLevel="normal"
+                android:featureFlag="android.media.tv.flags.media_quality_fw"/>
+
     <!-- ================================== -->
     <!-- Permissions affecting the display of other applications  -->
     <!-- ================================== -->
@@ -4306,11 +4339,11 @@
     <permission android:name="android.permission.REQUEST_COMPANION_PROFILE_GLASSES"
         android:protectionLevel="normal" />
 
-    <!-- Allows application to request to be associated with a virtual display capable of streaming
+    <!-- Allows application to request to be associated with a virtual device capable of streaming
          Android applications
          ({@link android.companion.AssociationRequest#DEVICE_PROFILE_APP_STREAMING})
          by {@link android.companion.CompanionDeviceManager}.
-        <p>Not for use by third-party applications.
+         <p>Not for use by third-party applications.
     -->
     <permission android:name="android.permission.REQUEST_COMPANION_PROFILE_APP_STREAMING"
                 android:protectionLevel="signature|privileged" />
@@ -4318,16 +4351,26 @@
     <!-- Allows application to request to stream content from an Android host to a nearby device
          ({@link android.companion.AssociationRequest#DEVICE_PROFILE_NEARBY_DEVICE_STREAMING})
          by {@link android.companion.CompanionDeviceManager}.
-        <p>Not for use by third-party applications.
+         <p>Not for use by third-party applications.
     -->
     <permission android:name="android.permission.REQUEST_COMPANION_PROFILE_NEARBY_DEVICE_STREAMING"
         android:protectionLevel="signature|privileged" />
+
+    <!-- Allows application to request to stream sensor data such as camera, audio and IMU between
+         an Android host and a nearby device
+         ({@link android.companion.AssociationRequest#DEVICE_PROFILE_SENSOR_DEVICE_STREAMING})
+         by {@link android.companion.CompanionDeviceManager}.
+         <p>Not for use by third-party applications.
+    -->
+    <permission android:name="android.permission.REQUEST_COMPANION_PROFILE_SENSOR_DEVICE_STREAMING"
+        android:protectionLevel="signature|privileged"
+        android:featureFlag="android.companion.virtualdevice.flags.enable_limited_vdm_role"/>
 
     <!-- Allows application to request to be associated with a vehicle head unit capable of
          automotive projection
          ({@link android.companion.AssociationRequest#DEVICE_PROFILE_AUTOMOTIVE_PROJECTION})
          by {@link android.companion.CompanionDeviceManager}.
-        <p>Not for use by third-party applications.
+         <p>Not for use by third-party applications.
     -->
     <permission android:name="android.permission.REQUEST_COMPANION_PROFILE_AUTOMOTIVE_PROJECTION"
                 android:protectionLevel="internal|role" />
@@ -4336,7 +4379,7 @@
          and/or data with other devices, such as notifications, photos and media
          ({@link android.companion.AssociationRequest#DEVICE_PROFILE_COMPUTER})
          by {@link android.companion.CompanionDeviceManager}.
-        <p>Not for use by third-party applications.
+         <p>Not for use by third-party applications.
     -->
     <permission android:name="android.permission.REQUEST_COMPANION_PROFILE_COMPUTER"
                 android:protectionLevel="signature|privileged" />
@@ -5408,12 +5451,23 @@
     <permission android:name="android.permission.BIND_VISUAL_QUERY_DETECTION_SERVICE"
         android:protectionLevel="signature" />
 
-    <!-- Allows an application to subscribe to keyguard locked (i.e., showing) state.
-         <p>Protection level: signature|role
-         <p>Intended for use by ROLE_ASSISTANT and signature apps only.
+    <!-- Allows an application to subscribe to device locked and keyguard locked (i.e., showing)
+        state.
+         <p>Protection level: signature|module|role
+         <p>Intended for use by ROLE_ASSISTANT, VDM, and signature apps only.
     -->
     <permission android:name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE"
-                android:protectionLevel="signature|module|role"/>
+        android:protectionLevel="signature|module|role"
+        android:featureFlag="!android.security.subscribe_to_keyguard_locked_state_perm_priv_flag"/>
+
+    <!-- Allows an application to subscribe to device locked and keyguard locked (i.e., showing)
+        state.
+         <p>Protection level: signature|module|role|privileged
+         <p>Intended for use by ROLE_ASSISTANT, VDM, and signature / privileged apps only.
+    -->
+    <permission android:name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE"
+        android:protectionLevel="signature|module|role|privileged"
+        android:featureFlag="android.security.subscribe_to_keyguard_locked_state_perm_priv_flag"/>
 
     <!-- Must be required by a {@link android.service.autofill.AutofillService},
          to ensure that only the system can bind to it.
@@ -6633,6 +6687,13 @@
     <permission android:name="android.permission.BATTERY_STATS"
         android:protectionLevel="signature|privileged|development" />
 
+    <!-- @SystemApi @hide Allows an application to collect high-precision PowerMonitor readings
+         <p>Protection level: signature|privileged|development
+         @FlaggedApi(android.permission.flags.Flags.FLAG_FINE_POWER_MONITOR_PERMISSION) -->
+    <permission android:name="android.permission.ACCESS_FINE_POWER_MONITORS"
+        android:protectionLevel="signature|privileged|development"
+        android:featureFlag="android.permission.flags.fine_power_monitor_permission" />
+
     <!--Allows an application to manage statscompanion.
     <p>Not for use by third-party applications.
          @hide -->
@@ -6821,6 +6882,13 @@
     <!-- @SystemApi @hide Allows an application to manage carrier subscription plans. -->
     <permission android:name="android.permission.MANAGE_SUBSCRIPTION_PLANS"
         android:protectionLevel="signature|privileged" />
+
+    <!-- @SystemApi @hide Allows for reading subscription plan fields for status and end date.
+         @FlaggedApi(com.android.internal.telephony.flags.Flags.FLAG_SUBSCRIPTION_PLAN_ALLOW_STATUS_AND_END_DATE)
+    -->
+    <permission android:name="android.permission.READ_SUBSCRIPTION_PLANS"
+        android:protectionLevel="signature|privileged"
+        android:featureFlag="com.android.internal.telephony.flags.subscription_plan_allow_status_and_end_date" />
 
     <!-- C2DM permission.
          @hide Used internally.
@@ -8540,6 +8608,17 @@
         android:protectionLevel="signature|privileged|vendorPrivileged"
         android:featureFlag="android.media.tv.flags.kids_mode_tvdb_sharing"/>
 
+    <!-- @SystemApi
+        @FlaggedApi("android.permission.flags.text_classifier_choice_api_enabled")
+        This permission is required to access the specific text classifier you need from the
+        TextClassificationManager.
+        <p>Protection level: signature|role
+    @hide
+    -->
+    <permission android:name="android.permission.ACCESS_TEXT_CLASSIFIER_BY_TYPE"
+        android:protectionLevel="signature|role"
+        android:featureFlag="android.permission.flags.text_classifier_choice_api_enabled"/>
+
     <!--
         This permission allows the system to receive PACKAGE_CHANGED broadcasts when the component
         state of a non-exported component has been changed.
@@ -9063,7 +9142,11 @@
                  android:permission="android.permission.BIND_JOB_SERVICE" >
         </service>
 
-        <service android:name="com.android.server.profcollect.ProfcollectForwardingService$ProfcollectBGJobService"
+        <service android:name="com.android.server.profcollect.ProfcollectForwardingService$PeriodicTraceJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE" >
+        </service>
+
+        <service android:name="com.android.server.profcollect.ProfcollectForwardingService$ReportProcessJobService"
                  android:permission="android.permission.BIND_JOB_SERVICE" >
         </service>
 
