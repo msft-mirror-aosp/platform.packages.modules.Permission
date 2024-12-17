@@ -1086,6 +1086,11 @@ public class Role {
      */
     public void onNoneHolderSelectedAsUser(@NonNull UserHandle user, @NonNull Context context) {
         RoleManagerCompat.setRoleFallbackEnabledAsUser(this, false, user, context);
+        if (RoleFlags.isProfileGroupExclusivityAvailable()
+                && getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP) {
+            RoleManager roleManager = context.getSystemService(RoleManager.class);
+            roleManager.setActiveUserForRole(mName, user, 0);
+        }
     }
 
     /**

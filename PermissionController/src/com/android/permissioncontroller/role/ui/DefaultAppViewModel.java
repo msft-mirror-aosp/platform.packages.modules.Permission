@@ -110,12 +110,15 @@ public class DefaultAppViewModel extends AndroidViewModel {
      */
     public void setNoneDefaultApp() {
         Context context = getApplication();
-        mRole.onNoneHolderSelectedAsUser(mUser, context);
+        UserHandle user = mRole.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP
+                ? UserUtils.getProfileParentOrSelf(mUser, context)
+                : mUser;
+        mRole.onNoneHolderSelectedAsUser(user, context);
         if (mManageRoleHolderStateLiveData.getValue() != ManageRoleHolderStateLiveData.STATE_IDLE) {
             Log.i(LOG_TAG, "Trying to set default app while another request is on-going");
             return;
         }
-        mManageRoleHolderStateLiveData.clearRoleHoldersAsUser(mRole.getName(), 0, mUser, context);
+        mManageRoleHolderStateLiveData.clearRoleHoldersAsUser(mRole.getName(), 0, user, context);
     }
 
     /**

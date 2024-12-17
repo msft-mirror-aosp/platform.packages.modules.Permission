@@ -57,6 +57,7 @@ import com.android.permissioncontroller.role.model.UserDeniedManager;
 import com.android.permissioncontroller.role.utils.PackageUtils;
 import com.android.permissioncontroller.role.utils.RoleUiBehaviorUtils;
 import com.android.permissioncontroller.role.utils.UiUtils;
+import com.android.permissioncontroller.role.utils.UserUtils;
 import com.android.role.controller.model.Role;
 import com.android.role.controller.model.Roles;
 
@@ -301,8 +302,9 @@ public class RequestRoleFragment extends DialogFragment {
             reportRequestResult(PermissionControllerStatsLog
                             .ROLE_REQUEST_RESULT_REPORTED__RESULT__USER_DENIED_GRANTED_ANOTHER,
                     null);
-            // TODO(b/382688491): add support for "none" for profile group exclusive roles
-            UserHandle user = Process.myUserHandle();
+            UserHandle user = mRole.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP
+                    ? UserUtils.getProfileParentOrSelf(Process.myUserHandle(), context)
+                    : Process.myUserHandle();
             mRole.onNoneHolderSelectedAsUser(user, context);
             mViewModel.getManageRoleHolderStateLiveData().clearRoleHoldersAsUser(mRoleName, 0, user,
                     context);

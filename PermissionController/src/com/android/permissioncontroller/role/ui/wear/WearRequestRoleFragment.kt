@@ -39,6 +39,7 @@ import com.android.permissioncontroller.role.ui.RequestRoleViewModel
 import com.android.permissioncontroller.role.ui.wear.model.WearRequestRoleViewModel
 import com.android.permissioncontroller.role.ui.wear.model.WearRequestRoleViewModelFactory
 import com.android.permissioncontroller.role.utils.PackageUtils
+import com.android.permissioncontroller.role.utils.UserUtils
 import com.android.role.controller.model.Role
 import com.android.role.controller.model.Roles
 import java.util.Objects
@@ -276,8 +277,12 @@ class WearRequestRoleFragment : Fragment() {
                     .ROLE_REQUEST_RESULT_REPORTED__RESULT__USER_DENIED_GRANTED_ANOTHER,
                 null,
             )
-            // TODO(b/382688491): add support for "none" for profile group exclusive roles
-            val user: UserHandle = Process.myUserHandle()
+            val user: UserHandle =
+                if (role.exclusivity == Role.EXCLUSIVITY_PROFILE_GROUP) {
+                    UserUtils.getProfileParentOrSelf(Process.myUserHandle(), context)
+                } else {
+                    Process.myUserHandle()
+                }
             role.onNoneHolderSelectedAsUser(user, context)
             viewModel.manageRoleHolderStateLiveData.clearRoleHoldersAsUser(
                 roleName,
