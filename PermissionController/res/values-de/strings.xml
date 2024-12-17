@@ -674,10 +674,8 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Eingeschränkte Einstellungen zulassen"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Eingeschränkte Einstellung"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Aus Sicherheitsgründen ist diese Einstellung derzeit nicht verfügbar."</string>
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5230100829862738467) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8782160971908273849) -->
-    <skip />
+    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Aktion während Anrufen nicht verfügbar"</string>
+    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"Während eines Anrufs kannst du Apps nicht erlauben, andere Apps zu installieren.\n\n Betrüger versuchen oft, dich am Telefon genau dazu zu bringen, daher haben wir diese Art von Aktion zu deinem Schutz blockiert. Drängt dich jemand Unbekanntes zu einer solchen Installation, könnte es sich um Betrug handeln."</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"App wurde Zugriff auf „<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>“ verweigert"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Die App hat Zugriff auf eine vertrauliche Berechtigung angefordert. Wenn du diesen zulässt, sind deine privaten Daten und Finanzdaten eventuell gefährdet.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Die App funktioniert ohne diese eingeschränkte Berechtigung aber möglicherweise nicht richtig. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Informationen dazu, wie du den Zugriff erlaubst&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"App wurde der Zugriff verweigert, die standardmäßige <xliff:g id="ROLE_NAME">%1$s</xliff:g> zu sein"</string>
