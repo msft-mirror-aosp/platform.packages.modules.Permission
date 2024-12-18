@@ -22,6 +22,7 @@ import android.app.AppOpsManager
 import android.content.pm.PackageManager
 import android.content.pm.PermissionInfo
 import android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP
+import android.permission.flags.Flags
 import android.util.Log
 import com.android.modules.utils.build.SdkLevel
 import com.android.permission.safetylabel.DataCategoryConstants
@@ -33,7 +34,7 @@ import com.android.permissioncontroller.permission.model.livedatatypes.LightAppP
  */
 object PermissionMapping {
 
-    private val LOG_TAG = "PermissionMapping"
+    private const val LOG_TAG = "PermissionMapping"
 
     private val PERMISSION_GROUPS_TO_DATA_CATEGORIES: Map<String, List<String>> =
         mapOf(Manifest.permission_group.LOCATION to listOf(DataCategoryConstants.CATEGORY_LOCATION))
@@ -136,6 +137,13 @@ object PermissionMapping {
         }
         if (SdkLevel.isAtLeastT()) {
             PLATFORM_PERMISSIONS[Manifest.permission.NEARBY_WIFI_DEVICES] =
+                Manifest.permission_group.NEARBY_DEVICES
+        }
+
+        // Ranging permission will be supported from Android B+, update this when isAtLeastB()
+        // is available.
+        if (SdkLevel.isAtLeastV() && Flags.rangingPermissionEnabled()) {
+            PLATFORM_PERMISSIONS[Manifest.permission.RANGING] =
                 Manifest.permission_group.NEARBY_DEVICES
         }
 
@@ -374,8 +382,20 @@ object PermissionMapping {
         if (opName == AppOpsManager.OPSTR_PHONE_CALL_CAMERA) {
             return Manifest.permission_group.CAMERA
         }
+        if (
+            SdkLevel.isAtLeastV() &&
+                Flags.locationBypassPrivacyDashboardEnabled() &&
+                opName == AppOpsManager.OPSTR_EMERGENCY_LOCATION
+        ) {
+            return Manifest.permission_group.LOCATION
+        }
 
-        return AppOpsManager.opToPermission(opName)?.let { getGroupOfPlatformPermission(it) }
+        return try {
+            AppOpsManager.opToPermission(opName)?.let { getGroupOfPlatformPermission(it) }
+        } catch (e: IllegalArgumentException) {
+            Log.wtf(LOG_TAG, "No permission group found for $opName")
+            null
+        }
     }
 
     /**

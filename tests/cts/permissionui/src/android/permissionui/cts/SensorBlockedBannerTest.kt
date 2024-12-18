@@ -30,7 +30,9 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.uiautomator.By
 import com.android.compatibility.common.util.SystemUtil.callWithShellPermissionIdentity
+import com.android.compatibility.common.util.SystemUtil.eventually
 import com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity
+import com.android.modules.utils.build.SdkLevel
 import java.util.regex.Pattern
 import org.junit.Assert.assertTrue
 import org.junit.Assume
@@ -50,7 +52,6 @@ class SensorBlockedBannerTest : BaseUsePermissionTest() {
 
     private val sensorPrivacyManager = context.getSystemService(SensorPrivacyManager::class.java)!!
     private val locationManager = context.getSystemService(LocationManager::class.java)!!
-    private val safetyCenterManager = context.getSystemService(SafetyCenterManager::class.java)!!
 
     private val sensorToPermissionGroup =
         mapOf(
@@ -122,7 +123,11 @@ class SensorBlockedBannerTest : BaseUsePermissionTest() {
 
     @Test
     fun testCardClickOpenPrivacyControls() {
+        Assume.assumeTrue(SdkLevel.isAtLeastT())
         Assume.assumeTrue(sensorPrivacyManager.supportsSensorToggle(CAMERA))
+        val safetyCenterManager = context.getSystemService(SafetyCenterManager::class.java)
+        Assume.assumeNotNull(safetyCenterManager)
+
         var isSafetyCenterEnabled = false
         runWithShellPermissionIdentity {
             isSafetyCenterEnabled = safetyCenterManager.isSafetyCenterEnabled
@@ -138,7 +143,9 @@ class SensorBlockedBannerTest : BaseUsePermissionTest() {
         click(By.res(CHANGE_BUTTON))
         // Enable global camera toggle and verify
         waitFindObject(By.text(CAMERA_TOGGLE_LABEL)).click()
-        assertTrue(!isSensorPrivacyEnabled(CAMERA))
+        eventually {
+            assertTrue(!isSensorPrivacyEnabled(CAMERA))
+        }
     }
 
     private fun setSensor(sensor: Int, enable: Boolean) {

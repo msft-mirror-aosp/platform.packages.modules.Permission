@@ -39,6 +39,7 @@ import android.provider.Settings
 import android.text.Spanned
 import android.text.style.ClickableSpan
 import android.view.View
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.StaleObjectException
@@ -64,6 +65,7 @@ import org.junit.Before
 abstract class BaseUsePermissionTest : BasePermissionTest() {
     companion object {
         const val APP_APK_NAME_31 = "CtsUsePermissionApp31.apk"
+        const val APP_APK_NAME_31_WITH_ASL = "CtsUsePermissionApp31WithAsl.apk"
         const val APP_APK_NAME_LATEST = "CtsUsePermissionAppLatest.apk"
 
         const val APP_APK_PATH_22 = "$APK_DIRECTORY/CtsUsePermissionApp22.apk"
@@ -94,6 +96,8 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             "$APK_DIRECTORY/CtsUsePermissionAppImplicitUserSelectStorage.apk"
         const val APP_APK_PATH_STORAGE_33 = "$APK_DIRECTORY/CtsUsePermissionAppStorage33.apk"
         const val APP_APK_PATH_OTHER_APP = "$APK_DIRECTORY/CtsDifferentPkgNameApp.apk"
+        const val APP_APK_PATH_TWO_PERM_REQUESTS =
+            "$APK_DIRECTORY/CtsAppThatMakesTwoPermRequests.apk"
         const val APP_PACKAGE_NAME = "android.permissionui.cts.usepermission"
         const val OTHER_APP_PACKAGE_NAME = "android.permissionui.cts.usepermissionother"
         const val TEST_INSTALLER_PACKAGE_NAME = "android.permissionui.cts"
@@ -138,12 +142,12 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         const val DENY_AND_DONT_ASK_AGAIN_BUTTON_TEXT =
             "grant_dialog_button_deny_and_dont_ask_again"
         const val NO_UPGRADE_AND_DONT_ASK_AGAIN_BUTTON_TEXT = "grant_dialog_button_no_upgrade"
+        const val ECM_ALERT_DIALOG_OK_BUTTON_TEXT = "enhanced_confirmation_dialog_ok"
         const val ALERT_DIALOG_MESSAGE = "android:id/message"
         const val ALERT_DIALOG_OK_BUTTON = "android:id/button1"
-        const val APP_PERMISSION_RATIONALE_CONTAINER_VIEW =
-            "com.android.permissioncontroller:id/app_permission_rationale_container"
-        const val APP_PERMISSION_RATIONALE_CONTENT_VIEW =
-            "com.android.permissioncontroller:id/app_permission_rationale_content"
+        const val APP_PERMISSION_RATIONALE_TITLE_TEXT = "app_location_permission_rationale_title"
+        const val APP_PERMISSION_RATIONALE_SUBTITLE_TEXT =
+            "app_location_permission_rationale_subtitle"
         const val GRANT_DIALOG_PERMISSION_RATIONALE_CONTAINER_VIEW =
             "com.android.permissioncontroller:id/permission_rationale_container"
         const val PERMISSION_RATIONALE_ACTIVITY_TITLE_VIEW =
@@ -155,7 +159,10 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         const val PURPOSE_TITLE_ID = "com.android.permissioncontroller:id/purpose_title"
         const val PURPOSE_MESSAGE_ID = "com.android.permissioncontroller:id/purpose_message"
         const val LEARN_MORE_TITLE_ID = "com.android.permissioncontroller:id/learn_more_title"
+        const val HELP_URL_ECM =
+            "com.android.permissioncontroller:id/help_url_action_disabled_by_restricted_settings"
         const val LEARN_MORE_MESSAGE_ID = "com.android.permissioncontroller:id/learn_more_message"
+        const val DETAIL_MESSAGE_ID = "com.android.permissioncontroller:id/detail_message"
         const val PERMISSION_RATIONALE_SETTINGS_SECTION =
             "com.android.permissioncontroller:id/settings_section"
         const val SETTINGS_TITLE_ID = "com.android.permissioncontroller:id/settings_title"
@@ -244,6 +251,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             android.Manifest.permission.READ_CALENDAR to "@android:string/permgrouplab_calendar",
             android.Manifest.permission.WRITE_CALENDAR to "@android:string/permgrouplab_calendar",
             // SMS
+            android.Manifest.permission_group.SMS to "@android:string/permgrouplab_sms",
             android.Manifest.permission.SEND_SMS to "@android:string/permgrouplab_sms",
             android.Manifest.permission.RECEIVE_SMS to "@android:string/permgrouplab_sms",
             android.Manifest.permission.READ_SMS to "@android:string/permgrouplab_sms",
@@ -263,6 +271,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             android.Manifest.permission.ACCESS_BACKGROUND_LOCATION to
                 "@android:string/permgrouplab_location",
             // Phone
+            android.Manifest.permission_group.PHONE to "@android:string/permgrouplab_phone",
             android.Manifest.permission.READ_PHONE_STATE to "@android:string/permgrouplab_phone",
             android.Manifest.permission.CALL_PHONE to "@android:string/permgrouplab_phone",
             "android.permission.ACCESS_IMS_CALL_SERVICE" to "@android:string/permgrouplab_phone",
@@ -359,8 +368,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         // dialog
         callWithShellPermissionIdentity {
             context.packageManager.resolveActivity(finishOnCreateIntent, PackageManager.MATCH_ALL)
-        }
-            ?: return
+        } ?: return
 
         // Start the test app, and expect the targetSDK warning dialog
         context.startActivity(finishOnCreateIntent)
@@ -375,9 +383,17 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             return
         }
 
-        waitFindObjectOrNull(By.res("android:id/button1"), timeoutMillis)?.let {
+        val targetSdkWarningVisible =
+            uiDevice.wait(
+                Until.hasObject(
+                    By.textStartsWith("This app was built for an older version of Android")
+                            .displayId(displayId)
+                ),
+                timeoutMillis
+            )
+        if (targetSdkWarningVisible) {
             try {
-                it.click()
+                uiDevice.findObject(By.res("android:id/button1").displayId(displayId)).click()
             } catch (e: StaleObjectException) {
                 // Click sometimes fails with StaleObjectException (b/280430717).
                 e.printStackTrace()
@@ -398,12 +414,13 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
     protected fun clickPermissionReviewContinue() {
         if (isAutomotive || isWatch) {
             clickAndWaitForWindowTransition(
-                By.text(getPermissionControllerString("review_button_continue")),
+                By.text(getPermissionControllerString("review_button_continue"))
+                        .displayId(displayId),
                 TIMEOUT_MILLIS * 2
             )
         } else {
             clickAndWaitForWindowTransition(
-                By.res("com.android.permissioncontroller:id/continue_button")
+                By.res("com.android.permissioncontroller:id/continue_button").displayId(displayId)
             )
         }
     }
@@ -468,6 +485,22 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         installPackageViaSession(apkName)
     }
 
+    protected fun installPackageWithInstallSourceAndNoMetadataFromStore(apkName: String) {
+        installPackageViaSession(apkName, packageSource = PACKAGE_SOURCE_STORE)
+    }
+
+    protected fun installPackageWithInstallSourceAndNoMetadataFromLocalFile(apkName: String) {
+        installPackageViaSession(apkName, packageSource = PACKAGE_SOURCE_LOCAL_FILE)
+    }
+
+    protected fun installPackageWithInstallSourceAndNoMetadataFromDownloadedFile(apkName: String) {
+        installPackageViaSession(apkName, packageSource = PACKAGE_SOURCE_DOWNLOADED_FILE)
+    }
+
+    protected fun installPackageWithInstallSourceAndNoMetadataFromOther(apkName: String) {
+        installPackageViaSession(apkName, packageSource = PACKAGE_SOURCE_OTHER)
+    }
+
     protected fun installPackageWithInstallSourceAndInvalidMetadata(apkName: String) {
         installPackageViaSession(apkName, AppMetadata.createInvalidAppMetadata())
     }
@@ -514,30 +547,32 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
     }
 
     protected fun assertPermissionRationaleActivityTitleIsVisible(expected: Boolean) {
-        findView(By.res(PERMISSION_RATIONALE_ACTIVITY_TITLE_VIEW), expected = expected)
+        findView(By.res(PERMISSION_RATIONALE_ACTIVITY_TITLE_VIEW).displayId(displayId),
+                expected = expected)
     }
 
     protected fun assertPermissionRationaleActivityDataSharingSourceSectionVisible(
         expected: Boolean
     ) {
-        findView(By.res(DATA_SHARING_SOURCE_TITLE_ID), expected = expected)
-        findView(By.res(DATA_SHARING_SOURCE_MESSAGE_ID), expected = expected)
+        findView(By.res(DATA_SHARING_SOURCE_TITLE_ID).displayId(displayId), expected = expected)
+        findView(By.res(DATA_SHARING_SOURCE_MESSAGE_ID).displayId(displayId), expected = expected)
     }
 
     protected fun assertPermissionRationaleActivityPurposeSectionVisible(expected: Boolean) {
-        findView(By.res(PURPOSE_TITLE_ID), expected = expected)
-        findView(By.res(PURPOSE_MESSAGE_ID), expected = expected)
+        findView(By.res(PURPOSE_TITLE_ID).displayId(displayId), expected = expected)
+        findView(By.res(PURPOSE_MESSAGE_ID).displayId(displayId), expected = expected)
     }
 
     protected fun assertPermissionRationaleActivityLearnMoreSectionVisible(expected: Boolean) {
-        findView(By.res(LEARN_MORE_TITLE_ID), expected = expected)
-        findView(By.res(LEARN_MORE_MESSAGE_ID), expected = expected)
+        findView(By.res(LEARN_MORE_TITLE_ID).displayId(displayId), expected = expected)
+        findView(By.res(LEARN_MORE_MESSAGE_ID).displayId(displayId), expected = expected)
     }
 
     protected fun assertPermissionRationaleActivitySettingsSectionVisible(expected: Boolean) {
-        findView(By.res(PERMISSION_RATIONALE_SETTINGS_SECTION), expected = expected)
-        findView(By.res(SETTINGS_TITLE_ID), expected = expected)
-        findView(By.res(SETTINGS_MESSAGE_ID), expected = expected)
+        findView(By.res(PERMISSION_RATIONALE_SETTINGS_SECTION).displayId(displayId),
+                expected = expected)
+        findView(By.res(SETTINGS_TITLE_ID).displayId(displayId), expected = expected)
+        findView(By.res(SETTINGS_MESSAGE_ID).displayId(displayId), expected = expected)
     }
 
     protected fun assertPermissionRationaleDialogIsVisible(
@@ -554,17 +589,18 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
     }
 
     protected fun assertPermissionRationaleContainerOnGrantDialogIsVisible(expected: Boolean) {
-        findView(By.res(GRANT_DIALOG_PERMISSION_RATIONALE_CONTAINER_VIEW), expected = expected)
+        findView(By.res(GRANT_DIALOG_PERMISSION_RATIONALE_CONTAINER_VIEW).displayId(displayId),
+                expected = expected)
     }
 
     protected fun clickPermissionReviewCancel() {
         if (isAutomotive || isWatch) {
             clickAndWaitForWindowTransition(
-                By.text(getPermissionControllerString("review_button_cancel"))
+                By.text(getPermissionControllerString("review_button_cancel")).displayId(displayId)
             )
         } else {
             clickAndWaitForWindowTransition(
-                By.res("com.android.permissioncontroller:id/cancel_button")
+                By.res("com.android.permissioncontroller:id/cancel_button").displayId(displayId)
             )
         }
     }
@@ -628,7 +664,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
     protected inline fun requestAppPermissions(
         vararg permissions: String?,
         askTwice: Boolean = false,
-        waitForWindowTransition: Boolean = true,
+        waitForWindowTransition: Boolean = !isWatch,
         crossinline block: () -> Unit
     ): Instrumentation.ActivityResult {
         // Request the permissions
@@ -666,11 +702,26 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         waitForWindowTransition: Boolean = !isWatch,
         crossinline block: () -> Unit
     ) {
+        var shouldWaitForWindowTransition = waitForWindowTransition
+        // Do not wait for windowTransition after action is performed on auto, when permissions
+        // are being denied. The click deny function explicitly waits for window to transition
+        if (isAutomotive) {
+            var somePermissionsTrue = false
+            // http://go/nl-kt-best-practices#for-loop-vs-foreach
+            for (it in permissionAndExpectedGrantResults) {
+                somePermissionsTrue = somePermissionsTrue || it.second
+            }
+            // When all permissions being requested are to be denied
+            // do not wait for windowTransition
+            if (!somePermissionsTrue) {
+                shouldWaitForWindowTransition = false
+            }
+        }
         val result =
             requestAppPermissions(
                 *permissions,
                 askTwice = askTwice,
-                waitForWindowTransition = waitForWindowTransition,
+                waitForWindowTransition = shouldWaitForWindowTransition,
                 block = block
             )
         assertEquals(
@@ -743,42 +794,46 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
 
     protected fun findPermissionRequestAllowButton(timeoutMillis: Long = 20000) {
         if (isAutomotive || isWatch) {
-            waitFindObject(By.text(getPermissionControllerString(ALLOW_BUTTON_TEXT)), timeoutMillis)
+            waitFindObject(By.text(getPermissionControllerString(ALLOW_BUTTON_TEXT))
+                    .displayId(displayId), timeoutMillis)
         } else {
-            waitFindObject(By.res(ALLOW_BUTTON), timeoutMillis)
+            waitFindObject(By.res(ALLOW_BUTTON).displayId(displayId), timeoutMillis)
         }
     }
 
     protected fun clickPermissionRequestAllowButton(timeoutMillis: Long = 20000) {
         if (isAutomotive || isWatch) {
-            click(By.text(getPermissionControllerString(ALLOW_BUTTON_TEXT)), timeoutMillis)
+            click(By.text(getPermissionControllerString(ALLOW_BUTTON_TEXT)).displayId(displayId),
+                    timeoutMillis)
         } else {
-            click(By.res(ALLOW_BUTTON), timeoutMillis)
+            click(By.res(ALLOW_BUTTON).displayId(displayId), timeoutMillis)
         }
     }
 
     protected fun clickPermissionRequestAllowAllButton(timeoutMillis: Long = 20000) {
-        click(By.res(ALLOW_ALL_BUTTON), timeoutMillis)
+        click(By.res(ALLOW_ALL_BUTTON).displayId(displayId), timeoutMillis)
     }
 
     /**
      * Only for use in tests that are not testing the notification permission popup, on T devices
      */
     protected fun clickNotificationPermissionRequestAllowButtonIfAvailable() {
-        if (!SdkLevel.isAtLeastT()) {
-            return
-        }
-
-        if (
-            waitFindObjectOrNull(
-                By.text(getPermissionControllerString(NOTIF_TEXT, APP_PACKAGE_NAME)),
-                1000
-            ) != null
-        ) {
-            if (isAutomotive) {
-                click(By.text(getPermissionControllerString(ALLOW_BUTTON_TEXT)))
-            } else {
-                click(By.res(ALLOW_BUTTON))
+        if (SdkLevel.isAtLeastT() && getTargetSdk() < Build.VERSION_CODES.TIRAMISU) {
+            val notificationPermissionRequestVisible =
+                uiDevice.wait(
+                    Until.hasObject(
+                        By.text(getPermissionControllerString(NOTIF_TEXT, APP_PACKAGE_NAME))
+                                .displayId(displayId)
+                    ),
+                    1000
+                )
+            if (notificationPermissionRequestVisible) {
+                if (isAutomotive) {
+                    click(By.text(getPermissionControllerString(ALLOW_BUTTON_TEXT))
+                            .displayId(displayId))
+                } else {
+                    click(By.res(ALLOW_BUTTON).displayId(displayId))
+                }
             }
         }
     }
@@ -791,51 +846,62 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
 
     protected fun clickAllowAlwaysInSettings() {
         if (isAutomotive || isTv || isWatch) {
-            click(By.text(getPermissionControllerString("app_permission_button_allow_always")))
+            click(By.text(getPermissionControllerString("app_permission_button_allow_always"))
+                    .displayId(displayId))
         } else {
-            click(By.res("com.android.permissioncontroller:id/allow_always_radio_button"))
+            click(By.res("com.android.permissioncontroller:id/allow_always_radio_button")
+                    .displayId(displayId))
         }
     }
 
     protected fun clickAllowForegroundInSettings() {
-        click(By.res(ALLOW_FOREGROUND_RADIO_BUTTON))
+        click(By.res(ALLOW_FOREGROUND_RADIO_BUTTON).displayId(displayId))
     }
 
     protected fun clicksDenyInSettings() {
         if (isAutomotive || isWatch) {
-            click(By.text(getPermissionControllerString("app_permission_button_deny")))
+            click(By.text(getPermissionControllerString("app_permission_button_deny"))
+                    .displayId(displayId))
         } else {
-            click(By.res("com.android.permissioncontroller:id/deny_radio_button"))
+            click(By.res("com.android.permissioncontroller:id/deny_radio_button")
+                    .displayId(displayId))
         }
     }
 
     protected fun findPermissionRequestAllowForegroundButton(timeoutMillis: Long = 20000) {
         if (isAutomotive || isWatch) {
             waitFindObject(
-                By.text(getPermissionControllerString(ALLOW_FOREGROUND_BUTTON_TEXT)),
+                By.text(getPermissionControllerString(ALLOW_FOREGROUND_BUTTON_TEXT))
+                        .displayId(displayId),
                 timeoutMillis
             )
         } else {
-            waitFindObject(By.res(ALLOW_FOREGROUND_BUTTON), timeoutMillis)
+            waitFindObject(By.res(ALLOW_FOREGROUND_BUTTON).displayId(displayId), timeoutMillis)
         }
     }
 
-    protected fun clickPermissionRequestAllowForegroundButton(timeoutMillis: Long = 10_000) {
+    protected fun clickPermissionRequestAllowForegroundButton(timeoutMillis: Long = 20_000) {
         if (isAutomotive || isWatch) {
             click(
-                By.text(getPermissionControllerString(ALLOW_FOREGROUND_BUTTON_TEXT)),
+                By.text(getPermissionControllerString(ALLOW_FOREGROUND_BUTTON_TEXT))
+                        .displayId(displayId),
                 timeoutMillis
             )
         } else {
-            click(By.res(ALLOW_FOREGROUND_BUTTON), timeoutMillis)
+            click(By.res(ALLOW_FOREGROUND_BUTTON).displayId(displayId), timeoutMillis)
         }
     }
 
     protected fun clickPermissionRequestDenyButton() {
-        if (isAutomotive || isWatch || isTv) {
-            click(By.text(getPermissionControllerString(DENY_BUTTON_TEXT)))
+        if (isAutomotive) {
+            scrollToBottom()
+            clickAndWaitForWindowTransition(
+                By.text(getPermissionControllerString(DENY_BUTTON_TEXT)).displayId(displayId)
+            )
+        } else if (isWatch || isTv) {
+            click(By.text(getPermissionControllerString(DENY_BUTTON_TEXT)).displayId(displayId))
         } else {
-            click(By.res(DENY_BUTTON))
+            click(By.res(DENY_BUTTON).displayId(displayId))
         }
     }
 
@@ -847,6 +913,10 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
 
     protected fun clickPermissionRequestSettingsLink() {
         eventually {
+            if (isWatch) {
+                clickPermissionRequestSettingsLinkForWear()
+                return@eventually
+            }
             // UiObject2 doesn't expose CharSequence.
             val node =
                 if (isAutomotive) {
@@ -856,14 +926,13 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                         .findAccessibilityNodeInfosByText(" settings.")[0]
                 } else {
                     uiAutomation.rootInActiveWindow
-                        .findAccessibilityNodeInfosByViewId(
-                            "com.android.permissioncontroller:id/detail_message"
-                        )[0]
+                        .findAccessibilityNodeInfosByViewId(DETAIL_MESSAGE_ID)[0]
                 }
             if (!node.isVisibleToUser) {
                 scrollToBottom()
             }
             assertTrue(node.isVisibleToUser)
+
             val text = node.text as Spanned
             val clickableSpan = text.getSpans(0, text.length, ClickableSpan::class.java)[0]
             // We could pass in null here in Java, but we need an instance in Kotlin.
@@ -871,41 +940,83 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         }
     }
 
+    private fun clickPermissionRequestSettingsLinkForWear() {
+        // Find detail message.
+        val text = waitFindObject(By.textContains(" settings.").displayId(displayId))
+
+        // Move the view to the top of the screen.
+        var visibleBounds = text.getVisibleBounds()
+        val centerX = (visibleBounds.left + visibleBounds.right) / 2
+        uiDevice.drag(centerX, visibleBounds.top, centerX, 0, 10)
+
+        // Click the deep link.
+        // Not sure where the clickable text is. So try different point in the last line
+        // of the 5 line text.
+        val bounds = text.getVisibleBounds()
+        val xdelta = 0.2 * bounds.width()
+        val y = bounds.bottom - (0.05 * bounds.height())
+        var clickedOnLink: Boolean = false
+        for (i in 1..4) {
+            val x = bounds.left + (i * xdelta)
+            uiDevice.click(x.toInt(), y.toInt())
+            waitForIdleLong()
+            val nextScreenNode: AccessibilityNodeInfo? =
+                findAccessibilityNodeInfosByTextForSurfaceView(
+                    uiAutomation.rootInActiveWindow,
+                    "All the time"
+                )
+            if (nextScreenNode != null) {
+                clickedOnLink = true
+                break
+            }
+        }
+        assertTrue("Could not click on the settings link correctly", clickedOnLink)
+    }
+
     protected fun clickPermissionRequestDenyAndDontAskAgainButton() {
         if (isAutomotive) {
-            click(By.text(getPermissionControllerString(DENY_AND_DONT_ASK_AGAIN_BUTTON_TEXT)))
+            scrollToBottom()
+            clickAndWaitForWindowTransition(
+                By.text(getPermissionControllerString(DENY_AND_DONT_ASK_AGAIN_BUTTON_TEXT))
+                        .displayId(displayId)
+            )
         } else if (isWatch) {
-            click(By.text(getPermissionControllerString(DENY_BUTTON_TEXT)))
+            click(By.text(getPermissionControllerString(DENY_BUTTON_TEXT)).displayId(displayId))
         } else {
-            click(By.res(DENY_AND_DONT_ASK_AGAIN_BUTTON))
+            click(By.res(DENY_AND_DONT_ASK_AGAIN_BUTTON).displayId(displayId))
         }
     }
 
     // Only used in TV and Watch form factors
     protected fun clickPermissionRequestDontAskAgainButton() {
         if (isWatch) {
-            click(By.text(getPermissionControllerString(DENY_BUTTON_TEXT)))
+            click(By.text(getPermissionControllerString(DENY_BUTTON_TEXT)).displayId(displayId))
         } else {
             click(
                 By.res("com.android.permissioncontroller:id/permission_deny_dont_ask_again_button")
+                        .displayId(displayId)
             )
         }
     }
 
     protected fun clickPermissionRequestNoUpgradeAndDontAskAgainButton() {
-        if (isAutomotive) {
-            click(By.text(getPermissionControllerString(NO_UPGRADE_AND_DONT_ASK_AGAIN_BUTTON_TEXT)))
+        if (isAutomotive || isWatch) {
+            click(By.text(getPermissionControllerString(NO_UPGRADE_AND_DONT_ASK_AGAIN_BUTTON_TEXT))
+                    .displayId(displayId))
         } else {
-            click(By.res(NO_UPGRADE_AND_DONT_ASK_AGAIN_BUTTON))
+            click(By.res(NO_UPGRADE_AND_DONT_ASK_AGAIN_BUTTON).displayId(displayId))
         }
     }
 
     protected fun clickPermissionRationaleContentInAppPermission() {
-        clickAndWaitForWindowTransition(By.res(APP_PERMISSION_RATIONALE_CONTENT_VIEW))
+        clickAndWaitForWindowTransition(
+            By.text(getPermissionControllerString(APP_PERMISSION_RATIONALE_SUBTITLE_TEXT))
+                    .displayId(displayId))
     }
 
     protected fun clickPermissionRationaleViewInGrantDialog() {
-        clickAndWaitForWindowTransition(By.res(GRANT_DIALOG_PERMISSION_RATIONALE_CONTAINER_VIEW))
+        clickAndWaitForWindowTransition(
+                By.res(GRANT_DIALOG_PERMISSION_RATIONALE_CONTAINER_VIEW).displayId(displayId))
     }
 
     protected fun grantAppPermissionsByUi(vararg permissions: String) {
@@ -931,10 +1042,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
 
     private fun navigateToAppPermissionSettings() {
         if (isTv) {
-            // Dismiss DeprecatedTargetSdkVersionDialog, if present
-            if (waitFindObjectOrNull(By.text(APP_PACKAGE_NAME), 1000L) != null) {
-                pressBack()
-            }
+            clearTargetSdkWarning(1000L)
             pressHome()
         } else {
             pressBack()
@@ -993,9 +1101,10 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             navigateToAppPermissionSettings()
             val permissionLabel = getPermissionLabel(permission)
             if (isWatch) {
-                clickAndWaitForWindowTransition(By.text(permissionLabel), 40_000)
+                clickAndWaitForWindowTransition(By.text(permissionLabel).displayId(displayId),
+                        40_000)
             } else {
-                clickPermissionControllerUi(By.text(permissionLabel))
+                clickPermissionControllerUi(By.text(permissionLabel).displayId(displayId))
             }
             return
         }
@@ -1008,6 +1117,21 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                         putExtra(Intent.EXTRA_USER, Process.myUserHandle())
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    }
+                )
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    protected fun startManageAppPermissionsActivity() {
+        doAndWaitForWindowTransition {
+            runWithShellPermissionIdentity {
+                context.startActivity(
+                    Intent(Intent.ACTION_MANAGE_APP_PERMISSIONS).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        putExtra(Intent.EXTRA_PACKAGE_NAME, APP_PACKAGE_NAME)
                     }
                 )
             }
@@ -1048,11 +1172,11 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             navigatedGroupLabels.add(permissionLabel)
             if (useLegacyNavigation) {
                 if (isWatch) {
-                    click(By.text(permissionLabel), 40_000)
+                    click(By.text(permissionLabel).displayId(displayId), 40_000)
                 } else if (isAutomotive) {
                     clickPermissionControllerUi(permissionLabel)
                 } else {
-                    clickPermissionControllerUi(By.text(permissionLabel))
+                    clickPermissionControllerUi(By.text(permissionLabel).displayId(displayId))
                 }
             } else {
                 doAndWaitForWindowTransition {
@@ -1076,20 +1200,24 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                     // won't show an "Ask every time" message
                     !waitFindObject(
                             By.text(getPermissionControllerString("app_permission_button_deny"))
+                                    .displayId(displayId)
                         )
                         .isChecked
                 } else if (isTv || isWatch) {
-                    !(waitFindObject(By.text(getPermissionControllerString(DENY_BUTTON_TEXT)))
+                    !(waitFindObject(By.text(getPermissionControllerString(DENY_BUTTON_TEXT))
+                            .displayId(displayId))
                         .isChecked ||
                         (!isLegacyApp &&
                             hasAskButton(permission) &&
-                            waitFindObject(By.text(getPermissionControllerString(ASK_BUTTON_TEXT)))
+                            waitFindObject(By.text(getPermissionControllerString(ASK_BUTTON_TEXT))
+                                    .displayId(displayId))
                                 .isChecked))
                 } else {
-                    !(waitFindObject(By.res(DENY_RADIO_BUTTON)).isChecked ||
+                    !(waitFindObject(By.res(DENY_RADIO_BUTTON).displayId(displayId)).isChecked ||
                         (!isLegacyApp &&
                             hasAskButton(permission) &&
-                            waitFindObject(By.res(ASK_RADIO_BUTTON)).isChecked))
+                            waitFindObject(By.res(ASK_RADIO_BUTTON).displayId(displayId))
+                                    .isChecked))
                 }
             var alreadyChecked = false
             val button =
@@ -1104,16 +1232,18 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                                         getPermissionControllerString(
                                             "app_permission_button_allow_foreground"
                                         )
-                                    )
+                                    ).displayId(displayId)
                                 } else {
                                     By.text(
                                         getPermissionControllerString("app_permission_button_allow")
-                                    )
+                                    ).displayId(displayId)
                                 }
                             PermissionState.DENIED ->
                                 By.text(getPermissionControllerString("app_permission_button_deny"))
+                                        .displayId(displayId)
                             PermissionState.DENIED_WITH_PREJUDICE ->
                                 By.text(getPermissionControllerString("app_permission_button_deny"))
+                                        .displayId(displayId)
                         }
                     } else if (isTv || isWatch) {
                         when (state) {
@@ -1123,7 +1253,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                                         getPermissionControllerString(
                                             ALLOW_FOREGROUND_PREFERENCE_TEXT
                                         )
-                                    )
+                                    ).displayId(displayId)
                                 } else {
                                     byAnyText(
                                         getPermissionControllerResString(ALLOW_BUTTON_TEXT),
@@ -1135,29 +1265,33 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                             PermissionState.DENIED ->
                                 if (!isLegacyApp && hasAskButton(permission)) {
                                     By.text(getPermissionControllerString(ASK_BUTTON_TEXT))
+                                            .displayId(displayId)
                                 } else {
                                     By.text(getPermissionControllerString(DENY_BUTTON_TEXT))
+                                            .displayId(displayId)
                                 }
                             PermissionState.DENIED_WITH_PREJUDICE ->
                                 By.text(getPermissionControllerString(DENY_BUTTON_TEXT))
+                                        .displayId(displayId)
                         }
                     } else {
                         when (state) {
                             PermissionState.ALLOWED ->
                                 if (showsForegroundOnlyButton(permission)) {
-                                    By.res(ALLOW_FOREGROUND_RADIO_BUTTON)
+                                    By.res(ALLOW_FOREGROUND_RADIO_BUTTON).displayId(displayId)
                                 } else if (showsAlwaysButton(permission)) {
-                                    By.res(ALLOW_ALWAYS_RADIO_BUTTON)
+                                    By.res(ALLOW_ALWAYS_RADIO_BUTTON).displayId(displayId)
                                 } else {
-                                    By.res(ALLOW_RADIO_BUTTON)
+                                    By.res(ALLOW_RADIO_BUTTON).displayId(displayId)
                                 }
                             PermissionState.DENIED ->
                                 if (!isLegacyApp && hasAskButton(permission)) {
-                                    By.res(ASK_RADIO_BUTTON)
+                                    By.res(ASK_RADIO_BUTTON).displayId(displayId)
                                 } else {
-                                    By.res(DENY_RADIO_BUTTON)
+                                    By.res(DENY_RADIO_BUTTON).displayId(displayId)
                                 }
                             PermissionState.DENIED_WITH_PREJUDICE -> By.res(DENY_RADIO_BUTTON)
+                                    .displayId(displayId)
                         }
                     }
                 )
@@ -1175,10 +1309,10 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                     click(
                         By.desc(
                             getPermissionControllerString("media_confirm_dialog_positive_button")
-                        )
+                        ).displayId(displayId)
                     )
                 } else {
-                    click(By.res(ALERT_DIALOG_OK_BUTTON))
+                    click(By.res(ALERT_DIALOG_OK_BUTTON).displayId(displayId))
                 }
             } else if (!alreadyChecked && isLegacyApp && wasGranted) {
                 if (!isTv) {
@@ -1186,9 +1320,10 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                     if (isWatch) {
                         waitFindObject(
                             By.text(getPermissionControllerString("old_sdk_deny_warning"))
+                                    .displayId(displayId)
                         )
                     } else {
-                        waitFindObject(By.res(ALERT_DIALOG_MESSAGE))
+                        waitFindObject(By.res(ALERT_DIALOG_MESSAGE).displayId(displayId))
                     }
                     scrollToBottom()
                 }
@@ -1196,7 +1331,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                 // Due to the limited real estate, Wear uses buttons with icons instead of text
                 // for dialogs
                 if (isWatch) {
-                    click(By.desc(getPermissionControllerString("ok")))
+                    click(By.desc(getPermissionControllerString("ok")).displayId(displayId))
                 } else {
                     val resources =
                         context
@@ -1235,6 +1370,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             android.Manifest.permission.ACCESS_BACKGROUND_LOCATION -> true
             else -> false
         }
+
     private fun showsAllowPhotosButton(permission: String): Boolean {
         if (!isPhotoPickerPermissionPromptEnabled()) {
             return false
@@ -1281,10 +1417,25 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         }
     }
 
-    private fun byTextRes(textRes: Int): BySelector = By.text(context.getString(textRes))
+    protected fun findAccessibilityNodeInfosByTextForSurfaceView(
+        node: AccessibilityNodeInfo,
+        text: String
+    ): AccessibilityNodeInfo? {
+        if (node.text != null && node.text.contains(text)) return node
+        for (i in 0 until node.childCount) {
+            val child = node.getChild(i)
+            if (child != null) {
+                return findAccessibilityNodeInfosByTextForSurfaceView(child, text) ?: continue
+            }
+        }
+        return null
+    }
+
+    private fun byTextRes(textRes: Int): BySelector =
+            By.text(context.getString(textRes)).displayId(displayId)
 
     private fun byTextStartsWithCaseInsensitive(prefix: String): BySelector =
-        By.text(Pattern.compile("(?i)^${Pattern.quote(prefix)}.*$"))
+        By.text(Pattern.compile("(?i)^${Pattern.quote(prefix)}.*$")).displayId(displayId)
 
     protected fun assertAppHasPermission(permissionName: String, expectPermission: Boolean) {
         val checkPermissionResult = packageManager.checkPermission(permissionName, APP_PACKAGE_NAME)
@@ -1335,6 +1486,21 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             for ((flag, set) in flags) {
                 assertEquals("flag $flag: ", set, currFlags and flag != 0)
             }
+        }
+    }
+
+    protected fun clickECMAlertDialogOKButton(waitForWindowTransition: Boolean = !isWatch) {
+        var action = { click(By.res(ALERT_DIALOG_OK_BUTTON).displayId(displayId), TIMEOUT_MILLIS) }
+        if (isWatch) {
+            val okButtonText =
+                getPermissionControllerResString(ECM_ALERT_DIALOG_OK_BUTTON_TEXT) ?: "OK"
+            action = { click(By.text(okButtonText).displayId(displayId), TIMEOUT_MILLIS) }
+        }
+
+        if (waitForWindowTransition) {
+            doAndWaitForWindowTransition { action() }
+        } else {
+            action()
         }
     }
 }

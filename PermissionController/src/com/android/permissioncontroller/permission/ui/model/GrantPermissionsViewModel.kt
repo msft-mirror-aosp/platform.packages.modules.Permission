@@ -68,6 +68,7 @@ import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_
 import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_GRANT_REQUEST_RESULT_REPORTED__RESULT__USER_GRANTED_ONE_TIME
 import com.android.permissioncontroller.PermissionControllerStatsLog.PERMISSION_GRANT_REQUEST_RESULT_REPORTED__RESULT__USER_IGNORED
 import com.android.permissioncontroller.auto.DrivingDecisionReminderService
+import com.android.permissioncontroller.ecm.EnhancedConfirmationStatsLogUtils
 import com.android.permissioncontroller.permission.data.LightAppPermGroupLiveData
 import com.android.permissioncontroller.permission.data.LightPackageInfoLiveData
 import com.android.permissioncontroller.permission.data.PackagePermissionsLiveData
@@ -158,8 +159,19 @@ class GrantPermissionsViewModel(
 
     private var autoGrantNotifier: AutoGrantPermissionsNotifier? = null
 
-    private fun getAutoGrantNotifier(): AutoGrantPermissionsNotifier {
-        autoGrantNotifier = AutoGrantPermissionsNotifier(app, packageInfo.toPackageInfo(app)!!)
+    private fun getAutoGrantNotifier(): AutoGrantPermissionsNotifier? {
+        var fullPackageInfo = packageInfo.toPackageInfo(app)
+        if (fullPackageInfo == null) {
+            // try twice
+            fullPackageInfo = packageInfo.toPackageInfo(app)
+        }
+        if (fullPackageInfo == null) {
+            // We've tried to get our package info twice, and failed twice. Close the grant dialog,
+            // because the app is not accessible.
+            requestInfosLiveData.value = null
+            return null
+        }
+        autoGrantNotifier = AutoGrantPermissionsNotifier(app, fullPackageInfo)
         return autoGrantNotifier!!
     }
 
@@ -326,7 +338,7 @@ class GrantPermissionsViewModel(
                     if (state != null) {
                         val allAffectedGranted =
                             state.affectedPermissions.all { perm ->
-                                appPermGroup.permissions[perm]?.isGrantedIncludingAppOp == true &&
+                                appPermGroup.permissions[perm]?.isGranted == true &&
                                     appPermGroup.permissions[perm]?.isRevokeWhenRequested == false
                             }
                         if (allAffectedGranted) {
@@ -580,7 +592,7 @@ class GrantPermissionsViewModel(
 
         val behavior = getGrantBehavior(group)
         return if (behavior.isGroupFullyGranted(group, groupRequestedPermissions)) {
-            if (group.permissions[perm]?.isGrantedIncludingAppOp == false) {
+            if (group.permissions[perm]?.isGranted == false) {
                 if (isBackground) {
                     grantBackgroundRuntimePermissions(app, group, listOf(perm))
                 } else {
@@ -632,7 +644,7 @@ class GrantPermissionsViewModel(
                         filterPermissions = listOf(perm)
                     )
                     state = STATE_GRANTED
-                    getAutoGrantNotifier().onPermissionAutoGranted(perm)
+                    getAutoGrantNotifier()?.onPermissionAutoGranted(perm)
                     reportRequestResult(
                         perm,
                         PERMISSION_GRANT_REQUEST_RESULT_REPORTED__RESULT__AUTO_GRANTED
@@ -852,18 +864,15 @@ class GrantPermissionsViewModel(
                 } else {
                     PERMISSION_GRANT_REQUEST_RESULT_REPORTED__RESULT__USER_GRANTED
                 }
+            var affectedPermissions: Collection<String> = groupState.affectedPermissions
             if (shouldAffectBackgroundPermissions) {
-                grantBackgroundRuntimePermissions(
-                    app,
-                    groupState.group,
-                    groupState.affectedPermissions
-                )
+                grantBackgroundRuntimePermissions(app, groupState.group, affectedPermissions)
             } else if (shouldAffectForegroundPermssions) {
                 if (affectedForegroundPermissions == null) {
                     grantForegroundRuntimePermissions(
                         app,
                         groupState.group,
-                        groupState.affectedPermissions,
+                        affectedPermissions,
                         isOneTime
                     )
                     // This prevents weird flag state when app targetSDK switches from S+ to R-
@@ -871,11 +880,12 @@ class GrantPermissionsViewModel(
                         KotlinUtils.setFlagsWhenLocationAccuracyChanged(app, groupState.group, true)
                     }
                 } else {
+                    affectedPermissions = affectedForegroundPermissions
                     val newGroup =
                         grantForegroundRuntimePermissions(
                             app,
                             groupState.group,
-                            affectedForegroundPermissions,
+                            affectedPermissions,
                             isOneTime
                         )
                     if (!isOneTime || newGroup.isOneTime) {
@@ -887,7 +897,17 @@ class GrantPermissionsViewModel(
                     }
                 }
             }
-            groupState.state = STATE_GRANTED
+            val shouldDenyFullGroupGrant =
+                groupState.group.isPlatformPermissionGroup &&
+                    affectedPermissions.none {
+                        groupState.group.permissions[it]?.isPlatformOrSystem == true
+                    }
+            groupState.state =
+                if (shouldDenyFullGroupGrant) {
+                    STATE_UNKNOWN
+                } else {
+                    STATE_GRANTED
+                }
         } else {
             if (shouldAffectBackgroundPermissions) {
                 revokeBackgroundRuntimePermissions(
@@ -1002,6 +1022,12 @@ class GrantPermissionsViewModel(
                 safetyLabelInfoLiveData?.value?.safetyLabel,
                 PermissionMapping.getGroupOfPlatformPermission(permission)
             )
+        val isPackageRestrictedByEnhancedConfirmation =
+            EnhancedConfirmationStatsLogUtils.isPackageEcmRestricted(
+                app,
+                packageName,
+                packageInfo.uid
+            )
 
         Log.i(
             LOG_TAG,
@@ -1010,7 +1036,9 @@ class GrantPermissionsViewModel(
                 "callingPackage=$packageName " +
                 "permission=$permission " +
                 "isImplicit=$isImplicit result=$result " +
-                "isPermissionRationaleShown=$isPermissionRationaleShown"
+                "isPermissionRationaleShown=$isPermissionRationaleShown" +
+                "isPackageRestrictedByEnhancedConfirmation=" +
+                "$isPackageRestrictedByEnhancedConfirmation"
         )
 
         PermissionControllerStatsLog.write(
@@ -1021,7 +1049,8 @@ class GrantPermissionsViewModel(
             permission,
             isImplicit,
             result,
-            isPermissionRationaleShown
+            isPermissionRationaleShown,
+            isPackageRestrictedByEnhancedConfirmation
         )
     }
 
@@ -1387,7 +1416,7 @@ class GrantPermissionsViewModel(
  * @param app The current application
  * @param packageName The name of the package this ViewModel represents
  */
-class NewGrantPermissionsViewModelFactory(
+class GrantPermissionsViewModelFactory(
     private val app: Application,
     private val packageName: String,
     private val deviceId: Int,

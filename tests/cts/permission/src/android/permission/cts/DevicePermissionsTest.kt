@@ -20,14 +20,13 @@ import android.Manifest
 import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
 import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND_SERVICE
 import android.app.Instrumentation
-import android.companion.virtual.VirtualDeviceManager
 import android.companion.virtual.VirtualDeviceManager.PERSISTENT_DEVICE_ID_DEFAULT
 import android.companion.virtual.VirtualDeviceManager.VirtualDevice
-import android.companion.virtual.VirtualDeviceParams
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.FLAG_PERMISSION_ONE_TIME
 import android.content.pm.PackageManager.FLAG_PERMISSION_USER_FIXED
+import android.content.pm.PackageManager.FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED
 import android.content.pm.PackageManager.FLAG_PERMISSION_USER_SET
 import android.content.pm.PackageManager.PERMISSION_DENIED
 import android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -39,17 +38,15 @@ import android.platform.test.annotations.AppModeFull
 import android.platform.test.annotations.RequiresFlagsDisabled
 import android.platform.test.annotations.RequiresFlagsEnabled
 import android.platform.test.flag.junit.DeviceFlagsValueProvider
-import android.virtualdevice.cts.common.FakeAssociationRule
+import android.virtualdevice.cts.common.VirtualDeviceRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.compatibility.common.util.AdoptShellPermissionsRule
 import com.android.compatibility.common.util.SystemUtil.eventually
 import com.android.compatibility.common.util.SystemUtil.runShellCommandOrThrow
 import com.android.compatibility.common.util.SystemUtil.waitForBroadcasts
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
-import org.junit.Assume.assumeNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -68,13 +65,8 @@ class DevicePermissionsTest {
 
     private lateinit var permissionManager: PermissionManager
 
-    @get:Rule var mFakeAssociationRule = FakeAssociationRule()
-
     @get:Rule
-    val mAdoptShellPermissionsRule =
-        AdoptShellPermissionsRule(
-            instrumentation.uiAutomation,
-            Manifest.permission.CREATE_VIRTUAL_DEVICE,
+    var mVirtualDeviceRule = VirtualDeviceRule.withAdditionalPermissions(
             Manifest.permission.GRANT_RUNTIME_PERMISSIONS,
             Manifest.permission.MANAGE_ONE_TIME_PERMISSION_SESSIONS,
             Manifest.permission.REVOKE_RUNTIME_PERMISSIONS,
@@ -85,14 +77,7 @@ class DevicePermissionsTest {
 
     @Before
     fun setup() {
-        val virtualDeviceManager =
-            defaultDeviceContext.getSystemService(VirtualDeviceManager::class.java)
-        assumeNotNull(virtualDeviceManager)
-        virtualDevice =
-            virtualDeviceManager!!.createVirtualDevice(
-                mFakeAssociationRule.getAssociationInfo().getId(),
-                VirtualDeviceParams.Builder().build()
-            )
+        virtualDevice = mVirtualDeviceRule.createManagedVirtualDevice()
         virtualDeviceContext = defaultDeviceContext.createDeviceContext(virtualDevice.deviceId)
         permissionManager = virtualDeviceContext.getSystemService(PermissionManager::class.java)!!
         persistentDeviceId = virtualDevice.persistentDeviceId!!
@@ -102,7 +87,6 @@ class DevicePermissionsTest {
     @After
     fun cleanup() {
         runShellCommandOrThrow("pm uninstall $TEST_PACKAGE_NAME")
-        virtualDevice.close()
     }
 
     @RequiresFlagsEnabled(
@@ -223,7 +207,7 @@ class DevicePermissionsTest {
                 permissionManager.checkPermission(
                     deviceAwarePermission,
                     TEST_PACKAGE_NAME,
-                    VirtualDeviceManager.PERSISTENT_DEVICE_ID_DEFAULT
+                    PERSISTENT_DEVICE_ID_DEFAULT
                 )
             )
             .isEqualTo(PERMISSION_DENIED)
@@ -288,6 +272,15 @@ class DevicePermissionsTest {
     )
     @Test
     fun testAllPermissionStatesApiGrantForVirtualDevice() {
+        // Setting a flag explicitly so that the permission consistently stays in the state
+        permissionManager.updatePermissionFlags(
+            TEST_PACKAGE_NAME,
+            DEVICE_AWARE_PERMISSION,
+            PERSISTENT_DEVICE_ID_DEFAULT,
+            FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED,
+            FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED
+        )
+
         assertThat(
                 permissionManager
                     .getAllPermissionStates(TEST_PACKAGE_NAME, persistentDeviceId)
@@ -309,8 +302,9 @@ class DevicePermissionsTest {
 
         assertThat(
                 permissionManager
-                    .getAllPermissionStates(TEST_PACKAGE_NAME, PERSISTENT_DEVICE_ID_DEFAULT)
-                    .contains(DEVICE_AWARE_PERMISSION)
+                    .getAllPermissionStates(TEST_PACKAGE_NAME, PERSISTENT_DEVICE_ID_DEFAULT)[
+                        DEVICE_AWARE_PERMISSION]!!
+                    .isGranted
             )
             .isFalse()
 
@@ -375,6 +369,16 @@ class DevicePermissionsTest {
     @RequiresFlagsEnabled(Flags.FLAG_DEVICE_AWARE_PERMISSION_APIS_ENABLED)
     @Test
     fun testAllPermissionStatesApiGrantForDefaultDevice() {
+        // Setting a flag explicitly so that the permission consistently stays in the state upon
+        // revoke
+        permissionManager.updatePermissionFlags(
+            TEST_PACKAGE_NAME,
+            DEVICE_AWARE_PERMISSION,
+            PERSISTENT_DEVICE_ID_DEFAULT,
+            FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED,
+            FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED
+        )
+
         permissionManager.grantRuntimePermission(
             TEST_PACKAGE_NAME,
             DEVICE_AWARE_PERMISSION,
@@ -405,8 +409,9 @@ class DevicePermissionsTest {
 
         assertThat(
                 permissionManager
-                    .getAllPermissionStates(TEST_PACKAGE_NAME, PERSISTENT_DEVICE_ID_DEFAULT)
-                    .contains(DEVICE_AWARE_PERMISSION)
+                    .getAllPermissionStates(TEST_PACKAGE_NAME, PERSISTENT_DEVICE_ID_DEFAULT)[
+                        DEVICE_AWARE_PERMISSION]!!
+                    .isGranted
             )
             .isFalse()
     }

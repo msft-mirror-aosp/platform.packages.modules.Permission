@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION", "LongLogTag")
 
 package com.android.permissioncontroller.permission.utils
 
@@ -143,9 +143,6 @@ object KotlinUtils {
     /** Whether to show the location indicators. */
     private const val PROPERTY_LOCATION_INDICATORS_ENABLED = "location_indicators_enabled"
 
-    /** Whether to show 7-day toggle in privacy hub. */
-    private const val PRIVACY_DASHBOARD_7_DAY_TOGGLE = "privacy_dashboard_7_day_toggle"
-
     /** Whether to show the photo picker option in permission prompts. */
     private const val PROPERTY_PHOTO_PICKER_PROMPT_ENABLED = "photo_picker_prompt_enabled"
 
@@ -163,10 +160,6 @@ object KotlinUtils {
     /** Whether the safety label changes job should only be run when the device is idle. */
     private const val PROPERTY_SAFETY_LABEL_CHANGES_JOB_RUN_WHEN_IDLE =
         "safety_label_changes_job_run_when_idle"
-
-    /** Whether the kill switch is set for [SafetyLabelChangesJobService]. */
-    private const val PROPERTY_SAFETY_LABEL_CHANGES_JOB_SERVICE_KILL_SWITCH =
-        "safety_label_changes_job_service_kill_switch"
 
     data class Quadruple<out A, out B, out C, out D>(
         val first: A,
@@ -205,21 +198,6 @@ object KotlinUtils {
     @ChecksSdkIntAtLeast(Build.VERSION_CODES.S)
     fun isLocationAccuracyEnabled(): Boolean {
         return SdkLevel.isAtLeastS()
-    }
-
-    /**
-     * Whether we should enable the 7-day toggle in privacy dashboard
-     *
-     * @return whether the flag is enabled
-     */
-    @ChecksSdkIntAtLeast(Build.VERSION_CODES.S)
-    fun is7DayToggleEnabled(): Boolean {
-        return SdkLevel.isAtLeastS() &&
-            DeviceConfig.getBoolean(
-                DeviceConfig.NAMESPACE_PRIVACY,
-                PRIVACY_DASHBOARD_7_DAY_TOGGLE,
-                false
-            )
     }
 
     /**
@@ -278,20 +256,6 @@ object KotlinUtils {
             !DeviceUtils.isWear(context)
     }
 
-    /**
-     * Whether the kill switch is set for [SafetyLabelChangesJobService]. If {@code true}, the
-     * service is effectively disabled and will not run or schedule any jobs.
-     */
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
-    fun safetyLabelChangesJobServiceKillSwitch(): Boolean {
-        return SdkLevel.isAtLeastU() &&
-            DeviceConfig.getBoolean(
-                DeviceConfig.NAMESPACE_PRIVACY,
-                PROPERTY_SAFETY_LABEL_CHANGES_JOB_SERVICE_KILL_SWITCH,
-                false
-            )
-    }
-
     /** How often the safety label changes job will run. */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
     fun getSafetyLabelChangesJobIntervalMillis(): Long {
@@ -299,16 +263,6 @@ object KotlinUtils {
             DeviceConfig.NAMESPACE_PRIVACY,
             PROPERTY_SAFETY_LABEL_CHANGES_JOB_INTERVAL_MILLIS,
             Duration.ofDays(30).toMillis()
-        )
-    }
-
-    /** Whether the safety label changes job should only be run when the device is idle. */
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
-    fun runSafetyLabelChangesJobOnlyWhenDeviceIdle(): Boolean {
-        return DeviceConfig.getBoolean(
-            DeviceConfig.NAMESPACE_PRIVACY,
-            PROPERTY_SAFETY_LABEL_CHANGES_JOB_RUN_WHEN_IDLE,
-            true
         )
     }
 
@@ -638,6 +592,7 @@ object KotlinUtils {
         }
     }
 
+    @Suppress("MissingPermission")
     fun openPhotoPickerForApp(
         activity: Activity,
         uid: Int,
@@ -770,7 +725,7 @@ object KotlinUtils {
                 LightPermission(
                     group.packageInfo,
                     perm.permInfo,
-                    perm.isGrantedIncludingAppOp,
+                    perm.isGranted,
                     perm.flags or flagsToSet,
                     perm.foregroundPerms
                 )
@@ -903,7 +858,7 @@ object KotlinUtils {
                 group.specialLocationGrant
             )
         // If any permission in the group is one time granted, start one time permission session.
-        if (newGroup.permissions.any { it.value.isOneTime && it.value.isGrantedIncludingAppOp }) {
+        if (newGroup.permissions.any { it.value.isOneTime && it.value.isGranted }) {
             if (SdkLevel.isAtLeastT()) {
                 context
                     .getSystemService(PermissionManager::class.java)!!
@@ -942,6 +897,7 @@ object KotlinUtils {
      * @return a LightPermission and boolean pair <permission with updated state (or the original
      *   state, if it wasn't changed), should kill app>
      */
+    @Suppress("MissingPermission")
     private fun grantRuntimePermission(
         app: Application,
         perm: LightPermission,
@@ -964,7 +920,7 @@ object KotlinUtils {
 
         var newFlags = perm.flags
         var oldFlags = perm.flags
-        var isGranted = perm.isGrantedIncludingAppOp
+        var isGranted = perm.isGranted
         var shouldKill = false
 
         // Create a new context with the given deviceId so that permission updates will be bound
@@ -972,7 +928,7 @@ object KotlinUtils {
         val context = ContextCompat.createDeviceContext(app.applicationContext, deviceId)
 
         // Grant the permission if needed.
-        if (!perm.isGrantedIncludingAppOp) {
+        if (!perm.isGranted) {
             val affectsAppOp = permissionToOp(perm.name) != null || perm.isBackgroundPermission
 
             // TODO 195016052: investigate adding split permission handling
@@ -1041,14 +997,14 @@ object KotlinUtils {
 
         // If we newly grant background access to the fine location, double-guess the user some
         // time later if this was really the right choice.
-        if (!perm.isGrantedIncludingAppOp && isGranted) {
+        if (!perm.isGranted && isGranted) {
             var triggerLocationAccessCheck = false
             if (perm.name == ACCESS_FINE_LOCATION) {
                 val bgPerm = group.permissions[perm.backgroundPermission]
-                triggerLocationAccessCheck = bgPerm?.isGrantedIncludingAppOp == true
+                triggerLocationAccessCheck = bgPerm?.isGranted == true
             } else if (perm.name == ACCESS_BACKGROUND_LOCATION) {
                 val fgPerm = group.permissions[ACCESS_FINE_LOCATION]
-                triggerLocationAccessCheck = fgPerm?.isGrantedIncludingAppOp == true
+                triggerLocationAccessCheck = fgPerm?.isGranted == true
             }
             if (triggerLocationAccessCheck) {
                 // trigger location access check
@@ -1136,6 +1092,7 @@ object KotlinUtils {
         )
     }
 
+    @Suppress("MissingPermission")
     private fun revokeRuntimePermissions(
         app: Application,
         group: LightAppPermGroup,
@@ -1231,6 +1188,7 @@ object KotlinUtils {
      * @param group Optional, the current app permission group we are examining
      * @return true if any permission in the package is granted for one time, false otherwise
      */
+    @Suppress("MissingPermission")
     private fun anyPermsOfPackageOneTimeGranted(
         app: Application,
         packageInfo: LightPackageInfo,
@@ -1256,6 +1214,7 @@ object KotlinUtils {
         }
         return false
     }
+
     /**
      * Revokes a single runtime permission.
      *
@@ -1267,6 +1226,7 @@ object KotlinUtils {
      * @return a LightPermission and boolean pair <permission with updated state (or the original
      *   state, if it wasn't changed), should kill app>
      */
+    @Suppress("MissingPermission")
     private fun revokeRuntimePermission(
         app: Application,
         perm: LightPermission,
@@ -1283,7 +1243,7 @@ object KotlinUtils {
         val user = UserHandle.getUserHandleForUid(group.packageInfo.uid)
         var newFlags = perm.flags
         val deviceId = group.deviceId
-        var isGranted = perm.isGrantedIncludingAppOp
+        var isGranted = perm.isGranted
         val supportsRuntime = group.packageInfo.targetSdkVersion >= Build.VERSION_CODES.M
         var shouldKill = false
 
@@ -1293,7 +1253,7 @@ object KotlinUtils {
         // to the device
         val context = ContextCompat.createDeviceContext(app.applicationContext, deviceId)
 
-        if (perm.isGrantedIncludingAppOp || (perm.isCompatRevoked && forceRemoveRevokedCompat)) {
+        if (perm.isGranted || (perm.isCompatRevoked && forceRemoveRevokedCompat)) {
             if (
                 supportsRuntime &&
                     !isPermissionSplitFromNonRuntime(
@@ -1357,14 +1317,14 @@ object KotlinUtils {
 
         // If we revoke background access to the fine location, we trigger a check to remove
         // notification warning about background location access
-        if (perm.isGrantedIncludingAppOp && !isGranted) {
+        if (perm.isGranted && !isGranted) {
             var cancelLocationAccessWarning = false
             if (perm.name == ACCESS_FINE_LOCATION) {
                 val bgPerm = group.permissions[perm.backgroundPermission]
-                cancelLocationAccessWarning = bgPerm?.isGrantedIncludingAppOp == true
+                cancelLocationAccessWarning = bgPerm?.isGranted == true
             } else if (perm.name == ACCESS_BACKGROUND_LOCATION) {
                 val fgPerm = group.permissions[ACCESS_FINE_LOCATION]
-                cancelLocationAccessWarning = fgPerm?.isGrantedIncludingAppOp == true
+                cancelLocationAccessWarning = fgPerm?.isGranted == true
             }
             if (cancelLocationAccessWarning) {
                 // cancel location access warning notification
@@ -1424,7 +1384,7 @@ object KotlinUtils {
                 val fgPerm = group.permissions[foregroundPermName]
                 val appOpName = permissionToOp(foregroundPermName) ?: continue
 
-                if (fgPerm != null && fgPerm.isGrantedIncludingAppOp) {
+                if (fgPerm != null && fgPerm.isGranted) {
                     wasChanged =
                         setOpMode(appOpName, uid, packageName, MODE_ALLOWED, appOpsManager) ||
                             wasChanged
@@ -1437,7 +1397,7 @@ object KotlinUtils {
                     if (group.permissions.containsKey(perm.backgroundPermission)) {
                         val bgPerm = group.permissions[perm.backgroundPermission]
                         val mode =
-                            if (bgPerm != null && bgPerm.isGrantedIncludingAppOp) MODE_ALLOWED
+                            if (bgPerm != null && bgPerm.isGranted) MODE_ALLOWED
                             else MODE_FOREGROUND
 
                         setOpMode(appOpName, uid, packageName, mode, appOpsManager)
@@ -1484,7 +1444,7 @@ object KotlinUtils {
         if (perm.isBackgroundPermission && perm.foregroundPerms != null) {
             for (foregroundPermName in perm.foregroundPerms) {
                 val fgPerm = group.permissions[foregroundPermName]
-                if (fgPerm != null && fgPerm.isGrantedIncludingAppOp) {
+                if (fgPerm != null && fgPerm.isGranted) {
                     val appOpName = permissionToOp(foregroundPermName) ?: return false
                     wasChanged =
                         wasChanged ||
@@ -1519,7 +1479,7 @@ object KotlinUtils {
         if (currentMode == mode) {
             return false
         }
-        manager.setUidMode(op, uid, mode)
+        @Suppress("MissingPermission") manager.setUidMode(op, uid, mode)
         return true
     }
 
@@ -1563,25 +1523,23 @@ object KotlinUtils {
             return false
         }
 
-        return try {
-            val isInSetup =
-                Settings.Secure.getInt(
-                    userContext.contentResolver,
-                    Settings.Secure.USER_SETUP_COMPLETE,
-                    user.identifier
-                ) == 0
-            val isInDeferredSetup =
-                Settings.Secure.getInt(
-                    userContext.contentResolver,
-                    Settings.Secure.USER_SETUP_PERSONALIZATION_STATE,
-                    user.identifier
-                ) == Settings.Secure.USER_SETUP_PERSONALIZATION_STARTED
-            isInSetup || isInDeferredSetup
-        } catch (e: Settings.SettingNotFoundException) {
-            Log.w(LOG_TAG, "Failed to check if the user is in restore: $e")
-            false
-        }
+        val isInSetup = getSecureInt(Settings.Secure.USER_SETUP_COMPLETE, userContext, user) == 0
+        if (isInSetup) return true
+
+        val isInDeferredSetup =
+            getSecureInt(Settings.Secure.USER_SETUP_PERSONALIZATION_STATE, userContext, user) ==
+                Settings.Secure.USER_SETUP_PERSONALIZATION_STARTED
+        return isInDeferredSetup
     }
+
+    @SuppressLint("LongLogTag")
+    private fun getSecureInt(settingName: String, userContext: Context, user: UserHandle): Int? =
+        try {
+            Settings.Secure.getInt(userContext.contentResolver, settingName, user.identifier)
+        } catch (e: Settings.SettingNotFoundException) {
+            Log.i(LOG_TAG, "Setting $settingName not found", e)
+            null
+        }
 
     /**
      * Determine if a given package has a launch intent. Will function correctly even if called
@@ -1633,10 +1591,13 @@ object KotlinUtils {
                 PackageManager.FLAG_PERMISSION_SELECTED_LOCATION_ACCURACY to true,
                 filterPermissions = listOf(ACCESS_FINE_LOCATION)
             )
+            val fineIsOneTime =
+                group.permissions[Manifest.permission.ACCESS_FINE_LOCATION]?.isOneTime ?: false
             setGroupFlags(
                 app,
                 group,
                 PackageManager.FLAG_PERMISSION_SELECTED_LOCATION_ACCURACY to false,
+                PackageManager.FLAG_PERMISSION_ONE_TIME to fineIsOneTime,
                 filterPermissions = listOf(Manifest.permission.ACCESS_COARSE_LOCATION)
             )
         } else {
@@ -1758,15 +1719,14 @@ object KotlinUtils {
 
 /** Get the [value][LiveData.getValue], suspending until [isInitialized] if not yet so */
 suspend fun <T, LD : LiveData<T>> LD.getInitializedValue(
-    observe: LD.(Observer<T>) -> Unit = { observeForever(it) },
+    observe: LD.(Observer<T?>) -> Unit = { observeForever(it) },
     isValueInitialized: LD.() -> Boolean = { value != null }
-): T {
+): T? {
     return if (isValueInitialized()) {
-        @Suppress("UNCHECKED_CAST")
-        value as T
+        value
     } else {
-        suspendCoroutine { continuation: Continuation<T> ->
-            val observer = AtomicReference<Observer<T>>()
+        suspendCoroutine { continuation: Continuation<T?> ->
+            val observer = AtomicReference<Observer<T?>>()
             observer.set(
                 Observer { newValue ->
                     if (isValueInitialized()) {

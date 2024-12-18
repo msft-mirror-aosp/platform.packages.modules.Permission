@@ -26,8 +26,8 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.android.permissioncontroller.Constants
-import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageViewModel
-import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageViewModel.PermissionUsageViewModelFactory
+import com.android.permissioncontroller.permission.ui.viewmodel.v31.PermissionUsageViewModel
+import com.android.permissioncontroller.permission.ui.viewmodel.v31.PermissionUsageViewModelFactory
 
 /**
  * This is a condensed version of
@@ -40,13 +40,12 @@ class WearPermissionUsageFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val sessionId: Long =
             arguments?.getLong(Constants.EXTRA_SESSION_ID) ?: Constants.INVALID_SESSION_ID
-        val factory =
-            PermissionUsageViewModelFactory(requireActivity().getApplication(), this, Bundle())
-        val viewModel: PermissionUsageViewModel =
-            ViewModelProvider(this, factory).get(PermissionUsageViewModel::class.java)
+
+        val factory = PermissionUsageViewModelFactory(requireActivity().application, this, Bundle())
+        val viewModel = ViewModelProvider(this, factory).get(PermissionUsageViewModel::class.java)
 
         return ComposeView(requireContext()).apply {
             setContent { WearPermissionUsageScreen(sessionId, viewModel) }

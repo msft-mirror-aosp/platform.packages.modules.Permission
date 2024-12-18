@@ -24,7 +24,6 @@ import android.app.UiAutomation
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build
-import android.os.Process
 import android.permission.cts.CtsNotificationListenerServiceUtils.assertEmptyNotification
 import android.permission.cts.CtsNotificationListenerServiceUtils.assertNotificationExist
 import android.permission.cts.CtsNotificationListenerServiceUtils.cancelNotification
@@ -45,12 +44,14 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
 import com.android.compatibility.common.util.DeviceConfigStateChangerRule
+import com.android.compatibility.common.util.SystemUtil.callWithShellPermissionIdentity
 import com.android.compatibility.common.util.SystemUtil.runShellCommand
 import com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity
 import com.android.modules.utils.build.SdkLevel
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
+import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Rule
@@ -106,11 +107,6 @@ class AccessibilityPrivacySourceTest {
         InstrumentedAccessibilityService.disableAllServices()
         runShellCommand("input keyevent KEYCODE_WAKEUP")
         resetPermissionController()
-        // Bypass battery saving restrictions
-        runShellCommand(
-            "cmd tare set-vip " +
-                "${Process.myUserHandle().identifier} $permissionControllerPackage true"
-        )
         cancelNotifications(permissionControllerPackage)
         assertEmptyNotification(permissionControllerPackage, ACCESSIBILITY_NOTIFICATION_ID)
         runWithShellPermissionIdentity { safetyCenterManager?.clearAllSafetySourceDataForTests() }
@@ -124,11 +120,6 @@ class AccessibilityPrivacySourceTest {
     @After
     fun cleanup() {
         cancelNotifications(permissionControllerPackage)
-        // Reset battery saving restrictions
-        runShellCommand(
-            "cmd tare set-vip " +
-                "${Process.myUserHandle().identifier} $permissionControllerPackage default"
-        )
         runWithShellPermissionIdentity { safetyCenterManager?.clearAllSafetySourceDataForTests() }
     }
 
@@ -226,6 +217,13 @@ class AccessibilityPrivacySourceTest {
     @Test
     fun testJobWithSafetyCenterDisabledDoesNotSendNotification() {
         setDeviceConfigPrivacyProperty(SAFETY_CENTER_ENABLED, false.toString())
+        // Safety Center cannot be disabled at runtime on UDC+.
+        assumeFalse(
+            "Safety Center cannot be disabled",
+            callWithShellPermissionIdentity {
+                safetyCenterManager?.isSafetyCenterEnabled() ?: false
+            }
+        )
         mAccessibilityServiceRule.enableService()
         runJobAndWaitUntilCompleted()
         assertEmptyNotification(permissionControllerPackage, ACCESSIBILITY_NOTIFICATION_ID)
@@ -234,6 +232,13 @@ class AccessibilityPrivacySourceTest {
     @Test
     fun testJobWithSafetyCenterDisabledDoesNotSendIssueToSafetyCenter() {
         setDeviceConfigPrivacyProperty(SAFETY_CENTER_ENABLED, false.toString())
+        // Safety Center cannot be disabled at runtime on UDC+.
+        assumeFalse(
+            "Safety Center cannot be disabled",
+            callWithShellPermissionIdentity {
+                safetyCenterManager?.isSafetyCenterEnabled() ?: false
+            }
+        )
         mAccessibilityServiceRule.enableService()
         runJobAndWaitUntilCompleted()
         assertSafetyCenterIssueDoesNotExist(

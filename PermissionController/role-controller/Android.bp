@@ -27,7 +27,10 @@ java_library {
     ],
     static_libs: [
         "modules-utils-build_system",
-        "android.permission.flags-aconfig-java",
+        "android.app.appfunctions.exported-flags-aconfig-java",
+        "android.companion.virtualdevice.flags-aconfig-java-export",
+        "android.permission.flags-aconfig-java-export",
+        "android.os.flags-aconfig-java-export",
     ],
     apex_available: [
         "com.android.permission",

@@ -103,12 +103,23 @@ public class PermissionUtils {
      * @param apkFile The apk to install
      */
     public static void install(@NonNull String apkFile) {
+        install(apkFile, false);
+    }
+
+    /**
+     * Install an APK.
+     *
+     * @param apkFile The apk to install
+     * @param grantPermissions whether to grant requested runtime permissions
+     */
+    public static void install(@NonNull String apkFile, boolean grantPermissions) {
         final int sdkVersion = Build.VERSION.SDK_INT
                 + (Build.VERSION.RELEASE_OR_CODENAME.equals("REL") ? 0 : 1);
         boolean forceQueryable = sdkVersion > Build.VERSION_CODES.Q;
         runShellCommandOrThrow("pm install -r --force-sdk "
                 + (SdkLevel.isAtLeastU() ? "--bypass-low-target-sdk-block " : "")
                 + (forceQueryable ? "--force-queryable " : "")
+                + (grantPermissions ? "-g " : "")
                 + apkFile);
     }
 
@@ -260,7 +271,7 @@ public class PermissionUtils {
      * @param packageName Package to clear
      */
     public static void clearAppState(@NonNull String packageName) {
-        runShellCommand("pm clear --user current " + packageName);
+        runShellCommand("pm clear --user " + sContext.getUserId() + " " + packageName);
     }
 
     /**

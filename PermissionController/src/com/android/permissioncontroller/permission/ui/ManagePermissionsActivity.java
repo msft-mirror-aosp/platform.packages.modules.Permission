@@ -61,6 +61,7 @@ import com.android.permissioncontroller.DeviceUtils;
 import com.android.permissioncontroller.PermissionControllerStatsLog;
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.hibernation.HibernationPolicyKt;
+import com.android.permissioncontroller.permission.compat.AppPermissionFragmentCompat;
 import com.android.permissioncontroller.permission.ui.auto.AutoAllAppPermissionsFragment;
 import com.android.permissioncontroller.permission.ui.auto.AutoAppPermissionsFragment;
 import com.android.permissioncontroller.permission.ui.auto.AutoManageStandardPermissionsFragment;
@@ -69,7 +70,6 @@ import com.android.permissioncontroller.permission.ui.auto.AutoReviewPermissionD
 import com.android.permissioncontroller.permission.ui.auto.AutoUnusedAppsFragment;
 import com.android.permissioncontroller.permission.ui.auto.dashboard.AutoPermissionUsageDetailsFragment;
 import com.android.permissioncontroller.permission.ui.auto.dashboard.AutoPermissionUsageFragment;
-import com.android.permissioncontroller.permission.ui.handheld.AppPermissionFragment;
 import com.android.permissioncontroller.permission.ui.handheld.AppPermissionGroupsFragment;
 import com.android.permissioncontroller.permission.ui.handheld.PermissionAppsFragment;
 import com.android.permissioncontroller.permission.ui.handheld.v31.PermissionDetailsWrapperFragment;
@@ -154,7 +154,21 @@ public final class ManagePermissionsActivity extends SettingsActivity {
             // fragments are restored properly on configuration changes.
             setTheme(R.style.CarSettings);
         }
+        if (SdkLevel.isAtLeastV() && DeviceUtils.isHandheld(this)) {
+            switch (getIntent().getAction()) {
+                case Intent.ACTION_MANAGE_PERMISSIONS:
+                case Intent.ACTION_MANAGE_APP_PERMISSION:
+                case Intent.ACTION_MANAGE_APP_PERMISSIONS:
+                case APP_PERMISSIONS_SETTINGS:
+                case Intent.ACTION_MANAGE_PERMISSION_APPS:
+                    getTheme().applyStyle(R.style.ThemeOverlay_PermissionSettings, true);
+                    break;
+            }
+        }
         super.onCreate(savedInstanceState);
+
+        // TODO(b/309578419): Make this activity handle insets properly and then remove this.
+        getTheme().applyStyle(R.style.OptOutEdgeToEdgeEnforcement, /* force */ false);
 
         // If this is not a phone or a watch (which uses the Navigation component), and there
         // is a previous instance, re-use its Fragment instead of making a new one.
@@ -256,7 +270,7 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                             groupName, showSystem, sessionId);
                 } else if (DeviceUtils.isWear(this)) {
                     androidXFragment = WearPermissionUsageDetailsFragment
-                            .newInstance(groupName, showSystem, show7Days);
+                            .newInstance(groupName, showSystem);
                 } else {
                     androidXFragment = PermissionDetailsWrapperFragment
                             .newInstance(groupName, Long.MAX_VALUE, showSystem, sessionId,
@@ -309,8 +323,8 @@ public final class ManagePermissionsActivity extends SettingsActivity {
                     args = WearAppPermissionFragment.createArgs(packageName, permissionName,
                             groupName, userHandle, caller, sessionId, null);
                 } else {
-                    args = AppPermissionFragment.createArgs(packageName, permissionName,
-                            groupName, userHandle, caller, sessionId, null);
+                    args = AppPermissionFragmentCompat.createArgs(packageName, permissionName,
+                            groupName, userHandle, caller, sessionId, null, null);
                 }
                 setNavGraph(args, R.id.app_permission);
                 return;

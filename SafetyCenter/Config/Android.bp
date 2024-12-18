@@ -35,12 +35,12 @@ java_library {
     libs: [
         "androidx.annotation_annotation",
         "framework-annotations-lib",
-        "framework-permission-s",
+        "framework-permission-s.impl",
         "safety-center-annotations",
     ],
     static_libs: [
         "modules-utils-build",
-        "permissions-aconfig-flags-lib",
+        "com.android.permission.flags-aconfig-java",
     ],
     apex_available: [
         "com.android.permission",

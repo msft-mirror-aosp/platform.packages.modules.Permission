@@ -23,6 +23,7 @@ import static com.android.permissioncontroller.PermissionControllerStatsLog.REVI
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -45,6 +46,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
@@ -73,8 +77,9 @@ import java.util.Random;
  * which permissions to grant to the app before first use and if an update changed the permissions.
  */
 public final class ReviewPermissionsFragment extends PreferenceFragmentCompat
-        implements View.OnClickListener, PermissionPreference.PermissionPreferenceChangeListener,
-        PermissionPreference.PermissionPreferenceOwnerFragment {
+        implements View.OnClickListener,
+        BasePermissionReviewPreference.PermissionPreferenceChangeListener,
+        BasePermissionReviewPreference.PermissionPreferenceOwnerFragment {
 
     private static final String EXTRA_PACKAGE_INFO =
             "com.android.permissioncontroller.permission.ui.extra.PACKAGE_INFO";
@@ -150,6 +155,12 @@ public final class ReviewPermissionsFragment extends PreferenceFragmentCompat
         ViewGroup preferenceRootView = mView.requireViewById(R.id.preferences_frame);
         View prefsContainer = super.onCreateView(inflater, preferenceRootView, savedInstanceState);
         preferenceRootView.addView(prefsContainer);
+        ViewCompat.setOnApplyWindowInsetsListener(mView, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            mView.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
+
         return mView;
     }
 
@@ -257,11 +268,11 @@ public final class ReviewPermissionsFragment extends PreferenceFragmentCompat
             PermissionControllerStatsLog.write(REVIEW_PERMISSIONS_FRAGMENT_RESULT_REPORTED,
                     changeId, mViewModel.getPackageInfo().applicationInfo.uid,
                     group.getPackageName(),
-                    permission.getName(), permission.isGrantedIncludingAppOp());
+                    permission.getName(), permission.isGranted());
             Log.i(LOG_TAG, "Permission grant via permission review changeId=" + changeId + " uid="
                     + mViewModel.getPackageInfo().applicationInfo.uid + " packageName="
                     + group.getPackageName() + " permission="
-                    + permission.getName() + " granted=" + permission.isGrantedIncludingAppOp());
+                    + permission.getName() + " granted=" + permission.isGranted());
         }
     }
 
@@ -359,7 +370,7 @@ public final class ReviewPermissionsFragment extends PreferenceFragmentCompat
                     screen.addPreference(preference);
                 } else {
                     if (mNewPermissionsCategory == null) {
-                        mNewPermissionsCategory = new PreferenceCategory(activity);
+                        mNewPermissionsCategory = new PermissionPreferenceCategory(activity);
                         mNewPermissionsCategory.setTitle(R.string.new_permissions_category);
                         mNewPermissionsCategory.setOrder(1);
                         screen.addPreference(mNewPermissionsCategory);
@@ -368,7 +379,7 @@ public final class ReviewPermissionsFragment extends PreferenceFragmentCompat
                 }
             } else {
                 if (mCurrentPermissionsCategory == null) {
-                    mCurrentPermissionsCategory = new PreferenceCategory(activity);
+                    mCurrentPermissionsCategory = new PermissionPreferenceCategory(activity);
                     mCurrentPermissionsCategory.setTitle(R.string.current_permissions_category);
                     mCurrentPermissionsCategory.setOrder(2);
                     screen.addPreference(mCurrentPermissionsCategory);
@@ -396,7 +407,7 @@ public final class ReviewPermissionsFragment extends PreferenceFragmentCompat
                     }
                     activity.startIntentSenderForResult(intent, -1, null,
                             flagMask, flagValues, 0);
-                } catch (IntentSender.SendIntentException e) {
+                } catch (IntentSender.SendIntentException | ActivityNotFoundException e) {
                         /* ignore */
                 }
                 return;
@@ -437,7 +448,7 @@ public final class ReviewPermissionsFragment extends PreferenceFragmentCompat
     }
 
     /**
-     * Extend the {@link PermissionPreference}:
+     * Extend the {@link BasePermissionReviewPreference}:
      * <ul>
      *     <li>Show the description of the permission group</li>
      *     <li>Show the permission group as granted if the user has not toggled it yet. This means
@@ -445,7 +456,7 @@ public final class ReviewPermissionsFragment extends PreferenceFragmentCompat
      *     in {@link #confirmPermissionsReview()}.</li>
      * </ul>
      */
-    private static class PermissionReviewPreference extends PermissionPreference {
+    private static class PermissionReviewPreference extends BasePermissionReviewPreference {
         private final LightAppPermGroup mGroup;
         private final Context mContext;
         private boolean mWasChanged;

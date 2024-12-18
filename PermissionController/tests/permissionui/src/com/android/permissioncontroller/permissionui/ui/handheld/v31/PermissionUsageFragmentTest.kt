@@ -32,6 +32,7 @@ import com.android.permissioncontroller.permissionui.PermissionHub2Test
 import com.android.permissioncontroller.permissionui.pressHome
 import com.android.permissioncontroller.permissionui.wakeUpScreen
 import org.junit.After
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,7 +45,24 @@ class PermissionUsageFragmentTest : PermissionHub2Test() {
     private val APP = "com.android.permissioncontroller.tests.appthatrequestpermission"
     private val APP_LABEL = "CameraRequestApp"
     private val CAMERA_PREF_LABEL = "Camera"
-    private val REFRESH = "Refresh"
+
+    /**
+     * Returns `true` if [Intent.ACTION_REVIEW_PERMISSION_USAGE] is handled by permission controller
+     */
+    private fun isPrivacyDashboardProvidedByPermissionController(): Boolean {
+        val pm = context.packageManager
+        return pm.resolveActivity(Intent(Intent.ACTION_REVIEW_PERMISSION_USAGE), 0)!!
+            .activityInfo
+            .packageName == pm.permissionControllerPackageName
+    }
+
+    @Before
+    fun checkPreconditions() {
+        // Since there is no clear UI specification of privacy dashboard, OEM could have their
+        // own implementation with a different UI. Hence, limit the test scope to only permission
+        // controller.
+        assumeTrue(isPrivacyDashboardProvidedByPermissionController())
+    }
 
     @Before
     fun setup() {
@@ -67,14 +85,8 @@ class PermissionUsageFragmentTest : PermissionHub2Test() {
         }
 
         eventually {
-            try {
-                waitFindObject(By.res("android:id/title").textContains(CAMERA_PREF_LABEL)).click()
-            } catch (e: Exception) {
-                waitFindObject(By.textContains(REFRESH)).click()
-                throw e
-            }
+            waitFindObject(By.res("android:id/title").textContains(CAMERA_PREF_LABEL)).click()
         }
-
         waitFindObject(By.textContains(APP_LABEL))
     }
 

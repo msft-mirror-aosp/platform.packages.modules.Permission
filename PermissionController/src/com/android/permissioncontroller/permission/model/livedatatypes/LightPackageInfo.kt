@@ -23,6 +23,7 @@ import android.content.pm.Attribution
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.UserHandle
+import android.util.Log
 import com.android.modules.utils.build.SdkLevel
 import com.android.permissioncontroller.permission.utils.ContextCompat
 import com.android.permissioncontroller.permission.utils.Utils
@@ -60,7 +61,9 @@ data class LightPackageInfo(
         pI: PackageInfo
     ) : this(
         pI.packageName,
-        pI.permissions?.map { perm -> LightPermInfo(perm) } ?: emptyList(),
+        pI.permissions?.map { perm ->
+            LightPermInfo(perm, pI.applicationInfo!!.flags and ApplicationInfo.FLAG_SYSTEM != 0)
+        } ?: emptyList(),
         pI.requestedPermissions?.toList() ?: emptyList(),
         pI.requestedPermissionsFlags?.toList() ?: emptyList(),
         pI.applicationInfo!!.uid,
@@ -128,7 +131,13 @@ data class LightPackageInfo(
                 packageName,
                 PackageManager.GET_PERMISSIONS
             )
-        } catch (e: PackageManager.NameNotFoundException) {}
+        } catch (e: PackageManager.NameNotFoundException) {
+            Log.e(
+                LightPackageInfo::class.java.simpleName,
+                "Failed to get real package info for $packageName, $uid",
+                e
+            )
+        }
         return null
     }
 

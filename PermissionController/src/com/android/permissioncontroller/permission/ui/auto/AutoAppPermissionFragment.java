@@ -22,9 +22,12 @@ import static com.android.permissioncontroller.PermissionControllerStatsLog.APP_
 import static com.android.permissioncontroller.PermissionControllerStatsLog.APP_PERMISSION_FRAGMENT_ACTION_REPORTED__BUTTON_PRESSED__ALLOW_ALWAYS;
 import static com.android.permissioncontroller.PermissionControllerStatsLog.APP_PERMISSION_FRAGMENT_ACTION_REPORTED__BUTTON_PRESSED__ALLOW_FOREGROUND;
 import static com.android.permissioncontroller.PermissionControllerStatsLog.APP_PERMISSION_FRAGMENT_ACTION_REPORTED__BUTTON_PRESSED__DENY;
+import static com.android.permissioncontroller.PermissionControllerStatsLog.APP_PERMISSION_FRAGMENT_ACTION_REPORTED__BUTTON_PRESSED__GRANT_FINE_LOCATION;
+import static com.android.permissioncontroller.PermissionControllerStatsLog.APP_PERMISSION_FRAGMENT_ACTION_REPORTED__BUTTON_PRESSED__REVOKE_FINE_LOCATION;
 import static com.android.permissioncontroller.permission.ui.ManagePermissionsActivity.EXTRA_RESULT_PERMISSION_INTERACTED;
 import static com.android.permissioncontroller.permission.ui.ManagePermissionsActivity.EXTRA_RESULT_PERMISSION_RESULT;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -33,15 +36,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.hardware.SensorPrivacyManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.text.BidiFormatter;
 import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
+import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -53,6 +60,8 @@ import androidx.preference.PreferenceViewHolder;
 import androidx.preference.TwoStatePreference;
 
 import com.android.car.ui.AlertDialogBuilder;
+import com.android.modules.utils.build.SdkLevel;
+import com.android.permission.flags.Flags;
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.auto.AutoSettingsFrameFragment;
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler;
@@ -61,12 +70,16 @@ import com.android.permissioncontroller.permission.ui.model.AppPermissionViewMod
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModelFactory;
 import com.android.permissioncontroller.permission.ui.v33.AdvancedConfirmDialogArgs;
 import com.android.permissioncontroller.permission.utils.KotlinUtils;
+import com.android.permissioncontroller.permission.utils.LocationUtils;
 import com.android.permissioncontroller.permission.utils.PackageRemovalMonitor;
+import com.android.permissioncontroller.permission.utils.Utils;
 import com.android.settingslib.RestrictedLockUtils;
 
-import java.util.Map;
-
 import kotlin.Pair;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /** Settings related to a particular permission for the given app. */
 public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
@@ -74,6 +87,8 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
 
     private static final String LOG_TAG = "AppPermissionFragment";
     private static final long POST_DELAY_MS = 20;
+    private static final String BLOCKED_APP_PREF_KEY = "blocked_app";
+    private static final String REQUIRED_APP_PREF_KEY = "required_app";
 
     @NonNull
     private TwoStatePreference mAllowPermissionPreference;
@@ -83,6 +98,9 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
     private TwoStatePreference mForegroundOnlyPermissionPreference;
     @NonNull
     private TwoStatePreference mDenyPermissionPreference;
+
+    @NonNull
+    private TwoStatePreference mToggleFineLocationPreference;
     @NonNull
     private AutoTwoTargetPreference mDetailsPreference;
 
@@ -100,6 +118,10 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
     private String mPermGroupLabel;
     private Drawable mPackageIcon;
 
+    private SensorPrivacyManager mSensorPrivacyManager;
+    private Collection<String> mAutomotiveLocationBypassAllowlist;
+    private List<String> mCameraPrivacyAllowlist;
+
     /**
      * Listens for changes to the app the permission is currently getting granted to. {@code null}
      * when unregistered.
@@ -111,9 +133,9 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
      * Returns a new {@link AutoAppPermissionFragment}.
      *
      * @param packageName the package name for which the permission is being changed
-     * @param permName the name of the permission being changed
-     * @param groupName the name of the permission group being changed
-     * @param userHandle the user for which the permission is being changed
+     * @param permName    the name of the permission being changed
+     * @param groupName   the name of the permission group being changed
+     * @param userHandle  the user for which the permission is being changed
      */
     @NonNull
     public static AutoAppPermissionFragment newInstance(@NonNull String packageName,
@@ -141,6 +163,7 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mPackageName = getArguments().getString(Intent.EXTRA_PACKAGE_NAME);
         mPermGroupName = getArguments().getString(Intent.EXTRA_PERMISSION_GROUP_NAME);
         if (mPermGroupName == null) {
@@ -156,6 +179,14 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
                 mPackageName, mUser);
         setHeaderLabel(
                 requireContext().getString(R.string.app_permission_title, mPermGroupLabel));
+        if (SdkLevel.isAtLeastV()) {
+            mSensorPrivacyManager = requireContext().getSystemService(SensorPrivacyManager.class);
+            mCameraPrivacyAllowlist = mSensorPrivacyManager.getCameraPrivacyAllowlist();
+            if (Flags.addBannersToPrivacySensitiveAppsForAaos()) {
+                mAutomotiveLocationBypassAllowlist =
+                        LocationUtils.getAutomotiveLocationBypassAllowlist(requireContext());
+            }
+        }
     }
 
     @Override
@@ -190,6 +221,29 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
         mDenyPermissionPreference.setTitle(R.string.app_permission_button_deny);
         permissionSelector.addPreference(mDenyPermissionPreference);
 
+
+        Log.i(LOG_TAG, "enableCoarseFineLocationPromptForAaos flag set to: "
+                + Flags.enableCoarseFineLocationPromptForAaos());
+        if (Flags.enableCoarseFineLocationPromptForAaos()) {
+            mToggleFineLocationPreference = new SelectedSwitchPermissionPreference(
+                    requireContext());
+            mToggleFineLocationPreference.setTitle(R.string.app_permission_location_accuracy);
+            mToggleFineLocationPreference.setSummary(
+                    R.string.app_permission_location_accuracy_subtitle);
+            permissionSelector.addPreference(mToggleFineLocationPreference);
+
+            mToggleFineLocationPreference.setOnPreferenceClickListener(v -> {
+                if (mToggleFineLocationPreference.isChecked()) {
+                    requestChange(ChangeRequest.GRANT_FINE_LOCATION,
+                            APP_PERMISSION_FRAGMENT_ACTION_REPORTED__BUTTON_PRESSED__GRANT_FINE_LOCATION);
+                } else {
+                    requestChange(ChangeRequest.REVOKE_FINE_LOCATION,
+                            APP_PERMISSION_FRAGMENT_ACTION_REPORTED__BUTTON_PRESSED__REVOKE_FINE_LOCATION);
+                }
+                return true;
+            });
+        }
+
         mAllowPermissionPreference.setOnPreferenceClickListener(v -> {
             checkOnlyOneButtonOverride(AppPermissionViewModel.ButtonType.ALLOW);
             setResult(GrantPermissionsViewHandler.GRANTED_ALWAYS);
@@ -220,6 +274,8 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
         });
 
         mDetailsPreference = new AutoTwoTargetPreference(requireContext());
+        // If the details are updated, setDetail will update the visibility
+        mDetailsPreference.setVisible(false);
         screen.addPreference(mDetailsPreference);
     }
 
@@ -257,6 +313,29 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
         mViewModel.getButtonStateLiveData().observe(this, this::setRadioButtonsState);
         mViewModel.getDetailResIdLiveData().observe(this, this::setDetail);
         mViewModel.getShowAdminSupportLiveData().observe(this, this::setAdminSupportDetail);
+        if (SdkLevel.isAtLeastV()) {
+            if (Manifest.permission_group.CAMERA.equals(mPermGroupName)) {
+                mViewModel.getSensorStatusLiveData().observe(this, this::setSensorStatus);
+            }
+            if (Flags.addBannersToPrivacySensitiveAppsForAaos()) {
+                if (Manifest.permission_group.LOCATION.equals(mPermGroupName)) {
+                    mViewModel.getSensorStatusLiveData().observe(this, this::setSensorStatus);
+                }
+                if (Manifest.permission_group.MICROPHONE.equals(mPermGroupName)) {
+                    mViewModel.getSensorStatusLiveData().observe(this, this::setSensorStatus);
+                }
+            }
+        }
+
+        if (Flags.enableCoarseFineLocationPromptForAaos()) {
+            mViewModel.getButtonStateLiveData().observe(this, buttonState -> {
+                AppPermissionViewModel.ButtonState locationAccuracyState = buttonState.get(
+                        AppPermissionViewModel.ButtonType.LOCATION_ACCURACY);
+                mToggleFineLocationPreference.setVisible(locationAccuracyState.isShown());
+                mToggleFineLocationPreference.setChecked(locationAccuracyState.isChecked());
+                mToggleFineLocationPreference.setEnabled(locationAccuracyState.isEnabled());
+            });
+        }
     }
 
     @Override
@@ -266,6 +345,122 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
         if (mPackageRemovalMonitor != null) {
             mPackageRemovalMonitor.unregister();
             mPackageRemovalMonitor = null;
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private void setSensorStatus(Boolean sensorStatus) {
+        Boolean isRequiredApp = null;
+        Boolean isRequiredAppCard = null;
+        if (Manifest.permission_group.CAMERA.equals(mPermGroupName)) {
+            int state = mSensorPrivacyManager.getSensorPrivacyState(
+                    SensorPrivacyManager.TOGGLE_TYPE_SOFTWARE,
+                    SensorPrivacyManager.Sensors.CAMERA);
+            isRequiredApp = mCameraPrivacyAllowlist.contains(mPackageName);
+            isRequiredAppCard =
+                    state == SensorPrivacyManager.StateTypes.ENABLED_EXCEPT_ALLOWLISTED_APPS
+                            && isRequiredApp;
+        } else if (Manifest.permission_group.LOCATION.equals(mPermGroupName)) {
+            isRequiredApp = mAutomotiveLocationBypassAllowlist.contains(mPackageName);
+            isRequiredAppCard =
+                    isRequiredApp && LocationUtils.isAutomotiveLocationBypassEnabled(
+                            getPreferenceManager().getContext());
+        } else if (Manifest.permission_group.MICROPHONE.equals(mPermGroupName)) {
+            isRequiredApp = false;
+            isRequiredAppCard = false;
+        }
+
+        if (isRequiredApp != null && isRequiredAppCard != null) {
+            if (sensorStatus) {
+                setSensorCard(isRequiredAppCard, isRequiredApp);
+            } else {
+                removeSensorCard(isRequiredAppCard);
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private void setSensorCard(boolean isRequiredAppCard, boolean isRequiredApp) {
+        if (isRequiredAppCard) {
+            setRequiredAppCard();
+        } else {
+            setBlockedAppCard(isRequiredApp);
+        }
+    }
+
+    private void setRequiredAppCard() {
+        AutoCardViewPreference sensorCard = findPreference(REQUIRED_APP_PREF_KEY);
+        if (sensorCard == null) {
+            sensorCard = createRequiredAppCard();
+            if (getPreferenceScreen() != null) {
+                getPreferenceScreen().addPreference(sensorCard);
+            }
+        }
+        sensorCard.setVisible(true);
+    }
+
+    private void setBlockedAppCard(boolean isRequiredApp) {
+        AutoCardViewPreference sensorCard = findPreference(BLOCKED_APP_PREF_KEY);
+        if (sensorCard == null) {
+            sensorCard = createBlockedAppCard(isRequiredApp);
+            if (getPreferenceScreen() != null) {
+                getPreferenceScreen().addPreference(sensorCard);
+            }
+        }
+        sensorCard.setVisible(true);
+    }
+
+    private AutoCardViewPreference createRequiredAppCard() {
+        Context context = getPreferenceManager().getContext();
+        AutoCardViewPreference sensorCard = new AutoCardViewPreference(context);
+        sensorCard.setKey(REQUIRED_APP_PREF_KEY);
+        sensorCard.setIcon(KotlinUtils.INSTANCE.getPermGroupIcon(context, mPermGroupName));
+        sensorCard.setTitle(context.getString(R.string.automotive_required_app_title));
+        sensorCard.setSummary(context.getString(R.string.automotive_required_app_summary));
+        sensorCard.setVisible(true);
+        sensorCard.setOrder(-1);
+        return sensorCard;
+    }
+
+    private AutoCardViewPreference createBlockedAppCard(boolean isRequiredApp) {
+        Context context = getPreferenceManager().getContext();
+
+        AutoCardViewPreference sensorCard = new AutoCardViewPreference(context);
+        sensorCard.setKey(BLOCKED_APP_PREF_KEY);
+        sensorCard.setIcon(Utils.getBlockedIcon(mPermGroupName));
+        sensorCard.setTitle(context.getString(Utils.getBlockedTitleAutomotive(mPermGroupName)));
+        if (isRequiredApp) {
+            sensorCard.setSummary(context.getString(
+                    R.string.automotive_blocked_required_app_summary));
+        } else {
+            sensorCard.setSummary(context.getString(
+                    R.string.automotive_blocked_infotainment_app_summary));
+        }
+        sensorCard.setVisible(true);
+        sensorCard.setOrder(-1);
+        return sensorCard;
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private void removeSensorCard(boolean isRequiredAppCard) {
+        if (isRequiredAppCard) {
+            removeRequiredAppCard();
+        } else {
+            removeBlockedAppCard();
+        }
+    }
+
+    private void removeRequiredAppCard() {
+        AutoCardViewPreference sensorCard = findPreference(REQUIRED_APP_PREF_KEY);
+        if (sensorCard != null) {
+            sensorCard.setVisible(false);
+        }
+    }
+
+    private void removeBlockedAppCard() {
+        AutoCardViewPreference sensorCard = findPreference(BLOCKED_APP_PREF_KEY);
+        if (sensorCard != null) {
+            sensorCard.setVisible(false);
         }
     }
 
@@ -345,6 +540,7 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
         } else {
             mDetailsPreference.setSummary(detailResIds.getFirst());
         }
+        mDetailsPreference.setVisible(true);
     }
 
     /**
@@ -399,6 +595,26 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
         }
     }
 
+    private static class SelectedSwitchPermissionPreference extends TwoStatePreference {
+
+        SelectedSwitchPermissionPreference(Context context) {
+            super(context, null,
+                    TypedArrayUtils.getAttr(context, androidx.preference.R.attr.preferenceStyle,
+                            android.R.attr.preferenceStyle));
+            setPersistent(false);
+            setLayoutResource(R.layout.car_switch_button_preference);
+            setWidgetLayoutResource(R.layout.switch_button_preference_widget);
+        }
+
+        @Override
+        public void onBindViewHolder(PreferenceViewHolder holder) {
+            super.onBindViewHolder(holder);
+
+            Switch switchButton = (Switch) holder.findViewById(R.id.location_accuracy_switch);
+            switchButton.setChecked(isChecked());
+        }
+    }
+
     /**
      * A dialog warning the user that they are about to deny a permission that was granted by
      * default.
@@ -411,7 +627,7 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
                 + ".arg.changeRequest";
         private static final String BUTTON = ConfirmDialog.class.getName()
                 + ".arg.button";
-        private static int sCode =  APP_PERMISSION_FRAGMENT_ACTION_REPORTED__BUTTON_PRESSED__ALLOW;
+        private static int sCode = APP_PERMISSION_FRAGMENT_ACTION_REPORTED__BUTTON_PRESSED__ALLOW;
 
         @NonNull
         @Override
@@ -458,6 +674,7 @@ public class AutoAppPermissionFragment extends AutoSettingsFrameFragment
     }
 
     @Override
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public void showAdvancedConfirmDialog(AdvancedConfirmDialogArgs args) {
         AlertDialog.Builder b = new AlertDialog.Builder(getContext())
                 .setIcon(args.getIconId())

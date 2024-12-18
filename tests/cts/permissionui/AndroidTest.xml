@@ -25,6 +25,7 @@
     <option name="config-descriptor:metadata" key="parameter" value="not_instant_app" />
     <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi" />
     <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user_on_secondary_display" />
     <option name="config-descriptor:metadata" key="parameter" value="run_on_sdk_sandbox" />
     <option name="config-descriptor:metadata" key="mainline-param" value="com.google.android.permission.apex" />
 
@@ -59,6 +60,7 @@
         <option name="push" value="CtsUsePermissionApp30WithBackground.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp30WithBackground.apk" />
         <option name="push" value="CtsUsePermissionApp30WithBluetooth.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp30WithBluetooth.apk" />
         <option name="push" value="CtsUsePermissionApp31.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp31.apk" />
+        <option name="push" value="CtsUsePermissionApp31WithAsl.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp31WithAsl.apk" />
         <option name="push" value="CtsUsePermissionApp32.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp32.apk" />
         <option name="push" value="CtsUsePermissionAppLatest.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionAppLatest.apk" />
         <option name="push" value="CtsUsePermissionAppLatestNone.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionAppLatestNone.apk" />
@@ -70,12 +72,14 @@
         <option name="push" value="CtsUsePermissionAppImplicitUserSelectStorage.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionAppImplicitUserSelectStorage.apk" />
         <option name="push" value="CtsAppThatAccessesMicAndCameraPermission.apk->/data/local/tmp/cts-permissionui/CtsAppThatAccessesMicAndCameraPermission.apk" />
         <option name="push" value="CtsUsePermissionAppStorage33.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionAppStorage33.apk" />
+        <option name="push" value="CtsAppThatMakesTwoPermRequests.apk->/data/local/tmp/cts-permissionui/CtsAppThatMakesTwoPermRequests.apk" />
     </target_preparer>
 
     <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
         <option name="run-command" value="appops set android.permissionui.cts REQUEST_INSTALL_PACKAGES allow" />
         <option name="run-command" value="am wait-for-broadcast-barrier"  />
-        <!-- ensure user setup is completed -->
+        <!-- ensure device provisioning and user setup are marked as completed -->
+        <option name="run-command" value="settings put global device_provisioned 1" />
         <option name="run-command" value="settings put secure user_setup_complete 1" />
         <!-- disable DeprecatedAbi warning -->
         <option name="run-command" value="setprop debug.wm.disable_deprecated_abi_dialog 1" />
@@ -87,6 +91,12 @@
     <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
         <option name="run-command" value="mkdir -p /data/local/tmp/cts-permissionui" />
         <option name="teardown-command" value="rm -rf /data/local/tmp/cts-permissionui"/>
+    </target_preparer>
+
+    <!-- Ensures that screen recording is captured -->
+    <target_preparer class="com.android.tradefed.targetprep.RootTargetPreparer">
+        <option name="force-root" value="true" />
+        <option name="throw-on-error" value="false" />
     </target_preparer>
 
     <metrics_collector class="com.android.tradefed.device.metric.FilePullerLogCollector">

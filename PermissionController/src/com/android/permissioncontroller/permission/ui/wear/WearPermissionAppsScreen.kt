@@ -16,7 +16,10 @@
 
 package com.android.permissioncontroller.permission.ui.wear
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -25,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Text
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.Category
@@ -38,6 +42,8 @@ fun WearPermissionAppsScreen(helper: WearPermissionAppsHelper) {
     val categorizedApps = helper.categorizedAppsLiveData().observeAsState(emptyMap())
     val hasSystemApps = helper.hasSystemAppsLiveData().observeAsState(false)
     val showSystem = helper.shouldShowSystemLiveData().observeAsState(false)
+    val showLocationProviderDialog =
+        helper.locationProviderDialogViewModel.dialogVisibilityLiveData.observeAsState(false)
     val appPermissionUsages = helper.wearViewModel.appPermissionUsages.observeAsState(emptyList())
     var isLoading by remember { mutableStateOf(true) }
 
@@ -46,18 +52,23 @@ fun WearPermissionAppsScreen(helper: WearPermissionAppsHelper) {
     val showAlways = helper.showAlways()
     val chipsByCategory =
         helper.getChipsByCategory(categorizedApps.value, appPermissionUsages.value)
-
-    WearPermissionAppsContent(
-        chipsByCategory,
-        showSystem.value,
-        hasSystemApps.value,
-        title,
-        subTitle,
-        showAlways,
-        isLoading,
-        helper.onShowSystemClick
-    )
-
+    Box(modifier = Modifier.fillMaxSize()) {
+        val dialogArgs = helper.locationProviderDialogViewModel.locationProviderInterceptDialogArgs
+        if (showLocationProviderDialog.value && dialogArgs != null) {
+            LocationProviderDialogScreen(dialogArgs)
+        } else {
+            WearPermissionAppsContent(
+                chipsByCategory = chipsByCategory,
+                showSystem = showSystem.value,
+                hasSystemApps = hasSystemApps.value,
+                title = title,
+                subtitle = subTitle,
+                showAlways = showAlways,
+                isLoading = isLoading,
+                onShowSystemClick = helper.onShowSystemClick
+            )
+        }
+    }
     if (isLoading && categorizedApps.value.isNotEmpty()) {
         isLoading = false
     }
@@ -76,13 +87,22 @@ internal fun WearPermissionAppsContent(
     onShowSystemClick: (showSystem: Boolean) -> Unit
 ) {
     ScrollableScreen(title = title, subtitle = subtitle, isLoading = isLoading) {
-        for (category in categoryOrder) {
+        val firstItemIndex = categoryOrder.indexOfFirst { !chipsByCategory[it].isNullOrEmpty() }
+        for ((index, category) in categoryOrder.withIndex()) {
             val chips = chipsByCategory[category]
             if (chips.isNullOrEmpty()) {
                 continue
             }
             item {
-                ListSubheader {
+                ListSubheader(
+                    modifier =
+                        Modifier.padding(
+                            top = if (index == firstItemIndex) 0.dp else 12.dp,
+                            bottom = 4.dp,
+                            start = 14.dp,
+                            end = 14.dp
+                        )
+                ) {
                     Text(text = stringResource(getCategoryString(category, showAlways)))
                 }
             }

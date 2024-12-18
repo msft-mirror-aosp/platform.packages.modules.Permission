@@ -17,6 +17,7 @@
 package com.android.permissioncontroller.permission.ui.model
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AppOpsManager
 import android.app.AppOpsManager.MODE_ALLOWED
 import android.app.AppOpsManager.MODE_IGNORED
@@ -31,6 +32,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.android.modules.utils.build.SdkLevel
+import com.android.permission.flags.Flags
+import com.android.permissioncontroller.DeviceUtils
 import com.android.permissioncontroller.PermissionControllerApplication
 import com.android.permissioncontroller.PermissionControllerStatsLog
 import com.android.permissioncontroller.PermissionControllerStatsLog.APP_PERMISSION_GROUPS_FRAGMENT_AUTO_REVOKE_ACTION
@@ -46,15 +49,16 @@ import com.android.permissioncontroller.permission.data.PackagePermissionsLiveDa
 import com.android.permissioncontroller.permission.data.PackagePermissionsLiveData.Companion.NON_RUNTIME_NORMAL_PERMS
 import com.android.permissioncontroller.permission.data.SmartUpdateMediatorLiveData
 import com.android.permissioncontroller.permission.data.get
+import com.android.permissioncontroller.permission.data.v35.PackagePermissionsExternalDeviceLiveData
 import com.android.permissioncontroller.permission.model.livedatatypes.AppPermGroupUiInfo.PermGrantState
 import com.android.permissioncontroller.permission.model.v31.AppPermissionUsage
 import com.android.permissioncontroller.permission.ui.Category
 import com.android.permissioncontroller.permission.utils.IPC
-import com.android.permissioncontroller.permission.utils.KotlinUtils
 import com.android.permissioncontroller.permission.utils.PermissionMapping
 import com.android.permissioncontroller.permission.utils.Utils
 import com.android.permissioncontroller.permission.utils.Utils.AppPermsLastAccessType
 import com.android.permissioncontroller.permission.utils.navigateSafe
+import com.android.permissioncontroller.permission.utils.v35.MultiDeviceUtils
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
@@ -93,12 +97,29 @@ class AppPermissionGroupsViewModel(
     data class GroupUiInfo(
         val groupName: String,
         val isSystem: Boolean = false,
-        val subtitle: PermSubtitle
+        val subtitle: PermSubtitle,
+        val persistentDeviceId: String,
     ) {
         constructor(
             groupName: String,
             isSystem: Boolean
-        ) : this(groupName, isSystem, PermSubtitle.NONE)
+        ) : this(
+            groupName,
+            isSystem,
+            PermSubtitle.NONE,
+            MultiDeviceUtils.getDefaultDevicePersistentDeviceId()
+        )
+
+        constructor(
+            groupName: String,
+            isSystem: Boolean,
+            subtitle: PermSubtitle,
+        ) : this(
+            groupName,
+            isSystem,
+            subtitle,
+            MultiDeviceUtils.getDefaultDevicePersistentDeviceId()
+        )
     }
 
     // Auto-revoke and hibernation share the same settings
@@ -107,6 +128,44 @@ class AppPermissionGroupsViewModel(
     private val packagePermsLiveData = PackagePermissionsLiveData[packageName, user]
     private val appPermGroupUiInfoLiveDatas = mutableMapOf<String, AppPermGroupUiInfoLiveData>()
     private val fullStoragePermsLiveData = FullStoragePermissionAppsLiveData
+    private val packagePermsExternalDeviceLiveData =
+        PackagePermissionsExternalDeviceLiveData[packageName, user]
+    private val appOpsManager = app.getSystemService(AppOpsManager::class.java)!!
+    private val packageManager = app.packageManager
+
+    /** Check if the application is in restricted settings mode. */
+    @SuppressLint("NewApi")
+    fun isClearRestrictedAllowed(): Boolean {
+        if (Flags.enhancedConfirmationBackportEnabled()) {
+            // TODO(b/347876543): Replace this when EnhancedConfirmtionServiceImpl is
+            // available.
+            val isRestricted =
+                appOpsManager.noteOpNoThrow(
+                    AppOpsManager.OPSTR_ACCESS_RESTRICTED_SETTINGS,
+                    packageManager.getApplicationInfoAsUser(packageName, 0, user).uid,
+                    packageName,
+                    null,
+                    null
+                ) == MODE_IGNORED
+            return isRestricted
+        }
+        return false
+    }
+
+    /** Allow restricted settings on the applications. */
+    @SuppressLint("NewApi")
+    fun clearRestriction() {
+        if (Flags.enhancedConfirmationBackportEnabled()) {
+            // TODO(b/347876543): Replace this when EnhancedConfirmationServiceImpl is
+            // available.
+            appOpsManager.setMode(
+                AppOpsManager.OPSTR_ACCESS_RESTRICTED_SETTINGS,
+                packageManager.getApplicationInfoAsUser(packageName, 0, user).uid,
+                packageName,
+                MODE_ALLOWED
+            )
+        }
+    }
 
     /**
      * LiveData whose data is a map of grant category (either allowed or denied) to a list of
@@ -124,6 +183,7 @@ class AppPermissionGroupsViewModel(
                     removeSource(autoRevokeLiveData)
                     update()
                 }
+                addSource(packagePermsExternalDeviceLiveData) { update() }
                 update()
             }
 
@@ -214,6 +274,61 @@ class AppPermissionGroupsViewModel(
                                     GroupUiInfo(groupName, isSystem)
                                 )
                         }
+                    }
+                }
+
+                packagePermsExternalDeviceLiveData.value?.forEach { externalDeviceGrantInfo ->
+                    val groupName = externalDeviceGrantInfo.groupName
+                    val isSystem =
+                        PermissionMapping.getPlatformPermissionGroups().contains(groupName)
+                    val persistentDeviceId = externalDeviceGrantInfo.persistentDeviceId
+                    when (externalDeviceGrantInfo.permGrantState) {
+                        PermGrantState.PERMS_ALLOWED -> {
+                            groupGrantStates[Category.ALLOWED]!!.add(
+                                GroupUiInfo(
+                                    groupName,
+                                    isSystem,
+                                    PermSubtitle.NONE,
+                                    persistentDeviceId
+                                )
+                            )
+                        }
+                        PermGrantState.PERMS_ALLOWED_ALWAYS ->
+                            groupGrantStates[Category.ALLOWED]!!.add(
+                                GroupUiInfo(
+                                    groupName,
+                                    isSystem,
+                                    PermSubtitle.BACKGROUND,
+                                    persistentDeviceId
+                                )
+                            )
+                        PermGrantState.PERMS_ALLOWED_FOREGROUND_ONLY ->
+                            groupGrantStates[Category.ALLOWED]!!.add(
+                                GroupUiInfo(
+                                    groupName,
+                                    isSystem,
+                                    PermSubtitle.FOREGROUND_ONLY,
+                                    persistentDeviceId
+                                )
+                            )
+                        PermGrantState.PERMS_DENIED ->
+                            groupGrantStates[Category.DENIED]!!.add(
+                                GroupUiInfo(
+                                    groupName,
+                                    isSystem,
+                                    PermSubtitle.NONE,
+                                    persistentDeviceId
+                                )
+                            )
+                        PermGrantState.PERMS_ASK ->
+                            groupGrantStates[Category.ASK]!!.add(
+                                GroupUiInfo(
+                                    groupName,
+                                    isSystem,
+                                    PermSubtitle.NONE,
+                                    persistentDeviceId
+                                )
+                            )
                     }
                 }
 
@@ -319,7 +434,7 @@ class AppPermissionGroupsViewModel(
         }
 
         val aggregateDataFilterBeginDays =
-            if (KotlinUtils.is7DayToggleEnabled()) AGGREGATE_DATA_FILTER_BEGIN_DAYS_7
+            if (DeviceUtils.isHandheld()) AGGREGATE_DATA_FILTER_BEGIN_DAYS_7
             else AGGREGATE_DATA_FILTER_BEGIN_DAYS_1
 
         accessTime.clear()
