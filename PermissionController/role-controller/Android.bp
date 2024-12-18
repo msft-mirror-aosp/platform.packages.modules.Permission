@@ -32,6 +32,7 @@ java_library {
     ],
     static_libs: [
         "modules-utils-build_system",
+        "aconfig_settingslib_exported_flags_java_lib",
         "android.app.appfunctions.exported-flags-aconfig-java",
         "android.companion.virtualdevice.flags-aconfig-java-export",
         "android.content.pm.flags-aconfig-java-export",
