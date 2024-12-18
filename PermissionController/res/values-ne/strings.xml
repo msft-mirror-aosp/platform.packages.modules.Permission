@@ -353,8 +353,8 @@
     <string name="accessibility_service_dialog_title_multiple" msgid="5527879210683548175">"पहुँचसम्बन्धी <xliff:g id="NUM_SERVICES">%s</xliff:g> एपहरूले तपाईंको यन्त्रमाथि पूर्ण रूपमा पहुँच राख्न सक्छन्"</string>
     <string name="accessibility_service_dialog_bottom_text_single" msgid="1128666197822205958">"<xliff:g id="SERVICE_NAME">%s</xliff:g> ले तपाईंको स्क्रिन, कारबाही र इनपुट हेर्न, कारबाहीहरू गर्न र डिस्प्ले नियन्त्रण गर्न सक्छ।"</string>
     <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"यी एपहरूले तपाईंको स्क्रिन, कारबाही र इनपुट हेर्न, कारबाहीहरू सम्पादन गर्न र प्रदर्शन नियन्त्रण गर्न सक्छन्।"</string>
-    <string name="role_assistant_label" msgid="4727586018198208128">"डिफल्ट डिजिटल सहायक एप"</string>
-    <string name="role_assistant_short_label" msgid="3369003713187703399">"डिजिटल सहायक एप"</string>
+    <string name="role_assistant_label" msgid="4727586018198208128">"डिफल्ट डिजिटल एसिस्टेन्ट एप"</string>
+    <string name="role_assistant_short_label" msgid="3369003713187703399">"डिजिटल एसिस्टेन्ट एप"</string>
     <string name="role_assistant_description" msgid="6622458130459922952">"सहायक एपहरूले तपाईंले हेर्दै गर्नुभएको स्क्रिनबाट प्राप्त जानकारीमा आधारित भई तपाईंलाई मद्दत गर्न सक्छन्। केही एपहरूले तपाईंलाई एकीकृत सहायता दिन दुवै लन्चर र आवाज संलग्न इनपुट सेवाहरूलाई समर्थन गर्छन्।"</string>
     <string name="role_browser_label" msgid="2877796144554070207">"डिफल्ट ब्राउजर एप"</string>
     <string name="role_browser_short_label" msgid="6745009127123292296">"ब्राउजर"</string>
@@ -674,6 +674,10 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"प्रतिबन्ध लगाइएका सेटिङ अनलक गर्नुहोस्"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"प्रतिबन्ध लगाइएका सेटिङ"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"तपाईंको खाताको सुरक्षार्थ यो सेटिङ हाल उपलब्ध छैन।"</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5230100829862738467) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8782160971908273849) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"एपले <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> प्रयोग गर्न मागेको अनुमति अस्वीकार गरिएको छ"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"यो एपले तपाईंको व्यक्तिगत तथा वित्तीय जानकारी जोखिममा पार्न सक्ने खालको संवेदनशील अनुमति मागेको छ।<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>तपाईले उक्त प्रतिबन्धित अनुमति नदिएका खण्डमा यो एपले राम्रोसँग काम नगर्न सक्छ। &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;अनुमति दिने तरिका सिक्नुहोस्&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"यो एपले डिफल्ट <xliff:g id="ROLE_NAME">%1$s</xliff:g> का रूपमा काम गर्न मागेको अनुमति अस्वीकार गरिएको छ"</string>

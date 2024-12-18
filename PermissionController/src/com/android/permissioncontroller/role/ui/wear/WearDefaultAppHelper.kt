@@ -34,7 +34,7 @@ class WearDefaultAppHelper(
     val user: UserHandle,
     val role: Role,
     val viewModel: DefaultAppViewModel,
-    val confirmDialogViewModel: DefaultAppConfirmDialogViewModel
+    val confirmDialogViewModel: DefaultAppConfirmDialogViewModel,
 ) {
     fun getTitle() = context.getString(role.labelResource)
 
@@ -44,9 +44,9 @@ class WearDefaultAppHelper(
         if (role.shouldShowNone()) {
             WearRoleApplicationPreference(
                     context = context,
-                    label = context.getString(R.string.default_app_none),
+                    defaultLabel = context.getString(R.string.default_app_none),
                     checked = !hasHolderApplication(qualifyingApplications),
-                    onDefaultCheckChanged = { _ -> viewModel.setNoneDefaultApp() }
+                    onDefaultCheckChanged = { _ -> viewModel.setNoneDefaultApp() },
                 )
                 .apply { icon = context.getDrawable(R.drawable.ic_remove_circle) }
         } else {
@@ -62,24 +62,29 @@ class WearDefaultAppHelper(
                 val selected = pair.second
                 WearRoleApplicationPreference(
                         context = context,
-                        label = Utils.getFullAppLabel(appInfo, context),
+                        defaultLabel = Utils.getFullAppLabel(appInfo, context),
                         checked = selected,
                         onDefaultCheckChanged = { _ ->
                             run {
                                 val packageName = appInfo.packageName
+                                val user = UserHandle.getUserHandleForUid(appInfo.uid)
                                 val confirmationMessage =
                                     RoleUiBehaviorUtils.getConfirmationMessage(
                                         role,
                                         packageName,
-                                        context
+                                        context,
                                     )
                                 if (confirmationMessage != null) {
-                                    showConfirmDialog(packageName, confirmationMessage.toString())
+                                    showConfirmDialog(
+                                        packageName,
+                                        user,
+                                        confirmationMessage.toString(),
+                                    )
                                 } else {
-                                    setDefaultApp(packageName)
+                                    setDefaultApp(packageName, user)
                                 }
                             }
-                        }
+                        },
                     )
                     .apply {
                         icon = appInfo.loadIcon(context.packageManager)
@@ -91,22 +96,22 @@ class WearDefaultAppHelper(
                             this,
                             appInfo,
                             user,
-                            context
+                            context,
                         )
                     }
             }
             .toList()
     }
 
-    private fun showConfirmDialog(packageName: String, message: String) {
+    private fun showConfirmDialog(packageName: String, userHandle: UserHandle, message: String) {
         confirmDialogViewModel.confirmDialogArgs =
             ConfirmDialogArgs(
                 message = message,
                 onOkButtonClick = {
-                    setDefaultApp(packageName)
+                    setDefaultApp(packageName, userHandle)
                     dismissConfirmDialog()
                 },
-                onCancelButtonClick = { dismissConfirmDialog() }
+                onCancelButtonClick = { dismissConfirmDialog() },
             )
         confirmDialogViewModel.showConfirmDialogLiveData.value = true
     }
@@ -115,8 +120,9 @@ class WearDefaultAppHelper(
         confirmDialogViewModel.confirmDialogArgs = null
         confirmDialogViewModel.showConfirmDialogLiveData.value = false
     }
-    private fun setDefaultApp(packageName: String) {
-        viewModel.setDefaultApp(packageName)
+
+    private fun setDefaultApp(packageName: String, user: UserHandle) {
+        viewModel.setDefaultApp(packageName, user)
     }
 
     fun getDescription() = context.getString(role.descriptionResource)

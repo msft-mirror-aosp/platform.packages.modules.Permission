@@ -674,6 +674,10 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Хязгаарлагдсан тохиргоог зөвшөөрөх"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Хязгаарлагдсан тохиргоо"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Таны аюулгүй байдлын үүднээс энэ тохиргоо одоогоор боломжгүй байна."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5230100829862738467) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8782160971908273849) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Аппад <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>-д хандах эрх олгохоос татгалзсан"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Апп нь таны хувийн болон санхүүгийн мэдээллийг эрсдэлд оруулж болох эмзэг зөвшөөрөлд хандах эрх хүссэн.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Энэ хязгаарлагдмал зөвшөөрөлгүйгээр уг апп зохих ёсоор ажиллахгүй байх боломжтой. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Хандах эрхийг хэрхэн зөвшөөрөх талаар мэдэж авах&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Аппад өгөгдмөл <xliff:g id="ROLE_NAME">%1$s</xliff:g> болох эрх олгохоос татгалзсан"</string>

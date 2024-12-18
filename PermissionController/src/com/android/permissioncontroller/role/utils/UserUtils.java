@@ -37,6 +37,16 @@ public class UserUtils {
     private UserUtils() {}
 
     /**
+     * Returns the parent of a given user, or user if it has no parent (e.g. it is the primary
+     * user)
+     */
+    @NonNull
+    public static UserHandle getProfileParentOrSelf(@NonNull UserHandle user,
+            @NonNull Context context) {
+        return com.android.role.controller.util.UserUtils.getProfileParentOrSelf(user, context);
+    }
+
+    /**
      * Get the work profile of current user, if any.
      *
      * @param context the {@code Context} to retrieve system services

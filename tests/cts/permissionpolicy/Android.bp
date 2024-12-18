@@ -26,7 +26,7 @@ android_test {
         "cts",
         "general-tests",
     ],
-    libs: ["android.test.base"],
+    libs: ["android.test.base.stubs.test"],
     static_libs: [
         "androidx.test.core",
         "compatibility-device-util-axt",
@@ -37,6 +37,8 @@ android_test {
         "permission-test-util-lib",
         "androidx.test.rules",
         "flag-junit",
+        "android.app.flags-aconfig",
+        "android.permission.flags-aconfig-java-export",
     ],
     srcs: [
         "src/**/*.java",

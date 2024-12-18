@@ -509,7 +509,7 @@
     <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"Cho phép &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; ghi âm?"</string>
     <string name="permgroupbackgroundrequest_device_aware_microphone" msgid="3321823187623762958">"Cho phép &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; ghi âm trên &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;?"</string>
     <string name="permgroupbackgroundrequestdetail_microphone" msgid="553702902263681838">"Ứng dụng này có thể muốn ghi âm mọi lúc, ngay cả khi bạn không dùng ứng dụng. "<annotation id="link">"Cho phép trong phần cài đặt."</annotation></string>
-    <string name="permgroupupgraderequest_microphone" msgid="1362781696161233341">"Thay đổi quyền sử dụng micrô của &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupupgraderequest_microphone" msgid="1362781696161233341">"Thay đổi quyền truy cập micrô của &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;?"</string>
     <string name="permgroupupgraderequest_device_aware_microphone" msgid="8722411173971679806">"Thay đổi quyền truy cập vào micrô của &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; trên &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;?"</string>
     <string name="permgroupupgraderequestdetail_microphone" msgid="2870497719571464239">"Ứng dụng này muốn ghi âm mọi lúc, ngay cả khi bạn không dùng ứng dụng. "<annotation id="link">"Cho phép trong phần cài đặt."</annotation></string>
     <string name="permgrouprequest_activityRecognition" msgid="5415121592794230330">"Cho phép &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; truy cập vào dữ liệu hoạt động thể chất?"</string>
@@ -545,7 +545,7 @@
     <string name="not_used_permissions_description" msgid="7595514824169388718">"Quyền mà chỉ có ứng dụng hệ thống sử dụng."</string>
     <string name="additional_permissions_label" msgid="7693557637462569046">"Quyền bổ sung"</string>
     <string name="additional_permissions_description" msgid="2186611950890732112">"Quyền do ứng dụng xác định."</string>
-    <string name="privdash_label_camera" msgid="1426440033626198096">"Máy ảnh"</string>
+    <string name="privdash_label_camera" msgid="1426440033626198096">"Camera"</string>
     <string name="privdash_label_microphone" msgid="8415035835803511693">"Micrô"</string>
     <string name="privdash_label_location" msgid="6882400763866489291">"Vị trí"</string>
     <string name="privdash_label_other" msgid="3710394147423236033">"Khác"</string>
@@ -674,6 +674,10 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Cho phép các chế độ cài đặt bị hạn chế"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Chế độ cài đặt bị hạn chế"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Để đảm bảo an toàn cho bạn, chế độ cài đặt này hiện không dùng được."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5230100829862738467) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8782160971908273849) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Ứng dụng đã bị từ chối cấp quyền truy cập vào <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Ứng dụng này yêu cầu quyền truy cập vào thông tin nhạy cảm. Việc đó có thể khiến thông tin cá nhân và thông tin tài chính của bạn gặp rủi ro.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Có thể ứng dụng sẽ hoạt động không đúng cách nếu không được cấp quyền bị hạn chế này. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Tìm hiểu cách cấp quyền&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Ứng dụng đã bị từ chối cấp quyền để làm <xliff:g id="ROLE_NAME">%1$s</xliff:g> mặc định"</string>

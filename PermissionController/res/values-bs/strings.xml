@@ -674,6 +674,10 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Dozvoli ograničene postavke"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Ograničena postavka"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Radi vaše sigurnosti postavka trenutno nije dostupna."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5230100829862738467) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8782160971908273849) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Aplikaciji je odbijen pristup odobrenju <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Aplikacija je zatražila pristup osjetljivom odobrenju, što može ugroziti vaše lične i finansijske informacije.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Moguće je da aplikacija neće ispravno raditi bez ovog ograničenog odobrenja. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Saznajte kako dozvoliti pristup&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Aplikaciji je odbijen pristup da bude zadana <xliff:g id="ROLE_NAME">%1$s</xliff:g>"</string>
@@ -683,7 +687,7 @@
     <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"Saznajte više"</string>
     <string name="enhanced_confirmation_dialog_ok" msgid="8560373821598619924">"Uredu"</string>
     <string name="permission_grant_dialog_streaming_blocked_title" msgid="8905241017017043649">"Zahtjev za odobrenje je potisnut"</string>
-    <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Aplikacija traži dodatna odobrenja, ali se ona ne mogu dati u sesiji prijenosa. Najprije dajte odobrenje na telefonu."</string>
+    <string name="permission_grant_dialog_streaming_blocked_description" msgid="838165608934085319">"Aplikacija traži dodatna odobrenja, ali se ona ne mogu dati u sesiji prenosa. Najprije dajte odobrenje na telefonu."</string>
     <string name="privacy_dashboard_emergency_location_enforced_attribution_label" msgid="5702912511473457693">"Za hitni poziv ili poruku"</string>
     <string name="privacy_dashboard_emergency_location_dialog_title" msgid="849723944428031911">"Lokacija je poslana hitnim službama"</string>
     <string name="privacy_dashboard_emergency_location_dialog_description" msgid="5815970230573483329">"Ova aplikacija je pristupila lokaciji uređaja tokom poziva ili slanja poruke broju za hitne slučajeve. To se može dogoditi čak i kada aplikacija nema odobrenje za lokaciju ili je lokacija uređaja isključena. "<a href="https://support.google.com/android/answer/9319337">"Saznajte više"</a></string>

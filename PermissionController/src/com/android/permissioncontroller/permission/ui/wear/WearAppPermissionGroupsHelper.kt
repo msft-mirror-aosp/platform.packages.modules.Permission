@@ -19,6 +19,7 @@ package com.android.permissioncontroller.permission.ui.wear
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.PermissionInfo
+import android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP
 import android.os.Build
 import android.os.UserHandle
 import android.util.ArraySet
@@ -34,7 +35,6 @@ import com.android.permissioncontroller.permission.model.Permission
 import com.android.permissioncontroller.permission.model.livedatatypes.HibernationSettingState
 import com.android.permissioncontroller.permission.model.v31.AppPermissionUsage
 import com.android.permissioncontroller.permission.ui.Category
-import com.android.permissioncontroller.permission.ui.handheld.AppPermissionFragment
 import com.android.permissioncontroller.permission.ui.model.AppPermissionGroupsViewModel
 import com.android.permissioncontroller.permission.ui.model.AppPermissionGroupsViewModel.GroupUiInfo
 import com.android.permissioncontroller.permission.ui.model.AppPermissionGroupsViewModel.PermSubtitle
@@ -320,9 +320,13 @@ class WearAppPermissionGroupsHelper(
         ) {
             // Redirect to location controller extra package settings.
             LocationUtils.startLocationControllerExtraPackageSettings(context, user)
+        } else if (permGroupName.equals(HEALTH_PERMISSION_GROUP)
+            && android.permission.flags.Flags.replaceBodySensorPermissionEnabled()) {
+            // Redirect to Health&Fitness UI
+            Utils.navigateToAppHealthConnectSettings(fragment.requireContext(), packageName, user)
         } else {
             val args =
-                AppPermissionFragment.createArgs(
+                WearAppPermissionFragment.createArgs(
                     packageName,
                     null,
                     permGroupName,
