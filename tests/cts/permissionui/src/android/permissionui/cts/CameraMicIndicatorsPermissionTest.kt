@@ -23,6 +23,7 @@ import android.content.AttributionSource
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.os.Process
@@ -35,7 +36,6 @@ import android.platform.test.annotations.AsbSecurityTest
 import android.platform.test.rule.ScreenRecordRule
 import android.provider.DeviceConfig
 import android.provider.Settings
-import android.safetycenter.SafetyCenterManager
 import android.server.wm.WindowManagerStateHelper
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -719,9 +719,21 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
     }
 
     private fun getSafetyCenterEnabled(): Boolean {
-        val safetyCenterManager =
-            context.getSystemService(SafetyCenterManager::class.java) ?: return false
-        return runWithShellPermissionIdentity<Boolean> { safetyCenterManager.isSafetyCenterEnabled }
+        if (!SdkLevel.isAtLeastT()) {
+            // Safety Center does not exist below T.
+            return false
+        }
+        val systemResources = Resources.getSystem()
+        val resId = systemResources.getIdentifier("config_enableSafetyCenter", "bool", "android")
+        val safetyCenterSupported = context.getResources().getBoolean(resId)
+        if (!SdkLevel.isAtLeastU()) {
+            // On T, Safety Center is controlled by the DeviceConfig flag.
+            return safetyCenterSupported && safetyCenterEnabled.toBoolean()
+        }
+        // On UDC+, Safety Center is no longer controlled by DeviceConfig.
+        // The only way it can be disabled is if the OEM suppresses it at the
+        // config level using config_enableSafetyCenter.
+        return safetyCenterSupported
     }
 
     protected fun waitFindObject(selector: BySelector): UiObject2? {
