@@ -674,10 +674,8 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Թույլատրել սահմանափակ ռեժիմի կարգավորումները"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Սահմանափակումներով կարգավորում"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Անվտանգության նկատառումներից ելնելով՝ այս կարգավորումը ներկայումս անհասանելի է։"</string>
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5230100829862738467) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8782160971908273849) -->
-    <skip />
+    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Գործողությունը հասանելի չէ հեռախոսազանգի ժամանակ"</string>
+    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"Հեռախոսազանգի ժամանակ հավելվածներին չի թույլատրվում տեղադրել այլ հավելվածներ։\n\n Խաբեբաները սովորաբար ցանկանում են այս տեսակի գործողություններն անել հեռախոսային զրույցների ժամանակ, ուստի դա արգելափակված է՝ ձեր անվտանգության նկատառումներից ելնելով։ Եթե որևէ անծանոթ մարդ ձեզանից խնդրել է նմանատիպ թույլտվություն, ամենայն հավանականությամբ դա խարդախություն է։"</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Հավելվածին մերժվել է <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>ի օգտագործման թույլտվությունը"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Հավելվածը հայցել է կոնֆիդենցիալ տեղեկությունների օգտագործման թույլտվություն, որը կարող է վտանգի ենթարկել ձեր անձնական և ֆինանսական տեղեկությունները։<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Հնարավոր է, որ առանց այս սահմանափակված թույլտվության՝ հավելվածը չաշխատի պատշաճ կերպով։ &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Ինչպես տրամադրել տվյալների օգտագործման թույլտվություն&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Հավելվածին մերժվել է «<xliff:g id="ROLE_NAME">%1$s</xliff:g>» կատեգորիայում կանխադրված լինելու թույլտվությունը"</string>

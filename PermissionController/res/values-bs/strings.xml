@@ -674,10 +674,8 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Dozvoli ograničene postavke"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Ograničena postavka"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Radi vaše sigurnosti postavka trenutno nije dostupna."</string>
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5230100829862738467) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8782160971908273849) -->
-    <skip />
+    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Radnja nije dostupna tokom telefonskog poziva"</string>
+    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"Dozvoljavanje aplikacijama da instaliraju druge aplikacije nije dozvoljeno tokom telefonskog poziva.\n\n Prevaranti često traže ovu vrstu radnje tokom telefonskih razgovora, pa ovo blokiramo da vas zaštitimo. Ako neko koga ne poznajete traži da poduzmete ovu radnju, to može biti prevara."</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Aplikaciji je odbijen pristup odobrenju <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Aplikacija je zatražila pristup osjetljivom odobrenju, što može ugroziti vaše lične i finansijske informacije.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Moguće je da aplikacija neće ispravno raditi bez ovog ograničenog odobrenja. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Saznajte kako dozvoliti pristup&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Aplikaciji je odbijen pristup da bude zadana <xliff:g id="ROLE_NAME">%1$s</xliff:g>"</string>

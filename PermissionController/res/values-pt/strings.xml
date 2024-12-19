@@ -674,10 +674,8 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Permitir configurações restritas"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Configuração restrita"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Para sua segurança, essa configuração está indisponível no momento."</string>
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5230100829862738467) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8782160971908273849) -->
-    <skip />
+    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Ação indisponível durante uma ligação"</string>
+    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"Não é possível permitir que apps instalem outros apps durante uma ligação.\n\n Golpistas costumam pedir esse tipo de ação durante ligações, então ela fica bloqueada para sua proteção. Se você está recebendo instruções de uma pessoa desconhecida para realizar essa ação, isso pode ser um golpe."</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"O app não recebeu a seguinte permissão de acesso: <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"O app solicitou acesso a uma permissão sensível que pode colocar suas informações pessoais e financeiras em risco.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>É possível que o app não funcione corretamente sem essa permissão restrita. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Aprenda a conceder acesso&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"O app não recebeu o acesso para ser a escolha padrão de: <xliff:g id="ROLE_NAME">%1$s</xliff:g>"</string>
