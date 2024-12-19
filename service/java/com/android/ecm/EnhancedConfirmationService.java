@@ -16,6 +16,9 @@
 
 package com.android.ecm;
 
+import static android.app.ecm.EnhancedConfirmationManager.REASON_APP_OP_RESTRICTED;
+import static android.app.ecm.EnhancedConfirmationManager.REASON_PHONE_STATE;
+
 import android.Manifest;
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
@@ -89,7 +92,7 @@ public class EnhancedConfirmationService extends SystemService {
 
     private static final int CALL_TYPE_UNTRUSTED = 0;
     private static final int CALL_TYPE_TRUSTED = 1;
-    private static final int CALL_TYPE_EMERGENCY = 2;
+    private static final int CALL_TYPE_EMERGENCY = 1 << 1;
     @IntDef(flag = true, value = {
             CALL_TYPE_UNTRUSTED,
             CALL_TYPE_TRUSTED,
@@ -269,6 +272,8 @@ public class EnhancedConfirmationService extends SystemService {
                 PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_REQUEST_INSTALL_PACKAGES);
                 UNTRUSTED_CALL_RESTRICTED_SETTINGS.add(
                         AppOpsManager.OPSTR_REQUEST_INSTALL_PACKAGES);
+                UNTRUSTED_CALL_RESTRICTED_SETTINGS.add(
+                        AppOpsManager.OPSTR_BIND_ACCESSIBILITY_SERVICE);
             }
         }
 
@@ -287,10 +292,16 @@ public class EnhancedConfirmationService extends SystemService {
 
         public boolean isRestricted(@NonNull String packageName, @NonNull String settingIdentifier,
                 @UserIdInt int userId) {
+            return getRestrictionReason(packageName, settingIdentifier, userId) != null;
+        }
+
+        public String getRestrictionReason(@NonNull String packageName,
+                @NonNull String settingIdentifier,
+                @UserIdInt int userId) {
             enforcePermissions("isRestricted", userId);
             if (!UserUtils.isUserExistent(userId, getContext())) {
                 Log.e(LOG_TAG, "user " + userId + " does not exist");
-                return false;
+                return null;
             }
 
             Preconditions.checkStringNotEmpty(packageName, "packageName cannot be null or empty");
@@ -299,12 +310,13 @@ public class EnhancedConfirmationService extends SystemService {
 
             try {
                 if (!isSettingEcmProtected(settingIdentifier)) {
-                    return false;
+                    return null;
                 }
-                if (isSettingProtectedGlobally(settingIdentifier)) {
-                    return true;
+                String globalProtectionReason = getGlobalProtectionReason(settingIdentifier);
+                if (globalProtectionReason != null) {
+                    return globalProtectionReason;
                 }
-                return isPackageEcmGuarded(packageName, userId);
+                return isPackageEcmGuarded(packageName, userId) ? REASON_APP_OP_RESTRICTED : null;
             } catch (NameNotFoundException e) {
                 throw new IllegalArgumentException(e);
             }
@@ -513,12 +525,13 @@ public class EnhancedConfirmationService extends SystemService {
             return false;
         }
 
-        private boolean isSettingProtectedGlobally(@NonNull String settingIdentifier) {
-            if (UNTRUSTED_CALL_RESTRICTED_SETTINGS.contains(settingIdentifier)) {
-                return isUntrustedCallOngoing();
+        private String getGlobalProtectionReason(@NonNull String settingIdentifier) {
+            if (UNTRUSTED_CALL_RESTRICTED_SETTINGS.contains(settingIdentifier)
+                    && isUntrustedCallOngoing()) {
+                return REASON_PHONE_STATE;
             }
 
-            return false;
+            return null;
         }
 
         @Nullable

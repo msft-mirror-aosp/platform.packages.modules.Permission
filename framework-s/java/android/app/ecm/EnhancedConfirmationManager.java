@@ -33,6 +33,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.permission.flags.Flags;
 import android.util.ArraySet;
 
@@ -202,6 +203,19 @@ public final class EnhancedConfirmationManager {
     public static final String ACTION_SHOW_ECM_RESTRICTED_SETTING_DIALOG =
             "android.app.ecm.action.SHOW_ECM_RESTRICTED_SETTING_DIALOG";
 
+    /**
+     * The setting is restricted because of the phone state of the device
+     * @hide
+     */
+    public static final String REASON_PHONE_STATE = "phone_state";
+
+    /**
+     * The setting is restricted because the restricted app op is set for the given package
+     * @hide
+     */
+    public static final String REASON_APP_OP_RESTRICTED = "app_op_restricted";
+
+
     /** A map of ECM states to their corresponding app op states */
     @Retention(java.lang.annotation.RetentionPolicy.SOURCE)
     @IntDef(prefix = {"ECM_STATE_"}, value = {EcmState.ECM_STATE_NOT_GUARDED,
@@ -349,8 +363,16 @@ public final class EnhancedConfirmationManager {
             @NonNull String settingIdentifier) throws NameNotFoundException {
         Intent intent = new Intent(ACTION_SHOW_ECM_RESTRICTED_SETTING_DIALOG);
         intent.putExtra(Intent.EXTRA_PACKAGE_NAME, packageName);
-        intent.putExtra(Intent.EXTRA_UID, getPackageUid(packageName));
+        int uid = getPackageUid(packageName);
+        intent.putExtra(Intent.EXTRA_UID, uid);
         intent.putExtra(Intent.EXTRA_SUBJECT, settingIdentifier);
+        try {
+            intent.putExtra(Intent.EXTRA_REASON, mService.getRestrictionReason(packageName,
+                    settingIdentifier, UserHandle.getUserHandleForUid(uid).getIdentifier()));
+        } catch (SecurityException | RemoteException e) {
+            // The caller of this method does not have permission to read the ECM state, so we
+            // won't include it in the return
+        }
         return intent;
     }
 
