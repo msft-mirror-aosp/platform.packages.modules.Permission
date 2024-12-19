@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Build
+import android.os.Process
 import android.os.UserManager
 import android.safetycenter.SafetyCenterManager
 import android.safetycenter.SafetyEvent
@@ -118,6 +119,8 @@ class WorkPolicyInfoTest {
         whenever(PermissionControllerApplication.get()).thenReturn(application)
         whenever(application.applicationContext).thenReturn(application)
         workPolicyInfo = WorkPolicyInfo(mockWorkPolicyUtils)
+        val userId = Process.myUserHandle().identifier
+        whenever(mockWorkPolicyUtils.managedProfileUserId).thenReturn(userId)
     }
 
     @After
