@@ -25,12 +25,14 @@ import android.os.UserHandle
 import android.provider.Settings
 import androidx.test.filters.SdkSuppress
 import androidx.test.uiautomator.By
+import com.android.bedstead.enterprise.annotations.EnsureHasNoWorkProfile
 import com.android.bedstead.enterprise.annotations.EnsureHasWorkProfile
 import com.android.bedstead.enterprise.annotations.RequireRunOnWorkProfile
 import com.android.bedstead.enterprise.workProfile
 import com.android.bedstead.flags.annotations.RequireFlagsEnabled
 import com.android.bedstead.harrier.BedsteadJUnit4
 import com.android.bedstead.harrier.DeviceState
+import com.android.bedstead.multiuser.annotations.EnsureCanAddUser
 import com.android.bedstead.multiuser.annotations.EnsureHasAdditionalUser
 import com.android.bedstead.multiuser.annotations.EnsureHasPrivateProfile
 import com.android.bedstead.multiuser.annotations.EnsureHasSecondaryUser
@@ -42,6 +44,7 @@ import com.android.bedstead.nene.TestApis.context
 import com.android.bedstead.nene.TestApis.permissions
 import com.android.bedstead.nene.TestApis.users
 import com.android.bedstead.nene.types.OptionalBoolean
+import com.android.bedstead.nene.users.UserType
 import com.android.bedstead.permissions.CommonPermissions.INTERACT_ACROSS_USERS_FULL
 import com.android.bedstead.permissions.CommonPermissions.MANAGE_DEFAULT_APPLICATIONS
 import com.android.bedstead.permissions.CommonPermissions.MANAGE_ROLE_HOLDERS
@@ -565,6 +568,39 @@ class RoleManagerMultiUserTest {
 
     @RequireFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
     @EnsureHasPermission(INTERACT_ACROSS_USERS_FULL, MANAGE_ROLE_HOLDERS)
+    @EnsureCanAddUser
+    @EnsureHasNoWorkProfile
+    @RequireRunOnPrimaryUser
+    @Test
+    @Throws(Exception::class)
+    fun ensureActiveUserSetToParentOnUserRemoved() {
+        users()
+            .createUser()
+            .parent(users().initial())
+            .type(users().supportedType(UserType.MANAGED_PROFILE_TYPE_NAME))
+            .createAndStart()
+            .use { userReference ->
+                val targetActiveUser = userReference.userHandle()
+                roleManager.setActiveUserForRole(
+                    PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME,
+                    targetActiveUser,
+                    0,
+                )
+                assertThat(roleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
+                    .isEqualTo(targetActiveUser)
+
+                userReference.remove()
+            }
+
+        // Removal of users in roles service might take a moment
+        eventually {
+            assertThat(roleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVITY_ROLE_NAME))
+                .isEqualTo(users().current().userHandle())
+        }
+    }
+
+    @RequireFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @EnsureHasPermission(INTERACT_ACROSS_USERS_FULL, MANAGE_ROLE_HOLDERS)
     @EnsureHasWorkProfile
     @RequireRunOnPrimaryUser
     @Test
@@ -915,10 +951,9 @@ class RoleManagerMultiUserTest {
         private const val PROFILE_GROUP_EXCLUSIVITY_ROLE_SHORT_LABEL =
             "Test profile group exclusive role app"
         private const val PRIVATE_PROFILE_TYPE_NAME = "android.os.usertype.profile.PRIVATE"
-        private const val APP_APK_PATH: String =
-            "/data/local/tmp/cts-role/CtsRoleMultiUserTestApp.apk"
-        private const val APP_PACKAGE_NAME: String = "android.app.rolemultiuser.cts.app"
-        private const val APP_LABEL: String = "CtsRoleMultiUserTestApp"
+        private const val APP_APK_PATH = "/data/local/tmp/cts-role/CtsRoleTestApp.apk"
+        private const val APP_PACKAGE_NAME = "android.app.role.cts.app"
+        private const val APP_LABEL = "CtsRoleTestApp"
 
         private val context: Context = context().instrumentedContext()
         private val roleManager: RoleManager = context.getSystemService(RoleManager::class.java)

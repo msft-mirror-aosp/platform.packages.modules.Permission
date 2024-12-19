@@ -219,7 +219,6 @@ public class RoleService extends SystemService implements RoleUserState.Callback
         }, intentFilter, null, null);
     }
 
-    // TODO(b/375029649): enforce single active user for all cross-user roles
     @Override
     public void onStart() {
         publishBinderService(Context.ROLE_SERVICE, new Stub());
@@ -440,6 +439,9 @@ public class RoleService extends SystemService implements RoleUserState.Callback
     private void onRemoveUser(@UserIdInt int userId) {
         RemoteCallbackList<IOnRoleHoldersChangedListener> listeners;
         RoleUserState userState;
+        // UserManager still knows the user until ACTION_USER_REMOVED broadcasts are processed
+        int profileParentId = UserUtils.getProfileParentIdOrSelf(userId, getContext());
+        List<String> activeRoleNames = null;
         synchronized (mLock) {
             mGrantDefaultRolesThrottledRunnables.remove(userId);
             listeners = mListeners.get(userId);
@@ -447,7 +449,29 @@ public class RoleService extends SystemService implements RoleUserState.Callback
             mControllers.remove(userId);
             userState = mUserStates.get(userId);
             mUserStates.remove(userId);
+
+            if (RoleFlags.isProfileGroupExclusivityAvailable() && userId != profileParentId) {
+                RoleUserState profileParentState = mUserStates.get(profileParentId);
+                activeRoleNames = profileParentState.getActiveRolesForUser(userId);
+            }
         }
+        if (RoleFlags.isProfileGroupExclusivityAvailable() && userId != profileParentId
+                && !CollectionUtils.isEmpty(activeRoleNames)) {
+            int activeRoleNamesSize = activeRoleNames.size();
+            for (int i = 0; i < activeRoleNamesSize; i++) {
+                String roleName = activeRoleNames.get(i);
+
+                // If the previous active user had a set role holder, attempt to fallback for
+                // the profile parent.
+                Log.i(LOG_TAG, "User " + userId + " removed, falling back to profile parent "
+                        + profileParentId + " for role " + roleName);
+                // Use profileParentId instead of userId here, since userId is in a state of removal
+                // and might be excluded from UserManager#getUserHandles with excludeDying=true
+                setActiveUserForRoleAsUserInternal(roleName, profileParentId, 0, true,
+                        profileParentId);
+            }
+        }
+
         if (listeners != null) {
             listeners.kill();
         }

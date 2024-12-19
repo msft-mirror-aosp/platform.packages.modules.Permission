@@ -45,6 +45,6 @@ android_test {
     ],
 
     data: [
-        ":CtsRoleMultiUserTestApp",
+        ":CtsRoleTestApp",
     ],
 }
