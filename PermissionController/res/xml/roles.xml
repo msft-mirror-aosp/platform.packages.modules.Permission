@@ -155,9 +155,13 @@
                 minSdkVersion="35" optionalMinSdkVersion="34" />
             <permission name="android.permission.EMBED_ANY_APP_IN_UNTRUSTED_MODE"
                 minSdkVersion="35" />
+            <permission name="android.permission.READ_SYSTEM_PREFERENCES"
+                featureFlag="com.android.settingslib.flags.Flags.settingsCatalyst" />
         </permissions>
         <app-op-permissions>
             <app-op-permission name="android.permission.SYSTEM_ALERT_WINDOW" />
+            <app-op-permission name="android.permission.WRITE_SYSTEM_PREFERENCES"
+                featureFlag="com.android.settingslib.flags.Flags.writeSystemPreferencePermissionEnabled" />
         </app-op-permissions>
     </role>
 
