@@ -1885,7 +1885,7 @@
         shortLabel="@string/role_for_testing_profile_group_exclusivity_short_label"
         showNone="true"
         uiBehavior="ReservedForTestingProfileGroupExclusivityRoleUiBehavior"
-        visible="true"/>
+        visible="false"/>
 
     <!---
       ~ A role for the vendor package that provides privacy-preserving intelligent processor for
