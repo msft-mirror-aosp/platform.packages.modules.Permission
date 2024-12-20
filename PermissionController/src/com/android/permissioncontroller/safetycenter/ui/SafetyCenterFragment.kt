@@ -33,7 +33,6 @@ import com.android.permissioncontroller.safetycenter.ui.model.SafetyCenterUiData
 import com.android.permissioncontroller.safetycenter.ui.model.SafetyCenterViewModel
 import com.android.safetycenter.resources.SafetyCenterResourcesApk
 import com.android.settingslib.widget.SettingsBasePreferenceFragment
-import com.android.settingslib.widget.SettingsThemeHelper
 
 /** A base fragment that represents a page in Safety Center. */
 @RequiresApi(TIRAMISU)
@@ -57,12 +56,7 @@ abstract class SafetyCenterFragment : SettingsBasePreferenceFragment() {
          * subpages i.e. non expand-and-collapse type entries. Hence, we check that the flag is
          * enabled before using an adapter that does the highlighting and scrolling. */
         val adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder> =
-            if (
-                SafetyCenterUiFlags.getShowSubpages() &&
-                    !SettingsThemeHelper.isExpressiveTheme(requireContext())
-            ) {
-                // TODO: b/378433878 - Create highlight adapter for settings expressive theme, which
-                // has a different base class.
+            if (SafetyCenterUiFlags.getShowSubpages()) {
                 highlightManager.createAdapter(preferenceScreen)
             } else {
                 super.onCreateAdapter(preferenceScreen)
