@@ -472,25 +472,21 @@ public class Role {
         if (!isAvailableByFeatureFlagAndSdkVersion()) {
             return false;
         }
-
-        if (getExclusivity() == EXCLUSIVITY_PROFILE_GROUP
-                && UserUtils.isPrivateProfile(user, context)) {
-            return false;
-        }
-
-        if (mBehavior != null) {
-            boolean isAvailableAsUser = mBehavior.isAvailableAsUser(this, user, context);
-            // Ensure that cross-user role is only available if also available for
-            //  the profile-group's full user
-            if (isAvailableAsUser && getExclusivity() == EXCLUSIVITY_PROFILE_GROUP) {
-                UserHandle profileParent = UserUtils.getProfileParentOrSelf(user, context);
-                if (!Objects.equals(profileParent, user)
-                        && !mBehavior.isAvailableAsUser(this, profileParent, context)) {
-                    throw new IllegalArgumentException("Role is not available for profile parent: "
-                            + profileParent.getIdentifier());
-                }
+        if (getExclusivity() == EXCLUSIVITY_PROFILE_GROUP) {
+            if (UserUtils.isPrivateProfile(user, context)) {
+                return false;
             }
-            return isAvailableAsUser;
+
+            // A profile group exclusive role may only be available in a profile when it's
+            // available in the profile parent.
+            UserHandle profileParent = UserUtils.getProfileParentOrSelf(user, context);
+            if (!Objects.equals(user, profileParent)
+                    && !isAvailableAsUser(profileParent, context)) {
+                return false;
+            }
+        }
+        if (mBehavior != null) {
+            return mBehavior.isAvailableAsUser(this, user, context);
         }
         return true;
     }
