@@ -1082,6 +1082,11 @@ public class Role {
      */
     public void onNoneHolderSelectedAsUser(@NonNull UserHandle user, @NonNull Context context) {
         RoleManagerCompat.setRoleFallbackEnabledAsUser(this, false, user, context);
+        if (RoleFlags.isProfileGroupExclusivityAvailable()
+                && getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP) {
+            RoleManager roleManager = context.getSystemService(RoleManager.class);
+            roleManager.setActiveUserForRole(mName, user, 0);
+        }
     }
 
     /**
@@ -1134,6 +1139,8 @@ public class Role {
     @Nullable
     public Intent getRestrictionIntentAsUser(@NonNull UserHandle user, @NonNull Context context) {
         if (SdkLevel.isAtLeastU() && isExclusive()) {
+            // TODO(b/379143953): if role is profile group exclusive
+            //  check DISALLOW_CONFIG_DEFAULT_APPS for all users
             UserManager userManager = context.getSystemService(UserManager.class);
             if (userManager.hasUserRestrictionForUser(UserManager.DISALLOW_CONFIG_DEFAULT_APPS,
                     user)) {

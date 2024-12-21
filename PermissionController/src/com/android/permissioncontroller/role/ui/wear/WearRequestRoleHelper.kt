@@ -19,13 +19,16 @@ package com.android.permissioncontroller.role.ui.wear
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.graphics.drawable.Drawable
+import android.os.Process
 import android.util.Pair
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.utils.Utils
+import com.android.permissioncontroller.role.UserPackage
 import com.android.permissioncontroller.role.model.UserDeniedManager
 import com.android.permissioncontroller.role.ui.RequestRoleViewModel
 import com.android.permissioncontroller.role.ui.wear.model.WearRequestRoleViewModel
 import com.android.role.controller.model.Role
+import java.util.Objects
 
 /** A helper class for [WearRequestRoleScreen]. */
 class WearRequestRoleHelper(
@@ -35,7 +38,7 @@ class WearRequestRoleHelper(
     val roleName: String,
     val packageName: String,
     val viewModel: RequestRoleViewModel,
-    val wearViewModel: WearRequestRoleViewModel
+    val wearViewModel: WearRequestRoleViewModel,
 ) {
     fun getIcon() = Utils.getBadgedIcon(context, applicationInfo)
 
@@ -48,12 +51,12 @@ class WearRequestRoleHelper(
 
     fun getNonePreference(
         qualifyingApplications: List<Pair<ApplicationInfo, Boolean>>,
-        selectedPackage: String?
+        selectedPackage: UserPackage?,
     ): RequestRolePreference? =
         if (role.shouldShowNone()) {
             val hasHolderApplication = hasHolderApplication(qualifyingApplications)
             RequestRolePreference(
-                packageName = null,
+                userPackage = null,
                 label = context.getString(R.string.default_app_none),
                 subTitle =
                     if (!hasHolderApplication) {
@@ -62,14 +65,14 @@ class WearRequestRoleHelper(
                         null
                     },
                 icon = context.getDrawable(R.drawable.ic_remove_circle),
-                checked = selectedPackage.isNullOrEmpty(),
+                checked = selectedPackage == null,
                 enabled =
                     if (!wearViewModel.dontAskAgain()) {
                         true
                     } else {
                         !hasHolderApplication
                     },
-                isHolder = !hasHolderApplication
+                isHolder = !hasHolderApplication,
             )
         } else {
             null
@@ -77,12 +80,13 @@ class WearRequestRoleHelper(
 
     fun getPreferences(
         qualifyingApplications: List<Pair<ApplicationInfo, Boolean>>,
-        selectedPackage: String?
+        selectedPackage: UserPackage?,
     ): List<RequestRolePreference> {
         return qualifyingApplications
             .map { qualifyingApplication ->
+                val userPackage = UserPackage.from(qualifyingApplication.first)
                 RequestRolePreference(
-                    packageName = qualifyingApplication.first.packageName,
+                    userPackage = userPackage,
                     label = Utils.getAppLabel(qualifyingApplication.first, context),
                     subTitle =
                         if (qualifyingApplication.second) {
@@ -91,14 +95,14 @@ class WearRequestRoleHelper(
                             context.getString(role.requestDescriptionResource)
                         },
                     icon = Utils.getBadgedIcon(context, qualifyingApplication.first),
-                    checked = qualifyingApplication.first.packageName.equals(selectedPackage),
+                    checked = Objects.equals(userPackage, selectedPackage),
                     enabled =
                         if (!wearViewModel.dontAskAgain()) {
                             true
                         } else {
                             qualifyingApplication.second
                         },
-                    isHolder = qualifyingApplication.second
+                    isHolder = qualifyingApplication.second,
                 )
             }
             .toList()
@@ -112,16 +116,20 @@ class WearRequestRoleHelper(
         return enabled && (wearViewModel.dontAskAgain() || !wearViewModel.isHolderChecked)
     }
 
-    fun initializeHolderPackageName(qualifyingApplications: List<Pair<ApplicationInfo, Boolean>>) {
-        wearViewModel.holderPackageName =
-            qualifyingApplications.find { it.second }?.first?.packageName
+    fun initializeHolderPackage(qualifyingApplications: List<Pair<ApplicationInfo, Boolean>>) {
+        wearViewModel.holderPackage =
+            qualifyingApplications
+                .find { it.second }
+                ?.first
+                ?.let { appInfo -> UserPackage.from(appInfo) }
     }
 
-    fun initializeSelectedPackageName() {
-        if (wearViewModel.holderPackageName == null) {
-            wearViewModel.selectedPackageName.value = null
+    fun initializeSelectedPackage() {
+        if (wearViewModel.holderPackage == null) {
+            wearViewModel.selectedPackage.value = null
         } else {
-            wearViewModel.selectedPackageName.value = packageName
+            wearViewModel.selectedPackage.value =
+                UserPackage.of(Process.myUserHandle(), packageName)
         }
     }
 
@@ -131,7 +139,7 @@ class WearRequestRoleHelper(
         val icon: Drawable?,
         val checked: Boolean,
         val enabled: Boolean,
-        val packageName: String?,
-        val isHolder: Boolean
+        val userPackage: UserPackage?,
+        val isHolder: Boolean,
     )
 }

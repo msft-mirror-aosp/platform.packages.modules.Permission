@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.preference.Preference;
 
 import com.android.permissioncontroller.permission.utils.Utils;
+import com.android.permissioncontroller.role.ui.RequestRoleItemView;
 import com.android.permissioncontroller.role.ui.TwoTargetPreference;
 import com.android.role.controller.model.Role;
 import com.android.role.controller.util.UserUtils;
@@ -35,10 +36,9 @@ public class ReservedForTestingProfileGroupExclusivityRoleUiBehavior implements 
     public void preparePreferenceAsUser(@NonNull Role role, @NonNull TwoTargetPreference preference,
             @NonNull List<ApplicationInfo> applicationInfos, @NonNull UserHandle user,
             @NonNull Context context) {
-        Context userContext = UserUtils.getUserContext(context, user);
         if (!applicationInfos.isEmpty()) {
-            preparePreferenceInternal(preference.asPreference(), applicationInfos.get(0),
-                    false, userContext);
+            preparePreferenceInternal(preference.asPreference(), applicationInfos.get(0), false,
+                    user, context);
         }
     }
 
@@ -46,18 +46,34 @@ public class ReservedForTestingProfileGroupExclusivityRoleUiBehavior implements 
     public void prepareApplicationPreferenceAsUser(@NonNull Role role,
             @NonNull Preference preference, @NonNull ApplicationInfo applicationInfo,
             @NonNull UserHandle user, @NonNull Context context) {
+        preparePreferenceInternal(preference, applicationInfo, true, user, context);
+    }
+
+    @Override
+    public void prepareRequestRoleItemViewAsUser(@NonNull Role role,
+            @NonNull RequestRoleItemView itemView, @NonNull ApplicationInfo applicationInfo,
+            @NonNull UserHandle user, @NonNull Context context) {
         Context userContext = UserUtils.getUserContext(context, user);
-        preparePreferenceInternal(preference, applicationInfo, true, userContext);
+        String title = getTitle(applicationInfo, userContext);
+        itemView.getTitleTextView().setText(title);
     }
 
     private void preparePreferenceInternal(@NonNull Preference preference,
-            @NonNull ApplicationInfo applicationInfo, boolean setTitle, @NonNull Context context) {
-        String title = Utils.getFullAppLabel(applicationInfo, context) + "@"
-                + UserHandle.getUserHandleForUid(applicationInfo.uid).getIdentifier();
+            @NonNull ApplicationInfo applicationInfo, boolean setTitle, @NonNull UserHandle user,
+            @NonNull Context context) {
+        Context userContext = UserUtils.getUserContext(context, user);
+        String title = getTitle(applicationInfo, userContext);
         if (setTitle) {
             preference.setTitle(title);
         } else {
             preference.setSummary(title);
         }
+    }
+
+    @NonNull
+    private static String getTitle(@NonNull ApplicationInfo applicationInfo,
+            @NonNull Context context) {
+        return Utils.getFullAppLabel(applicationInfo, context) + "@"
+                + UserHandle.getUserHandleForUid(applicationInfo.uid).getIdentifier();
     }
 }

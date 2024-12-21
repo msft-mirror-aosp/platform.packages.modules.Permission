@@ -60,6 +60,7 @@ class WearDefaultAppHelper(
             .map { pair ->
                 val appInfo = pair.first
                 val selected = pair.second
+                val user = UserHandle.getUserHandleForUid(appInfo.uid)
                 WearRoleApplicationPreference(
                         context = context,
                         defaultLabel = Utils.getFullAppLabel(appInfo, context),
@@ -67,7 +68,6 @@ class WearDefaultAppHelper(
                         onDefaultCheckChanged = { _ ->
                             run {
                                 val packageName = appInfo.packageName
-                                val user = UserHandle.getUserHandleForUid(appInfo.uid)
                                 val confirmationMessage =
                                     RoleUiBehaviorUtils.getConfirmationMessage(
                                         role,
