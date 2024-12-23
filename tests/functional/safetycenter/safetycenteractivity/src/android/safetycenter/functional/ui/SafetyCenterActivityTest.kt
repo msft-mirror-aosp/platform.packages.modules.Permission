@@ -73,6 +73,7 @@ import com.android.safetycenter.testing.UiTestHelper.waitPageTitleDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceDataDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueDisplayed
 import com.android.safetycenter.testing.UiTestHelper.waitSourceIssueNotDisplayed
+import java.util.regex.Pattern
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -1516,9 +1517,10 @@ class SafetyCenterActivityTest {
         )
         safetyCenterTestHelper.setEnabled(false)
 
+        val containsPrivacyPattern = Pattern.compile(".*[Pp]rivacy|[Pp]ermission.*") // NOTYPO
         context.launchSafetyCenterActivity(intentAction = PRIVACY_CONTROLS_ACTION) {
             waitDisplayed(By.pkg(context.getSettingsPackageName()))
-            waitPageTitleDisplayed("Privacy")
+            waitDisplayed(By.text(containsPrivacyPattern))
         }
     }
 
