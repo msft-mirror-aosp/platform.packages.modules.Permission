@@ -29,7 +29,6 @@ import android.os.Build
 import android.os.Process
 import android.os.SystemClock
 import android.os.SystemProperties
-import android.os.UserManager
 import android.permission.PermissionManager
 import android.permission.cts.MtsIgnore
 import android.platform.test.annotations.AsbSecurityTest
@@ -57,6 +56,7 @@ import com.android.compatibility.common.util.SystemUtil.runShellCommandOrThrow
 import com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity
 import com.android.compatibility.common.util.UiAutomatorUtils2
 import com.android.compatibility.common.util.UiAutomatorUtils2.assertWithUiDump
+import com.android.compatibility.common.util.UserHelper
 import com.android.modules.utils.build.SdkLevel
 import com.android.sts.common.util.StsExtraBusinessLogicTestCase
 import java.util.regex.Pattern
@@ -146,7 +146,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
         DeviceConfig.getString(
             DeviceConfig.NAMESPACE_PRIVACY,
             SAFETY_CENTER_ENABLED,
-            false.toString()
+            false.toString(),
         )!!
     }
 
@@ -162,15 +162,15 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
 
     @Before
     fun setUp() {
-        // Camera and Mic are not supported for secondary user visible as a background user.
-        assumeFalse(isAutomotiveWithVisibleBackgroundUser())
+        // Skip the tests as Camera and Mic are not supported for visible background users.
+        assumeFalse(isCar && UserHelper(context).isVisibleBackgroundUser())
         runWithShellPermissionIdentity {
             screenTimeoutBeforeTest =
                 Settings.System.getLong(context.contentResolver, Settings.System.SCREEN_OFF_TIMEOUT)
             Settings.System.putLong(
                 context.contentResolver,
                 Settings.System.SCREEN_OFF_TIMEOUT,
-                1800000L
+                1800000L,
             )
         }
 
@@ -188,7 +188,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
             "feature not present on this device",
             callWithShellPermissionIdentity {
                 CompatChanges.isChangeEnabled(PERMISSION_INDICATORS_NOT_PRESENT, Process.SYSTEM_UID)
-            }
+            },
         )
         install()
     }
@@ -203,7 +203,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
                     DeviceConfig.NAMESPACE_PRIVACY,
                     INDICATORS_FLAG,
                     shouldBeEnabled.toString(),
-                    false
+                    false,
                 )
             }
         }
@@ -212,7 +212,8 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
 
     @After
     fun tearDown() {
-        if (isAutomotiveWithVisibleBackgroundUser()) {
+        // Skip the tests as Camera and Mic are not supported for visible background users.
+        if (isCar && UserHelper(context).isVisibleBackgroundUser()) {
             return
         }
         uninstall()
@@ -222,7 +223,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
         }
         eventually(
             { assertIndicatorsShown(false, false, false) },
-            AUTO_MIC_INDICATOR_DISMISSAL_TIMEOUT_MS
+            AUTO_MIC_INDICATOR_DISMISSAL_TIMEOUT_MS,
         )
         if (!wasEnabled) {
             setIndicatorsEnabledStateIfNeeded(false)
@@ -231,7 +232,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
             Settings.System.putLong(
                 context.contentResolver,
                 Settings.System.SCREEN_OFF_TIMEOUT,
-                screenTimeoutBeforeTest
+                screenTimeoutBeforeTest,
             )
         }
         changeSafetyCenterFlag(safetyCenterEnabled)
@@ -247,7 +248,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
         useMic: Boolean,
         useCamera: Boolean,
         useHotword: Boolean,
-        finishEarly: Boolean = false
+        finishEarly: Boolean = false,
     ) {
         context.startActivity(
             Intent(USE_INTENT_ACTION).apply {
@@ -288,7 +289,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
             useMic = true,
             useCamera = false,
             finishEarly = true,
-            safetyCenterEnabled = getSafetyCenterEnabled()
+            safetyCenterEnabled = getSafetyCenterEnabled(),
         )
     }
 
@@ -349,7 +350,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
             useMic = false,
             useCamera = false,
             useHotword = true,
-            safetyCenterEnabled = true
+            safetyCenterEnabled = true,
         )
     }
 
@@ -364,7 +365,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
             useMic = false,
             useCamera = true,
             chainUsage = true,
-            safetyCenterEnabled = true
+            safetyCenterEnabled = true,
         )
     }
 
@@ -374,12 +375,12 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
         useHotword: Boolean = false,
         chainUsage: Boolean = false,
         safetyCenterEnabled: Boolean = false,
-        finishEarly: Boolean = false
+        finishEarly: Boolean = false,
     ) {
         Log.d(
             TAG,
             "testCameraAndMicIndicator useMic=$useMic useCamera=$useCamera " +
-                "safetyCenterEnabled=$safetyCenterEnabled finishEarly=$finishEarly"
+                "safetyCenterEnabled=$safetyCenterEnabled finishEarly=$finishEarly",
         )
         // If camera is not available skip the test
         if (useCamera) {
@@ -408,7 +409,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
                         permissionManager.checkPermissionForStartDataDelivery(
                             Manifest.permission.RECORD_AUDIO,
                             chainAttribution!!,
-                            ""
+                            "",
                         )
                     assertEquals(PermissionManager.PERMISSION_GRANTED, ret)
                 }
@@ -441,7 +442,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
                 runWithShellPermissionIdentity {
                     permissionManager.finishDataDelivery(
                         Manifest.permission.RECORD_AUDIO,
-                        chainAttribution
+                        chainAttribution,
                     )
                 }
             }
@@ -480,7 +481,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
                 micInUse,
                 useCamera,
                 chainUsage,
-                safetyCenterEnabled
+                safetyCenterEnabled,
             )
             uiDevice.pressBack()
         }
@@ -489,7 +490,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
     private fun assertWatchIndicatorsShown(
         useMic: Boolean,
         useCamera: Boolean,
-        useHotword: Boolean
+        useHotword: Boolean,
     ) {
         if (useMic || useHotword || (!useMic && !useCamera && !useHotword)) {
             val iconView = UiAutomatorUtils2.waitFindObjectOrNull(By.descContains(WEAR_MIC_LABEL))
@@ -529,7 +530,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
         useMic: Boolean,
         useCamera: Boolean,
         useHotword: Boolean,
-        chainUsage: Boolean
+        chainUsage: Boolean,
     ) {
         eventually {
             // Ensure the privacy chip is present (or not)
@@ -574,17 +575,17 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
                 val micLabelView = uiDevice.findObject(UiSelector().textContains(micLabel))
                 assertFalse(
                     "View with text $micLabel found, but did not expect to",
-                    micLabelView.exists()
+                    micLabelView.exists(),
                 )
                 val cameraLabelView = uiDevice.findObject(UiSelector().textContains(cameraLabel))
                 assertFalse(
                     "View with text $cameraLabel found, but did not expect to",
-                    cameraLabelView.exists()
+                    cameraLabelView.exists(),
                 )
                 val appView = uiDevice.findObject(UiSelector().textContains(APP_LABEL))
                 assertFalse(
                     "View with text $APP_LABEL found, but did not expect to",
-                    appView.exists()
+                    appView.exists(),
                 )
             }
         }
@@ -594,7 +595,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
         useMic: Boolean,
         useCamera: Boolean,
         chainUsage: Boolean,
-        safetyCenterEnabled: Boolean = false
+        safetyCenterEnabled: Boolean = false,
     ) {
         // Ensure the privacy chip is present
         if (useCamera || useMic) {
@@ -654,7 +655,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
                         context.packageName,
                         null,
                         null,
-                        permissionManager.registerAttributionSource(childAttribution)
+                        permissionManager.registerAttributionSource(childAttribution),
                     )
                 attrSource = permissionManager.registerAttributionSource(attribution)
             } catch (e: PackageManager.NameNotFoundException) {
@@ -704,7 +705,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
                 DeviceConfig.NAMESPACE_PRIVACY,
                 SAFETY_CENTER_ENABLED,
                 safetyCenterEnabled,
-                false
+                false,
             )
         }
     }
@@ -742,7 +743,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
 
     private fun findObjectWithRetry(
         automatorMethod: (timeoutMillis: Long) -> UiObject2?,
-        timeoutMillis: Long = TIMEOUT_MILLIS
+        timeoutMillis: Long = TIMEOUT_MILLIS,
     ): UiObject2? {
         val startTime = SystemClock.elapsedRealtime()
         return try {
@@ -765,7 +766,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
                 permissionControllerContext.resources.getIdentifier(
                     resourceName,
                     "string",
-                    "com.android.permissioncontroller"
+                    "com.android.permissioncontroller",
                 )
             return permissionControllerContext.getString(resourceId)
         } catch (e: PackageManager.NameNotFoundException) {
@@ -778,7 +779,7 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
         val micView = waitFindObject(byOneOfText(originalMicLabel, safetyCenterMicLabel))
         assertNotNull(
             "View with text '$originalMicLabel' or '$safetyCenterMicLabel' not found",
-            micView
+            micView,
         )
     }
 
@@ -787,16 +788,10 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
         val cameraView = waitFindObject(byOneOfText(originalCameraLabel, safetyCenterCameraLabel))
         assertNotNull(
             "View with text '$originalCameraLabel' or '$safetyCenterCameraLabel' not found",
-            cameraView
+            cameraView,
         )
     }
 
     private fun byOneOfText(vararg textValues: String) =
         By.text(Pattern.compile(textValues.joinToString(separator = "|") { Pattern.quote(it) }))
-
-    fun isAutomotiveWithVisibleBackgroundUser(): Boolean {
-        val userManager = context.getSystemService(UserManager::class.java)
-        return packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE) &&
-                userManager.isVisibleBackgroundUsersSupported()
-    }
 }
