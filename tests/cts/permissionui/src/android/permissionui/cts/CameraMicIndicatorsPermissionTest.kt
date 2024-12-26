@@ -54,6 +54,7 @@ import com.android.compatibility.common.util.SystemUtil.runShellCommandOrThrow
 import com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity
 import com.android.compatibility.common.util.UiAutomatorUtils2
 import com.android.compatibility.common.util.UiAutomatorUtils2.assertWithUiDump
+import com.android.compatibility.common.util.UserHelper
 import com.android.modules.utils.build.SdkLevel
 import com.android.sts.common.util.StsExtraBusinessLogicTestCase
 import java.util.regex.Pattern
@@ -159,6 +160,8 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
 
     @Before
     fun setUp() {
+        // Camera and Mic are not supported for secondary user visible as a background user.
+        assumeFalse(isCar && UserHelper(context).isVisibleBackgroundUser())
         runWithShellPermissionIdentity {
             screenTimeoutBeforeTest =
                 Settings.System.getLong(context.contentResolver, Settings.System.SCREEN_OFF_TIMEOUT)
@@ -207,6 +210,10 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
 
     @After
     fun tearDown() {
+        // Camera and Mic are not supported for secondary user visible as a background user.
+        if (isCar && UserHelper(context).isVisibleBackgroundUser()) {
+            return
+        }
         uninstall()
         if (isCar) {
             // Deselect the indicator since it persists otherwise
