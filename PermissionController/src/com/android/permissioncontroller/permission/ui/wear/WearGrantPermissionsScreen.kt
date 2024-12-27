@@ -47,7 +47,6 @@ import com.android.permissioncontroller.permission.ui.wear.elements.material3.We
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControl
 import com.android.permissioncontroller.permission.ui.wear.model.WearGrantPermissionsViewModel
 import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
-import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL3
 import kotlinx.coroutines.delay
 
@@ -63,13 +62,7 @@ fun WearGrantPermissionsScreen(
     val locationVisibilities = viewModel.locationVisibilitiesLiveData.observeAsState(emptyList())
     val preciseLocationChecked = viewModel.preciseLocationCheckedLiveData.observeAsState(false)
     val buttonVisibilities = viewModel.buttonVisibilitiesLiveData.observeAsState(emptyList())
-    val materialUIVersion =
-        if (ResourceHelper.material3Enabled) {
-            MATERIAL3
-        } else {
-            MATERIAL2_5
-        }
-
+    val materialUIVersion = ResourceHelper.materialUIVersionInApp
     ScrollableScreen(
         materialUIVersion = materialUIVersion,
         showTimeText = false,
@@ -129,7 +122,7 @@ fun setContent(
     onLocationSwitchChanged: (Boolean) -> Unit,
 ) {
     composeView.setContent {
-        if (ResourceHelper.material3Enabled) {
+        if (ResourceHelper.materialUIVersionInApp == MATERIAL3) {
             AsDialog(onCancelled) {
                 WearGrantPermissionsScreen(viewModel, onButtonClicked, onLocationSwitchChanged)
             }

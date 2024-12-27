@@ -17,12 +17,16 @@ package com.android.permissioncontroller.permission.ui.wear.elements.material3
 
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButtonDefaults
 import com.android.permissioncontroller.permission.ui.wear.elements.rememberDrawablePainter
@@ -66,7 +70,7 @@ class WearPermissionIconBuilder private constructor() {
     }
 
     fun modifier(modifier: Modifier): WearPermissionIconBuilder {
-        this.modifier then modifier
+        this.modifier = modifier then this.modifier
         return this
     }
 
@@ -99,3 +103,11 @@ class WearPermissionIconBuilder private constructor() {
         fun builder(icon: Any) = WearPermissionIconBuilder().apply { iconResource = icon }
     }
 }
+
+@Composable
+fun WearPermissionIconBuilder.Companion.defaultAlertConfirmIcon() =
+    builder(Icons.Default.Check).contentDescription((stringResource(android.R.string.ok)))
+
+@Composable
+fun WearPermissionIconBuilder.Companion.defaultAlertDismissIcon() =
+    builder(Icons.Default.Close).contentDescription((stringResource(android.R.string.cancel)))

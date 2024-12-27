@@ -27,9 +27,33 @@ internal object ResourceHelper {
 
     private const val MATERIAL3_ENABLED_SYSPROP = "persist.cw_build.bluechip.enabled"
 
-    val material3Enabled: Boolean
+    /* This controls in app permission controller experience. */
+    private val material3Enabled: Boolean
         get() {
             return SystemProperties.getBoolean(MATERIAL3_ENABLED_SYSPROP, false)
+        }
+
+    val materialUIVersionInApp: WearPermissionMaterialUIVersion =
+        if (material3Enabled) {
+            WearPermissionMaterialUIVersion.MATERIAL3
+        } else {
+            WearPermissionMaterialUIVersion.MATERIAL2_5
+        }
+
+    /*
+    This is to control the permission controller screens in settings.
+    Currently it is set as false. We will either use the flag or a common property from settings
+    based on settings implementation when we are ready" */
+    private val material3EnabledInSettings: Boolean
+        get() {
+            return false
+        }
+
+    val materialUIVersionInSettings: WearPermissionMaterialUIVersion =
+        if (material3EnabledInSettings) {
+            WearPermissionMaterialUIVersion.MATERIAL3
+        } else {
+            WearPermissionMaterialUIVersion.MATERIAL2_5
         }
 
     @DoNotInline

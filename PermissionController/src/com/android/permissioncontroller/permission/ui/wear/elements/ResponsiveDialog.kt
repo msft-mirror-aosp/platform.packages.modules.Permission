@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.android.permissioncontroller.permission.ui.wear.elements
 
 import androidx.compose.foundation.layout.Arrangement
@@ -29,15 +28,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -53,9 +48,9 @@ import com.android.permissioncontroller.permission.ui.wear.elements.layout.Scali
 import com.android.permissioncontroller.permission.ui.wear.elements.layout.ScalingLazyColumnDefaults.responsive
 import com.android.permissioncontroller.permission.ui.wear.elements.layout.ScalingLazyColumnState
 import com.android.permissioncontroller.permission.ui.wear.elements.layout.rememberColumnState
-
-// This file is a copy of ResponsiveDialogContent.kt from Horologist (go/horologist),
-// remove it once after wear compose supports large screen dialogs.
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.defaultAlertConfirmIcon
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.defaultAlertDismissIcon
 
 @Composable
 fun ResponsiveDialogContent(
@@ -63,18 +58,11 @@ fun ResponsiveDialogContent(
     icon: @Composable (() -> Unit)? = null,
     title: @Composable (() -> Unit)? = null,
     message: @Composable (() -> Unit)? = null,
-    okButtonIcon: Any = Icons.Default.Check,
-    cancelButtonIcon: Any = Icons.Default.Close,
-    onOk: (() -> Unit)? = null,
-    onCancel: (() -> Unit)? = null,
-    okButtonContentDescription: String = stringResource(android.R.string.ok),
-    cancelButtonContentDescription: String = stringResource(android.R.string.cancel),
+    positiveButtonContent: DialogButtonContent? = null,
+    negativeButtonContent: DialogButtonContent? = null,
     state: ScalingLazyColumnState =
         rememberColumnState(
-            responsive(
-                firstItemIsFullWidth = icon == null,
-                additionalPaddingAtBottom = 0.dp,
-            ),
+            responsive(firstItemIsFullWidth = icon == null, additionalPaddingAtBottom = 0.dp)
         ),
     showPositionIndicator: Boolean = true,
     content: (ScalingLazyListScope.() -> Unit)? = null,
@@ -89,9 +77,7 @@ fun ResponsiveDialogContent(
         timeText = {},
     ) {
         // This will be applied only to the content.
-        CompositionLocalProvider(
-            LocalTextStyle provides MaterialTheme.typography.body2,
-        ) {
+        CompositionLocalProvider(LocalTextStyle provides MaterialTheme.typography.body2) {
             ScalingLazyColumn(columnState = state) {
                 icon?.let {
                     item {
@@ -107,11 +93,11 @@ fun ResponsiveDialogContent(
                     item {
                         CompositionLocalProvider(
                             LocalTextStyle provides
-                                MaterialTheme.typography.title3.copy(fontWeight = FontWeight.W600),
+                                MaterialTheme.typography.title3.copy(fontWeight = FontWeight.W600)
                         ) {
                             Box(
                                 Modifier.fillMaxWidth(titleMaxWidthFraction)
-                                    .padding(bottom = 8.dp), // 12.dp below icon
+                                    .padding(bottom = 8.dp) // 12.dp below icon
                             ) {
                                 it()
                             }
@@ -123,22 +109,20 @@ fun ResponsiveDialogContent(
                     item { Spacer(Modifier.height(20.dp)) }
                 }
                 message?.let {
-                    item {
-                        Box(
-                            Modifier.fillMaxWidth(messageMaxWidthFraction),
-                        ) {
-                            it()
-                        }
-                    }
+                    item { Box(Modifier.fillMaxWidth(messageMaxWidthFraction)) { it() } }
                 }
                 content?.let { it() }
-                if (onOk != null || onCancel != null) {
+                if (positiveButtonContent != null || negativeButtonContent != null) {
                     item {
                         val width = LocalConfiguration.current.screenWidthDp
                         // Single buttons, or buttons on smaller screens are not meant to be
                         // responsive.
                         val buttonWidth =
-                            if (width < 225 || onOk == null || onCancel == null) {
+                            if (
+                                width < 225 ||
+                                    positiveButtonContent == null ||
+                                    negativeButtonContent == null
+                            ) {
                                 ButtonDefaults.DefaultButtonSize
                             } else {
                                 // 14.56% on top of 5.2% margin on the sides, 12.dp between.
@@ -147,25 +131,30 @@ fun ResponsiveDialogContent(
                         Row(
                             Modifier.fillMaxWidth()
                                 .padding(
-                                    top = if (content != null || message != null) 12.dp else 0.dp,
+                                    top = if (content != null || message != null) 12.dp else 0.dp
                                 ),
                             horizontalArrangement = spacedBy(12.dp, Alignment.CenterHorizontally),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            onCancel?.let {
+                            negativeButtonContent?.run {
                                 ResponsiveButton(
-                                    icon = cancelButtonIcon,
-                                    cancelButtonContentDescription,
-                                    onClick = it,
+                                    this.icon
+                                        ?: WearPermissionIconBuilder.defaultAlertDismissIcon()
+                                            .tint(
+                                                ChipDefaults.secondaryChipColors()
+                                                    .contentColor(true)
+                                                    .value
+                                            ),
+                                    onClick,
                                     buttonWidth,
                                     ChipDefaults.secondaryChipColors(),
                                 )
                             }
-                            onOk?.let {
+                            positiveButtonContent?.run {
                                 ResponsiveButton(
-                                    icon = okButtonIcon,
-                                    okButtonContentDescription,
-                                    onClick = it,
+                                    this.icon
+                                        ?: WearPermissionIconBuilder.defaultAlertConfirmIcon(),
+                                    onClick,
                                     buttonWidth,
                                 )
                             }
@@ -179,8 +168,7 @@ fun ResponsiveDialogContent(
 
 @Composable
 private fun ResponsiveButton(
-    icon: Any,
-    contentDescription: String,
+    icon: WearPermissionIconBuilder,
     onClick: () -> Unit,
     buttonWidth: Dp,
     colors: ChipColors = ChipDefaults.primaryChipColors(),
@@ -188,12 +176,9 @@ private fun ResponsiveButton(
     androidx.wear.compose.material.Chip(
         label = {
             Box(Modifier.fillMaxWidth()) {
-                Icon(
-                    icon = icon,
-                    contentDescription = contentDescription,
-                    modifier =
-                        Modifier.size(ButtonDefaults.DefaultIconSize).align(Alignment.Center),
-                )
+                icon
+                    .modifier(Modifier.size(ButtonDefaults.DefaultIconSize).align(Alignment.Center))
+                    .build()
             }
         },
         contentPadding = PaddingValues(0.dp),
@@ -210,19 +195,10 @@ internal const val titleExtraHorizontalPadding = 8.84f
 
 // Fraction of the max available width that message should take (after global and message padding)
 internal val messageMaxWidthFraction =
-    1f -
-        2f *
-            calculatePaddingFraction(
-                messageExtraHorizontalPadding,
-            )
+    1f - 2f * calculatePaddingFraction(messageExtraHorizontalPadding)
 
 // Fraction of the max available width that title should take (after global and message padding)
-internal val titleMaxWidthFraction =
-    1f -
-        2f *
-            calculatePaddingFraction(
-                titleExtraHorizontalPadding,
-            )
+internal val titleMaxWidthFraction = 1f - 2f * calculatePaddingFraction(titleExtraHorizontalPadding)
 
 // Calculate total padding given global padding and additional padding required inside that.
 internal fun calculatePaddingFraction(extraPadding: Float) =
