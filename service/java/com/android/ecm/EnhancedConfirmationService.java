@@ -16,7 +16,7 @@
 
 package com.android.ecm;
 
-import static android.app.ecm.EnhancedConfirmationManager.REASON_APP_OP_RESTRICTED;
+import static android.app.ecm.EnhancedConfirmationManager.REASON_PACKAGE_RESTRICTED;
 import static android.app.ecm.EnhancedConfirmationManager.REASON_PHONE_STATE;
 
 import android.Manifest;
@@ -240,7 +240,7 @@ public class EnhancedConfirmationService extends SystemService {
             int ECM_STATE_IMPLICIT = AppOpsManager.MODE_DEFAULT;
         }
 
-        private static final ArraySet<String> PROTECTED_SETTINGS = new ArraySet<>();
+        private static final ArraySet<String> PER_PACKAGE_PROTECTED_SETTINGS = new ArraySet<>();
 
         // Settings restricted when an untrusted call is ongoing. These must also be added to
         // PROTECTED_SETTINGS
@@ -248,28 +248,27 @@ public class EnhancedConfirmationService extends SystemService {
 
         static {
             // Runtime permissions
-            PROTECTED_SETTINGS.add(Manifest.permission.SEND_SMS);
-            PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_SMS);
-            PROTECTED_SETTINGS.add(Manifest.permission.READ_SMS);
-            PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_MMS);
-            PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_WAP_PUSH);
-            PROTECTED_SETTINGS.add(Manifest.permission.READ_CELL_BROADCASTS);
-            PROTECTED_SETTINGS.add(Manifest.permission_group.SMS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.SEND_SMS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_SMS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.READ_SMS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_MMS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_WAP_PUSH);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.READ_CELL_BROADCASTS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission_group.SMS);
 
-            PROTECTED_SETTINGS.add(Manifest.permission.BIND_DEVICE_ADMIN);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.BIND_DEVICE_ADMIN);
             // App ops
-            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_BIND_ACCESSIBILITY_SERVICE);
-            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_ACCESS_NOTIFICATIONS);
-            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW);
-            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_GET_USAGE_STATS);
-            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_LOADER_USAGE_STATS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_BIND_ACCESSIBILITY_SERVICE);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_ACCESS_NOTIFICATIONS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_GET_USAGE_STATS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_LOADER_USAGE_STATS);
             // Default application roles.
-            PROTECTED_SETTINGS.add(RoleManager.ROLE_DIALER);
-            PROTECTED_SETTINGS.add(RoleManager.ROLE_SMS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(RoleManager.ROLE_DIALER);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(RoleManager.ROLE_SMS);
 
             if (Flags.unknownCallPackageInstallBlockingEnabled()) {
                 // Requesting package installs, limited during phone calls
-                PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_REQUEST_INSTALL_PACKAGES);
                 UNTRUSTED_CALL_RESTRICTED_SETTINGS.add(
                         AppOpsManager.OPSTR_REQUEST_INSTALL_PACKAGES);
                 UNTRUSTED_CALL_RESTRICTED_SETTINGS.add(
@@ -312,11 +311,14 @@ public class EnhancedConfirmationService extends SystemService {
                 if (!isSettingEcmProtected(settingIdentifier)) {
                     return null;
                 }
+                if (isSettingEcmGuardedForPackage(settingIdentifier, packageName, userId)) {
+                    return REASON_PACKAGE_RESTRICTED;
+                }
                 String globalProtectionReason = getGlobalProtectionReason(settingIdentifier);
                 if (globalProtectionReason != null) {
                     return globalProtectionReason;
                 }
-                return isPackageEcmGuarded(packageName, userId) ? REASON_APP_OP_RESTRICTED : null;
+                return null;
             } catch (NameNotFoundException e) {
                 throw new IllegalArgumentException(e);
             }
@@ -448,6 +450,14 @@ public class EnhancedConfirmationService extends SystemService {
                     || isAllowlistedInstaller(installingPackageName));
         }
 
+        private boolean isSettingEcmGuardedForPackage(@NonNull String settingIdentifier,
+                @NonNull String packageName, @UserIdInt int userId) throws NameNotFoundException {
+            if (!PER_PACKAGE_PROTECTED_SETTINGS.contains(settingIdentifier)) {
+                return false;
+            }
+            return isPackageEcmGuarded(packageName, userId);
+        }
+
         private boolean isAllowlistedPackage(String packageName) {
             return isPackageSignedWithAnyOf(packageName,
                     mTrustedPackageCertDigests.get(packageName));
@@ -518,7 +528,10 @@ public class EnhancedConfirmationService extends SystemService {
                 return false;
             }
 
-            if (PROTECTED_SETTINGS.contains(settingIdentifier)) {
+            if (PER_PACKAGE_PROTECTED_SETTINGS.contains(settingIdentifier)) {
+                return true;
+            }
+            if (UNTRUSTED_CALL_RESTRICTED_SETTINGS.contains(settingIdentifier)) {
                 return true;
             }
             // TODO(b/310218979): Add role selections as protected settings

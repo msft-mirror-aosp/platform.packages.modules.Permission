@@ -213,7 +213,7 @@ public final class EnhancedConfirmationManager {
      * The setting is restricted because the restricted app op is set for the given package
      * @hide
      */
-    public static final String REASON_APP_OP_RESTRICTED = "app_op_restricted";
+    public static final String REASON_PACKAGE_RESTRICTED = "package_restricted";
 
 
     /** A map of ECM states to their corresponding app op states */
@@ -367,8 +367,9 @@ public final class EnhancedConfirmationManager {
         intent.putExtra(Intent.EXTRA_UID, uid);
         intent.putExtra(Intent.EXTRA_SUBJECT, settingIdentifier);
         try {
-            intent.putExtra(Intent.EXTRA_REASON, mService.getRestrictionReason(packageName,
-                    settingIdentifier, UserHandle.getUserHandleForUid(uid).getIdentifier()));
+            String restrictionReason = mService.getRestrictionReason(packageName,
+                    settingIdentifier, UserHandle.getUserHandleForUid(uid).getIdentifier());
+            intent.putExtra(Intent.EXTRA_REASON, restrictionReason);
         } catch (SecurityException | RemoteException e) {
             // The caller of this method does not have permission to read the ECM state, so we
             // won't include it in the return
