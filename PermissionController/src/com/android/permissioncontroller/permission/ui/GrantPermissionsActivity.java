@@ -262,6 +262,9 @@ public class GrantPermissionsActivity extends SettingsActivity
         if (DeviceUtils.isWear(this)) {
             // Do not grab input focus and hide keyboard.
             getWindow().addFlags(FLAG_ALT_FOCUSABLE_IM);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, 0, 0);
+            }
         }
 
         if (PackageManager.ACTION_REQUEST_PERMISSIONS_FOR_OTHER.equals(getIntent().getAction())) {

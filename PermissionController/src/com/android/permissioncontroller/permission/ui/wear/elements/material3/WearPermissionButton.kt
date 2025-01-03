@@ -63,7 +63,7 @@ fun WearPermissionButton(
             modifier = modifier,
             secondaryLabel = secondaryLabel,
             secondaryLabelMaxLines = secondaryLabelMaxLines,
-            icon = { iconBuilder?.build() },
+            icon = iconBuilder?.let { { iconBuilder.build() } },
             largeIcon = false,
             colors = style.material2ChipColors(),
             enabled = enabled,
