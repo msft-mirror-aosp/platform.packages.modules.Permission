@@ -18,10 +18,7 @@ package com.android.permissioncontroller.permission.ui.wear
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
@@ -48,7 +45,6 @@ import com.android.permissioncontroller.permission.ui.wear.elements.material3.We
 import com.android.permissioncontroller.permission.ui.wear.model.WearGrantPermissionsViewModel
 import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL3
-import kotlinx.coroutines.delay
 
 @Composable
 fun WearGrantPermissionsScreen(
@@ -123,7 +119,7 @@ fun setContent(
 ) {
     composeView.setContent {
         if (ResourceHelper.materialUIVersionInApp == MATERIAL3) {
-            AsDialog(onCancelled) {
+            AsDialog(viewModel, onCancelled) {
                 WearGrantPermissionsScreen(viewModel, onButtonClicked, onLocationSwitchChanged)
             }
         } else {
@@ -133,12 +129,12 @@ fun setContent(
 }
 
 @Composable
-private fun AsDialog(onDismissRequest: () -> Unit, content: @Composable () -> Unit) {
-    val showDialog = remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        delay(300)
-        showDialog.value = true
-    }
+private fun AsDialog(
+    viewModel: WearGrantPermissionsViewModel,
+    onDismissRequest: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    val showDialog = viewModel.showDialog.observeAsState(false)
     Dialog(show = showDialog.value, onDismissRequest = onDismissRequest, content = content)
 }
 

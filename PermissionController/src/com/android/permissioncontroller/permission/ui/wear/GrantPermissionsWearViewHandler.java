@@ -190,6 +190,7 @@ public class GrantPermissionsWearViewHandler implements GrantPermissionsViewHand
                 || mLocationVisibilities[DIALOG_WITH_COARSE_LOCATION_ONLY]) {
             mViewModel.getPreciseLocationCheckedLiveData().setValue(false);
         }
+        mViewModel.getShowDialog().postValue(true);
     }
 
     private void onLocationSwitchChanged(boolean checked) {
