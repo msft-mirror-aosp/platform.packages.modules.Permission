@@ -674,6 +674,8 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Ruhusu mipangilio yenye mipaka"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Mipangilio imezuiwa"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Ili kulinda usalama wako, mipangilio hii haipatikani kwa sasa."</string>
+    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Kitendo hiki hakipatikani unapopiga simu"</string>
+    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"Programu haziruhusiwi kuweka programu nyingine kwenye kifaa wakati wa mazungumzo ya simu.\n\n Mara nyingi, walaghai hukuomba utekeleze vitendo vya aina hii wakati wa mazungumzo ya simu, kwa hivyo kimezuiwa ili kukulinda. Iwapo unaelekezwa utekeleze kitendo hiki na mtu usiyemjua, huenda ikawa ni ulaghai."</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Programu haijapewa idhini ya kufikia <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Programu imeomba kufikia ruhusa nyeti, hali ambayo inaweza kuhatarisha maelezo yako ya kifedha na ya binafsi.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Kuna uwezekano kuwa programu haitafanya kazi vizuri bila ruhusa hii inayodhibitiwa. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Pata maelezo kuhusu jinsi ya kuruhusu ufikiaji&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Programu haijapewa idhini ya kuwa <xliff:g id="ROLE_NAME">%1$s</xliff:g> chaguomsingi"</string>

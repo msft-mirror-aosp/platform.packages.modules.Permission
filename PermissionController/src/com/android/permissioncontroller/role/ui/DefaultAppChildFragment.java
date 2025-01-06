@@ -69,6 +69,10 @@ public class DefaultAppChildFragment<PF extends PreferenceFragmentCompat
             + ".preference.DESCRIPTION";
     private static final String PREFERENCE_KEY_OTHER_NFC_SERVICES =
             DefaultAppChildFragment.class.getName() + ".preference.OTHER_NFC_SERVICES";
+    private static final String PREFERENCE_EXTRA_PACKAGE_NAME =
+            DefaultAppChildFragment.class.getName() + ".extra.PACKAGE_NAME";
+    private static final String PREFERENCE_EXTRA_USER = DefaultAppChildFragment.class.getName()
+            + ".extra.USER";
 
     @NonNull
     private String mRoleName;
@@ -133,7 +137,6 @@ public class DefaultAppChildFragment<PF extends PreferenceFragmentCompat
         Context context = preferenceManager.getContext();
 
         PreferenceScreen preferenceScreen = preferenceFragment.getPreferenceScreen();
-        Preference oldDescriptionPreference = null;
         ArrayMap<String, Preference> oldPreferences = new ArrayMap<>();
         if (preferenceScreen == null) {
             preferenceScreen = preferenceManager.createPreferenceScreen(context);
@@ -162,7 +165,9 @@ public class DefaultAppChildFragment<PF extends PreferenceFragmentCompat
             ApplicationInfo qualifyingApplicationInfo = qualifyingApplication.first;
             boolean isHolderApplication = qualifyingApplication.second;
 
-            String key = qualifyingApplicationInfo.packageName;
+            int userId =
+                    UserHandle.getUserHandleForUid(qualifyingApplicationInfo.uid).getIdentifier();
+            String key = qualifyingApplicationInfo.packageName + "@" + userId;
             Drawable icon = Utils.getBadgedIcon(context, qualifyingApplicationInfo);
             String title = Utils.getFullAppLabel(qualifyingApplicationInfo, context);
             addPreference(key, icon, title, isHolderApplication, qualifyingApplicationInfo,
@@ -205,16 +210,27 @@ public class DefaultAppChildFragment<PF extends PreferenceFragmentCompat
             preference.setPersistent(false);
             preference.setOnPreferenceChangeListener((preference2, newValue) -> false);
             preference.setOnPreferenceClickListener(this);
+            // In the cases we need this (see #onPreferenceClick()), this should never be null.
+            // This method (addPreference) is used for both legitimate apps and the `NONE` item,
+            // the `NONE` item passes a null applicationinfo object. NFC uses a different preference
+            // method for adding, and a different onclick method
+            if (applicationInfo != null) {
+                Bundle extras = preference.getExtras();
+                extras.putString(PREFERENCE_EXTRA_PACKAGE_NAME, applicationInfo.packageName);
+                extras.putParcelable(PREFERENCE_EXTRA_USER,
+                        UserHandle.getUserHandleForUid(applicationInfo.uid));
+            }
         } else {
             preference = roleApplicationPreference.asTwoStatePreference();
         }
 
         preference.setChecked(checked);
         if (applicationInfo != null) {
+            UserHandle user = UserHandle.getUserHandleForUid(applicationInfo.uid);
             roleApplicationPreference.setRestrictionIntent(
-                    mRole.getApplicationRestrictionIntentAsUser(applicationInfo, mUser, context));
+                    mRole.getApplicationRestrictionIntentAsUser(applicationInfo, user, context));
             RoleUiBehaviorUtils.prepareApplicationPreferenceAsUser(mRole, roleApplicationPreference,
-                    applicationInfo, mUser, context);
+                    applicationInfo, user, context);
         }
 
         preferenceScreen.addPreference(preference);
@@ -243,22 +259,26 @@ public class DefaultAppChildFragment<PF extends PreferenceFragmentCompat
         if (Objects.equals(key, PREFERENCE_KEY_NONE)) {
             mViewModel.setNoneDefaultApp();
         } else {
-            String packageName = key;
+            String packageName =
+                    preference.getExtras().getString(PREFERENCE_EXTRA_PACKAGE_NAME);
+            UserHandle user =
+                    preference.getExtras().getParcelable(PREFERENCE_EXTRA_USER);
             CharSequence confirmationMessage =
                     RoleUiBehaviorUtils.getConfirmationMessage(mRole, packageName,
                             requireContext());
             if (confirmationMessage != null) {
-                DefaultAppConfirmationDialogFragment.show(packageName, confirmationMessage, this);
+                DefaultAppConfirmationDialogFragment.show(packageName, user, confirmationMessage,
+                        this);
             } else {
-                setDefaultApp(packageName);
+                setDefaultApp(packageName, user);
             }
         }
         return true;
     }
 
     @Override
-    public void setDefaultApp(@NonNull String packageName) {
-        mViewModel.setDefaultApp(packageName);
+    public void setDefaultApp(@NonNull String packageName, @NonNull UserHandle user) {
+        mViewModel.setDefaultApp(packageName, user);
     }
 
     private void addNonPaymentNfcServicesPreference(@NonNull PreferenceScreen preferenceScreen,

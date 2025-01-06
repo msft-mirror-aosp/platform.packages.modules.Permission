@@ -30,8 +30,11 @@ import androidx.lifecycle.ViewModel;
 
 import com.android.permissioncontroller.permission.utils.Utils;
 import com.android.permissioncontroller.role.utils.UserUtils;
+import com.android.role.controller.model.Role;
+import com.android.role.controller.util.RoleFlags;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * {@link ViewModel} for the list of default apps.
@@ -55,12 +58,34 @@ public class DefaultAppListViewModel extends AndroidViewModel {
         super(application);
 
         mUser = Process.myUserHandle();
+        RoleListLiveData liveData = new RoleListLiveData(true, mUser, application);
         RoleListSortFunction sortFunction = new RoleListSortFunction(application);
-        mLiveData = Transformations.map(new RoleListLiveData(true, mUser, application),
-                sortFunction);
         mWorkProfile = UserUtils.getWorkProfile(application);
-        mWorkLiveData = mWorkProfile != null ? Transformations.map(new RoleListLiveData(true,
-                mWorkProfile, application), sortFunction) : null;
+        if (RoleFlags.isProfileGroupExclusivityAvailable()) {
+            if (mWorkProfile != null) {
+                // Show profile group exclusive roles from work profile in primary group.
+                RoleListLiveData workLiveData =
+                        new RoleListLiveData(true, mWorkProfile, application);
+                Predicate<RoleItem> exclusivityPredicate = roleItem ->
+                        roleItem.getRole().getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP;
+                mLiveData = Transformations.map(
+                        new MergeRoleListLiveData(liveData,
+                                Transformations.map(workLiveData,
+                                        new RoleListFilterFunction(exclusivityPredicate))),
+                        sortFunction);
+                mWorkLiveData = Transformations.map(
+                        Transformations.map(workLiveData,
+                                new RoleListFilterFunction(exclusivityPredicate.negate())),
+                        sortFunction);
+            } else {
+                mLiveData = Transformations.map(liveData, sortFunction);
+                mWorkLiveData = null;
+            }
+        } else {
+            mLiveData = Transformations.map(liveData, sortFunction);
+            mWorkLiveData = mWorkProfile != null ? Transformations.map(
+                    new RoleListLiveData(true, mWorkProfile, application), sortFunction) : null;
+        }
 
         UserHandle privateProfile = UserUtils.getPrivateProfile(application);
         if (privateProfile != null && Utils.shouldShowInSettings(

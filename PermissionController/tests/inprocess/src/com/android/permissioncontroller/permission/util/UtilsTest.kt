@@ -38,6 +38,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.Resources
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.permissioncontroller.Constants.EXTRA_SESSION_ID
 import com.android.permissioncontroller.Constants.INVALID_SESSION_ID
@@ -47,10 +48,13 @@ import com.android.permissioncontroller.privacysources.WorkPolicyInfo
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Ignore
+import org.junit.Rule
 import org.junit.Test
 
 class UtilsTest {
     private val context = InstrumentationRegistry.getInstrumentation().targetContext as Context
+
+    @JvmField @Rule val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Test
     fun getAbsoluteTimeString_zero_returnsNull() {
@@ -96,6 +100,7 @@ class UtilsTest {
     fun getBlockedTitle_invalidGroupName_returnsMinusOne() {
         assertThat(Utils.getBlockedTitle(INVALID_GROUP_NAME)).isEqualTo(-1)
     }
+
     @Test
     fun getBlockedTitle_validGroupName() {
         assertThat(Utils.getBlockedTitle(CAMERA)).isEqualTo(R.string.blocked_camera_title)

@@ -36,6 +36,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -64,7 +66,6 @@ import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
 import androidx.wear.compose.material.scrollAway
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionScaffold
-import com.android.permissioncontroller.permission.ui.wear.elements.rotaryinput.rotaryWithScroll
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionTheme
@@ -85,7 +86,7 @@ fun ScrollableScreen(
     isLoading: Boolean = false,
     titleTestTag: String? = null,
     subtitleTestTag: String? = null,
-    content: ScalingLazyListScope.() -> Unit,
+    content: ListScopeWrapper.() -> Unit,
 ) {
     var dismissed by remember { mutableStateOf(false) }
     val activity = LocalContext.current.findActivity()
@@ -192,13 +193,7 @@ internal fun Wear2Scaffold(
     }
     WearPermissionTheme {
         Scaffold(
-            // TODO: Use a rotary modifier from Wear Compose once Wear Compose 1.4 is landed.
-            // (b/325560444)
-            modifier =
-                Modifier.rotaryWithScroll(
-                    scrollableState = listState,
-                    focusRequester = focusRequester,
-                ),
+            modifier = Modifier.focusRequester(focusRequester),
             timeText = {
                 if (showTimeText && !isLoading) {
                     TimeText(
@@ -220,6 +215,7 @@ internal fun Wear2Scaffold(
                 if (isLoading) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 } else {
+                    val iconColor = chipDefaultColors().iconColor(true).value
                     ScalingLazyColumn(
                         modifier = Modifier.fillMaxWidth(),
                         state = listState,
@@ -245,6 +241,7 @@ internal fun Wear2Scaffold(
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = imageModifier,
+                                            colorFilter = ColorFilter.tint(iconColor),
                                         )
                                     }
                                 is Drawable ->
@@ -254,6 +251,7 @@ internal fun Wear2Scaffold(
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = imageModifier,
+                                            colorFilter = ColorFilter.tint(iconColor),
                                         )
                                     }
                                 else -> {}
@@ -359,4 +357,8 @@ internal fun Context.findActivity(): Activity {
         context = context.baseContext
     }
     throw IllegalStateException("The screen should be called in the context of an Activity")
+}
+
+interface ListScopeWrapper {
+    fun item(key: Any? = null, contentType: Any? = null, content: @Composable () -> Unit)
 }

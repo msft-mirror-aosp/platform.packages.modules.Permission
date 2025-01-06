@@ -18,11 +18,14 @@ package com.android.permissioncontroller.permission.ui.wear
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
-import com.android.permission.flags.Flags
+import androidx.wear.compose.material3.Dialog
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_ALWAYS_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_BUTTON
@@ -43,8 +46,10 @@ import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChipTo
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControl
 import com.android.permissioncontroller.permission.ui.wear.model.WearGrantPermissionsViewModel
+import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL3
+import kotlinx.coroutines.delay
 
 @Composable
 fun WearGrantPermissionsScreen(
@@ -58,9 +63,8 @@ fun WearGrantPermissionsScreen(
     val locationVisibilities = viewModel.locationVisibilitiesLiveData.observeAsState(emptyList())
     val preciseLocationChecked = viewModel.preciseLocationCheckedLiveData.observeAsState(false)
     val buttonVisibilities = viewModel.buttonVisibilitiesLiveData.observeAsState(emptyList())
-    val useMaterial3Controls = Flags.wearComposeMaterial3()
     val materialUIVersion =
-        if (useMaterial3Controls) {
+        if (ResourceHelper.material3Enabled) {
             MATERIAL3
         } else {
             MATERIAL2_5
@@ -120,12 +124,29 @@ fun WearGrantPermissionsScreen(
 fun setContent(
     composeView: ComposeView,
     viewModel: WearGrantPermissionsViewModel,
+    onCancelled: () -> Unit,
     onButtonClicked: (Int) -> Unit,
     onLocationSwitchChanged: (Boolean) -> Unit,
 ) {
     composeView.setContent {
-        WearGrantPermissionsScreen(viewModel, onButtonClicked, onLocationSwitchChanged)
+        if (ResourceHelper.material3Enabled) {
+            AsDialog(onCancelled) {
+                WearGrantPermissionsScreen(viewModel, onButtonClicked, onLocationSwitchChanged)
+            }
+        } else {
+            WearGrantPermissionsScreen(viewModel, onButtonClicked, onLocationSwitchChanged)
+        }
     }
+}
+
+@Composable
+private fun AsDialog(onDismissRequest: () -> Unit, content: @Composable () -> Unit) {
+    val showDialog = remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        delay(300)
+        showDialog.value = true
+    }
+    Dialog(show = showDialog.value, onDismissRequest = onDismissRequest, content = content)
 }
 
 @Composable

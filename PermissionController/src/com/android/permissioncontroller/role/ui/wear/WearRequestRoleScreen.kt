@@ -30,22 +30,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.MaterialTheme
 import com.android.permissioncontroller.R
-import com.android.permissioncontroller.permission.ui.wear.elements.Chip
-import com.android.permissioncontroller.permission.ui.wear.elements.ListFooter
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChip
 import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChipToggleControl
-import com.android.permissioncontroller.permission.ui.wear.elements.toggleChipBackgroundColors
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButtonStyle
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionListFooter
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControl
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControlStyle
+import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
+import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
+import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
+import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL3
+import com.android.permissioncontroller.role.UserPackage
 import com.android.permissioncontroller.role.ui.ManageRoleHolderStateLiveData
 
 @Composable
 fun WearRequestRoleScreen(
     helper: WearRequestRoleHelper,
-    onSetAsDefault: (Boolean, String?) -> Unit,
-    onCanceled: () -> Unit
+    onSetAsDefault: (Boolean, UserPackage?) -> Unit,
+    onCanceled: () -> Unit,
 ) {
     val roleLiveData = helper.viewModel.roleLiveData.observeAsState(emptyList())
     val manageRoleHolderState =
@@ -53,39 +58,46 @@ fun WearRequestRoleScreen(
             ManageRoleHolderStateLiveData.STATE_WORKING
         )
     val dontAskAgain = helper.wearViewModel.dontAskAgain.observeAsState(false)
-    val selectedPackageName = helper.wearViewModel.selectedPackageName.observeAsState(null)
+    val selectedPackage = helper.wearViewModel.selectedPackage.observeAsState(null)
     var isLoading by remember { mutableStateOf(true) }
 
     if (isLoading && roleLiveData.value.isNotEmpty()) {
-        helper.initializeHolderPackageName(roleLiveData.value)
-        helper.initializeSelectedPackageName()
+        helper.initializeHolderPackage(roleLiveData.value)
+        helper.initializeSelectedPackage()
     }
 
-    val onCheckedChanged: (Boolean, String?, Boolean) -> Unit = { checked, packageName, isHolder ->
-        if (checked) {
-            helper.wearViewModel.selectedPackageName.value = packageName
-            helper.wearViewModel.isHolderChecked = isHolder
+    val onCheckedChanged: (Boolean, UserPackage?, Boolean) -> Unit =
+        { checked, userPackage, isHolder ->
+            if (checked) {
+                helper.wearViewModel.selectedPackage.value = userPackage
+                helper.wearViewModel.isHolderChecked = isHolder
+            }
         }
-    }
 
     val onDontAskAgainCheckedChanged: (Boolean) -> Unit = { checked ->
         helper.wearViewModel.dontAskAgain.value = checked
         if (checked) {
-            helper.initializeSelectedPackageName()
+            helper.initializeSelectedPackage()
         }
     }
-
+    val materialUIVersion =
+        if (ResourceHelper.material3Enabled) {
+            MATERIAL3
+        } else {
+            MATERIAL2_5
+        }
     WearRequestRoleContent(
+        materialUIVersion,
         isLoading,
         helper,
         roleLiveData.value,
         manageRoleHolderState.value == ManageRoleHolderStateLiveData.STATE_IDLE,
         dontAskAgain.value,
-        selectedPackageName.value,
+        selectedPackage.value,
         onCheckedChanged,
         onDontAskAgainCheckedChanged,
         onSetAsDefault,
-        onCanceled
+        onCanceled,
     )
 
     if (isLoading && roleLiveData.value.isNotEmpty()) {
@@ -95,65 +107,84 @@ fun WearRequestRoleScreen(
 
 @Composable
 internal fun WearRequestRoleContent(
+    materialUIVersion: WearPermissionMaterialUIVersion,
     isLoading: Boolean,
     helper: WearRequestRoleHelper,
     qualifyingApplications: List<Pair<ApplicationInfo, Boolean>>,
     enabled: Boolean,
     dontAskAgain: Boolean,
-    selectedPackageName: String?,
-    onCheckedChanged: (Boolean, String?, Boolean) -> Unit,
+    selectedPackage: UserPackage?,
+    onCheckedChanged: (Boolean, UserPackage?, Boolean) -> Unit,
     onDontAskAgainCheckedChanged: (Boolean) -> Unit,
-    onSetAsDefault: (Boolean, String?) -> Unit,
-    onCanceled: () -> Unit
+    onSetAsDefault: (Boolean, UserPackage?) -> Unit,
+    onCanceled: () -> Unit,
 ) {
     ScrollableScreen(
+        materialUIVersion = materialUIVersion,
         image = helper.getIcon(),
         title = helper.getTitle(),
         showTimeText = false,
-        isLoading = isLoading
+        isLoading = isLoading,
     ) {
-        helper.getNonePreference(qualifyingApplications, selectedPackageName)?.let {
+        helper.getNonePreference(qualifyingApplications, selectedPackage)?.let { pref ->
             item {
-                ToggleChip(
-                    label = it.label,
-                    icon = it.icon,
-                    enabled = enabled && it.enabled,
-                    checked = it.checked,
-                    onCheckedChanged = { checked ->
-                        run { onCheckedChanged(checked, it.packageName, it.isHolder) }
-                    },
-                    toggleControl = ToggleChipToggleControl.Radio,
-                    labelMaxLine = Integer.MAX_VALUE
-                )
-            }
-            it.subTitle?.let { subTitle -> item { ListFooter(description = subTitle) } }
-        }
-
-        for (pref in helper.getPreferences(qualifyingApplications, selectedPackageName)) {
-            item {
-                ToggleChip(
+                WearPermissionToggleControl(
+                    materialUIVersion = materialUIVersion,
                     label = pref.label,
-                    icon = pref.icon,
+                    iconBuilder = pref.icon?.let { WearPermissionIconBuilder.builder(it) },
                     enabled = enabled && pref.enabled,
                     checked = pref.checked,
                     onCheckedChanged = { checked ->
-                        run { onCheckedChanged(checked, pref.packageName, pref.isHolder) }
+                        onCheckedChanged(checked, pref.userPackage, pref.isHolder)
+                    },
+                    toggleControl = ToggleChipToggleControl.Radio,
+                    labelMaxLines = Integer.MAX_VALUE,
+                )
+            }
+            pref.subTitle?.let { subTitle ->
+                item {
+                    WearPermissionListFooter(
+                        materialUIVersion = materialUIVersion,
+                        label = subTitle,
+                    )
+                }
+            }
+        }
+
+        for (pref in helper.getPreferences(qualifyingApplications, selectedPackage)) {
+            item {
+                WearPermissionToggleControl(
+                    materialUIVersion = materialUIVersion,
+                    label = pref.label,
+                    iconBuilder = pref.icon?.let { WearPermissionIconBuilder.builder(it) },
+                    enabled = enabled && pref.enabled,
+                    checked = pref.checked,
+                    onCheckedChanged = { checked ->
+                        onCheckedChanged(checked, pref.userPackage, pref.isHolder)
                     },
                     toggleControl = ToggleChipToggleControl.Radio,
                 )
             }
-            pref.subTitle?.let { subTitle -> item { ListFooter(description = subTitle) } }
+            pref.subTitle?.let { subTitle ->
+                item {
+                    WearPermissionListFooter(
+                        materialUIVersion = materialUIVersion,
+                        label = subTitle,
+                    )
+                }
+            }
         }
 
         if (helper.showDontAskButton()) {
             item {
-                ToggleChip(
+                WearPermissionToggleControl(
+                    materialUIVersion = materialUIVersion,
                     checked = dontAskAgain,
                     enabled = enabled,
                     onCheckedChanged = { checked -> run { onDontAskAgainCheckedChanged(checked) } },
                     label = stringResource(R.string.request_role_dont_ask_again),
                     toggleControl = ToggleChipToggleControl.Checkbox,
-                    colors = toggleChipBackgroundColors(),
+                    style = WearPermissionToggleControlStyle.Transparent,
                     modifier =
                         Modifier.testTag("com.android.permissioncontroller:id/dont_ask_again"),
                 )
@@ -163,17 +194,18 @@ internal fun WearRequestRoleContent(
         item { Spacer(modifier = Modifier.height(14.dp)) }
 
         item {
-            Chip(
+            WearPermissionButton(
+                materialUIVersion = materialUIVersion,
                 label = stringResource(R.string.request_role_set_as_default),
-                textColor = MaterialTheme.colors.background,
-                colors = ChipDefaults.primaryChipColors(),
+                style = WearPermissionButtonStyle.Primary,
                 enabled = helper.shouldSetAsDefaultEnabled(enabled),
-                onClick = { onSetAsDefault(dontAskAgain, selectedPackageName) },
+                onClick = { onSetAsDefault(dontAskAgain, selectedPackage) },
                 modifier = Modifier.testTag("android:id/button1"),
             )
         }
         item {
-            Chip(
+            WearPermissionButton(
+                materialUIVersion = materialUIVersion,
                 label = stringResource(R.string.cancel),
                 enabled = enabled,
                 onClick = { onCanceled() },

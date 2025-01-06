@@ -45,6 +45,10 @@ interface IRoleManager {
     void setDefaultApplicationAsUser(in String roleName, in String packageName, int flags,
 	    int userId, in RemoteCallback callback);
 
+    int getActiveUserForRoleAsUser(in String roleName, int userId);
+
+    void setActiveUserForRoleAsUser(in String roleName, int activeUserId, int flags, int userId);
+
     void addOnRoleHoldersChangedListenerAsUser(IOnRoleHoldersChangedListener listener, int userId);
 
     void removeOnRoleHoldersChangedListenerAsUser(IOnRoleHoldersChangedListener listener,
@@ -80,4 +84,13 @@ interface IRoleManager {
 
     boolean isApplicationVisibleForRoleAsUser(in String roleName, in String packageName,
             int userId);
+
+    List<String> getDefaultHoldersForTestAsUser(in String roleName, int userId);
+
+    void setDefaultHoldersForTestAsUser(in String roleName, in List<String> packageNames,
+            int userId);
+
+    boolean isRoleVisibleForTestAsUser(in String roleName, int userId);
+
+    void setRoleVisibleForTestAsUser(in String roleName, boolean visible, int userId);
 }

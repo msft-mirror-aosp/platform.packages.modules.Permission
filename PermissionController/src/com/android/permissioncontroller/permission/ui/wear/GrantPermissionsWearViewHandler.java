@@ -271,6 +271,12 @@ public class GrantPermissionsWearViewHandler implements GrantPermissionsViewHand
 
         WearGrantPermissionsScreenKt.setContent(root,
                 mViewModel,
+                () -> {
+                    if (mResultListener != null) {
+                        mResultListener.onPermissionGrantResult(null, null, CANCELED);
+                    }
+                    return Unit.INSTANCE;
+                },
                 id -> {
                     onButtonClicked(id);
                     return Unit.INSTANCE;
@@ -278,7 +284,8 @@ public class GrantPermissionsWearViewHandler implements GrantPermissionsViewHand
                 checked -> {
                     onLocationSwitchChanged(checked);
                     return Unit.INSTANCE;
-                });
+                }
+        );
         if (mGroupName != null) {
             updateScreen();
         }

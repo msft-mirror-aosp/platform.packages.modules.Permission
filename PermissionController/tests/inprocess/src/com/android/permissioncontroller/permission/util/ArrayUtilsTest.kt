@@ -16,11 +16,15 @@
 
 package com.android.permissioncontroller.permission.util
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.android.permissioncontroller.permission.utils.ArrayUtils
 import com.google.common.truth.Truth.assertThat
+import org.junit.Rule
 import org.junit.Test
 
 class ArrayUtilsTest {
+    @JvmField @Rule val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     @Test
     fun appendString_appendToNull_returnsArrayWithString() {
         assertThat(ArrayUtils.appendString(null, TEST_STRING)).isEqualTo(arrayOf(TEST_STRING))

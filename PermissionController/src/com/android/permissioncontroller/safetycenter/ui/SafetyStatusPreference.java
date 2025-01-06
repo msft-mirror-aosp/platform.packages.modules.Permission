@@ -29,7 +29,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -40,37 +39,27 @@ import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.safetycenter.ui.model.SafetyCenterViewModel;
 import com.android.permissioncontroller.safetycenter.ui.model.StatusUiData;
 import com.android.permissioncontroller.safetycenter.ui.view.StatusCardView;
+import com.android.settingslib.widget.GroupSectionDividerMixin;
 
-import kotlin.Pair;
-
-import java.util.List;
 import java.util.Objects;
 
 /** Preference which displays a visual representation of {@link SafetyCenterStatus}. */
 @RequiresApi(TIRAMISU)
-public class SafetyStatusPreference extends Preference implements ComparablePreference {
+public class SafetyStatusPreference extends Preference
+        implements ComparablePreference, GroupSectionDividerMixin {
 
     private static final String TAG = "SafetyStatusPreference";
 
+    private final SafetyStatusAnimationSequencer mSequencer = new SafetyStatusAnimationSequencer();
+
     @Nullable private StatusUiData mStatus;
     @Nullable private SafetyCenterViewModel mViewModel;
-
-    private final TextFadeAnimator mTitleTextAnimator = new TextFadeAnimator(R.id.status_title);
-
-    private final TextFadeAnimator mSummaryTextAnimator = new TextFadeAnimator(R.id.status_summary);
-
-    private final TextFadeAnimator mAllTextAnimator =
-            new TextFadeAnimator(List.of(R.id.status_title, R.id.status_summary));
-
-    private boolean mFirstBind = true;
 
     public SafetyStatusPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         setLayoutResource(R.layout.preference_safety_status);
     }
 
-    private boolean mIsTextChangeAnimationRunning;
-    private final SafetyStatusAnimationSequencer mSequencer = new SafetyStatusAnimationSequencer();
 
     @Override
     public void onBindViewHolder(PreferenceViewHolder holder) {
@@ -82,7 +71,8 @@ public class SafetyStatusPreference extends Preference implements ComparablePref
         }
 
         Context context = getContext();
-        StatusCardView statusCardView = (StatusCardView) holder.itemView;
+        StatusCardView statusCardView = holder.itemView.requireViewById(R.id.status_card);
+
         configureButtons(context, statusCardView);
         statusCardView
                 .getTitleAndSummaryContainerView()
@@ -90,9 +80,7 @@ public class SafetyStatusPreference extends Preference implements ComparablePref
 
         updateStatusIcon(statusCardView);
 
-        updateStatusText(statusCardView.getTitleView(), statusCardView.getSummaryView());
-
-        mFirstBind = false;
+        statusCardView.showText(mStatus);
     }
 
     private void configureButtons(Context context, StatusCardView statusCardView) {
@@ -122,14 +110,6 @@ public class SafetyStatusPreference extends Preference implements ComparablePref
         statusCardView.showButtons(mStatus);
     }
 
-    private void updateStatusText(TextView title, TextView summary) {
-        if (mFirstBind) {
-            title.setText(mStatus.getTitle());
-            summary.setText(mStatus.getSummary(getContext()));
-        }
-        runTextAnimationIfNeeded(title, summary);
-    }
-
     private void updateStatusIcon(StatusCardView statusCardView) {
         int severityLevel = mStatus.getSeverityLevel();
         boolean isRefreshing = mStatus.isRefreshInProgress();
@@ -138,33 +118,6 @@ public class SafetyStatusPreference extends Preference implements ComparablePref
                 mSequencer.onUpdateReceived(isRefreshing, severityLevel),
                 statusCardView,
                 /* scanningAnimation= */ null);
-    }
-
-    private void runTextAnimationIfNeeded(TextView titleView, TextView summaryView) {
-        if (mIsTextChangeAnimationRunning) {
-            return;
-        }
-        Log.v(TAG, "Starting status text animation");
-        String titleText = mStatus.getTitle().toString();
-        String summaryText = mStatus.getSummary(getContext()).toString();
-        boolean titleEquals = titleView.getText().toString().equals(titleText);
-        boolean summaryEquals = summaryView.getText().toString().equals(summaryText);
-        Runnable onFinish =
-                () -> {
-                    Log.v(TAG, "Finishing status text animation");
-                    mIsTextChangeAnimationRunning = false;
-                    runTextAnimationIfNeeded(titleView, summaryView);
-                };
-        mIsTextChangeAnimationRunning = !titleEquals || !summaryEquals;
-        if (!titleEquals && !summaryEquals) {
-            Pair<TextView, String> titleChange = new Pair<>(titleView, titleText);
-            Pair<TextView, String> summaryChange = new Pair<>(summaryView, summaryText);
-            mAllTextAnimator.animateChangeText(List.of(titleChange, summaryChange), onFinish);
-        } else if (!titleEquals) {
-            mTitleTextAnimator.animateChangeText(titleView, titleText, onFinish);
-        } else if (!summaryEquals) {
-            mSummaryTextAnimator.animateChangeText(summaryView, summaryText, onFinish);
-        }
     }
 
     private void startScanningAnimation(StatusCardView statusCardView) {

@@ -45,6 +45,7 @@ import android.os.Build;
 import android.os.Process;
 import android.os.UserHandle;
 import android.permission.flags.Flags;
+import android.platform.test.annotations.RequiresFlagsDisabled;
 import android.platform.test.annotations.RequiresFlagsEnabled;
 import android.platform.test.flag.junit.CheckFlagsRule;
 import android.platform.test.flag.junit.DeviceFlagsValueProvider;
@@ -104,6 +105,8 @@ public class RoleManagerTest {
     private static final String ROLE_NAME = RoleManager.ROLE_BROWSER;
     private static final String ROLE_PHONE_NAME = RoleManager.ROLE_DIALER;
     private static final String ROLE_SMS_NAME = RoleManager.ROLE_SMS;
+    private static final String PROFILE_GROUP_EXCLUSIVE_ROLE_NAME =
+            RoleManager.ROLE_RESERVED_FOR_TESTING_PROFILE_GROUP_EXCLUSIVITY;
     private static final String ROLE_SHORT_LABEL = "Browser app";
 
     private static final String APP_APK_PATH = "/data/local/tmp/cts-role/CtsRoleTestApp.apk";
@@ -1346,6 +1349,283 @@ public class RoleManagerTest {
         runWithShellPermissionIdentity(() -> {
             sRoleManager.setRoleFallbackEnabled(RoleManager.ROLE_SMS, true);
             assertThat(sRoleManager.isRoleFallbackEnabled(RoleManager.ROLE_SMS)).isTrue();
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetActiveUserForRoleWithoutPermission() throws Exception {
+        assertThrows(SecurityException.class, () ->
+                sRoleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetActiveUserForNonProfileGroupExclusiveRole() throws Exception {
+        runWithShellPermissionIdentity(() ->
+                assertThrows(IllegalArgumentException.class, () ->
+                        sRoleManager.getActiveUserForRole(
+                                RoleManager.ROLE_SYSTEM_ACTIVITY_RECOGNIZER)));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetActiveUserForRoleWithoutPermission() throws Exception {
+        assertThrows(SecurityException.class, () ->
+                sRoleManager.setActiveUserForRole(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
+                        Process.myUserHandle(), 0));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetActiveUserForNonProfileGroupExclusiveRole() throws Exception {
+        runWithShellPermissionIdentity(() ->
+                assertThrows(IllegalArgumentException.class, () ->
+                        sRoleManager.setActiveUserForRole(
+                                RoleManager.ROLE_SYSTEM_ACTIVITY_RECOGNIZER, Process.myUserHandle(),
+                                0)));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void setAndGetActiveUserForRole() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            sRoleManager.setActiveUserForRole(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
+                    Process.myUserHandle(), 0);
+            assertThat(sRoleManager.getActiveUserForRole(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME))
+                    .isEqualTo(Process.myUserHandle());
+        });
+    }
+
+    @RequiresFlagsDisabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetDefaultHoldersForTestFlagDisabled() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(IllegalStateException.class, () ->
+                    sRoleManager.getDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME));
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetDefaultHoldersForTestNoPermissions() throws Exception {
+        assertThrows(SecurityException.class, () ->
+                sRoleManager.getDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetDefaultHoldersForTestEmptyRoleName() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(IllegalArgumentException.class, () ->
+                    sRoleManager.getDefaultHoldersForTest(""));
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetDefaultHoldersForTestNonTestRoleName() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(IllegalArgumentException.class, () ->
+                    sRoleManager.getDefaultHoldersForTest(
+                            RoleManager.ROLE_SYSTEM_ACTIVITY_RECOGNIZER));
+        });
+    }
+
+    @RequiresFlagsDisabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetDefaultHoldersForTestFlagDisabled() throws Exception {
+        List<String> testRoleHolders = List.of("a", "b", "c");
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(IllegalStateException.class, () ->
+                    sRoleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
+                            testRoleHolders));
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetDefaultHoldersForTestNoPermissions() throws Exception {
+        List<String> testRoleHolders = List.of("a", "b", "c");
+        assertThrows(SecurityException.class, () ->
+                sRoleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
+                        testRoleHolders));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetDefaultHoldersForTestEmptyRoleName() throws Exception {
+        List<String> testRoleHolders = List.of("a", "b", "c");
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(IllegalArgumentException.class, () ->
+                    sRoleManager.setDefaultHoldersForTest("", testRoleHolders));
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetDefaultHoldersForTestNonTestRoleName() throws Exception {
+        List<String> testRoleHolders = List.of("a", "b", "c");
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(IllegalArgumentException.class, () ->
+                    sRoleManager.setDefaultHoldersForTest(
+                            RoleManager.ROLE_SYSTEM_ACTIVITY_RECOGNIZER, testRoleHolders));
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetDefaultHoldersForTestNullPackageNames() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(NullPointerException.class, () ->
+                    sRoleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
+                            null));
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void setAndGetDefaultHolders() throws Exception {
+        List<String> testRoleHolders = List.of("a", "b", "c");
+        runWithShellPermissionIdentity(() -> {
+            sRoleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
+                    testRoleHolders);
+            List<String> roleHolders =
+                    sRoleManager.getDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME);
+            assertThat(roleHolders).isEqualTo(testRoleHolders);
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void setAndGetDefaultHoldersNoRoleHolders() throws Exception {
+        List<String> initialRoleHolders = List.of("a", "b", "c");
+        List<String> testRoleHolders = Collections.emptyList();
+        runWithShellPermissionIdentity(() -> {
+            sRoleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
+                    initialRoleHolders);
+            sRoleManager.setDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME,
+                    testRoleHolders);
+            List<String> roleHolders =
+                    sRoleManager.getDefaultHoldersForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME);
+            assertThat(roleHolders).isEqualTo(testRoleHolders);
+        });
+    }
+
+    @RequiresFlagsDisabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetIsRoleVisibleForTestFlagDisabled() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(IllegalStateException.class, () ->
+                    sRoleManager.isRoleVisibleForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME));
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetIsRoleVisibleForTestNoPermissions() throws Exception {
+        assertThrows(SecurityException.class, () ->
+                sRoleManager.isRoleVisibleForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetIsRoleVisibleForTestEmptyRoleName() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(IllegalArgumentException.class, () ->
+                    sRoleManager.isRoleVisibleForTest(""));
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotGetIsRoleVisibleForTestNonTestRoleName() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(IllegalArgumentException.class, () ->
+                    sRoleManager.isRoleVisibleForTest(RoleManager.ROLE_SYSTEM_ACTIVITY_RECOGNIZER));
+        });
+    }
+
+    @RequiresFlagsDisabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetRoleVisibleForTestFlagDisabled() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(IllegalStateException.class, () ->
+                    sRoleManager.setRoleVisibleForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME, false));
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetRoleVisibleForTestNoPermissions() throws Exception {
+        assertThrows(SecurityException.class, () ->
+                sRoleManager.setRoleVisibleForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME, false));
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetRoleVisibleForTestEmptyRoleName() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(IllegalArgumentException.class, () ->
+                    sRoleManager.setRoleVisibleForTest("",  false));
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void cannotSetRoleVisibleForTestNonTestRoleName() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            assertThrows(IllegalArgumentException.class, () ->
+                    sRoleManager.setRoleVisibleForTest(RoleManager.ROLE_SYSTEM_ACTIVITY_RECOGNIZER,
+                            false));
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void setAndGetIsRoleVisibleForTestSetTrue() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            sRoleManager.setRoleVisibleForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME, true);
+            boolean isRoleVisibleForTest =
+                    sRoleManager.isRoleVisibleForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME);
+            assertThat(isRoleVisibleForTest).isEqualTo(true);
+        });
+    }
+
+    @RequiresFlagsEnabled(com.android.permission.flags.Flags.FLAG_CROSS_USER_ROLE_ENABLED)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @Test
+    public void setAndGetIsRoleVisibleForTestSetFalse() throws Exception {
+        runWithShellPermissionIdentity(() -> {
+            sRoleManager.setRoleVisibleForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME, false);
+            boolean isRoleVisibleForTest =
+                    sRoleManager.isRoleVisibleForTest(PROFILE_GROUP_EXCLUSIVE_ROLE_NAME);
+            assertThat(isRoleVisibleForTest).isEqualTo(false);
         });
     }
 

@@ -30,11 +30,13 @@ import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.permissioncontroller.permission.utils.KotlinUtils
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
@@ -47,6 +49,8 @@ import org.mockito.Mockito.`when` as whenever
 @RunWith(AndroidJUnit4::class)
 class KotlinUtilsTest {
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+
+    @JvmField @Rule val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Test
     fun convertToBitmap_argb888BitmapDrawable_returnsSameBitmap() {
@@ -64,11 +68,15 @@ class KotlinUtilsTest {
 
     class FakeDrawable(private val intrinsicSize: Int) : Drawable() {
         override fun getIntrinsicWidth() = intrinsicSize
+
         override fun getIntrinsicHeight() = intrinsicSize
 
         override fun draw(canvas: Canvas) = Unit // no-op
+
         override fun getOpacity() = throw UnsupportedOperationException()
+
         override fun setAlpha(alpha: Int) = throw UnsupportedOperationException()
+
         override fun setColorFilter(colorFilter: ColorFilter?) =
             throw UnsupportedOperationException()
     }

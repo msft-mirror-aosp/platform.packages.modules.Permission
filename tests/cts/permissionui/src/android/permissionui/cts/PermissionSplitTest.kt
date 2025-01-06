@@ -17,15 +17,20 @@
 package android.permissionui.cts
 
 import android.os.Build
+import android.platform.test.flag.junit.DeviceFlagsValueProvider
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Assume.assumeFalse
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 /** Runtime permission behavior tests for permission splits. */
 @FlakyTest
 class PermissionSplitTest : BaseUsePermissionTest() {
+
+    @Rule @JvmField val mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule()
+
     @Before
     fun assumeNotTv() {
         assumeFalse(isTv)
@@ -55,23 +60,32 @@ class PermissionSplitTest : BaseUsePermissionTest() {
         testLocationPermissionSplit(false)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU, codeName = "Tiramisu")
+    @SdkSuppress(
+        minSdkVersion = Build.VERSION_CODES.TIRAMISU,
+        maxSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM,
+    )
     @Test
-    fun testBodySensorSplit() {
+    fun testBodySensorSplitOnTToV() {
         installPackage(APP_APK_PATH_31)
         testBodySensorPermissionSplit(true)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU, codeName = "Tiramisu")
+    @SdkSuppress(
+        minSdkVersion = Build.VERSION_CODES.TIRAMISU,
+        maxSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM,
+    )
     @Test
-    fun testBodySensorSplit32() {
+    fun testBodySensorSplit32OnTToV() {
         installPackage(APP_APK_PATH_32)
         testBodySensorPermissionSplit(true)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU, codeName = "Tiramisu")
+    @SdkSuppress(
+        minSdkVersion = Build.VERSION_CODES.TIRAMISU,
+        maxSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM,
+    )
     @Test
-    fun testBodySensorNonSplit() {
+    fun testBodySensorNonSplitonTToV() {
         installPackage(APP_APK_PATH_LATEST)
         testBodySensorPermissionSplit(false)
     }
@@ -82,7 +96,7 @@ class PermissionSplitTest : BaseUsePermissionTest() {
 
         requestAppPermissionsAndAssertResult(
             android.Manifest.permission.ACCESS_FINE_LOCATION to true,
-            waitForWindowTransition = false
+            waitForWindowTransition = false,
         ) {
             if (expectSplit) {
                 clickPermissionRequestSettingsLinkAndAllowAlways()
@@ -104,7 +118,7 @@ class PermissionSplitTest : BaseUsePermissionTest() {
 
         requestAppPermissionsAndAssertResult(
             android.Manifest.permission.BODY_SENSORS to true,
-            waitForWindowTransition = false
+            waitForWindowTransition = false,
         ) {
             if (expectSplit) {
                 clickPermissionRequestSettingsLinkAndAllowAlways()

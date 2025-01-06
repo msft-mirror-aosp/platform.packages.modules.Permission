@@ -17,6 +17,7 @@ package com.android.permissioncontroller.permission.ui.wear.elements.material3
 
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -36,23 +38,40 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.CircularProgressIndicator
+import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.ScrollIndicator
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TimeText
+import androidx.wear.compose.material3.lazy.scrollTransform
 import com.android.permissioncontroller.permission.ui.wear.elements.AnnotatedText
+import com.android.permissioncontroller.permission.ui.wear.elements.ListScopeWrapper
 import com.android.permissioncontroller.permission.ui.wear.elements.Wear2Scaffold
-import com.android.permissioncontroller.permission.ui.wear.elements.layout.ScalingLazyColumn
-import com.android.permissioncontroller.permission.ui.wear.elements.layout.ScalingLazyColumnState
-import com.android.permissioncontroller.permission.ui.wear.elements.layout.rememberResponsiveColumnState
 import com.android.permissioncontroller.permission.ui.wear.elements.rememberDrawablePainter
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionTheme
+
+private class TransformingScopeConverter(private val scope: TransformingLazyColumnScope) :
+    ListScopeWrapper {
+    override fun item(key: Any?, contentType: Any?, content: @Composable () -> Unit) {
+        scope.item { Box(modifier = Modifier.scrollTransform(this)) { content() } }
+    }
+}
+
+private class ScalingScopeConverter(private val scope: ScalingLazyListScope) : ListScopeWrapper {
+    override fun item(key: Any?, contentType: Any?, content: @Composable () -> Unit) {
+        scope.item { content() }
+    }
+}
 
 /**
  * This component is wrapper on material scaffold component. It helps with time text, scroll
@@ -66,7 +85,7 @@ internal fun WearPermissionScaffold(
     subtitle: CharSequence?,
     image: Any?,
     isLoading: Boolean,
-    content: ScalingLazyListScope.() -> Unit,
+    content: ListScopeWrapper.() -> Unit,
     titleTestTag: String? = null,
     subtitleTestTag: String? = null,
 ) {
@@ -78,7 +97,7 @@ internal fun WearPermissionScaffold(
             subtitle,
             image,
             isLoading,
-            content,
+            { content.invoke(ScalingScopeConverter(this)) },
             titleTestTag,
             subtitleTestTag,
         )
@@ -89,7 +108,7 @@ internal fun WearPermissionScaffold(
             subtitle,
             image,
             isLoading,
-            content,
+            { content.invoke(TransformingScopeConverter(this)) },
             titleTestTag,
             subtitleTestTag,
         )
@@ -103,7 +122,7 @@ private fun WearPermissionScaffoldInternal(
     subtitle: CharSequence?,
     image: Any?,
     isLoading: Boolean,
-    content: ScalingLazyListScope.() -> Unit,
+    content: TransformingLazyColumnScope.() -> Unit,
     titleTestTag: String? = null,
     subtitleTestTag: String? = null,
 ) {
@@ -115,12 +134,11 @@ private fun WearPermissionScaffoldInternal(
             screenHeight = screenHeight,
             titleNeedsLargePadding = subtitle == null,
         )
-    val columnState =
-        rememberResponsiveColumnState(contentPadding = { paddingDefaults.scrollContentPadding })
+    val columnState = rememberTransformingLazyColumnState()
     WearPermissionTheme(version = WearPermissionMaterialUIVersion.MATERIAL3) {
         AppScaffold(timeText = wearPermissionTimeText(showTimeText && !isLoading)) {
             ScreenScaffold(
-                scrollInfoProvider = ScrollInfoProvider(columnState.state),
+                scrollInfoProvider = ScrollInfoProvider(columnState),
                 scrollIndicator = wearPermissionScrollIndicator(!isLoading, columnState),
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -128,6 +146,7 @@ private fun WearPermissionScaffoldInternal(
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     } else {
                         ScrollingView(
+                            contentPadding = paddingDefaults.scrollContentPadding,
                             columnState = columnState,
                             icon = painterFromImage(image),
                             title = title,
@@ -183,7 +202,8 @@ private class WearPermissionScaffoldPaddingDefaults(
 
 @Composable
 private fun BoxScope.ScrollingView(
-    columnState: ScalingLazyColumnState,
+    contentPadding: PaddingValues,
+    columnState: TransformingLazyColumnState,
     icon: Painter?,
     title: String?,
     titleTestTag: String?,
@@ -191,16 +211,26 @@ private fun BoxScope.ScrollingView(
     subtitleTestTag: String?,
     titlePaddingValues: PaddingValues,
     subTitlePaddingValues: PaddingValues,
-    content: ScalingLazyListScope.() -> Unit,
+    content: TransformingLazyColumnScope.() -> Unit,
 ) {
-    ScalingLazyColumn(columnState = columnState) {
-        iconItem(icon, Modifier.size(24.dp))
-        titleItem(text = title, testTag = titleTestTag, contentPaddingValues = titlePaddingValues)
-        subtitleItem(
-            text = subtitle,
-            testTag = subtitleTestTag,
-            modifier = Modifier.align(Alignment.Center).padding(subTitlePaddingValues),
-        )
+    TransformingLazyColumn(
+        contentPadding = contentPadding,
+        state = columnState,
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
+    ) {
+        with(TransformingScopeConverter(this)) {
+            iconItem(icon, Modifier.size(IconButtonDefaults.LargeIconSize))
+            titleItem(
+                text = title,
+                testTag = titleTestTag,
+                contentPaddingValues = titlePaddingValues,
+            )
+            subtitleItem(
+                text = subtitle,
+                testTag = subtitleTestTag,
+                modifier = Modifier.align(Alignment.Center).padding(subTitlePaddingValues),
+            )
+        }
         content()
     }
 }
@@ -215,15 +245,10 @@ private fun wearPermissionTimeText(showTime: Boolean): @Composable () -> Unit {
 
 private fun wearPermissionScrollIndicator(
     showIndicator: Boolean,
-    columnState: ScalingLazyColumnState,
+    columnState: TransformingLazyColumnState,
 ): @Composable (BoxScope.() -> Unit)? {
     return if (showIndicator) {
-        {
-            ScrollIndicator(
-                modifier = Modifier.align(Alignment.CenterEnd),
-                state = columnState.state,
-            )
-        }
+        { ScrollIndicator(modifier = Modifier.align(Alignment.CenterEnd), state = columnState) }
     } else {
         null
     }
@@ -245,26 +270,28 @@ private fun Modifier.optionalTestTag(tag: String?): Modifier {
     return this then testTag(tag)
 }
 
-private fun ScalingLazyListScope.iconItem(painter: Painter?, modifier: Modifier = Modifier) =
+private fun ListScopeWrapper.iconItem(painter: Painter?, modifier: Modifier = Modifier) =
     painter?.let {
         item {
+            val iconColor = WearPermissionButtonStyle.Secondary.material3ButtonColors().iconColor
             Image(
                 painter = it,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = modifier,
+                colorFilter = ColorFilter.tint(iconColor),
             )
         }
     }
 
-private fun ScalingLazyListScope.titleItem(
+private fun ListScopeWrapper.titleItem(
     text: String?,
     testTag: String?,
     contentPaddingValues: PaddingValues,
     modifier: Modifier = Modifier,
 ) =
     text?.let {
-        item {
+        item(contentType = "header") {
             ListHeader(
                 modifier = modifier.requiredHeightIn(1.dp), // We do not want default min height
                 contentPadding = contentPaddingValues,
@@ -278,7 +305,7 @@ private fun ScalingLazyListScope.titleItem(
         }
     }
 
-private fun ScalingLazyListScope.subtitleItem(
+private fun ListScopeWrapper.subtitleItem(
     text: CharSequence?,
     testTag: String?,
     modifier: Modifier = Modifier,
