@@ -1,0 +1,26 @@
+{
+    "wear-presubmit": [
+        {
+            // See b/387705174 for context
+            "name": "CtsPermissionUiTestCases",
+            "options": [
+                {
+                    // Flaky
+                    "exclude-filter": "android.permissionui.cts.PermissionTest22#testNoRuntimePrompt"
+                },
+                {
+                    // Flaky
+                    "exclude-filter": "android.permissionui.cts.NotificationPermissionTest"
+                },
+                {
+                    // Flaky
+                    "exclude-filter": "android.permissionui.cts.EnhancedConfirmationManagerTest"
+                },
+                {
+                    // Currently failing (b/387705174)
+                    "exclude-filter": "android.permissionui.cts.PermissionTapjackingTest"
+                }
+            ]
+        }
+    ]
+}
