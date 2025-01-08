@@ -16,6 +16,7 @@
 package android.app.rolemultiuser.cts
 
 import android.app.Activity
+import android.app.role.cts.RoleManagerUtil
 import android.app.role.RoleManager
 import android.content.ComponentName
 import android.content.Context
@@ -70,6 +71,7 @@ import java.util.function.Consumer
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Rule
@@ -88,6 +90,7 @@ class RoleManagerMultiUserTest {
     @Before
     @Throws(java.lang.Exception::class)
     fun setUp() {
+        assumeTrue(RoleManagerUtil.isCddCompliantScreenSize());
         installAppForAllUsers()
     }
 

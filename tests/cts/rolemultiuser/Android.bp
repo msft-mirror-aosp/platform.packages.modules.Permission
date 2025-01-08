@@ -24,6 +24,7 @@ android_test {
 
     srcs: [
         "src/**/*.kt",
+        ":CtsRoleTestUtils",
     ],
 
     static_libs: [

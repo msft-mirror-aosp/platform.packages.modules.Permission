@@ -54,3 +54,10 @@ android_test {
         ":CtsRoleTestAppClone",
     ],
 }
+
+filegroup {
+    name: "CtsRoleTestUtils",
+    srcs: [
+        "src/android/app/role/cts/RoleManagerUtil.kt",
+    ],
+}
