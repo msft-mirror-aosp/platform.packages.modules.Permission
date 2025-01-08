@@ -15,10 +15,6 @@
                 {
                     // Flaky
                     "exclude-filter": "android.permissionui.cts.EnhancedConfirmationManagerTest"
-                },
-                {
-                    // Currently failing (b/387705174)
-                    "exclude-filter": "android.permissionui.cts.PermissionTapjackingTest"
                 }
             ]
         }
