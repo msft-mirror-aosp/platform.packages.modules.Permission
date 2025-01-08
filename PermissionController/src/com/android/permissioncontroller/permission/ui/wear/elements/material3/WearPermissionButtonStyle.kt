@@ -21,8 +21,8 @@ import androidx.wear.compose.material.ChipColors
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material3.ButtonColors
 import androidx.wear.compose.material3.ButtonDefaults
-import com.android.permissioncontroller.permission.ui.wear.elements.chipDefaultColors
-import com.android.permissioncontroller.permission.ui.wear.elements.chipDisabledColors
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.chipDefaultColors
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.chipDisabledColors
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButtonStyle.DisabledLike
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButtonStyle.Primary
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButtonStyle.Secondary

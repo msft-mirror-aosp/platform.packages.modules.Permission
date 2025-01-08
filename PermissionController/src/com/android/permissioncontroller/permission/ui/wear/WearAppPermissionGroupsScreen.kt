@@ -25,11 +25,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.android.permissioncontroller.R
-import com.android.permissioncontroller.permission.ui.wear.elements.Chip
-import com.android.permissioncontroller.permission.ui.wear.elements.DialogButtonContent
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChip
-import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChipToggleControl
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.DialogButtonContent
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChip
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChipToggleControl
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionConfirmationDialog
 import com.android.permissioncontroller.permission.ui.wear.model.RevokeDialogArgs
 import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.permissioncontroller.permission.ui.wear.elements
+package com.android.permissioncontroller.permission.ui.wear.elements.material2
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

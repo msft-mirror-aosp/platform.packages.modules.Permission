@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.permissioncontroller.permission.ui.wear.elements
+package com.android.permissioncontroller.permission.ui.wear.elements.material2
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -60,7 +60,7 @@ fun ListHeader(
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = MaterialTheme.colors.onBackground,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     Row(
         horizontalArrangement = Arrangement.Center,
@@ -69,14 +69,14 @@ fun ListHeader(
                 mergeDescendants = true
             ) {
                 heading()
-            }
+            },
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
             LocalTextStyle provides
                 MaterialTheme.typography.title3.copy(
                     fontWeight = FontWeight.W600,
-                    hyphens = Hyphens.Auto
+                    hyphens = Hyphens.Auto,
                 ),
         ) {
             content()
@@ -111,7 +111,7 @@ fun ListSubheader(
                 .fillMaxWidth()
                 .wrapContentSize(align = Alignment.CenterStart)
                 .background(backgroundColor)
-                .semantics(mergeDescendants = true) { heading() }
+                .semantics(mergeDescendants = true) { heading() },
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
@@ -120,7 +120,7 @@ fun ListSubheader(
             if (icon != null) {
                 Box(
                     modifier = Modifier.wrapContentSize(align = Alignment.CenterStart),
-                    content = icon
+                    content = icon,
                 )
                 Spacer(modifier = Modifier.width(6.dp))
             }

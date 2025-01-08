@@ -29,8 +29,8 @@ import androidx.wear.compose.material3.RadioButton
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 import com.android.permissioncontroller.R
-import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChip
-import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChipToggleControl
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChip
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChipToggleControl
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
 
 /**

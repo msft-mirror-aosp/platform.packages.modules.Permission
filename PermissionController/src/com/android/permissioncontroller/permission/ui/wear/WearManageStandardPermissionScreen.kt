@@ -29,8 +29,8 @@ import androidx.compose.ui.res.stringResource
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.model.livedatatypes.PermGroupPackagesUiInfo
 import com.android.permissioncontroller.permission.ui.model.ManageStandardPermissionsViewModel
-import com.android.permissioncontroller.permission.ui.wear.elements.Chip
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
 import com.android.permissioncontroller.permission.utils.KotlinUtils.getPermGroupIcon
 import com.android.permissioncontroller.permission.utils.KotlinUtils.getPermGroupLabel
 import com.android.permissioncontroller.permission.utils.StringUtils
@@ -42,7 +42,7 @@ fun WearManageStandardPermissionScreen(
     viewModel: ManageStandardPermissionsViewModel,
     onPermGroupClick: (String) -> Unit,
     onCustomPermissionsClick: () -> Unit,
-    onAutoRevokedClick: () -> Unit
+    onAutoRevokedClick: () -> Unit,
 ) {
     val permissionGroups = viewModel.uiDataLiveData.observeAsState(emptyMap())
     val numCustomPermGroups = viewModel.numCustomPermGroups.observeAsState(0)
@@ -56,7 +56,7 @@ fun WearManageStandardPermissionScreen(
         numAutoRevoked.value,
         onPermGroupClick,
         onCustomPermissionsClick,
-        onAutoRevokedClick
+        onAutoRevokedClick,
     )
 
     if (isLoading && permissionGroups.value.isNotEmpty()) {
@@ -92,7 +92,7 @@ internal fun getPermGroupChipParams(
                 label = getPermGroupLabel(context, it.key).toString(),
                 icon = getPermGroupIcon(context, it.key),
                 secondaryLabel =
-                    stringResource(summary, uiInfo.nonSystemGranted, uiInfo.nonSystemTotal)
+                    stringResource(summary, uiInfo.nonSystemGranted, uiInfo.nonSystemTotal),
             )
         }
         .sortedWith { lhs, rhs -> collator.compare(lhs.label, rhs.label) }
@@ -107,11 +107,11 @@ internal fun WearManageStandardPermissionContent(
     numAutoRevoked: Int,
     onPermGroupClick: (String) -> Unit,
     onCustomPermissionsClick: () -> Unit,
-    onAutoRevokedClick: () -> Unit
+    onAutoRevokedClick: () -> Unit,
 ) {
     ScrollableScreen(
         title = stringResource(R.string.app_permission_manager),
-        isLoading = isLoading
+        isLoading = isLoading,
     ) {
         for (params in permGroupChipParams) {
             item {
@@ -121,7 +121,7 @@ internal fun WearManageStandardPermissionContent(
                     icon = params.icon,
                     secondaryLabel = params.secondaryLabel,
                     secondaryLabelMaxLines = 3,
-                    onClick = { onPermGroupClick(params.permGroupName) }
+                    onClick = { onPermGroupClick(params.permGroupName) },
                 )
             }
         }
@@ -136,10 +136,10 @@ internal fun WearManageStandardPermissionContent(
                         StringUtils.getIcuPluralsString(
                             LocalContext.current,
                             R.string.additional_permissions_more,
-                            numCustomPermGroups
+                            numCustomPermGroups,
                         ),
                     secondaryLabelMaxLines = 3,
-                    onClick = onCustomPermissionsClick
+                    onClick = onCustomPermissionsClick,
                 )
             }
         }
@@ -152,7 +152,7 @@ internal fun WearManageStandardPermissionContent(
                     icon = R.drawable.ic_info,
                     secondaryLabel = stringResource(R.string.auto_revoke_setting_subtitle),
                     secondaryLabelMaxLines = 3,
-                    onClick = onAutoRevokedClick
+                    onClick = onAutoRevokedClick,
                 )
             }
         }

@@ -54,7 +54,7 @@ import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.lazy.scrollTransform
 import com.android.permissioncontroller.permission.ui.wear.elements.AnnotatedText
 import com.android.permissioncontroller.permission.ui.wear.elements.ListScopeWrapper
-import com.android.permissioncontroller.permission.ui.wear.elements.Wear2Scaffold
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.Wear2Scaffold
 import com.android.permissioncontroller.permission.ui.wear.elements.rememberDrawablePainter
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5

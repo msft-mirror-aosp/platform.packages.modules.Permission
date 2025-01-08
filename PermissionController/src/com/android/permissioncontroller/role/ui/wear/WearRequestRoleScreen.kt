@@ -32,7 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChipToggleControl
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChipToggleControl
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButtonStyle
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder

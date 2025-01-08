@@ -30,7 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.wear.compose.material.CircularProgressIndicator
-import com.android.permissioncontroller.permission.ui.wear.elements.DialogButtonContent
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.DialogButtonContent
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionConfirmationDialog
 import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionTheme

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.permissioncontroller.permission.ui.wear.elements
+package com.android.permissioncontroller.permission.ui.wear.elements.material2
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -52,7 +52,7 @@ fun ListFooter(description: String, iconRes: Int? = null, onClick: (() -> Unit)?
                 contentDescription = null,
                 modifier =
                     Modifier.size(LeadingIconSize, LeadingIconSize)
-                        .align(Alignment.CenterVertically)
+                        .align(Alignment.CenterVertically),
             )
             Spacer(modifier = Modifier.width(LeadingIconEndSpacing))
         }
@@ -62,7 +62,7 @@ fun ListFooter(description: String, iconRes: Int? = null, onClick: (() -> Unit)?
             textAlign = TextAlign.Start,
             overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colors.onSurfaceVariant,
-            style = MaterialTheme.typography.caption2
+            style = MaterialTheme.typography.caption2,
         )
     }
 }

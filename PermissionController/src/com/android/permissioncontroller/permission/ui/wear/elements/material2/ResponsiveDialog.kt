@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.permissioncontroller.permission.ui.wear.elements
+package com.android.permissioncontroller.permission.ui.wear.elements.material2
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.spacedBy
@@ -44,10 +44,10 @@ import androidx.wear.compose.material.LocalTextStyle
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
-import com.android.permissioncontroller.permission.ui.wear.elements.layout.ScalingLazyColumn
-import com.android.permissioncontroller.permission.ui.wear.elements.layout.ScalingLazyColumnDefaults.responsive
-import com.android.permissioncontroller.permission.ui.wear.elements.layout.ScalingLazyColumnState
-import com.android.permissioncontroller.permission.ui.wear.elements.layout.rememberColumnState
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.ScalingLazyColumn
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.ScalingLazyColumnDefaults.responsive
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.ScalingLazyColumnState
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.rememberColumnState
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.defaultAlertConfirmIcon
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.defaultAlertDismissIcon
