@@ -142,11 +142,7 @@ fun Wear2Scaffold(
                 if (isLoading) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 } else {
-                    val iconColor =
-                        com.android.permissioncontroller.permission.ui.wear.elements.material2
-                            .chipDefaultColors()
-                            .iconColor(true)
-                            .value
+                    val iconColor = chipDefaultColors().iconColor(true).value
                     ScalingLazyColumn(
                         modifier = Modifier.fillMaxWidth(),
                         state = listState,
@@ -194,15 +190,13 @@ fun Wear2Scaffold(
                                 if (titleTestTag != null) {
                                     modifier = modifier.testTag(titleTestTag)
                                 }
-                                com.android.permissioncontroller.permission.ui.wear.elements
-                                    .material2
-                                    .ListHeader(modifier = Modifier.padding(titlePaddingValues)) {
-                                        Text(
-                                            text = title,
-                                            textAlign = TextAlign.Center,
-                                            modifier = modifier,
-                                        )
-                                    }
+                                ListHeader(modifier = Modifier.padding(titlePaddingValues)) {
+                                    Text(
+                                        text = title,
+                                        textAlign = TextAlign.Center,
+                                        modifier = modifier,
+                                    )
+                                }
                             }
                         }
                         if (subtitle != null) {

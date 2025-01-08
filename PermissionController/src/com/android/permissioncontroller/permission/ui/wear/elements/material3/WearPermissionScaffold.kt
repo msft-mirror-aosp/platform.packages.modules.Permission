@@ -56,6 +56,7 @@ import com.android.permissioncontroller.permission.ui.wear.elements.AnnotatedTex
 import com.android.permissioncontroller.permission.ui.wear.elements.ListScopeWrapper
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.Wear2Scaffold
 import com.android.permissioncontroller.permission.ui.wear.elements.rememberDrawablePainter
+import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionTheme
@@ -79,7 +80,7 @@ private class ScalingScopeConverter(private val scope: ScalingLazyListScope) : L
  */
 @Composable
 internal fun WearPermissionScaffold(
-    materialUIVersion: WearPermissionMaterialUIVersion = MATERIAL2_5,
+    materialUIVersion: WearPermissionMaterialUIVersion = ResourceHelper.materialUIVersionInSettings,
     showTimeText: Boolean,
     title: String?,
     subtitle: CharSequence?,
