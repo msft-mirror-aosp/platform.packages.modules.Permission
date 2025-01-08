@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.modules.utils.build.SdkLevel;
+import com.android.role.controller.util.RoleFlags;
 import com.android.role.controller.util.PackageUtils;
 
 import java.util.Objects;
@@ -137,8 +138,8 @@ public class AppOp {
             return false;
         }
         return Build.VERSION.SDK_INT >= mMinSdkVersion
-                // Workaround to match the value 35 for V in roles.xml before SDK finalization.
-                || (mMinSdkVersion == 35 && SdkLevel.isAtLeastV());
+                // Workaround to match the value 36 for B in roles.xml before SDK finalization.
+                || (mMinSdkVersion == 36 && RoleFlags.isAtLeastB());
     }
 
     private boolean isAvailableAsUser(@NonNull String packageName,
