@@ -272,7 +272,7 @@ public final class RoleManager {
      *
      * @hide
      */
-    @SuppressLint("UnflaggedApi")
+    @FlaggedApi("android.content.pm.sdk_dependency_installer")
     @SystemApi
     public static final String ROLE_SYSTEM_DEPENDENCY_INSTALLER =
             "android.app.role.SYSTEM_DEPENDENCY_INSTALLER";
