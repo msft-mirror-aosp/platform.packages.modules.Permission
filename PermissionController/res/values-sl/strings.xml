@@ -206,7 +206,7 @@
     <string name="unused_apps_category_title" msgid="2988455616845243901">"Nastavitve neuporabljenih aplikacij"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"Odstrani dovoljenja, če aplikacija ni v uporabi"</string>
     <string name="unused_apps_label" msgid="2595428768404901064">"Odstrani dovoljenja in sprosti prostor"</string>
-    <string name="unused_apps_label_v2" msgid="7058776770056517980">"Zaustavi dejavnost aplikacije ob neuporabi"</string>
+    <string name="unused_apps_label_v2" msgid="7058776770056517980">"Zaustavi aplikacijo ob neuporabi"</string>
     <string name="unused_apps_label_v3" msgid="693340578642156657">"Upravljanje aplikacije ob neuporabi"</string>
     <string name="unused_apps_summary" msgid="8839466950318403115">"Dovoljenja se odstranijo, začasne datoteke se izbrišejo in prikazovanje obvestil se ustavi."</string>
     <string name="unused_apps_summary_v2" msgid="5011313200815115802">"Odstranitev dovoljenj, izbris začasnih datotek, ustavitev prikazovanja obvestil in arhiviranje aplikacije"</string>
