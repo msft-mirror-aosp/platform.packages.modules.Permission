@@ -294,7 +294,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
             Manifest.permission.ACCESS_FINE_LOCATION
         private const val GROUP_3_PERMISSION_2_UNRESTRICTED =
             Manifest.permission.ACCESS_COARSE_LOCATION
-        private const val GROUP_4_PERMISSION_1_UNRESTRICTED = Manifest.permission.BODY_SENSORS
+        private const val GROUP_4_PERMISSION_1_UNRESTRICTED = Manifest.permission.CAMERA
 
         private const val NON_PROTECTED_SETTING = "example_setting_which_is_not_protected"
         private const val PROTECTED_SETTING = "android:bind_accessibility_service"
