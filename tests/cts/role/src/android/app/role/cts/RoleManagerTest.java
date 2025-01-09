@@ -98,6 +98,11 @@ public class RoleManagerTest {
 
     private static final long TIMEOUT_MILLIS = 15 * 1000;
 
+    // Temporarily extending timeout to allow investigation in b/388955671, where the device may
+    // need a longer time due to being busy after private profile creation.
+    private static final long ADD_ROLE_HOLDER_TIMEOUT_MILLIS = 2 * 60 * 1000;
+    private static final long WAIT_FIND_OBJECT_TIMEOUT_MILLIS  = 3 * 60 * 1000;
+
     private static final long UNEXPECTED_TIMEOUT_MILLIS = 1000;
 
     private static final String ROLE_NAME = RoleManager.ROLE_BROWSER;
@@ -866,11 +871,14 @@ public class RoleManagerTest {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
         waitForIdle();
 
-        waitFindObject(By.hasDescendant(By.text(APP_FOR_PROFILE))).click();
+        waitFindObject(By.hasDescendant(By.text(APP_FOR_PROFILE)),
+                 WAIT_FIND_OBJECT_TIMEOUT_MILLIS).click();
 
         waitForIdle();
         waitFindObject(By.clickable(true).hasDescendant(By.checkable(true).checked(false))
-                    .hasDescendant(By.text(APP_LABEL))).click();
+                .hasDescendant(By.text(APP_LABEL)), WAIT_FIND_OBJECT_TIMEOUT_MILLIS).click();
+        waitFindObject(By.clickable(true).hasDescendant(By.checkable(true).checked(true))
+                .hasDescendant(By.text(APP_LABEL)), WAIT_FIND_OBJECT_TIMEOUT_MILLIS);
 
         assertIsRoleHolderAsUser(ROLE_NAME, APP_PACKAGE_NAME, true, privateProfile);
 
@@ -1385,7 +1393,8 @@ public class RoleManagerTest {
         CallbackFuture future = new CallbackFuture();
         runWithShellPermissionIdentity(() -> sRoleManager.addRoleHolderAsUser(roleName,
                 packageName, 0, userHandle, sContext.getMainExecutor(), future));
-        assertThat(future.get(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isEqualTo(expectSuccess);
+        assertThat(future.get(ADD_ROLE_HOLDER_TIMEOUT_MILLIS,
+                TimeUnit.MILLISECONDS)).isEqualTo(expectSuccess);
     }
 
     private void addRoleHolderAsUser(@NonNull String roleName, @NonNull String packageName,
