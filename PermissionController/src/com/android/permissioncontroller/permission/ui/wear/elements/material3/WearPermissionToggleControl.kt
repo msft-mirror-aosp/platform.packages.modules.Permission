@@ -20,14 +20,17 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.wear.compose.material3.CheckboxButton
 import androidx.wear.compose.material3.LocalTextConfiguration
 import androidx.wear.compose.material3.RadioButton
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
+import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChip
 import com.android.permissioncontroller.permission.ui.wear.elements.ToggleChipToggleControl
-import com.android.permissioncontroller.permission.ui.wear.elements.toggleControlSemantics
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
 
 /**
@@ -118,12 +121,16 @@ private fun WearPermissionToggleControlInternal(
         }
 
     val iconParam: (@Composable BoxScope.() -> Unit)? = iconBuilder?.let { { it.build() } }
-
+    val toggleControlStateDescription =
+        stringResource(
+            if (checked) {
+                R.string.on
+            } else {
+                R.string.off
+            }
+        )
     val updatedModifier =
-        modifier
-            .fillMaxWidth()
-            // .heightIn(min = 58.dp) // TODO(b/370783358): This should be a overlaid value
-            .toggleControlSemantics(toggleControl, checked)
+        modifier.fillMaxWidth().semantics { stateDescription = toggleControlStateDescription }
 
     when (toggleControl) {
         ToggleChipToggleControl.Radio ->
