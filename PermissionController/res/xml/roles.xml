@@ -1499,6 +1499,8 @@
                 featureFlag="android.app.admin.flags.Flags.splitCreateManagedProfileEnabled" />
             <permission name="android.permission.REMOVE_ACCOUNTS"
                 featureFlag="android.app.admin.flags.Flags.splitCreateManagedProfileEnabled" />
+            <permission name="android.permission.MANAGE_DEFAULT_APPLICATIONS" minSdkVersion="36"
+                featureFlag="com.android.permission.flags.Flags.crossUserRoleEnabled" />
         </permissions>
     </role>
 
