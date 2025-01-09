@@ -93,7 +93,7 @@ class DeviceAwarePermissionGrantTest {
         val displayConfigBuilder =
             VirtualDeviceRule.createDefaultVirtualDisplayConfigBuilder(
                     DISPLAY_WIDTH,
-                    DISPLAY_HEIGHT
+                    DISPLAY_HEIGHT,
                 )
                 .setFlags(
                     DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC or
@@ -114,7 +114,7 @@ class DeviceAwarePermissionGrantTest {
 
     @RequiresFlagsEnabled(
         Flags.FLAG_DEVICE_AWARE_PERMISSION_APIS_ENABLED,
-        Flags.FLAG_DEVICE_AWARE_PERMISSIONS_ENABLED
+        Flags.FLAG_DEVICE_AWARE_PERMISSIONS_ENABLED,
     )
     @Test
     fun onHostDevice_requestPermissionForHostDevice_shouldGrantPermission() {
@@ -124,13 +124,13 @@ class DeviceAwarePermissionGrantTest {
             false,
             "",
             expectPermissionGrantedOnDefaultDevice = true,
-            expectPermissionGrantedOnRemoteDevice = false
+            expectPermissionGrantedOnRemoteDevice = false,
         )
     }
 
     @RequiresFlagsEnabled(
         Flags.FLAG_DEVICE_AWARE_PERMISSION_APIS_ENABLED,
-        Flags.FLAG_DEVICE_AWARE_PERMISSIONS_ENABLED
+        Flags.FLAG_DEVICE_AWARE_PERMISSIONS_ENABLED,
     )
     @Test
     fun onHostDevice_requestPermissionForRemoteDevice_shouldGrantPermission() {
@@ -140,13 +140,13 @@ class DeviceAwarePermissionGrantTest {
             true,
             deviceDisplayName,
             expectPermissionGrantedOnDefaultDevice = false,
-            expectPermissionGrantedOnRemoteDevice = true
+            expectPermissionGrantedOnRemoteDevice = true,
         )
     }
 
     @RequiresFlagsEnabled(
         Flags.FLAG_DEVICE_AWARE_PERMISSION_APIS_ENABLED,
-        Flags.FLAG_DEVICE_AWARE_PERMISSIONS_ENABLED
+        Flags.FLAG_DEVICE_AWARE_PERMISSIONS_ENABLED,
     )
     @RequiresFlagsDisabled(Flags.FLAG_ALLOW_HOST_PERMISSION_DIALOGS_ON_VIRTUAL_DEVICES)
     @Test
@@ -160,8 +160,9 @@ class DeviceAwarePermissionGrantTest {
     @RequiresFlagsEnabled(
         Flags.FLAG_DEVICE_AWARE_PERMISSION_APIS_ENABLED,
         Flags.FLAG_DEVICE_AWARE_PERMISSIONS_ENABLED,
-        Flags.FLAG_ALLOW_HOST_PERMISSION_DIALOGS_ON_VIRTUAL_DEVICES
+        Flags.FLAG_ALLOW_HOST_PERMISSION_DIALOGS_ON_VIRTUAL_DEVICES,
     )
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
     @Test
     fun onRemoteDevice_requestPermissionForHostDevice_shouldGrantPermission() {
         // Create a virtual device with default policy, so that camera permission request will
@@ -176,16 +177,18 @@ class DeviceAwarePermissionGrantTest {
             virtualDisplay.display.displayId,
             virtualDevice.deviceId,
             true,
-            Settings.Global.getString(defaultDeviceContext.contentResolver,
-                Settings.Global.DEVICE_NAME),
+            Settings.Global.getString(
+                defaultDeviceContext.contentResolver,
+                Settings.Global.DEVICE_NAME,
+            ),
             expectPermissionGrantedOnDefaultDevice = true,
-            expectPermissionGrantedOnRemoteDevice = false
+            expectPermissionGrantedOnRemoteDevice = false,
         )
     }
 
     @RequiresFlagsEnabled(
         Flags.FLAG_DEVICE_AWARE_PERMISSION_APIS_ENABLED,
-        Flags.FLAG_DEVICE_AWARE_PERMISSIONS_ENABLED
+        Flags.FLAG_DEVICE_AWARE_PERMISSIONS_ENABLED,
     )
     @Test
     fun onRemoteDevice_requestPermissionForRemoteDevice_shouldGrantPermission() {
@@ -195,7 +198,7 @@ class DeviceAwarePermissionGrantTest {
             true,
             deviceDisplayName,
             expectPermissionGrantedOnDefaultDevice = false,
-            expectPermissionGrantedOnRemoteDevice = true
+            expectPermissionGrantedOnRemoteDevice = true,
         )
     }
 
@@ -205,7 +208,7 @@ class DeviceAwarePermissionGrantTest {
         showDeviceName: Boolean,
         expectedDeviceNameInDialog: String,
         expectPermissionGrantedOnDefaultDevice: Boolean,
-        expectPermissionGrantedOnRemoteDevice: Boolean
+        expectPermissionGrantedOnRemoteDevice: Boolean,
     ) {
         // Assert no permission granted to either default device or virtual device at the beginning
         assertAppHasPermissionForDevice(DEVICE_ID_DEFAULT, false)
@@ -240,13 +243,13 @@ class DeviceAwarePermissionGrantTest {
         assertAppHasPermissionForDevice(DEVICE_ID_DEFAULT, expectPermissionGrantedOnDefaultDevice)
         assertAppHasPermissionForDevice(
             virtualDevice.deviceId,
-            expectPermissionGrantedOnRemoteDevice
+            expectPermissionGrantedOnRemoteDevice,
         )
     }
 
     private fun requestPermissionOnDevice(
         displayId: Int,
-        targetDeviceId: Int
+        targetDeviceId: Int,
     ): CompletableFuture<Bundle> {
         val future = CompletableFuture<Bundle>()
         val callback = RemoteCallback { result: Bundle? -> future.complete(result) }
