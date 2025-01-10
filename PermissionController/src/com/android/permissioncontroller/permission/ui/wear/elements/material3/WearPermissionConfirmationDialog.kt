@@ -91,7 +91,7 @@ private fun WearPermissionConfirmationDialogInternal(
         } ?: AlertDialogDefaults.ConfirmIcon
 
     Material3AlertDialog(
-        show = show,
+        visible = show,
         onDismissRequest = edgeButtonContent.onClick,
         edgeButton = {
             AlertDialogDefaults.EdgeButton(onClick = edgeButtonContent.onClick, content = edgeIcon)
@@ -148,7 +148,7 @@ private fun WearPermissionConfirmationDialogInternal(
         }
 
     Material3AlertDialog(
-        show = show,
+        visible = show,
         onDismissRequest = negativeButtonContent?.onClick ?: {},
         confirmButton = positiveButton ?: {},
         dismissButton = negativeButton ?: {},
