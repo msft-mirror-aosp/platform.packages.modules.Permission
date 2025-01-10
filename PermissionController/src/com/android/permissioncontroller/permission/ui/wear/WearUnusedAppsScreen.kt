@@ -25,9 +25,9 @@ import com.android.permissioncontroller.R
 import com.android.permissioncontroller.hibernation.isHibernationEnabled
 import com.android.permissioncontroller.permission.ui.model.UnusedAppsViewModel.UnusedPeriod
 import com.android.permissioncontroller.permission.ui.model.UnusedAppsViewModel.UnusedPeriod.Companion.allPeriods
-import com.android.permissioncontroller.permission.ui.wear.elements.Chip
-import com.android.permissioncontroller.permission.ui.wear.elements.Icon
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.Icon
 import com.android.permissioncontroller.permission.ui.wear.model.WearUnusedAppsViewModel
 
 @Composable
@@ -43,7 +43,7 @@ fun WearUnusedAppsScreen(viewModel: WearUnusedAppsViewModel) {
         showTimeText = true,
         title = getScreenTitle(),
         isLoading = loading.value,
-        subtitle = getSubTitle(!infoMsgCategoryVisibility.value)
+        subtitle = getSubTitle(!infoMsgCategoryVisibility.value),
     ) {
         for (period in allPeriods) {
             if (!unusedAppChips.value.containsKey(period)) {
@@ -62,7 +62,7 @@ fun WearUnusedAppsScreen(viewModel: WearUnusedAppsViewModel) {
                         secondaryLabel = unusedAppChip.summary,
                         icon = unusedAppChip.icon,
                         iconContentDescription = unusedAppChip.contentDescription,
-                        onClick = unusedAppChip.onClick
+                        onClick = unusedAppChip.onClick,
                     )
                 }
             }
@@ -108,5 +108,5 @@ private fun posByPeriod(period: UnusedPeriod) =
 private fun categoryTitleByPeriod(period: UnusedPeriod) =
     MessageFormat.format(
         stringResource(R.string.last_opened_category_title),
-        mapOf("count" to period.months)
+        mapOf("count" to period.months),
     )

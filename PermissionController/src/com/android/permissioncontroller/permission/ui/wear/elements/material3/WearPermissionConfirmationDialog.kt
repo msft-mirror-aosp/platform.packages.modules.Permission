@@ -25,8 +25,8 @@ import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.AlertDialog as Material3AlertDialog
 import androidx.wear.compose.material3.AlertDialogDefaults
 import androidx.wear.compose.material3.Text
-import com.android.permissioncontroller.permission.ui.wear.elements.AlertDialog
-import com.android.permissioncontroller.permission.ui.wear.elements.DialogButtonContent
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.AlertDialog
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.DialogButtonContent
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
 
 @Composable

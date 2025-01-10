@@ -25,8 +25,8 @@ import androidx.wear.compose.material3.RadioButtonColors
 import androidx.wear.compose.material3.RadioButtonDefaults.radioButtonColors
 import androidx.wear.compose.material3.SwitchButtonColors
 import androidx.wear.compose.material3.SwitchButtonDefaults.switchButtonColors
-import com.android.permissioncontroller.permission.ui.wear.elements.toggleChipBackgroundColors
-import com.android.permissioncontroller.permission.ui.wear.elements.toggleChipDisabledColors
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.toggleChipBackgroundColors
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.toggleChipDisabledColors
 
 /**
  * Defines toggle control styles, It helps in setting the right colors scheme to a toggle control.

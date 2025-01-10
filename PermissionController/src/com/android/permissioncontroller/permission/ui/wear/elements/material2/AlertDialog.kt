@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.permissioncontroller.permission.ui.wear.elements
+package com.android.permissioncontroller.permission.ui.wear.elements.material2
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -34,9 +34,9 @@ import androidx.wear.compose.material.LocalTextStyle
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.dialog.Dialog
-import com.android.permissioncontroller.permission.ui.wear.elements.layout.ScalingLazyColumnDefaults
-import com.android.permissioncontroller.permission.ui.wear.elements.layout.ScalingLazyColumnState
-import com.android.permissioncontroller.permission.ui.wear.elements.layout.rememberColumnState
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.ScalingLazyColumnDefaults
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.ScalingLazyColumnState
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.rememberColumnState
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
 
 data class DialogButtonContent(

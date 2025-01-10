@@ -26,7 +26,7 @@ import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.SwipeToDismissBox
-import com.android.permissioncontroller.permission.ui.wear.elements.Chip
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionScaffold
 import com.android.permissioncontroller.permission.ui.wear.model.LocationProviderInterceptDialogArgs
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion

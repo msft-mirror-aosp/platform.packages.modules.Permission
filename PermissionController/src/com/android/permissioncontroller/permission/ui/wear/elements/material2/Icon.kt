@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.permissioncontroller.permission.ui.wear.elements
+package com.android.permissioncontroller.permission.ui.wear.elements.material2
 
 import android.graphics.drawable.Drawable
 import androidx.annotation.DrawableRes
@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.LocalContentAlpha
 import androidx.wear.compose.material.LocalContentColor
+import com.android.permissioncontroller.permission.ui.wear.elements.rememberDrawablePainter
 
 /**
  * This component is an alternative to [Icon], providing the following:
@@ -40,7 +41,7 @@ public fun Icon(
     contentDescription: String?,
     modifier: Modifier = Modifier,
     tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
-    rtlMode: IconRtlMode = IconRtlMode.Default
+    rtlMode: IconRtlMode = IconRtlMode.Default,
 ) {
     val shouldMirror =
         rtlMode == IconRtlMode.Mirrored && LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -48,7 +49,7 @@ public fun Icon(
         modifier = modifier.scale(scaleX = if (shouldMirror) -1f else 1f, scaleY = 1f),
         imageVector = imageVector,
         contentDescription = contentDescription,
-        tint = tint
+        tint = tint,
     )
 }
 
@@ -62,7 +63,7 @@ public fun Icon(
     contentDescription: String?,
     modifier: Modifier = Modifier,
     tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
-    rtlMode: IconRtlMode = IconRtlMode.Default
+    rtlMode: IconRtlMode = IconRtlMode.Default,
 ) {
     val shouldMirror =
         rtlMode == IconRtlMode.Mirrored && LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -71,7 +72,7 @@ public fun Icon(
         painter = painterResource(id = id),
         contentDescription = contentDescription,
         modifier = modifier.scale(scaleX = if (shouldMirror) -1f else 1f, scaleY = 1f),
-        tint = tint
+        tint = tint,
     )
 }
 
@@ -86,7 +87,7 @@ fun Icon(
     contentDescription: String?,
     modifier: Modifier = Modifier,
     tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
-    rtlMode: IconRtlMode = IconRtlMode.Default
+    rtlMode: IconRtlMode = IconRtlMode.Default,
 ) {
     val shouldMirror =
         rtlMode == IconRtlMode.Mirrored && LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -98,7 +99,7 @@ fun Icon(
                 imageVector = icon,
                 modifier = iconModifier,
                 contentDescription = contentDescription,
-                tint = tint
+                tint = tint,
             )
         }
         is Int -> {
@@ -106,7 +107,7 @@ fun Icon(
                 painter = painterResource(id = icon),
                 contentDescription = contentDescription,
                 modifier = iconModifier,
-                tint = tint
+                tint = tint,
             )
         }
         is Drawable -> {
@@ -114,7 +115,7 @@ fun Icon(
                 painter = rememberDrawablePainter(icon),
                 contentDescription = contentDescription,
                 modifier = iconModifier,
-                tint = tint
+                tint = tint,
             )
         }
         else -> throw IllegalArgumentException("Type not supported.")
@@ -123,5 +124,5 @@ fun Icon(
 
 public enum class IconRtlMode {
     Default,
-    Mirrored
+    Mirrored,
 }

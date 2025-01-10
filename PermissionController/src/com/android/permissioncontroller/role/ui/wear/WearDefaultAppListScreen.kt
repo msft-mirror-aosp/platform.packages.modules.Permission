@@ -29,10 +29,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.LiveData
 import androidx.wear.compose.material.Text
 import com.android.permissioncontroller.R
-import com.android.permissioncontroller.permission.ui.wear.elements.Chip
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.chipDefaultColors
-import com.android.permissioncontroller.permission.ui.wear.elements.chipDisabledColors
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.chipDefaultColors
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.chipDisabledColors
 import com.android.permissioncontroller.role.ui.RoleItem
 
 @Composable
@@ -65,7 +65,7 @@ fun WearDefaultAppListScreen(
                     onClick = pref.getOnClicked(),
                     modifier = Modifier.fillMaxWidth(),
                     labelMaxLines = Int.MAX_VALUE,
-                    secondaryLabelMaxLines = Integer.MAX_VALUE
+                    secondaryLabelMaxLines = Integer.MAX_VALUE,
                 )
             }
         }

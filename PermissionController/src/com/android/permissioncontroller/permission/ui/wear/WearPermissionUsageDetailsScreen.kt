@@ -37,15 +37,15 @@ import com.android.permissioncontroller.permission.ui.model.v31.BasePermissionUs
 import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageDetailsViewModel
 import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageDetailsViewModel.AppPermissionAccessUiInfo
 import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageDetailsViewModel.PermissionUsageDetailsUiState
-import com.android.permissioncontroller.permission.ui.wear.elements.Chip
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
 import com.android.permissioncontroller.permission.utils.KotlinUtils
 
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun WearPermissionUsageDetailsScreen(
     permissionGroup: String,
-    viewModel: BasePermissionUsageDetailsViewModel
+    viewModel: BasePermissionUsageDetailsViewModel,
 ) {
     val context = LocalContext.current
     val uiData = viewModel.getPermissionUsagesDetailsInfoUiLiveData().observeAsState(null)
@@ -56,7 +56,7 @@ fun WearPermissionUsageDetailsScreen(
     val subtitle =
         stringResource(
             R.string.permission_group_usage_title,
-            KotlinUtils.getPermGroupLabel(context, permissionGroup)
+            KotlinUtils.getPermGroupLabel(context, permissionGroup),
         )
 
     val hasSystemApps: Boolean =
@@ -80,7 +80,7 @@ fun WearPermissionUsageDetailsScreen(
                     uiInfo.accessStartTime,
                     uiInfo.accessEndTime,
                     uiInfo.showingAttribution,
-                    uiInfo.attributionTags
+                    uiInfo.attributionTags,
                 )
             context.startActivityAsUser(intent, uiInfo.userHandle)
         }
@@ -108,7 +108,7 @@ fun WearPermissionUsageDetailsScreen(
         onShowSystemClick,
         appPermissionAccessUiInfoList,
         onChipClick,
-        onManagePermissionClick
+        onManagePermissionClick,
     )
 
     if (isLoading && uiData.value != null) {
@@ -126,7 +126,7 @@ internal fun WearPermissionUsageDetailsContent(
     onShowSystemClick: (Boolean) -> Unit,
     appPermissionAccessUiInfoList: List<AppPermissionAccessUiInfo>,
     onChipClick: (AppPermissionAccessUiInfo) -> Unit,
-    onManagePermissionClick: () -> Unit
+    onManagePermissionClick: () -> Unit,
 ) {
     ScrollableScreen(title = title, subtitle = subtitle, isLoading = isLoading) {
         if (appPermissionAccessUiInfoList.isEmpty()) {
@@ -142,7 +142,7 @@ internal fun WearPermissionUsageDetailsContent(
                                 .format(uiInfo.accessEndTime),
                         secondaryLabelMaxLines = Int.MAX_VALUE,
                         icon = uiInfo.badgedPackageIcon,
-                        onClick = { onChipClick(uiInfo) }
+                        onClick = { onChipClick(uiInfo) },
                     )
                 }
             }

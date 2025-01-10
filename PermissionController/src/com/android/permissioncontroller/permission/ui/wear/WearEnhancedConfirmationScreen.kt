@@ -43,11 +43,11 @@ import com.android.permissioncontroller.permission.ui.wear.elements.CheckYourPho
 import com.android.permissioncontroller.permission.ui.wear.elements.CheckYourPhoneState
 import com.android.permissioncontroller.permission.ui.wear.elements.CheckYourPhoneState.InProgress
 import com.android.permissioncontroller.permission.ui.wear.elements.CheckYourPhoneState.Success
-import com.android.permissioncontroller.permission.ui.wear.elements.Chip
-import com.android.permissioncontroller.permission.ui.wear.elements.DialogButtonContent
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
 import com.android.permissioncontroller.permission.ui.wear.elements.dismiss
 import com.android.permissioncontroller.permission.ui.wear.elements.findActivity
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.DialogButtonContent
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionConfirmationDialog
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
 import com.android.permissioncontroller.permission.ui.wear.model.WearEnhancedConfirmationViewModel

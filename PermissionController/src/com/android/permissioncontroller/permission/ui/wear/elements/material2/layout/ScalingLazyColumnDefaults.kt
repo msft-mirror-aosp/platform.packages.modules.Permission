@@ -16,7 +16,7 @@
 
 @file:Suppress("ObjectLiteralToLambda")
 
-package com.android.permissioncontroller.permission.ui.wear.elements.layout
+package com.android.permissioncontroller.permission.ui.wear.elements.material2.layout
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,7 +33,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults
 import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
 import androidx.wear.compose.foundation.lazy.ScalingParams
 import androidx.wear.compose.material.ChipDefaults
-import com.android.permissioncontroller.permission.ui.wear.elements.layout.ScalingLazyColumnState.RotaryMode
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.ScalingLazyColumnState.RotaryMode
 import kotlin.math.sqrt
 
 // This file's content is copied from ScalingLazyColumnDefaults.kt from Horologist (go/horologist),
@@ -63,10 +63,7 @@ object ScalingLazyColumnDefaults {
         firstItemIsFullWidth: Boolean = true,
         additionalPaddingAtBottom: Dp = 10.dp,
         verticalArrangement: Arrangement.Vertical =
-            Arrangement.spacedBy(
-                space = 4.dp,
-                alignment = Alignment.Top,
-            ),
+            Arrangement.spacedBy(space = 4.dp, alignment = Alignment.Top),
         horizontalPaddingPercent: Float = 0.052f,
         rotaryMode: RotaryMode? = RotaryMode.Scroll,
         hapticsEnabled: Boolean = true,
@@ -145,7 +142,7 @@ object ScalingLazyColumnDefaults {
         return (radius -
                 sqrt(
                     (radius - childViewHeight + childViewWidth * 0.5f) *
-                        (radius - childViewWidth * 0.5f),
+                        (radius - childViewWidth * 0.5f)
                 ) -
                 childViewHeight * 0.5f)
             .dp
@@ -225,10 +222,7 @@ object ScalingLazyColumnDefaults {
                     last.bottomPaddingDp * height + first.paddingCorrection
                 } else {
                     if (configuration.isScreenRound) {
-                        calculateVerticalOffsetForChip(
-                            screenWidthDp,
-                            horizontalPercent,
-                        ) + 10.dp
+                        calculateVerticalOffsetForChip(screenWidthDp, horizontalPercent) + 10.dp
                     } else {
                         0.dp
                     }

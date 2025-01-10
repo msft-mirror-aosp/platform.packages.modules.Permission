@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.permissioncontroller.permission.ui.wear.elements
+package com.android.permissioncontroller.permission.ui.wear.elements.material2
 
 import android.graphics.drawable.Drawable
 import androidx.annotation.StringRes
@@ -46,6 +46,7 @@ import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.contentColorFor
+import com.android.permissioncontroller.permission.ui.wear.elements.rememberDrawablePainter
 
 /**
  * This component is an alternative to [Chip], providing the following:
@@ -67,7 +68,7 @@ fun Chip(
     textColor: Color = MaterialTheme.colors.onSurface,
     iconColor: Color = Color.Unspecified,
     colors: ChipColors = chipDefaultColors(),
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     val iconParam: (@Composable BoxScope.() -> Unit)? =
         icon?.let {
@@ -87,21 +88,21 @@ fun Chip(
                                 imageVector = icon,
                                 tint = iconColor,
                                 contentDescription = iconContentDescription,
-                                modifier = iconModifier
+                                modifier = iconModifier,
                             )
                         is Int ->
                             Icon(
                                 painter = painterResource(id = icon),
                                 tint = iconColor,
                                 contentDescription = iconContentDescription,
-                                modifier = iconModifier
+                                modifier = iconModifier,
                             )
                         is Drawable ->
                             Icon(
                                 painter = rememberDrawablePainter(icon),
                                 tint = iconColor,
                                 contentDescription = iconContentDescription,
-                                modifier = iconModifier
+                                modifier = iconModifier,
                             )
                         else -> {}
                     }
@@ -120,7 +121,7 @@ fun Chip(
         largeIcon = largeIcon,
         textColor = textColor,
         colors = colors,
-        enabled = enabled
+        enabled = enabled,
     )
 }
 
@@ -143,7 +144,7 @@ fun Chip(
     textColor: Color = MaterialTheme.colors.onSurface,
     iconColor: Color = Color.Unspecified,
     colors: ChipColors = chipDefaultColors(),
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     Chip(
         label = stringResource(id = labelId),
@@ -157,7 +158,7 @@ fun Chip(
         textColor = textColor,
         iconColor = iconColor,
         colors = colors,
-        enabled = enabled
+        enabled = enabled,
     )
 }
 
@@ -180,7 +181,7 @@ fun Chip(
     textColor: Color = MaterialTheme.colors.onSurface,
     secondaryTextColor: Color = MaterialTheme.colors.primary,
     colors: ChipColors = chipDefaultColors(),
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     val hasSecondaryLabel = secondaryLabel != null
     val hasIcon = icon != null
@@ -196,8 +197,8 @@ fun Chip(
             style =
                 MaterialTheme.typography.button.copy(
                     fontWeight = FontWeight.W600,
-                    hyphens = Hyphens.Auto
-                )
+                    hyphens = Hyphens.Auto,
+                ),
         )
     }
 
@@ -209,7 +210,7 @@ fun Chip(
                     color = secondaryTextColor,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = secondaryLabelMaxLines ?: 1,
-                    style = MaterialTheme.typography.caption2
+                    style = MaterialTheme.typography.caption2,
                 )
             }
         }
@@ -221,7 +222,7 @@ fun Chip(
                 start = 10.dp,
                 top = verticalPadding,
                 end = ChipDefaults.ChipHorizontalPadding,
-                bottom = verticalPadding
+                bottom = verticalPadding,
             )
         } else {
             ChipDefaults.ContentPadding
@@ -236,7 +237,7 @@ fun Chip(
         colors = colors,
         enabled = enabled,
         contentPadding = contentPadding,
-        shape = RoundedCornerShape(26.dp)
+        shape = RoundedCornerShape(26.dp),
     )
 }
 
@@ -258,6 +259,6 @@ fun chipDisabledColors(): ChipColors {
         backgroundColor = backgroundColor.copy(alpha = ContentAlpha.disabled),
         contentColor = contentColor.copy(alpha = ContentAlpha.disabled),
         secondaryContentColor = secondaryContentColor.copy(alpha = ContentAlpha.disabled),
-        iconColor = iconColor.copy(alpha = ContentAlpha.disabled)
+        iconColor = iconColor.copy(alpha = ContentAlpha.disabled),
     )
 }

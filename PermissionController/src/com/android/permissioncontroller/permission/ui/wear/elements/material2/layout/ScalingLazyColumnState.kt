@@ -17,7 +17,7 @@
 @file:Suppress("ObjectLiteralToLambda")
 @file:OptIn(ExperimentalWearFoundationApi::class)
 
-package com.android.permissioncontroller.permission.ui.wear.elements.layout
+package com.android.permissioncontroller.permission.ui.wear.elements.material2.layout
 
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.FlingBehavior
@@ -42,8 +42,8 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.ScalingParams
-import com.android.permissioncontroller.permission.ui.wear.elements.layout.ScalingLazyColumnDefaults.responsiveScalingParams
-import com.android.permissioncontroller.permission.ui.wear.elements.layout.ScalingLazyColumnState.RotaryMode
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.ScalingLazyColumnDefaults.responsiveScalingParams
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.ScalingLazyColumnState.RotaryMode
 
 // This file is a copy of ScalingLazyColumnState.kt from Horologist (go/horologist),
 // remove it once after wear compose supports large screen dialogs.

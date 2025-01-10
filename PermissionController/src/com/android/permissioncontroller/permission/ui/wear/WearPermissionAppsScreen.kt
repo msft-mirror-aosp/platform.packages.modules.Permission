@@ -32,9 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Text
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.Category
-import com.android.permissioncontroller.permission.ui.wear.elements.Chip
-import com.android.permissioncontroller.permission.ui.wear.elements.ListSubheader
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.ListSubheader
 
 /** Compose the screen associated to a [WearPermissionAppsFragment]. */
 @Composable
@@ -65,7 +65,7 @@ fun WearPermissionAppsScreen(helper: WearPermissionAppsHelper) {
                 subtitle = subTitle,
                 showAlways = showAlways,
                 isLoading = isLoading,
-                onShowSystemClick = helper.onShowSystemClick
+                onShowSystemClick = helper.onShowSystemClick,
             )
         }
     }
@@ -84,7 +84,7 @@ internal fun WearPermissionAppsContent(
     subtitle: String,
     showAlways: Boolean,
     isLoading: Boolean,
-    onShowSystemClick: (showSystem: Boolean) -> Unit
+    onShowSystemClick: (showSystem: Boolean) -> Unit,
 ) {
     ScrollableScreen(title = title, subtitle = subtitle, isLoading = isLoading) {
         val firstItemIndex = categoryOrder.indexOfFirst { !chipsByCategory[it].isNullOrEmpty() }
@@ -100,7 +100,7 @@ internal fun WearPermissionAppsContent(
                             top = if (index == firstItemIndex) 0.dp else 12.dp,
                             bottom = 4.dp,
                             start = 14.dp,
-                            end = 14.dp
+                            end = 14.dp,
                         )
                 ) {
                     Text(text = stringResource(getCategoryString(category, showAlways)))
@@ -116,7 +116,7 @@ internal fun WearPermissionAppsContent(
                         icon = it.icon,
                         enabled = it.enabled,
                         onClick = { it.onClick() },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }
@@ -163,5 +163,5 @@ internal val categoryOrder =
         Category.ALLOWED.categoryName,
         Category.ALLOWED_FOREGROUND.categoryName,
         Category.ASK.categoryName,
-        Category.DENIED.categoryName
+        Category.DENIED.categoryName,
     )

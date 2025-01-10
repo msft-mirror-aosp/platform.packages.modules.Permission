@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.ButtonDefaults
-import com.android.permissioncontroller.permission.ui.wear.elements.ListFooter
+import com.android.permissioncontroller.permission.ui.wear.elements.material2.ListFooter
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
 
 /** This component is creates a transparent styled button to use as a list footer. */
