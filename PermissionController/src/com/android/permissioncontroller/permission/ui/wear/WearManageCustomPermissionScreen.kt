@@ -26,7 +26,8 @@ import androidx.compose.ui.res.stringResource
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.model.ManageCustomPermissionsViewModel
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
 
 @Composable
 fun WearManageCustomPermissionScreen(
@@ -59,10 +60,10 @@ internal fun WearManageCustomPermissionContent(
     ) {
         for (params in permGroupChipParams) {
             item {
-                Chip(
+                WearPermissionButton(
                     label = params.label,
                     labelMaxLines = 3,
-                    icon = params.icon,
+                    iconBuilder = params.icon?.let { WearPermissionIconBuilder.builder(it) },
                     secondaryLabel = params.secondaryLabel,
                     secondaryLabelMaxLines = 3,
                     onClick = { onPermGroupClick(params.permGroupName) },
