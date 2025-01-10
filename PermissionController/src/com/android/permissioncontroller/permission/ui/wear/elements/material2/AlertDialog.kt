@@ -39,12 +39,8 @@ import androidx.wear.compose.material.dialog.Dialog
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.ScalingLazyColumnDefaults
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.ScalingLazyColumnState
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.rememberColumnState
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.DialogButtonContent
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
-
-data class DialogButtonContent(
-    val icon: WearPermissionIconBuilder? = null,
-    val onClick: (() -> Unit),
-)
 
 /**
  * This component is an alternative to [AlertContent], providing the following:

@@ -31,8 +31,8 @@ import androidx.wear.compose.foundation.SwipeToDismissValue
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.SwipeToDismissBox
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionScaffold
+import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
-import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL2_5
 
 /**
  * Screen that contains a list of items defined using the [content] parameter, adds the time text
@@ -42,7 +42,7 @@ import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionM
  */
 @Composable
 fun ScrollableScreen(
-    materialUIVersion: WearPermissionMaterialUIVersion = MATERIAL2_5,
+    materialUIVersion: WearPermissionMaterialUIVersion = ResourceHelper.materialUIVersionInSettings,
     showTimeText: Boolean = true,
     title: String? = null,
     subtitle: CharSequence? = null,

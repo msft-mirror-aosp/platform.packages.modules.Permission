@@ -31,13 +31,13 @@ import com.android.permissioncontroller.permission.ui.model.AppPermissionViewMod
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType
 import com.android.permissioncontroller.permission.ui.v33.AdvancedConfirmDialogArgs
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.DialogButtonContent
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.ListFooter
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChip
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChipToggleControl
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.toggleChipDisabledColors
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.DialogButtonContent
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionConfirmationDialog
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControlType
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.defaultAlertConfirmIcon
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.defaultAlertDismissIcon
 import com.android.permissioncontroller.permission.ui.wear.model.AppPermissionConfirmDialogViewModel
@@ -121,7 +121,7 @@ internal fun WearAppPermissionContent(
                         checked = it.isChecked,
                         enabled = it.isEnabled,
                         label = stringResource(R.string.app_permission_location_accuracy),
-                        toggleControl = ToggleChipToggleControl.Switch,
+                        toggleControl = WearPermissionToggleControlType.Switch,
                         onCheckedChanged = onLocationSwitchChanged,
                         labelMaxLine = Integer.MAX_VALUE,
                     )
@@ -141,7 +141,7 @@ internal fun WearAppPermissionContent(
                                     toggleChipDisabledColors()
                                 },
                             label = labelsByButton(buttonType),
-                            toggleControl = ToggleChipToggleControl.Radio,
+                            toggleControl = WearPermissionToggleControlType.Radio,
                             onCheckedChanged = { checked ->
                                 if (it.isEnabled) {
                                     onGrantedStateChanged(buttonType, checked)

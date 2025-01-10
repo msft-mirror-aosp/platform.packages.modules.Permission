@@ -29,6 +29,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material.ChipDefaults
@@ -39,6 +44,8 @@ import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.ToggleChipColors
 import androidx.wear.compose.material.ToggleChipDefaults
 import androidx.wear.compose.material.contentColorFor
+import com.android.permissioncontroller.R
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControlType
 
 /**
  * This component is an alternative to [ToggleChip], providing the following:
@@ -52,7 +59,7 @@ fun ToggleChip(
     onCheckedChanged: (Boolean) -> Unit,
     label: String,
     labelMaxLine: Int? = null,
-    toggleControl: ToggleChipToggleControl,
+    toggleControl: WearPermissionToggleControlType,
     modifier: Modifier = Modifier,
     icon: Any? = null,
     iconColor: Color = Color.Unspecified,
@@ -92,15 +99,16 @@ fun ToggleChip(
         Icon(
             imageVector =
                 when (toggleControl) {
-                    ToggleChipToggleControl.Switch -> ToggleChipDefaults.switchIcon(checked)
-                    ToggleChipToggleControl.Radio -> ToggleChipDefaults.radioIcon(checked)
-                    ToggleChipToggleControl.Checkbox -> ToggleChipDefaults.checkboxIcon(checked)
+                    WearPermissionToggleControlType.Switch -> ToggleChipDefaults.switchIcon(checked)
+                    WearPermissionToggleControlType.Radio -> ToggleChipDefaults.radioIcon(checked)
+                    WearPermissionToggleControlType.Checkbox ->
+                        ToggleChipDefaults.checkboxIcon(checked)
                 },
             contentDescription = null,
             // This potentially be removed once this issue is addressed:
             // https://issuetracker.google.com/issues/287087138
             rtlMode =
-                if (toggleControl == ToggleChipToggleControl.Switch) {
+                if (toggleControl == WearPermissionToggleControlType.Switch) {
                     IconRtlMode.Mirrored
                 } else {
                     IconRtlMode.Default
@@ -127,7 +135,7 @@ fun ToggleChip(
         checked = checked,
         onCheckedChange = { newChecked ->
             // Radio buttons cannot be toggled off by tapping on it again.
-            if (toggleControl != ToggleChipToggleControl.Radio || newChecked) {
+            if (toggleControl != WearPermissionToggleControlType.Radio || newChecked) {
                 onCheckedChanged.invoke(newChecked)
             }
         },
@@ -218,4 +226,30 @@ fun toggleChipBackgroundColors(): ToggleChipColors {
         uncheckedSecondaryContentColor = uncheckedSecondaryContentColor,
         uncheckedToggleControlColor = uncheckedToggleControlColor,
     )
+}
+
+@Composable
+fun Modifier.toggleControlSemantics(
+    toggleControl: WearPermissionToggleControlType,
+    checked: Boolean,
+): Modifier {
+    val semanticsRole =
+        when (toggleControl) {
+            WearPermissionToggleControlType.Switch -> Role.Switch
+            WearPermissionToggleControlType.Radio -> Role.RadioButton
+            WearPermissionToggleControlType.Checkbox -> Role.Checkbox
+        }
+    val stateDescriptionSemantics =
+        stringResource(
+            if (checked) {
+                R.string.on
+            } else {
+                R.string.off
+            }
+        )
+
+    return semantics {
+        role = semanticsRole
+        stateDescription = stateDescriptionSemantics
+    }
 }

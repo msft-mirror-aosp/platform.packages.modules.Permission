@@ -27,12 +27,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.wear.compose.material.ToggleChipDefaults
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.DialogButtonContent
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.ListFooter
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChip
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChipToggleControl
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.toggleChipDisabledColors
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.DialogButtonContent
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionConfirmationDialog
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControlType
 import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
 import com.android.permissioncontroller.role.ui.wear.model.ConfirmDialogArgs
@@ -71,7 +71,7 @@ private fun WearDefaultAppContent(
                     icon = it.icon,
                     checked = it.checked,
                     onCheckedChanged = it.onDefaultCheckChanged,
-                    toggleControl = ToggleChipToggleControl.Radio,
+                    toggleControl = WearPermissionToggleControlType.Radio,
                     labelMaxLine = Integer.MAX_VALUE,
                 )
             }
@@ -90,7 +90,7 @@ private fun WearDefaultAppContent(
                     secondaryLabel = pref.summary?.toString(),
                     checked = pref.checked,
                     onCheckedChanged = pref.getOnCheckChanged(),
-                    toggleControl = ToggleChipToggleControl.Radio,
+                    toggleControl = WearPermissionToggleControlType.Radio,
                     labelMaxLine = Integer.MAX_VALUE,
                     secondaryLabelMaxLine = Integer.MAX_VALUE,
                 )

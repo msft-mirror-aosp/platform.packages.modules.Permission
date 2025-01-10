@@ -26,11 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.DialogButtonContent
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChip
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChipToggleControl
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.DialogButtonContent
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionConfirmationDialog
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControl
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControlType
 import com.android.permissioncontroller.permission.ui.wear.model.RevokeDialogArgs
 import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
@@ -83,20 +83,22 @@ internal fun WearAppPermissionGroupsContent(
 ) {
     ScrollableScreen(title = stringResource(R.string.app_permissions), isLoading = isLoading) {
         if (permissionGroupChipParams.isEmpty()) {
-            item { Chip(label = stringResource(R.string.no_permissions), onClick = {}) }
+            item {
+                WearPermissionButton(label = stringResource(R.string.no_permissions), onClick = {})
+            }
         } else {
             for (info in permissionGroupChipParams) {
                 item {
                     if (info.checked != null) {
-                        ToggleChip(
-                            checked = info.checked,
+                        WearPermissionToggleControl(
+                            toggleControl = WearPermissionToggleControlType.Switch,
                             label = info.label,
+                            checked = info.checked,
                             enabled = info.enabled,
-                            toggleControl = ToggleChipToggleControl.Switch,
                             onCheckedChanged = info.onCheckedChanged,
                         )
                     } else {
-                        Chip(
+                        WearPermissionButton(
                             label = info.label,
                             labelMaxLines = Integer.MAX_VALUE,
                             secondaryLabel = info.summary?.let { info.summary },
@@ -110,11 +112,11 @@ internal fun WearAppPermissionGroupsContent(
             autoRevokeChipParam?.let {
                 if (it.visible) {
                     item {
-                        ToggleChip(
+                        WearPermissionToggleControl(
                             checked = it.checked,
                             label = stringResource(it.labelRes),
-                            labelMaxLine = 3,
-                            toggleControl = ToggleChipToggleControl.Switch,
+                            labelMaxLines = 3,
+                            toggleControl = WearPermissionToggleControlType.Switch,
                             onCheckedChanged = it.onCheckedChanged,
                         )
                     }

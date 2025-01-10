@@ -42,9 +42,9 @@ import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.N
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.NO_UPGRADE_OT_BUTTON
 import com.android.permissioncontroller.permission.ui.wear.GrantPermissionsWearViewHandler.BUTTON_RES_ID_TO_NUM
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChipToggleControl
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControl
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControlType
 import com.android.permissioncontroller.permission.ui.wear.model.WearGrantPermissionsViewModel
 import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL3
@@ -81,7 +81,7 @@ fun WearGrantPermissionsScreen(
                     checked = preciseLocationChecked.value,
                     onCheckedChanged = onLocationSwitchChanged,
                     label = stringResource(R.string.app_permission_location_accuracy),
-                    toggleControl = ToggleChipToggleControl.Switch,
+                    toggleControl = WearPermissionToggleControlType.Switch,
                     modifier = Modifier.fillMaxWidth(),
                     labelMaxLines = Integer.MAX_VALUE,
                     materialUIVersion = materialUIVersion,

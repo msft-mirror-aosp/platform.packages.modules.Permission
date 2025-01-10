@@ -30,8 +30,15 @@ import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChip
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChipToggleControl
+import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
+
+/** Defines various toggle control types. */
+enum class WearPermissionToggleControlType {
+    Switch,
+    Radio,
+    Checkbox,
+}
 
 /**
  * The custom component is a wrapper on different material3 toggle controls.
@@ -42,14 +49,13 @@ import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionM
  */
 @Composable
 fun WearPermissionToggleControl(
-    toggleControl: ToggleChipToggleControl,
+    toggleControl: WearPermissionToggleControlType,
     label: String,
     checked: Boolean,
     onCheckedChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     labelMaxLines: Int? = null,
-    materialUIVersion: WearPermissionMaterialUIVersion =
-        WearPermissionMaterialUIVersion.MATERIAL2_5,
+    materialUIVersion: WearPermissionMaterialUIVersion = ResourceHelper.materialUIVersionInSettings,
     iconBuilder: WearPermissionIconBuilder? = null,
     secondaryLabel: String? = null,
     secondaryLabelMaxLines: Int? = null,
@@ -90,7 +96,7 @@ fun WearPermissionToggleControl(
 @Composable
 private fun WearPermissionToggleControlInternal(
     label: String,
-    toggleControl: ToggleChipToggleControl,
+    toggleControl: WearPermissionToggleControlType,
     checked: Boolean,
     onCheckedChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -133,7 +139,7 @@ private fun WearPermissionToggleControlInternal(
         modifier.fillMaxWidth().semantics { stateDescription = toggleControlStateDescription }
 
     when (toggleControl) {
-        ToggleChipToggleControl.Radio ->
+        WearPermissionToggleControlType.Radio ->
             RadioButton(
                 selected = checked,
                 onSelect = {
@@ -151,7 +157,7 @@ private fun WearPermissionToggleControlInternal(
                 colors = style.radioButtonColorScheme(),
             )
 
-        ToggleChipToggleControl.Checkbox ->
+        WearPermissionToggleControlType.Checkbox ->
             CheckboxButton(
                 checked = checked,
                 onCheckedChange = onCheckedChanged,
@@ -163,7 +169,7 @@ private fun WearPermissionToggleControlInternal(
                 colors = style.checkboxColorScheme(),
             )
 
-        ToggleChipToggleControl.Switch ->
+        WearPermissionToggleControlType.Switch ->
             SwitchButton(
                 checked = checked,
                 onCheckedChange = onCheckedChanged,

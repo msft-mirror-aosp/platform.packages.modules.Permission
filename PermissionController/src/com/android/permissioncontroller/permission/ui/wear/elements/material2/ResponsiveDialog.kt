@@ -48,6 +48,7 @@ import com.android.permissioncontroller.permission.ui.wear.elements.material2.la
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.ScalingLazyColumnDefaults.responsive
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.ScalingLazyColumnState
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.layout.rememberColumnState
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.DialogButtonContent
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.defaultAlertConfirmIcon
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.defaultAlertDismissIcon

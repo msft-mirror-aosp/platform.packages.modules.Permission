@@ -71,7 +71,7 @@
     <dimen name="wear_compose_material3_numeral_extra_large_font_size">60sp</dimen>
     <dimen name="wear_compose_material3_title_small_font_size">14sp</dimen>
     <dimen name="wear_compose_material3_title_medium_font_size">16sp</dimen>
-    <dimen name="wear_compose_material3_title_large_font_size">20sp</dimen>
+    <dimen name="wear_compose_material3_title_large_font_size">18sp</dimen>
 
     <dimen name="wear_compose_material3_shape_corner_extra_small_size">4dp</dimen>
     <dimen name="wear_compose_material3_shape_corner_small_size">8dp</dimen>

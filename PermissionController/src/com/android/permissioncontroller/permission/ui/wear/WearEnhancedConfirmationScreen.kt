@@ -47,7 +47,7 @@ import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableSc
 import com.android.permissioncontroller.permission.ui.wear.elements.dismiss
 import com.android.permissioncontroller.permission.ui.wear.elements.findActivity
 import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.DialogButtonContent
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.DialogButtonContent
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionConfirmationDialog
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
 import com.android.permissioncontroller.permission.ui.wear.model.WearEnhancedConfirmationViewModel

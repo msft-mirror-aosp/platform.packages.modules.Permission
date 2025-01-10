@@ -34,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ScrollInfoProvider
@@ -64,6 +65,7 @@ import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionT
 private class TransformingScopeConverter(private val scope: TransformingLazyColumnScope) :
     ListScopeWrapper {
     override fun item(key: Any?, contentType: Any?, content: @Composable () -> Unit) {
+        // TODO:https://buganizer.corp.google.com/issues/389093588.
         scope.item { Box(modifier = Modifier.scrollTransform(this)) { content() } }
     }
 }
@@ -172,10 +174,10 @@ private class WearPermissionScaffoldPaddingDefaults(
 ) {
     private val firstSpacerItemHeight = 0.dp
     private val scrollContentHorizontalPadding = (screenWidth * 0.052).dp
-    private val titleHorizontalPadding = (screenWidth * 0.0884).dp
-    private val subtitleHorizontalPadding = (screenWidth * 0.0416).dp
-    private val scrollContentTopPadding = (screenHeight * 0.1456).dp - firstSpacerItemHeight
-    private val scrollContentBottomPadding = (screenHeight * 0.3636).dp
+    private val titleHorizontalPadding = (screenWidth * 0.0520).dp
+    private val subtitleHorizontalPadding = (screenWidth * 0.0624).dp
+    private val scrollContentTopPadding = (screenHeight * 0.1664).dp - firstSpacerItemHeight
+    private val scrollContentBottomPadding = (screenHeight * 0.3646).dp
     private val defaultItemPadding = 4.dp
     private val largeItemPadding = 8.dp
     val titlePaddingValues =
@@ -301,6 +303,7 @@ private fun ListScopeWrapper.titleItem(
                     text = it,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.optionalTestTag(testTag),
+                    style = MaterialTheme.typography.titleLarge.copy(hyphens = Hyphens.Auto),
                 )
             }
         }
