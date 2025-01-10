@@ -250,13 +250,13 @@
     <string name="app_permission_most_recent_denied_summary" msgid="7659497197737708112">"Aktualnie odmowa / ostatni dostęp: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
     <string name="app_permission_never_accessed_summary" msgid="401346181461975090">"Nigdy nie użyto"</string>
     <string name="app_permission_never_accessed_denied_summary" msgid="6596000497490905146">"Odmowa / nigdy nie użyto"</string>
-    <string name="allowed_header" msgid="7769277978004790414">"Mają dostęp"</string>
+    <string name="allowed_header" msgid="7769277978004790414">"Ma dostęp"</string>
     <string name="allowed_always_header" msgid="6455903312589013545">"Mają ciągły dostęp"</string>
     <string name="allowed_foreground_header" msgid="6845655788447833353">"Mają dostęp tylko podczas używania"</string>
     <string name="allowed_storage_scoped" msgid="5383645873719086975">"Zezwolono na dostęp tylko do multimediów"</string>
     <string name="allowed_storage_full" msgid="5356699280625693530">"Zezwolono na zarządzanie wszystkimi plikami"</string>
     <string name="ask_header" msgid="2633816846459944376">"Zawsze pytaj"</string>
-    <string name="denied_header" msgid="903209608358177654">"Nie mają dostępu"</string>
+    <string name="denied_header" msgid="903209608358177654">"Nie ma dostępu"</string>
     <string name="permission_group_name_with_device_name" msgid="8798741850536024820">"<xliff:g id="PERM_GROUP_NAME">%1$s</xliff:g> na tym urządzeniu: <xliff:g id="DEVICE_NAME">%2$s</xliff:g>"</string>
     <string name="storage_footer_hyperlink_text" msgid="8873343987957834810">"Zobacz więcej aplikacji z dostępem do wszystkich plików"</string>
     <string name="days" msgid="609563020985571393">"{count,plural, =1{1 dzień}few{# dni}many{# dni}other{# dnia}}"</string>
