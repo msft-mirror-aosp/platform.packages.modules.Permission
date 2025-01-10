@@ -19,7 +19,6 @@ package com.android.permissioncontroller.permission.ui.wear
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -28,13 +27,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Text
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.Category
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.ListSubheader
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionListSubHeader
 
 /** Compose the screen associated to a [WearPermissionAppsFragment]. */
 @Composable
@@ -98,26 +97,19 @@ internal fun WearPermissionAppsContent(
                 continue
             }
             item {
-                ListSubheader(
-                    modifier =
-                        Modifier.padding(
-                            top = if (index == firstItemIndex) 0.dp else 12.dp,
-                            bottom = 4.dp,
-                            start = 14.dp,
-                            end = 14.dp,
-                        )
-                ) {
+                WearPermissionListSubHeader(isFirstItemInAList = index == firstItemIndex) {
                     Text(text = stringResource(getCategoryString(category, showAlways)))
                 }
             }
             chips.forEach {
                 item {
-                    Chip(
+                    WearPermissionButton(
                         label = it.title,
                         labelMaxLines = Int.MAX_VALUE,
                         secondaryLabel = it.summary,
                         secondaryLabelMaxLines = Int.MAX_VALUE,
-                        icon = it.icon,
+                        iconBuilder =
+                            it.icon?.let { icon -> WearPermissionIconBuilder.builder(icon) },
                         enabled = it.enabled,
                         onClick = { it.onClick() },
                         modifier = Modifier.fillMaxWidth(),
@@ -128,7 +120,7 @@ internal fun WearPermissionAppsContent(
 
         if (hasSystemApps) {
             item {
-                Chip(
+                WearPermissionButton(
                     label =
                         if (showSystem) {
                             stringResource(R.string.menu_hide_system)

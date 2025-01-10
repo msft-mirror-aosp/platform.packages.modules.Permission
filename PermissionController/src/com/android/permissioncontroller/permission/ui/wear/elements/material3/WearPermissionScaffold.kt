@@ -135,7 +135,6 @@ private fun WearPermissionScaffoldInternal(
         WearPermissionScaffoldPaddingDefaults(
             screenWidth = screenWidth,
             screenHeight = screenHeight,
-            titleNeedsLargePadding = subtitle == null,
         )
     val columnState = rememberTransformingLazyColumnState()
     WearPermissionTheme(version = WearPermissionMaterialUIVersion.MATERIAL3) {
@@ -154,7 +153,8 @@ private fun WearPermissionScaffoldInternal(
                             icon = painterFromImage(image),
                             title = title,
                             titleTestTag = titleTestTag,
-                            titlePaddingValues = paddingDefaults.titlePaddingValues,
+                            titlePaddingValues =
+                                paddingDefaults.titlePaddingValues(subtitle == null),
                             subtitle = subtitle,
                             subtitleTestTag = subtitleTestTag,
                             subTitlePaddingValues = paddingDefaults.subTitlePaddingValues,
@@ -165,42 +165,6 @@ private fun WearPermissionScaffoldInternal(
             }
         }
     }
-}
-
-private class WearPermissionScaffoldPaddingDefaults(
-    screenWidth: Int,
-    screenHeight: Int,
-    titleNeedsLargePadding: Boolean,
-) {
-    private val firstSpacerItemHeight = 0.dp
-    private val scrollContentHorizontalPadding = (screenWidth * 0.052).dp
-    private val titleHorizontalPadding = (screenWidth * 0.0520).dp
-    private val subtitleHorizontalPadding = (screenWidth * 0.0624).dp
-    private val scrollContentTopPadding = (screenHeight * 0.1664).dp - firstSpacerItemHeight
-    private val scrollContentBottomPadding = (screenHeight * 0.3646).dp
-    private val defaultItemPadding = 4.dp
-    private val largeItemPadding = 8.dp
-    val titlePaddingValues =
-        PaddingValues(
-            start = titleHorizontalPadding,
-            top = defaultItemPadding,
-            bottom = if (titleNeedsLargePadding) largeItemPadding else defaultItemPadding,
-            end = titleHorizontalPadding,
-        )
-    val subTitlePaddingValues =
-        PaddingValues(
-            start = subtitleHorizontalPadding,
-            top = defaultItemPadding,
-            bottom = largeItemPadding,
-            end = subtitleHorizontalPadding,
-        )
-    val scrollContentPadding =
-        PaddingValues(
-            start = scrollContentHorizontalPadding,
-            end = scrollContentHorizontalPadding,
-            top = scrollContentTopPadding,
-            bottom = scrollContentBottomPadding,
-        )
 }
 
 @Composable
