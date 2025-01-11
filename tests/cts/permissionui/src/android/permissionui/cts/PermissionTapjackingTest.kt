@@ -157,17 +157,21 @@ class PermissionTapjackingTest : BaseUsePermissionTest() {
     }
 
     private fun click(buttonCenter: Point) {
-        val downTime = SystemClock.uptimeMillis()
-        val x = buttonCenter.x.toFloat()
-        val y = buttonCenter.y.toFloat()
-        var event = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, x, y, 0)
-        event.displayId = displayId
-        uiAutomation.injectInputEvent(event, true)
+        if (isAutomotiveVisibleBackgroundUser) {
+            val downTime = SystemClock.uptimeMillis()
+            val x = buttonCenter.x.toFloat()
+            val y = buttonCenter.y.toFloat()
+            var event = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, x, y, 0)
+            event.displayId = displayId
+            uiAutomation.injectInputEvent(event, true)
 
-        val upTime = SystemClock.uptimeMillis()
-        event = MotionEvent.obtain(upTime, upTime, MotionEvent.ACTION_UP, x, y, 0)
-        event.displayId = displayId
-        uiAutomation.injectInputEvent(event, true)
+            val upTime = SystemClock.uptimeMillis()
+            event = MotionEvent.obtain(upTime, upTime, MotionEvent.ACTION_UP, x, y, 0)
+            event.displayId = displayId
+            uiAutomation.injectInputEvent(event, true)
+        } else {
+            uiDevice.click(buttonCenter.x, buttonCenter.y)
+        }
     }
 
     companion object {

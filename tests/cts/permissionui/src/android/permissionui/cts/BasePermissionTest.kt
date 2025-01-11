@@ -121,7 +121,7 @@ abstract class BasePermissionTest {
                     /* PackageManager.FEATURE_CAR_SPLITSCREEN_MULTITASKING */
                     "android.software.car.splitscreen_multitasking")
         @JvmStatic
-        private val isAutomotiveVisibleBackgroundUser = isAutomotive &&
+        protected val isAutomotiveVisibleBackgroundUser = isAutomotive &&
             UserHelper(context).isVisibleBackgroundUser()
 
         // TODO(b/382327037):find a way to avoid specifying the display ID for each UiSelector.
