@@ -279,7 +279,7 @@
     <string name="post_drive_permission_decision_reminder_summary_1_app_2_permissions" msgid="671791184670801301">"Gidatu bitartean, <xliff:g id="PERMISSION_1">%2$s</xliff:g> eta <xliff:g id="PERMISSION_2">%3$s</xliff:g> erabiltzeko baimena eman diozu <xliff:g id="APP">%1$s</xliff:g> aplikazioari"</string>
     <string name="post_drive_permission_decision_reminder_summary_1_app_multi_permission" msgid="4080701771111456927">"Gidatu bitartean, <xliff:g id="COUNT">%1$d</xliff:g> baimen eman dizkiozu <xliff:g id="APP">%2$s</xliff:g> aplikazioari"</string>
     <string name="post_drive_permission_decision_reminder_summary_multi_apps" msgid="5253882771252863902">"{count,plural, =1{Gidatu bitartean, baimenak eman dizkiezu <xliff:g id="APP_0">%1$s</xliff:g> eta beste # aplikaziori}other{Gidatu bitartean, baimenak eman dizkiezu <xliff:g id="APP_1">%1$s</xliff:g> eta beste # aplikaziori}}"</string>
-    <string name="go_to_settings" msgid="1053735612211228335">"Joan ezarpenetara"</string>
+    <string name="go_to_settings" msgid="1053735612211228335">"Joan Ezarpenak atalera"</string>
     <string name="auto_revoke_setting_subtitle" msgid="8631720570723050460">"Aplikazio batzuk ez dira erabili zenbait hilabetez"</string>
     <string name="permissions_removed_category_title" msgid="1064754271178447643">"Baimenak kendu zaizkien aplikazioak"</string>
     <string name="permission_removed_page_title" msgid="2627436155091001209">"Baimenak kendu zaizkien aplikazioak"</string>

@@ -84,7 +84,7 @@
     <string name="storage_supergroup_warning_allow" msgid="103093462784523190">"이 앱은 Android 이전 버전에 맞게 설계되었습니다. 저장소 액세스 권한을 부여하면 앱에서 모든 저장소(사진, 동영상, 음악, 오디오 및 기타 파일 포함)에 액세스할 수 있습니다."</string>
     <string name="storage_supergroup_warning_deny" msgid="6420765672683284347">"이 앱은 Android 이전 버전에 맞게 설계되었습니다. 저장소 액세스 권한을 부여하지 않으면 앱에서 모든 저장소(사진, 동영상, 음악, 오디오 및 기타 파일)에 액세스할 수 없습니다."</string>
     <string name="default_permission_description" msgid="4624464917726285203">"알 수 없는 작업 실행"</string>
-    <string name="app_permissions_group_summary" msgid="8788419008958284002">"<xliff:g id="COUNT_0">%1$d</xliff:g>/<xliff:g id="COUNT_1">%2$d</xliff:g>개 앱 허용됨"</string>
+    <string name="app_permissions_group_summary" msgid="8788419008958284002">"앱 <xliff:g id="COUNT_1">%2$d</xliff:g>개 중 <xliff:g id="COUNT_0">%1$d</xliff:g>개 허용됨"</string>
     <string name="app_permissions_group_summary2" msgid="4329922444840521150">"앱 <xliff:g id="COUNT_0">%1$d</xliff:g>/<xliff:g id="COUNT_1">%2$d</xliff:g>개에 권한 부여됨"</string>
     <string name="menu_show_system" msgid="4254021607027872504">"시스템 표시"</string>
     <string name="menu_hide_system" msgid="3855390843744028465">"시스템 숨기기"</string>
