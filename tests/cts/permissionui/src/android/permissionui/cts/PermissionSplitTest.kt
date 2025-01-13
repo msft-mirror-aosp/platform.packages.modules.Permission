@@ -16,9 +16,11 @@
 
 package android.permissionui.cts
 
+import android.health.connect.HealthPermissions
 import android.os.Build
 import android.permission.flags.Flags.FLAG_REPLACE_BODY_SENSOR_PERMISSION_ENABLED
 import android.platform.test.annotations.RequiresFlagsDisabled
+import android.platform.test.annotations.RequiresFlagsEnabled
 import android.platform.test.flag.junit.DeviceFlagsValueProvider
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
@@ -71,7 +73,7 @@ class PermissionSplitTest : BaseUsePermissionTest() {
     @Test
     fun testBodySensorSplitOnTToU() {
         installPackage(APP_APK_PATH_31)
-        testBodySensorPermissionSplit(true)
+        testBodySensorPermissionSplitToBodySensorsBackground(true)
     }
 
     // Before SDK_INT bumps to 36, the in-development B images are using SDK_INT=35(V). This will
@@ -85,7 +87,7 @@ class PermissionSplitTest : BaseUsePermissionTest() {
     @Test
     fun testBodySensorSplitPostV_replaceBodySensorFlagDisabled() {
         installPackage(APP_APK_PATH_31)
-        testBodySensorPermissionSplit(true)
+        testBodySensorPermissionSplitToBodySensorsBackground(true)
     }
 
     // TODO: b/388596433 - Update maxSdkVersion to VANILLA_ICE_CREAM after SDK bumps.
@@ -97,7 +99,7 @@ class PermissionSplitTest : BaseUsePermissionTest() {
     @Test
     fun testBodySensorSplit32OnTToU() {
         installPackage(APP_APK_PATH_32)
-        testBodySensorPermissionSplit(true)
+        testBodySensorPermissionSplitToBodySensorsBackground(true)
     }
 
     // Before SDK_INT bumps to 36, the in-development B images are using SDK_INT=35(V). This will
@@ -111,7 +113,7 @@ class PermissionSplitTest : BaseUsePermissionTest() {
     @Test
     fun testBodySensorSplit32PostV_replaceBodySensorFlagDisabled() {
         installPackage(APP_APK_PATH_32)
-        testBodySensorPermissionSplit(true)
+        testBodySensorPermissionSplitToBodySensorsBackground(true)
     }
 
     // TODO: b/388596433 - Update maxSdkVersion to VANILLA_ICE_CREAM after SDK bumps.
@@ -123,7 +125,7 @@ class PermissionSplitTest : BaseUsePermissionTest() {
     @Test
     fun testBodySensorNonSplitOnTToU() {
         installPackage(APP_APK_PATH_LATEST)
-        testBodySensorPermissionSplit(false)
+        testBodySensorPermissionSplitToBodySensorsBackground(false)
     }
 
     // Before SDK_INT bumps to 36, the in-development B images are using SDK_INT=35(V). This will
@@ -137,7 +139,37 @@ class PermissionSplitTest : BaseUsePermissionTest() {
     @Test
     fun testBodySensorNonSplitPostV_replaceBodySensorFlagDisabled() {
         installPackage(APP_APK_PATH_LATEST)
-        testBodySensorPermissionSplit(false)
+        testBodySensorPermissionSplitToBodySensorsBackground(false)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA, codeName = "Baklava")
+    @RequiresFlagsEnabled(FLAG_REPLACE_BODY_SENSOR_PERMISSION_ENABLED)
+    @Test
+    fun testBodySensorSplitOnBaklava_splitToReadHeartRate() {
+        installPackage(APP_APK_PATH_30_WITH_BACKGROUND)
+        assertAppHasPermission(android.Manifest.permission.BODY_SENSORS, false)
+        assertAppHasPermission(HealthPermissions.READ_HEART_RATE, false)
+        assertAppHasPermission(android.Manifest.permission.BODY_SENSORS_BACKGROUND, false)
+        assertAppHasPermission(HealthPermissions.READ_HEALTH_DATA_IN_BACKGROUND, false)
+
+        requestAppPermissionsAndAssertResult(
+            android.Manifest.permission.BODY_SENSORS to true,
+            waitForWindowTransition = false,
+        ) {
+            clickAllowReadHeartRate()
+        }
+
+        requestAppPermissionsAndAssertResult(
+            android.Manifest.permission.BODY_SENSORS_BACKGROUND to true,
+            waitForWindowTransition = false,
+        ) {
+            clickAlwaysAllowReadHealthDataInBackground()
+        }
+
+        assertAppHasPermission(android.Manifest.permission.BODY_SENSORS, true)
+        assertAppHasPermission(HealthPermissions.READ_HEART_RATE, true)
+        assertAppHasPermission(android.Manifest.permission.BODY_SENSORS_BACKGROUND, true)
+        assertAppHasPermission(HealthPermissions.READ_HEALTH_DATA_IN_BACKGROUND, true)
     }
 
     private fun testLocationPermissionSplit(expectSplit: Boolean) {
@@ -162,7 +194,7 @@ class PermissionSplitTest : BaseUsePermissionTest() {
         assertAppHasPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION, expectSplit)
     }
 
-    private fun testBodySensorPermissionSplit(expectSplit: Boolean) {
+    private fun testBodySensorPermissionSplitToBodySensorsBackground(expectSplit: Boolean) {
         assertAppHasPermission(android.Manifest.permission.BODY_SENSORS, false)
         assertAppHasPermission(android.Manifest.permission.BODY_SENSORS_BACKGROUND, false)
 
