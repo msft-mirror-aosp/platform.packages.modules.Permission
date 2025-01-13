@@ -60,6 +60,7 @@ import com.android.safetycenter.testing.UiTestHelper.RESCAN_BUTTON_LABEL
 import com.android.safetycenter.testing.UiTestHelper.clickConfirmDismissal
 import com.android.safetycenter.testing.UiTestHelper.clickDismissIssueCard
 import com.android.safetycenter.testing.UiTestHelper.clickMoreIssuesCard
+import com.android.safetycenter.testing.UiTestHelper.clickOpenSubpage
 import com.android.safetycenter.testing.UiTestHelper.resetRotation
 import com.android.safetycenter.testing.UiTestHelper.rotate
 import com.android.safetycenter.testing.UiTestHelper.setAnimationsEnabled
@@ -481,7 +482,10 @@ class SafetyCenterActivityTest {
 
         context.launchSafetyCenterActivity {
             if (SafetyCenterFlags.showSubpages) {
-                waitDisplayed(By.text("OK")) { it.click() } // Open subpage
+                clickOpenSubpage(
+                    context,
+                    safetyCenterTestConfigs.singleSourceConfig.safetySourcesGroups.first(),
+                )
             }
             waitDisplayed(By.text("OK")) { it.click() }
             waitButtonDisplayed("Exit test activity") { it.click() }
@@ -495,7 +499,11 @@ class SafetyCenterActivityTest {
 
         context.launchSafetyCenterActivity {
             if (SafetyCenterFlags.showSubpages) {
-                waitDisplayed(By.text("OK")) { it.click() } // Open subpage
+                clickOpenSubpage(
+                    context,
+                    safetyCenterTestConfigs.implicitIntentSingleSourceConfig.safetySourcesGroups
+                        .first(),
+                )
             }
             waitDisplayed(By.text("OK")) { it.click() }
             waitButtonDisplayed("Exit test activity") { it.click() }
@@ -509,7 +517,10 @@ class SafetyCenterActivityTest {
 
         context.launchSafetyCenterActivity {
             if (SafetyCenterFlags.showSubpages) {
-                waitDisplayed(By.text("OK")) { it.click() } // Open subpage
+                clickOpenSubpage(
+                    context,
+                    safetyCenterTestConfigs.singleSourceConfig.safetySourcesGroups.first(),
+                )
             }
             waitDisplayed(By.text("Ok title")) { it.click() }
             waitButtonDisplayed("Exit test activity") { it.click() }
@@ -527,7 +538,10 @@ class SafetyCenterActivityTest {
 
         context.launchSafetyCenterActivity {
             if (SafetyCenterFlags.showSubpages) {
-                waitDisplayed(By.text("OK")) { it.click() } // Open subpage
+                clickOpenSubpage(
+                    context,
+                    safetyCenterTestConfigs.singleSourceConfig.safetySourcesGroups.first(),
+                )
             }
             waitDisplayed(By.desc("Information")) { it.click() }
             waitButtonDisplayed("Exit test activity") { it.click() }
@@ -1482,7 +1496,11 @@ class SafetyCenterActivityTest {
 
         context.launchSafetyCenterActivity {
             if (SafetyCenterFlags.showSubpages) {
-                waitDisplayed(By.text("OK")) { it.click() } // Open subpage
+                clickOpenSubpage(
+                    context,
+                    safetyCenterTestConfigs.implicitIntentSingleSourceConfig.safetySourcesGroups
+                        .first(),
+                )
             }
             waitDisplayed(By.text("OK")) { it.click() }
             waitDisplayed(By.text("is_from_settings_homepage false"))
