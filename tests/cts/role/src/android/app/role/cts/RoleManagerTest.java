@@ -18,6 +18,7 @@ package android.app.role.cts;
 
 import static com.android.bedstead.multiuser.MultiUserDeviceStateExtensionsKt.privateProfile;
 import static com.android.compatibility.common.util.SystemUtil.callWithShellPermissionIdentity;
+import static com.android.compatibility.common.util.SystemUtil.eventually;
 import static com.android.compatibility.common.util.SystemUtil.runShellCommand;
 import static com.android.compatibility.common.util.SystemUtil.runShellCommandOrThrow;
 import static com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity;
@@ -26,6 +27,7 @@ import static com.android.compatibility.common.util.UiAutomatorUtils2.waitFindOb
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
@@ -286,6 +288,10 @@ public class RoleManagerTest {
     public void requestRoleThenBlockRequestRoleDialogByRestrictedSettingDialog() throws Exception {
         assumeTrue(sRoleManager.isRoleAvailable(RoleManager.ROLE_SMS));
         assumeFalse(sIsWatch || sIsAutomotive || sIsTelevision);
+        // TODO: b/388960315 - Remove wait after addressing race condition
+        runWithShellPermissionIdentity(
+                () -> waitForEnhancedConfirmationRestrictedAppOpMode(sContext, APP_PACKAGE_NAME,
+                        AppOpsManager.MODE_DEFAULT));
         runWithShellPermissionIdentity(
                 () -> setEnhancedConfirmationRestrictedAppOpMode(sContext, APP_PACKAGE_NAME,
                         AppOpsManager.MODE_ERRORED));
@@ -713,6 +719,10 @@ public class RoleManagerTest {
             throws Exception {
         assumeTrue(sRoleManager.isRoleAvailable(RoleManager.ROLE_DIALER));
         assumeFalse(sIsWatch || sIsAutomotive || sIsTelevision);
+        // TODO: b/388960315 - Remove wait after addressing race condition
+        runWithShellPermissionIdentity(
+                () -> waitForEnhancedConfirmationRestrictedAppOpMode(sContext, APP_PACKAGE_NAME,
+                        AppOpsManager.MODE_DEFAULT));
         runWithShellPermissionIdentity(
                 () -> setEnhancedConfirmationRestrictedAppOpMode(sContext, APP_PACKAGE_NAME,
                         AppOpsManager.MODE_ERRORED));
@@ -921,6 +931,19 @@ public class RoleManagerTest {
         waitFindObject(By.text(APP_LABEL));
 
         pressBack();
+    }
+
+    private void waitForEnhancedConfirmationRestrictedAppOpMode(@NonNull Context context,
+            @NonNull String packageName, int expectedMode)
+            throws PackageManager.NameNotFoundException {
+        final AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);
+        eventually(() -> {
+            int uid = context.getPackageManager().getApplicationInfo(packageName, 0).uid;
+            int actualMode = appOpsManager.checkOpNoThrow(
+                    AppOpsManager.OPSTR_ACCESS_RESTRICTED_SETTINGS, uid, packageName);
+            assertEquals("Even after waiting, a test app's post-install"
+                    + " ACCESS_RESTRICTED_SETTINGS op mode is incorrect", expectedMode, actualMode);
+        });
     }
 
     private void setEnhancedConfirmationRestrictedAppOpMode(@NonNull Context context,
