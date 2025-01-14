@@ -29,9 +29,11 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import com.android.permissioncontroller.permission.utils.PermissionMapping
+import com.android.permissioncontroller.permission.utils.Utils;
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -90,6 +92,40 @@ class PermissionMappingTest {
             .isEqualTo(
                 PermissionMapping.getGroupOfPlatformPermission(Manifest.permission.READ_CONTACTS)
             )
+    }
+
+    @Test
+    fun testHealthPermissionIsRuntime_healthPermissionUiEnabled_isRuntime() {
+        assumeTrue(Utils.isHealthPermissionUiEnabled())
+
+        assertThat(PermissionMapping.isRuntimePlatformPermission(
+            HealthPermissions.READ_HEART_RATE)).isTrue()
+    }
+
+    @Test
+    fun testHealthPermissionGroupIsPlatform_healthPermissionUiEnabled_isPlatform() {
+        assumeTrue(Utils.isHealthPermissionUiEnabled())
+
+        assertThat(PermissionMapping.isPlatformPermissionGroup(
+            HealthPermissions.HEALTH_PERMISSION_GROUP)).isTrue()
+    }
+
+    @Test
+    fun testGetGroupForHealthPermission_healthPermissionUiEnabled_isHealthPermissionGroup() {
+        assumeTrue(Utils.isHealthPermissionUiEnabled())
+
+        assertThat(PermissionMapping.getGroupOfPlatformPermission(
+            HealthPermissions.READ_HEART_RATE)).isEqualTo(
+                HealthPermissions.HEALTH_PERMISSION_GROUP)
+    }
+
+    @Test
+    fun testGetPermNameForHealthPermissionGroup_healthPermissionUiEnabled_isHealthPermission() {
+        assumeTrue(Utils.isHealthPermissionUiEnabled())
+
+        assertThat(PermissionMapping.getPlatformPermissionNamesOfGroup(
+            HealthPermissions.HEALTH_PERMISSION_GROUP)).contains(
+                HealthPermissions.READ_HEART_RATE)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)

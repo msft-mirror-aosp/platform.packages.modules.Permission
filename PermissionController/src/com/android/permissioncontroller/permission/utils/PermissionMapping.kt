@@ -357,12 +357,6 @@ object PermissionMapping {
         }
     }
 
-    /** Returns true if the given permission is a health platform permission. */
-    @JvmStatic
-    fun isHealthPermission(permissionName: String): Boolean {
-        return HEALTH_PERMISSIONS_SET.contains(permissionName)
-    }
-
     /**
      * Returns the platform permission group for the permission that the provided op backs, if any.
      */
