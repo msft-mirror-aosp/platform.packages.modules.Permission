@@ -153,3 +153,12 @@ flag {
     bug: "375480184"
     is_fixed_read_only: true
 }
+
+flag {
+    name: "default_apps_recommendation_enabled"
+    is_exported: true
+    namespace: "permissions"
+    description: "This flag enables the recommended section in default apps"
+    bug: "388234667"
+    is_fixed_read_only: true
+}
