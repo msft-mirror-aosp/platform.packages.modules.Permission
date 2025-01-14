@@ -30,7 +30,8 @@ import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.model.livedatatypes.PermGroupPackagesUiInfo
 import com.android.permissioncontroller.permission.ui.model.ManageStandardPermissionsViewModel
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
 import com.android.permissioncontroller.permission.utils.KotlinUtils.getPermGroupIcon
 import com.android.permissioncontroller.permission.utils.KotlinUtils.getPermGroupLabel
 import com.android.permissioncontroller.permission.utils.StringUtils
@@ -115,10 +116,10 @@ internal fun WearManageStandardPermissionContent(
     ) {
         for (params in permGroupChipParams) {
             item {
-                Chip(
+                WearPermissionButton(
                     label = params.label,
                     labelMaxLines = 3,
-                    icon = params.icon,
+                    iconBuilder = params.icon?.let { WearPermissionIconBuilder.builder(it) },
                     secondaryLabel = params.secondaryLabel,
                     secondaryLabelMaxLines = 3,
                     onClick = { onPermGroupClick(params.permGroupName) },
@@ -128,10 +129,10 @@ internal fun WearManageStandardPermissionContent(
 
         if (numCustomPermGroups > 0) {
             item {
-                Chip(
+                WearPermissionButton(
                     label = stringResource(R.string.additional_permissions),
                     labelMaxLines = 3,
-                    icon = R.drawable.ic_more_horizontal,
+                    iconBuilder = WearPermissionIconBuilder.builder(R.drawable.ic_more_horizontal),
                     secondaryLabel =
                         StringUtils.getIcuPluralsString(
                             LocalContext.current,
@@ -146,10 +147,10 @@ internal fun WearManageStandardPermissionContent(
 
         if (numAutoRevoked > 0) {
             item {
-                Chip(
+                WearPermissionButton(
                     label = stringResource(R.string.auto_revoke_permission_notification_title),
                     labelMaxLines = 3,
-                    icon = R.drawable.ic_info,
+                    iconBuilder = WearPermissionIconBuilder.builder(R.drawable.ic_info),
                     secondaryLabel = stringResource(R.string.auto_revoke_setting_subtitle),
                     secondaryLabelMaxLines = 3,
                     onClick = onAutoRevokedClick,
