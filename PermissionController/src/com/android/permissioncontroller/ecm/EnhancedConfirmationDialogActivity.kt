@@ -55,7 +55,6 @@ class EnhancedConfirmationDialogActivity : FragmentActivity() {
     companion object {
         private const val KEY_WAS_CLEAR_RESTRICTION_ALLOWED = "KEY_WAS_CLEAR_RESTRICTION_ALLOWED"
         private const val REASON_PHONE_STATE = "phone_state"
-        private const val REASON_APP_OP_RESTRICTED = "app_op_restricted"
     }
 
     private var wasClearRestrictionAllowed: Boolean = false
