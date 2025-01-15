@@ -413,6 +413,9 @@ public class RoleParser {
                 skipCurrentTag(parser);
                 return null;
             }
+        } else if (behavior != null) {
+            labelResource = getAttributeResourceValue(parser, ATTRIBUTE_LABEL, 0);
+            shortLabelResource = getAttributeResourceValue(parser, ATTRIBUTE_SHORT_LABEL, 0);
         } else {
             labelResource = 0;
             shortLabelResource = 0;

@@ -49,7 +49,7 @@ public class ReservedForTestingProfileGroupExclusivityRoleBehavior implements Ro
     }
 
     @Override
-    public boolean isVisibleAsUser(@NonNull Role role, @NonNull UserHandle user,
+    public Boolean isVisibleAsUser(@NonNull Role role, @NonNull UserHandle user,
             @NonNull Context context) {
         if (RoleFlags.isProfileGroupExclusivityAvailable()) {
             Context userContext = UserUtils.getUserContext(context, user);

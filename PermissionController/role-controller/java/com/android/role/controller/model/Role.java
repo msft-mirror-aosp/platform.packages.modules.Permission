@@ -1098,11 +1098,23 @@ public class Role {
      * @return whether this role should be visible to user
      */
     public boolean isVisibleAsUser(@NonNull UserHandle user, @NonNull Context context) {
-        RoleBehavior behavior = getBehavior();
-        if (behavior == null) {
-            return isVisible();
+        if (mBehavior != null) {
+            Boolean isVisibleAsUser = mBehavior.isVisibleAsUser(this, user, context);
+            if (isVisibleAsUser != null) {
+                if (isVisibleAsUser && mStatic) {
+                    throw new IllegalArgumentException("static=\"true\" is invalid for a visible "
+                            + "role: " + mName);
+                }
+                if (isVisibleAsUser && (mDescriptionResource == 0
+                        || mLabelResource == 0
+                        || mShortLabelResource == 0)) {
+                    throw new IllegalArgumentException("description, label, and shortLabel are "
+                            + "required for a visible role: " + mName);
+                }
+                return isVisibleAsUser;
+            }
         }
-        return isVisible() && behavior.isVisibleAsUser(this, user, context);
+        return isVisible();
     }
 
     /**
