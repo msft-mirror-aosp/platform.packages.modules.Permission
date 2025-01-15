@@ -710,7 +710,7 @@ public class RequestRoleFragment extends DialogFragment {
                 checked = mCheckedUserPackage == null;
                 icon = AppCompatResources.getDrawable(context, R.drawable.ic_remove_circle);
                 title = context.getString(R.string.default_app_none);
-                subtitle = mHolderUserPackage != null ? context.getString(
+                subtitle = mHolderUserPackage == null ? context.getString(
                         R.string.request_role_current_default) : null;
             } else {
                 applicationInfo = qualifyingApplication.first;
