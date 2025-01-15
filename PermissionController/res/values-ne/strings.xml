@@ -644,7 +644,7 @@
     <string name="permission_rationale_data_sharing_varies_message" msgid="4224469559084489222">"एपको संस्करण, प्रयोगसम्बन्धी जानकारी, तपाईं बसोबास गर्ने क्षेत्र र तपाईंको उमेरका आधारमा जानकारीको व्यवस्थापनसम्बन्धी अभ्यासहरू फरक हुन सक्छन्। "<annotation id="link">"जानकारी सेयर गर्नेसम्बन्धी अभ्यासका बारेमा थप जानकारी"</annotation></string>
     <string name="permission_rationale_data_sharing_varies_message_without_link" msgid="4912763761399025094">"एपको संस्करण, प्रयोगसम्बन्धी जानकारी, तपाईं बसोबास गर्ने क्षेत्र र तपाईंको उमेरका आधारमा जानकारीको व्यवस्थापनसम्बन्धी अभ्यासहरू फरक हुन सक्छन्।"</string>
     <string name="permission_rationale_location_settings_title" msgid="7204145004850190953">"तपाईंको लोकेसन डेटा"</string>
-    <string name="permission_rationale_permission_settings_message" msgid="631286040979660267"><annotation id="link">"गोपनीयतासम्बन्धी सेटिङ"</annotation>"मा गई यो एपलाई दिइएको अनुमति परिवर्तन गर्नुहोस्"</string>
+    <string name="permission_rationale_permission_settings_message" msgid="631286040979660267"><annotation id="link">"गोपनीयतासम्बन्धी सेटिङ"</annotation>"मा गई यो एपलाई दिइएको एक्सेस परिवर्तन गर्नुहोस्"</string>
     <string name="permission_rationale_purpose_app_functionality" msgid="8397736681065841405">"एपका सुविधा उपलब्ध गराउने"</string>
     <string name="permission_rationale_purpose_analytics" msgid="2070800501189620712">"Analytics"</string>
     <string name="permission_rationale_purpose_developer_communications" msgid="6453047018892062374">"विकासकर्ताबाट जानकारी प्राप्त गर्ने"</string>

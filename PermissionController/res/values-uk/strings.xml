@@ -206,7 +206,7 @@
     <string name="unused_apps_category_title" msgid="2988455616845243901">"Налаштування невикористовуваних додатків"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"Відкликати дозволи, якщо додаток не використовується"</string>
     <string name="unused_apps_label" msgid="2595428768404901064">"Вилучати дозволи й звільняти місце"</string>
-    <string name="unused_apps_label_v2" msgid="7058776770056517980">"Призупиняти роботу в неактивний період"</string>
+    <string name="unused_apps_label_v2" msgid="7058776770056517980">"Призупиняти, коли додаток неактивний"</string>
     <string name="unused_apps_label_v3" msgid="693340578642156657">"Керувати невикористовуваним додатком"</string>
     <string name="unused_apps_summary" msgid="8839466950318403115">"Вилучити дозволи, видалити тимчасові файли й зупинити сповіщення"</string>
     <string name="unused_apps_summary_v2" msgid="5011313200815115802">"Вилучити дозволи, видалити тимчасові файли, зупинити сповіщення й архівувати додаток"</string>

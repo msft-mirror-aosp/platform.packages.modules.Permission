@@ -92,7 +92,7 @@
     <string name="menu_show_24_hours_data" msgid="8228054833323380780">"Mostra ultime 24 ore"</string>
     <string name="manage_permission" msgid="2895385393037061964">"Gestisci autorizzazione"</string>
     <string name="no_apps" msgid="2412612731628386816">"Nessuna app"</string>
-    <string name="location_settings" msgid="3624412509133422562">"Geolocalizzazione"</string>
+    <string name="location_settings" msgid="3624412509133422562">"Impostazioni di localizzazione"</string>
     <string name="location_warning" msgid="2381649060929040962">"L\'app <xliff:g id="APP_NAME">%1$s</xliff:g> è un fornitore di servizi di geolocalizzazione per questo dispositivo. È possibile modificare l\'accesso alla posizione dalle impostazioni per la geolocalizzazione."</string>
     <string name="system_warning" msgid="1173400963234358816">"Se rifiuti questa autorizzazione, le funzionalità di base del dispositivo potrebbero non funzionare più come previsto."</string>
     <string name="deny_read_media_visual_warning" msgid="3982586279917232827">"Questa app è stata progettata per una versione precedente di Android. Se non consenti a questa app di accedere a foto e video, verrà negato anche l\'accesso a musica e altro audio."</string>

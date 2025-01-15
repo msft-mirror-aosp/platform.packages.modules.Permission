@@ -320,7 +320,7 @@
     <string name="permission_subtitle_only_in_foreground" msgid="9068389431267377564">"تنها هنگام استفاده از برنامه"</string>
     <string name="permission_subtitle_media_only" msgid="8917869683764720717">"رسانه"</string>
     <string name="permission_subtitle_all_files" msgid="4982613338298067862">"همه فایل‌ها"</string>
-    <string name="permission_subtitle_background" msgid="8916750995309083180">"همیشه مجاز بودن"</string>
+    <string name="permission_subtitle_background" msgid="8916750995309083180">"همیشه مجاز است"</string>
     <string name="app_perms_24h_access" msgid="99069906850627181">"آخرین زمان دسترسی: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
     <string name="app_perms_24h_access_yest" msgid="5411926024794555022">"آخرین زمان دسترسی دیروز ساعت <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
     <string name="app_perms_7d_access" msgid="4945055548894683751">"آخرین دسترسی: <xliff:g id="TIME_DATE_0">%1$s</xliff:g> ساعت <xliff:g id="TIME_DATE_1">%2$s</xliff:g>"</string>
@@ -601,7 +601,7 @@
     <string name="active_app_usage_2_qs" msgid="6107866785243565283">"<xliff:g id="APP_NAME">%1$s</xliff:g> درحال استفاده از آن است (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g> • <xliff:g id="PROXY_LABEL">%3$s</xliff:g>)"</string>
     <string name="recent_app_usage_2_qs" msgid="3591205954235694403">"اخیراً <xliff:g id="APP_NAME">%1$s</xliff:g> از آن استفاده کرده است (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g> • <xliff:g id="PROXY_LABEL">%3$s</xliff:g>)"</string>
     <string name="media_confirm_dialog_positive_button" msgid="9020793594051526399">"تأیید"</string>
-    <string name="media_confirm_dialog_negative_button" msgid="226987376924861785">"برگشت"</string>
+    <string name="media_confirm_dialog_negative_button" msgid="226987376924861785">"برگشتن"</string>
     <string name="media_confirm_dialog_title_a_to_p_aural_allow" msgid="8560601114044699903">"دسترسی به فایل‌های دیگر نیز مجاز می‌شود"</string>
     <string name="media_confirm_dialog_title_a_to_p_aural_deny" msgid="7841428716317307685">"دسترسی به فایل‌های دیگر نیز مجاز نمی‌شود"</string>
     <string name="media_confirm_dialog_title_a_to_p_visual_allow" msgid="6469086448310893751">"دسترسی به فایل‌های دیگر نیز مجاز می‌شود"</string>
