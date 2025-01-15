@@ -46,6 +46,10 @@ fun WearPermissionAppsScreen(helper: WearPermissionAppsHelper) {
         helper.locationProviderDialogViewModel.dialogVisibilityLiveData.observeAsState(false)
     val appPermissionUsages = helper.wearViewModel.appPermissionUsages.observeAsState(emptyList())
     var isLoading by remember { mutableStateOf(true) }
+    val dialogArgs =
+        helper.locationProviderDialogViewModel.locationProviderInterceptDialogArgs.observeAsState(
+            null
+        )
 
     val title = helper.getTitle()
     val subTitle = helper.getSubTitle()
@@ -53,21 +57,21 @@ fun WearPermissionAppsScreen(helper: WearPermissionAppsHelper) {
     val chipsByCategory =
         helper.getChipsByCategory(categorizedApps.value, appPermissionUsages.value)
     Box(modifier = Modifier.fillMaxSize()) {
-        val dialogArgs = helper.locationProviderDialogViewModel.locationProviderInterceptDialogArgs
-        if (showLocationProviderDialog.value && dialogArgs != null) {
-            LocationProviderDialogScreen(dialogArgs)
-        } else {
-            WearPermissionAppsContent(
-                chipsByCategory = chipsByCategory,
-                showSystem = showSystem.value,
-                hasSystemApps = hasSystemApps.value,
-                title = title,
-                subtitle = subTitle,
-                showAlways = showAlways,
-                isLoading = isLoading,
-                onShowSystemClick = helper.onShowSystemClick,
-            )
-        }
+        WearPermissionAppsContent(
+            chipsByCategory = chipsByCategory,
+            showSystem = showSystem.value,
+            hasSystemApps = hasSystemApps.value,
+            title = title,
+            subtitle = subTitle,
+            showAlways = showAlways,
+            isLoading = isLoading,
+            onShowSystemClick = helper.onShowSystemClick,
+        )
+        LocationProviderDialogScreen(
+            showDialog = showLocationProviderDialog.value,
+            onDismissRequest = { helper.locationProviderDialogViewModel.dismissDialog() },
+            args = dialogArgs.value,
+        )
     }
     if (isLoading && categorizedApps.value.isNotEmpty()) {
         isLoading = false
@@ -150,6 +154,7 @@ internal fun getCategoryString(category: String, showAlways: Boolean) =
             } else {
                 R.string.allowed_header
             }
+
         Category.ALLOWED_FOREGROUND.categoryName -> R.string.allowed_foreground_header
         Category.ASK.categoryName -> R.string.ask_header
         Category.DENIED.categoryName -> R.string.denied_header

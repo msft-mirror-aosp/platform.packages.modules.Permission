@@ -46,6 +46,9 @@ fun WearAppPermissionGroupsScreen(helper: WearAppPermissionGroupsHelper) {
         helper.locationProviderInterceptDialogViewModel.dialogVisibilityLiveData.observeAsState(
             false
         )
+    val locationProviderDialogArgs =
+        helper.locationProviderInterceptDialogViewModel.locationProviderInterceptDialogArgs
+            .observeAsState(null)
 
     var isLoading by remember { mutableStateOf(true) }
 
@@ -60,11 +63,11 @@ fun WearAppPermissionGroupsScreen(helper: WearAppPermissionGroupsHelper) {
             showDialog = showRevokeDialog.value,
             args = helper.revokeDialogViewModel.revokeDialogArgs,
         )
-        if (showLocationProviderDialog.value) {
-            LocationProviderDialogScreen(
-                helper.locationProviderInterceptDialogViewModel.locationProviderInterceptDialogArgs
-            )
-        }
+        LocationProviderDialogScreen(
+            showDialog = showLocationProviderDialog.value,
+            onDismissRequest = { helper.locationProviderInterceptDialogViewModel.dismissDialog() },
+            args = locationProviderDialogArgs.value,
+        )
     }
 
     if (isLoading && !packagePermGroups.value.isNullOrEmpty()) {
