@@ -98,6 +98,9 @@ public abstract class PermissionsFrameFragment extends PreferenceFragmentCompat 
                 com.android.settingslib.widget.progressbar.R.id.progress_bar_background);
         setProgressBarVisible(false);
         getListView().setFocusable(false);
+        if (SdkLevel.isAtLeastV()) {
+            rootView.setFitsSystemWindows(true);
+        }
         return rootView;
     }
 
