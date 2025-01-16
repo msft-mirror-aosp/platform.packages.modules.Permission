@@ -1832,7 +1832,7 @@
         defaultHolders="config_defaultWallet"
         description="@string/role_wallet_description"
         exclusive="true"
-        exclusivity="user"
+        exclusivity="profileGroup"
         label="@string/role_wallet_label"
         minSdkVersion="35"
         overrideUserWhenGranting="true"
