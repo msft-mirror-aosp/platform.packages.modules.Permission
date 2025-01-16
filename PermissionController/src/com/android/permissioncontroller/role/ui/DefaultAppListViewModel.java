@@ -58,9 +58,11 @@ public class DefaultAppListViewModel extends AndroidViewModel {
         super(application);
 
         mUser = Process.myUserHandle();
+        boolean isProfileParent = UserUtils.isProfileParent(mUser, application);
         RoleListLiveData liveData = new RoleListLiveData(true, mUser, application);
         RoleListSortFunction sortFunction = new RoleListSortFunction(application);
-        mWorkProfile = UserUtils.getWorkProfile(application);
+        // Only show the work profile section if the current user is a full user
+        mWorkProfile = isProfileParent ? UserUtils.getWorkProfile(application) : null;
         if (RoleFlags.isProfileGroupExclusivityAvailable()) {
             if (mWorkProfile != null) {
                 // Show profile group exclusive roles from work profile in primary group.
@@ -87,7 +89,9 @@ public class DefaultAppListViewModel extends AndroidViewModel {
                     new RoleListLiveData(true, mWorkProfile, application), sortFunction) : null;
         }
 
-        UserHandle privateProfile = UserUtils.getPrivateProfile(application);
+        // Only show the private profile section if the current user is a full user
+        UserHandle privateProfile =
+                isProfileParent ? UserUtils.getPrivateProfile(application) : null;
         if (privateProfile != null && Utils.shouldShowInSettings(
                 privateProfile, application.getSystemService(UserManager.class))) {
             mPrivateProfile = privateProfile;
