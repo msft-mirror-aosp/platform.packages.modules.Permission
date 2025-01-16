@@ -29,6 +29,7 @@ import android.platform.test.annotations.AppModeFull
 import android.platform.test.annotations.RequiresFlagsEnabled
 import android.platform.test.flag.junit.CheckFlagsRule
 import android.platform.test.flag.junit.DeviceFlagsValueProvider
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -204,6 +205,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     }
 
     @RequiresFlagsEnabled(Flags.FLAG_ENHANCED_CONFIRMATION_MODE_APIS_ENABLED)
+    @FlakyTest(bugId = 387927331)
     @Test
     fun grantDialogBlocksRestrictedGroupsThenRequestsUnrestrictedGroupsDespiteOutOfOrderRequest() {
         installPackageWithInstallSourceFromDownloadedFileAndAllowHardRestrictedPerms(
@@ -219,6 +221,8 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
             waitForWindowTransition = false
         ) {
             clickECMAlertDialogOKButton()
+            // TODO: b/387927331 - On some targets, grant dialog hangs after this click
+            Thread.sleep(3_000L)
             clickPermissionRequestDenyButton()
         }
         assertTrue(isClearRestrictionAllowed(APP_PACKAGE_NAME))
@@ -234,6 +238,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     }
 
     @RequiresFlagsEnabled(Flags.FLAG_ENHANCED_CONFIRMATION_MODE_APIS_ENABLED)
+    @FlakyTest(bugId = 387927331)
     @Test
     fun grantDialogBlocksRestrictedGroupsThenRequestsUnrestrictedHighPriorityGroups() {
         installPackageWithInstallSourceFromDownloadedFileAndAllowHardRestrictedPerms(
@@ -247,12 +252,15 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
             waitForWindowTransition = false
         ) {
             clickECMAlertDialogOKButton()
+            // TODO: b/387927331 - On some targets, grant dialog hangs after this click
+            Thread.sleep(3_000L)
             clickPermissionRequestAllowForegroundButton()
         }
         assertTrue(isClearRestrictionAllowed(APP_PACKAGE_NAME))
     }
 
     @RequiresFlagsEnabled(Flags.FLAG_ENHANCED_CONFIRMATION_MODE_APIS_ENABLED)
+    @FlakyTest(bugId = 390440965)
     @Test
     fun grantDialogBlocksRestrictedGroupsThenRequestsUnrestrictedLowPriorityGroups() {
         installPackageWithInstallSourceFromDownloadedFileAndAllowHardRestrictedPerms(
@@ -266,6 +274,8 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
             waitForWindowTransition = false
         ) {
             clickECMAlertDialogOKButton()
+            // TODO: b/387927331 - On some targets, grant dialog hangs after this click
+            Thread.sleep(3_000L)
             clickPermissionRequestAllowForegroundButton()
         }
         assertTrue(isClearRestrictionAllowed(APP_PACKAGE_NAME))
