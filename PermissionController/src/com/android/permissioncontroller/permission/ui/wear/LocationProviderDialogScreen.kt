@@ -21,10 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.wear.compose.material3.Dialog
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButtonStyle
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionScaffold
 import com.android.permissioncontroller.permission.ui.wear.model.LocationProviderInterceptDialogArgs
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionButton
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionButtonStyle
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionScaffold
 
 @Composable
 fun LocationProviderDialogScreen(

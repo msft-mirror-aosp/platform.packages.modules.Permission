@@ -22,6 +22,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
+import androidx.core.util.size
 import androidx.wear.compose.material3.Dialog
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_ALWAYS_BUTTON
@@ -38,13 +39,13 @@ import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.N
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.NO_UPGRADE_OT_AND_DONT_ASK_AGAIN_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.NO_UPGRADE_OT_BUTTON
 import com.android.permissioncontroller.permission.ui.wear.GrantPermissionsWearViewHandler.BUTTON_RES_ID_TO_NUM
-import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControl
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControlType
 import com.android.permissioncontroller.permission.ui.wear.model.WearGrantPermissionsViewModel
-import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
-import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion.MATERIAL3
+import com.android.permissioncontroller.wear.permission.components.ScrollableScreen
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionButton
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionToggleControl
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionToggleControlType
+import com.android.permissioncontroller.wear.permission.components.theme.ResourceHelper
+import com.android.permissioncontroller.wear.permission.components.theme.WearPermissionMaterialUIVersion.MATERIAL3
 
 @Composable
 fun WearGrantPermissionsScreen(
@@ -84,7 +85,7 @@ fun WearGrantPermissionsScreen(
                 )
             }
         }
-        for (i in 0 until BUTTON_RES_ID_TO_NUM.size()) {
+        for (i in 0 until BUTTON_RES_ID_TO_NUM.size) {
             val pos: Int = BUTTON_RES_ID_TO_NUM.valueAt(i)
             if (buttonVisibilities.value.size <= pos) {
                 // initial value of buttonVisibilities is empty

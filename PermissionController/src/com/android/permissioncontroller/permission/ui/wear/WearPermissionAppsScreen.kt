@@ -30,10 +30,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.wear.compose.material.Text
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.Category
-import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionListSubHeader
+import com.android.permissioncontroller.wear.permission.components.ScrollableScreen
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionButton
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionIconBuilder
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionListSubHeader
 
 /** Compose the screen associated to a [WearPermissionAppsFragment]. */
 @Composable
