@@ -25,13 +25,13 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.wear.compose.material.ToggleChipDefaults
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.ListFooter
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChip
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.toggleChipDisabledColors
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.DialogButtonContent
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionConfirmationDialog
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionListFooter
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControl
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControlStyle
 import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControlType
 import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
 import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
@@ -66,38 +66,38 @@ private fun WearDefaultAppContent(
     ScrollableScreen(title = helper.getTitle(), isLoading = isLoading) {
         helper.getNonePreference(qualifyingApplications)?.let {
             item {
-                ToggleChip(
+                WearPermissionToggleControl(
                     label = it.title.toString(),
-                    icon = it.icon,
+                    iconBuilder = it.icon?.let { WearPermissionIconBuilder.builder(it) },
                     checked = it.checked,
                     onCheckedChanged = it.onDefaultCheckChanged,
                     toggleControl = WearPermissionToggleControlType.Radio,
-                    labelMaxLine = Integer.MAX_VALUE,
+                    labelMaxLines = Integer.MAX_VALUE,
                 )
             }
         }
         for (pref in helper.getPreferences(qualifyingApplications)) {
             item {
-                ToggleChip(
+                WearPermissionToggleControl(
                     label = pref.title.toString(),
-                    icon = pref.icon,
-                    colors =
+                    iconBuilder = pref.icon?.let { WearPermissionIconBuilder.builder(it) },
+                    style =
                         if (pref.isEnabled) {
-                            ToggleChipDefaults.toggleChipColors()
+                            WearPermissionToggleControlStyle.Default
                         } else {
-                            toggleChipDisabledColors()
+                            WearPermissionToggleControlStyle.DisabledLike
                         },
                     secondaryLabel = pref.summary?.toString(),
                     checked = pref.checked,
                     onCheckedChanged = pref.getOnCheckChanged(),
                     toggleControl = WearPermissionToggleControlType.Radio,
-                    labelMaxLine = Integer.MAX_VALUE,
-                    secondaryLabelMaxLine = Integer.MAX_VALUE,
+                    labelMaxLines = Integer.MAX_VALUE,
+                    secondaryLabelMaxLines = Integer.MAX_VALUE,
                 )
             }
         }
 
-        item { ListFooter(description = helper.getDescription()) }
+        item { WearPermissionListFooter(label = helper.getDescription()) }
     }
 }
 
