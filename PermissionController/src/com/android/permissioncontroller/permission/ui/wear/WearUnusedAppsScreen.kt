@@ -26,8 +26,8 @@ import com.android.permissioncontroller.hibernation.isHibernationEnabled
 import com.android.permissioncontroller.permission.ui.model.UnusedAppsViewModel.UnusedPeriod
 import com.android.permissioncontroller.permission.ui.model.UnusedAppsViewModel.UnusedPeriod.Companion.allPeriods
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.Icon
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
 import com.android.permissioncontroller.permission.ui.wear.model.WearUnusedAppsViewModel
 
 @Composable
@@ -38,7 +38,6 @@ fun WearUnusedAppsScreen(viewModel: WearUnusedAppsViewModel) {
     val infoMsgCategoryVisibility =
         viewModel.infoMsgCategoryVisibilityLiveData.observeAsState(false)
     val unusedAppChips = viewModel.unusedAppChipsLiveData.observeAsState(mapOf())
-
     ScrollableScreen(
         showTimeText = true,
         title = getScreenTitle(),
@@ -57,11 +56,14 @@ fun WearUnusedAppsScreen(viewModel: WearUnusedAppsViewModel) {
             }
             for (unusedAppChip in unusedAppChips.value[period]!!.values) {
                 item {
-                    Chip(
+                    WearPermissionButton(
                         label = unusedAppChip.label,
                         secondaryLabel = unusedAppChip.summary,
-                        icon = unusedAppChip.icon,
-                        iconContentDescription = unusedAppChip.contentDescription,
+                        iconBuilder =
+                            unusedAppChip.icon?.let {
+                                WearPermissionIconBuilder.builder(it)
+                                    .contentDescription(unusedAppChip.contentDescription)
+                            },
                         onClick = unusedAppChip.onClick,
                     )
                 }
@@ -69,7 +71,7 @@ fun WearUnusedAppsScreen(viewModel: WearUnusedAppsViewModel) {
         }
         // For info_msg_category
         if (infoMsgCategoryVisibility.value) {
-            item { Icon(icon = R.drawable.ic_info_outline, contentDescription = null) }
+            item { WearPermissionIconBuilder.builder(R.drawable.ic_info_outline).build() }
             if (isHibernationEnabled()) {
                 item { Text(text = stringResource(R.string.unused_apps_page_summary)) }
             } else {
