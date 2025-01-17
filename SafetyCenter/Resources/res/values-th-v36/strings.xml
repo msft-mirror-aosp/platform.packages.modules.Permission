@@ -17,25 +17,16 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for face_unlock_title (3991635517593572926) -->
-    <skip />
-    <!-- no translation found for face_unlock_title_for_work (1451170625947022012) -->
-    <skip />
+    <string name="face_unlock_title" msgid="3991635517593572926">"ใบหน้า"</string>
+    <string name="face_unlock_title_for_work" msgid="1451170625947022012">"ใช้ใบหน้าสำหรับการทำงาน"</string>
     <string name="face_unlock_title_for_private_profile" msgid="2758692637409168420"></string>
-    <!-- no translation found for face_unlock_search_terms (2708195853333028283) -->
-    <skip />
-    <!-- no translation found for fingerprint_unlock_title (5579868242026550596) -->
-    <skip />
-    <!-- no translation found for fingerprint_unlock_title_for_work (6343690273672384918) -->
-    <skip />
+    <string name="face_unlock_search_terms" msgid="2708195853333028283">"การปลดล็อกด้วยใบหน้า, ใบหน้า"</string>
+    <string name="fingerprint_unlock_title" msgid="5579868242026550596">"ลายนิ้วมือ"</string>
+    <string name="fingerprint_unlock_title_for_work" msgid="6343690273672384918">"ใช้ลายนิ้วมือสำหรับการทำงาน"</string>
     <string name="fingerprint_unlock_title_for_private_profile" msgid="9004513575240235691"></string>
-    <!-- no translation found for fingerprint_unlock_search_terms (688405183240088603) -->
-    <skip />
-    <!-- no translation found for wear_unlock_title (1613730442896319515) -->
-    <skip />
-    <!-- no translation found for wear_unlock_title_for_work (3103157953371670280) -->
-    <skip />
+    <string name="fingerprint_unlock_search_terms" msgid="688405183240088603">"ลายนิ้วมือ, นิ้ว, เพิ่มลายนิ้วมือ"</string>
+    <string name="wear_unlock_title" msgid="1613730442896319515">"นาฬิกา"</string>
+    <string name="wear_unlock_title_for_work" msgid="3103157953371670280">"ใช้นาฬิกาเพื่อการทำงาน"</string>
     <string name="wear_unlock_title_for_private_profile" msgid="927318621331822758"></string>
-    <!-- no translation found for wear_unlock_search_terms (3769797118448924263) -->
-    <skip />
+    <string name="wear_unlock_search_terms" msgid="3769797118448924263">"นาฬิกา, การปลดล็อกด้วยนาฬิกา"</string>
 </resources>
