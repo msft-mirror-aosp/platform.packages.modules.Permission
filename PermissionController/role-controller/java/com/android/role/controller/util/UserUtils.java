@@ -127,7 +127,7 @@ public final class UserUtils {
 
     /** Returns the parent of a given user. */
     @Nullable
-    private static UserHandle getProfileParent(UserHandle user, @NonNull Context context) {
+    public static UserHandle getProfileParent(UserHandle user, @NonNull Context context) {
         Context userContext = getUserContext(context, user);
         UserManager userManager = userContext.getSystemService(UserManager.class);
         return userManager.getProfileParent(user);
