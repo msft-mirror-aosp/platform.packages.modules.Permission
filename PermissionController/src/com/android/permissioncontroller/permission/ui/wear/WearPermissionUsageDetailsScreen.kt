@@ -30,15 +30,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.MaterialTheme
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.ui.model.v31.BasePermissionUsageDetailsViewModel
 import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageDetailsViewModel
 import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageDetailsViewModel.AppPermissionAccessUiInfo
 import com.android.permissioncontroller.permission.ui.model.v31.PermissionUsageDetailsViewModel.PermissionUsageDetailsUiState
 import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButtonStyle
+import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
 import com.android.permissioncontroller.permission.utils.KotlinUtils
 
 @RequiresApi(Build.VERSION_CODES.S)
@@ -130,25 +130,26 @@ internal fun WearPermissionUsageDetailsContent(
 ) {
     ScrollableScreen(title = title, subtitle = subtitle, isLoading = isLoading) {
         if (appPermissionAccessUiInfoList.isEmpty()) {
-            item { Chip(label = stringResource(R.string.no_apps), onClick = {}) }
+            item { WearPermissionButton(label = stringResource(R.string.no_apps), onClick = {}) }
         } else {
             for (uiInfo in appPermissionAccessUiInfoList) {
                 item {
-                    Chip(
+                    WearPermissionButton(
                         label = uiInfo.packageLabel,
                         labelMaxLines = Int.MAX_VALUE,
                         secondaryLabel =
                             DateFormat.getTimeFormat(LocalContext.current)
                                 .format(uiInfo.accessEndTime),
                         secondaryLabelMaxLines = Int.MAX_VALUE,
-                        icon = uiInfo.badgedPackageIcon,
+                        iconBuilder =
+                            uiInfo.badgedPackageIcon?.let { WearPermissionIconBuilder.builder(it) },
                         onClick = { onChipClick(uiInfo) },
                     )
                 }
             }
             if (hasSystemApps) {
                 item {
-                    Chip(
+                    WearPermissionButton(
                         label =
                             if (showSystem) {
                                 stringResource(R.string.menu_hide_system)
@@ -162,10 +163,9 @@ internal fun WearPermissionUsageDetailsContent(
                 }
             }
             item {
-                Chip(
+                WearPermissionButton(
                     label = stringResource(R.string.manage_permission),
-                    textColor = MaterialTheme.colors.background,
-                    colors = ChipDefaults.primaryChipColors(),
+                    style = WearPermissionButtonStyle.Primary,
                     onClick = { onManagePermissionClick() },
                 )
             }
