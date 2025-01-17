@@ -89,6 +89,7 @@ android_library {
     ],
 
     //javacflags: ["-Werror"],
+    kotlin_lang_version: "1.9",
     kotlincflags: [
         "-Werror",
         "-opt-in=kotlinx.coroutines.DelicateCoroutinesApi",
