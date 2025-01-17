@@ -18,6 +18,7 @@ package com.android.permissioncontroller.wear.permission.components
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.FragmentActivity
+import androidx.wear.compose.foundation.ExpandableState
 import androidx.wear.compose.foundation.SwipeToDismissValue
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.SwipeToDismissBox
@@ -42,6 +44,7 @@ import com.android.permissioncontroller.wear.permission.components.theme.WearPer
 @Composable
 fun ScrollableScreen(
     materialUIVersion: WearPermissionMaterialUIVersion = ResourceHelper.materialUIVersionInSettings,
+    asScalingList: Boolean = false,
     showTimeText: Boolean = true,
     title: String? = null,
     subtitle: CharSequence? = null,
@@ -73,6 +76,7 @@ fun ScrollableScreen(
         SwipeToDismissBox(state = state) { isBackground ->
             WearPermissionScaffold(
                 materialUIVersion,
+                asScalingList,
                 showTimeText,
                 title,
                 subtitle,
@@ -86,6 +90,7 @@ fun ScrollableScreen(
     } else {
         WearPermissionScaffold(
             materialUIVersion,
+            asScalingList,
             showTimeText,
             title,
             subtitle,
@@ -129,4 +134,11 @@ fun Context.findActivity(): Activity {
 
 interface ListScopeWrapper {
     fun item(key: Any? = null, contentType: Any? = null, content: @Composable () -> Unit)
+
+    fun expandableItems(
+        state: ExpandableState,
+        count: Int,
+        key: ((index: Int) -> Any)? = null,
+        itemContent: @Composable BoxScope.(index: Int) -> Unit,
+    )
 }
