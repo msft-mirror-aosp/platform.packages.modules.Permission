@@ -32,7 +32,7 @@ fun LocationProviderDialogScreen(
     onDismissRequest: () -> Unit,
     args: LocationProviderInterceptDialogArgs?,
 ) {
-    Dialog(show = showDialog, onDismissRequest = onDismissRequest) {
+    Dialog(visible = showDialog, onDismissRequest = onDismissRequest) {
         args?.run {
             WearPermissionScaffold(
                 showTimeText = false,

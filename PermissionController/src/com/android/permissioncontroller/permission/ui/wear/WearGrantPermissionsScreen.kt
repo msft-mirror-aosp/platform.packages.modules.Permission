@@ -135,7 +135,7 @@ private fun AsDialog(
     content: @Composable () -> Unit,
 ) {
     val showDialog = viewModel.showDialog.observeAsState(false)
-    Dialog(show = showDialog.value, onDismissRequest = onDismissRequest, content = content)
+    Dialog(visible = showDialog.value, onDismissRequest = onDismissRequest, content = content)
 }
 
 @Composable
