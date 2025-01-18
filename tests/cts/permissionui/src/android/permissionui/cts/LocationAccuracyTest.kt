@@ -25,7 +25,6 @@ import com.android.modules.utils.build.SdkLevel
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 @FlakyTest
@@ -51,8 +50,6 @@ class LocationAccuracyTest : BaseUsePermissionTest() {
     }
 
     @Test
-    @Ignore("b/390440965")
-    // Ignore this test until the cause of flakiness is identified.
     fun testCoarsePermissionIsGranted() {
         installPackage(APP_APK_PATH_31)
 
