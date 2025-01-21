@@ -57,6 +57,10 @@
                 value="/data/local/tmp/pc-permissionui/PermissionUiUseTwoAdditionalPermissionsApp.apk" />
         <option name="push-file" key="PermissionUiReadCalendarPermissionApp.apk"
                 value="/data/local/tmp/pc-permissionui/PermissionUiReadCalendarPermissionApp.apk" />
+        <option name="push-file" key="PermissionUiUseLegacyBodySensorsPermissionApp.apk"
+            value="/data/local/tmp/pc-permissionui/PermissionUiUseLegacyBodySensorsPermissionApp.apk" />
+        <option name="push-file" key="PermissionUiUseReadHeartRatePermissionApp.apk"
+            value="/data/local/tmp/pc-permissionui/PermissionUiUseReadHeartRatePermissionApp.apk" />
     </target_preparer>
 
     <!-- Uninstall test-apps -->
