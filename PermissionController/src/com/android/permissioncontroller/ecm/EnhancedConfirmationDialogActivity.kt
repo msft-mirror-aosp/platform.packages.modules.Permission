@@ -18,6 +18,7 @@ package com.android.permissioncontroller.ecm
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.app.AppOpsManager
 import android.app.Dialog
 import android.app.ecm.EnhancedConfirmationManager
 import android.content.Context
@@ -152,7 +153,8 @@ class EnhancedConfirmationDialogActivity : FragmentActivity() {
                 var message: CharSequence?
                 if (settingType == SettingType.BLOCKED_DUE_TO_PHONE_STATE) {
                     title = settingType.titleRes?.let { context.getString(it) }
-                    message = settingType.messageRes?.let { context.getString(it) }
+                    val messagePrefix = getPhoneStateMessagePrefix(context, settingIdentifier)
+                    message = settingType.messageRes?.let { context.getString(it, messagePrefix) }
                 } else {
                     val url =
                         context.getString(R.string.help_url_action_disabled_by_restricted_settings)
@@ -161,6 +163,22 @@ class EnhancedConfirmationDialogActivity : FragmentActivity() {
                         settingType.messageRes?.let { Html.fromHtml(context.getString(it, url), 0) }
                 }
                 return Setting(title, message)
+            }
+
+            private fun getPhoneStateMessagePrefix(
+                context: Context,
+                settingsIdentifier: String,
+            ): String {
+                return context.getString(
+                    when (settingsIdentifier) {
+                        AppOpsManager.OPSTR_BIND_ACCESSIBILITY_SERVICE ->
+                            R.string.enhanced_confirmation_phone_state_dialog_a11y_desc_prefix
+                        AppOpsManager.OPSTR_REQUEST_INSTALL_PACKAGES ->
+                            R.string.enhanced_confirmation_phone_state_dialog_install_desc_prefix
+                        else ->
+                            R.string.enhanced_confirmation_phone_state_dialog_generic_desc_prefix
+                    }
+                )
             }
         }
     }
