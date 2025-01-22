@@ -20,6 +20,7 @@ import static android.app.ecm.EnhancedConfirmationManager.REASON_PACKAGE_RESTRIC
 import static android.app.ecm.EnhancedConfirmationManager.REASON_PHONE_STATE;
 
 import android.Manifest;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -54,10 +55,12 @@ import android.telephony.TelephonyManager;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
+import android.view.accessibility.AccessibilityManager;
 
 import androidx.annotation.Keep;
 import androidx.annotation.RequiresApi;
 
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 import com.android.permission.util.UserUtils;
 import com.android.server.LocalManagerRegistry;
@@ -109,6 +112,10 @@ public class EnhancedConfirmationService extends SystemService {
 
     private ContentResolver mContentResolver;
     private TelephonyManager mTelephonyManager;
+
+    @GuardedBy("mUserAccessibilityManagers")
+    private final Map<Integer, AccessibilityManager> mUserAccessibilityManagers =
+            new ArrayMap<>();
 
     @Override
     public void onStart() {
@@ -314,7 +321,8 @@ public class EnhancedConfirmationService extends SystemService {
                 if (isSettingEcmGuardedForPackage(settingIdentifier, packageName, userId)) {
                     return REASON_PACKAGE_RESTRICTED;
                 }
-                String globalProtectionReason = getGlobalProtectionReason(settingIdentifier);
+                String globalProtectionReason =
+                        getGlobalProtectionReason(settingIdentifier, packageName, userId);
                 if (globalProtectionReason != null) {
                     return globalProtectionReason;
                 }
@@ -538,13 +546,44 @@ public class EnhancedConfirmationService extends SystemService {
             return false;
         }
 
-        private String getGlobalProtectionReason(@NonNull String settingIdentifier) {
+        private String getGlobalProtectionReason(@NonNull String settingIdentifier,
+                @NonNull String packageName, @UserIdInt int userId) {
             if (UNTRUSTED_CALL_RESTRICTED_SETTINGS.contains(settingIdentifier)
                     && isUntrustedCallOngoing()) {
-                return REASON_PHONE_STATE;
+                if (!AppOpsManager.OPSTR_BIND_ACCESSIBILITY_SERVICE.equals(settingIdentifier)) {
+                    return REASON_PHONE_STATE;
+                }
+                if (!isAccessibilityTool(packageName, userId)) {
+                    return REASON_PHONE_STATE;
+                }
+                return null;
             }
-
             return null;
+        }
+
+        private boolean isAccessibilityTool(@NonNull String packageName, @UserIdInt int userId) {
+            AccessibilityManager am;
+            synchronized (mUserAccessibilityManagers) {
+                if (!mUserAccessibilityManagers.containsKey(userId)) {
+                    Context userContext =
+                            getContext().createContextAsUser(UserHandle.of(userId), 0);
+                    mUserAccessibilityManagers.put(userId, userContext.getSystemService(
+                            AccessibilityManager.class));
+                }
+                am = mUserAccessibilityManagers.get(userId);
+            }
+            List<AccessibilityServiceInfo> infos = am.getInstalledAccessibilityServiceList();
+            for (int i = 0; i < infos.size(); i++) {
+                AccessibilityServiceInfo info = infos.get(i);
+                String servicePackageName = null;
+                if (info.getResolveInfo() != null && info.getResolveInfo().serviceInfo != null) {
+                    servicePackageName = info.getResolveInfo().serviceInfo.packageName;
+                }
+                if (packageName.equals(servicePackageName)) {
+                    return info.isAccessibilityTool();
+                }
+            }
+            return false;
         }
 
         @Nullable
