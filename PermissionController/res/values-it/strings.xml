@@ -675,7 +675,14 @@
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Impostazione con limitazioni"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Per la tua sicurezza, questa impostazione non è al momento disponibile."</string>
     <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Azione non disponibile durante una telefonata"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"È vietato consentire alle app di installare altre app durante una telefonata.\n\n I truffatori richiedono spesso questo tipo di azione durante le conversazioni telefoniche, quindi è bloccata per proteggerti. Se qualcuno che non conosci ti guida a compiere questa azione, potrebbe trattarsi di una truffa."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8861786545031902839) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (2832355924914011814) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (5336417371950046729) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (4453183594330342865) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"All\'app è stato negato l\'accesso a <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"L\'app ha richiesto l\'accesso a un\'autorizzazione sensibile che può mettere a rischio le tue informazioni finanziarie e personali.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>È possibile che l\'app non funzioni correttamente senza questa autorizzazione limitata. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Scopri di più su come consentire l\'accesso&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"All\'app è stato negato l\'accesso al ruolo <xliff:g id="ROLE_NAME">%1$s</xliff:g> predefinita"</string>

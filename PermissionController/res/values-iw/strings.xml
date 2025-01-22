@@ -456,7 +456,7 @@
     <string name="incident_report_notification_text" msgid="3376480583513587923">"האפליקציה <xliff:g id="APP_NAME">%1$s</xliff:g> מבקשת להעלות נתונים של ניפוי באגים."</string>
     <string name="incident_report_dialog_title" msgid="669104389325204095">"לשתף נתונים של ניפוי באגים?"</string>
     <string name="incident_report_dialog_intro" msgid="5897733669850951832">"המערכת איתרה בעיה."</string>
-    <string name="incident_report_dialog_text" msgid="5675553296891757523">"אפליקציית <xliff:g id="APP_NAME_0">%1$s</xliff:g> מבקשת להעלות דוח על באגים מהמכשיר הזה, שנוצר בתאריך <xliff:g id="DATE">%2$s</xliff:g> בשעה <xliff:g id="TIME">%3$s</xliff:g>. דוחות על באגים כוללים מידע אישי על המכשיר או מידע אישי שנשמר באמצעות אפליקציות. למשל, שמות משתמשים, נתוני מיקום, מזהי מכשיר ופרטי רשת. יש לשתף דוחות על באגים רק עם אפליקציות ואנשים מהימנים. לאפשר לאפליקציית <xliff:g id="APP_NAME_1">%4$s</xliff:g> להעלות דוח על באגים?"</string>
+    <string name="incident_report_dialog_text" msgid="5675553296891757523">"‫<xliff:g id="APP_NAME_0">%1$s</xliff:g> מבקשת להעלות דוח על באגים מהמכשיר הזה, שנוצר בתאריך <xliff:g id="DATE">%2$s</xliff:g> בשעה <xliff:g id="TIME">%3$s</xliff:g>. דוחות על באגים כוללים מידע אישי על המכשיר או מידע אישי שנשמר באמצעות אפליקציות. למשל, שמות משתמשים, נתוני מיקום, מזהי מכשיר ופרטי רשת. יש לשתף דוחות על באגים רק עם אפליקציות ואנשים שאמינים בעיניך. לאפשר לאפליקציית <xliff:g id="APP_NAME_1">%4$s</xliff:g> להעלות דוח על באגים?"</string>
     <string name="incident_report_error_dialog_text" msgid="4189647113387092272">"אירעה שגיאה בעיבוד הדוח על הבאג עבור <xliff:g id="APP_NAME">%1$s</xliff:g>. לכן, נדחה שיתוף הנתונים המפורטים לגבי ניפוי השגיאות. מצטערים על ההפרעה."</string>
     <string name="incident_report_dialog_allow_label" msgid="2970242967721155239">"כן, זה בסדר"</string>
     <string name="incident_report_dialog_deny_label" msgid="3535314290677579383">"אני לא מרשה"</string>
@@ -675,7 +675,14 @@
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"הגדרה מוגבלת"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"מטעמי אבטחה, ההגדרה הזו לא זמינה כרגע."</string>
     <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"הפעולה לא זמינה במהלך שיחת טלפון"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"אי אפשר לתת לאפליקציות הרשאה להתקין אפליקציות אחרות במהלך שיחת טלפון.\n\n לרוב, אנשים שמבצעים תרמיות מבקשים לבצע פעולות מהסוג הזה במהלך שיחות טלפון, לכן הפעולה הזו חסומה כדי להגן עליך. אם מישהו לא מוכר מנחה אותך לבצע את הפעולה הזו, יכול להיות שמדובר בתרמית."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8861786545031902839) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (2832355924914011814) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (5336417371950046729) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (4453183594330342865) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"בקשת הגישה של האפליקציה ל<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> נדחתה"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"‏האפליקציה ביקשה הרשאת גישה למידע רגיש שעלולה לסכן את המידע האישי והפיננסי שלך.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>יכול להיות שהאפליקציה לא תעבוד כמו שצריך ללא ההרשאה המוגבלת הזו. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;מידע נוסף על מתן גישה להרשאות&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"בקשת הגישה של האפליקציה לשמש כברירת המחדל של <xliff:g id="ROLE_NAME">%1$s</xliff:g> נדחתה"</string>
