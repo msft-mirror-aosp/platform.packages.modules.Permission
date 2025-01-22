@@ -675,7 +675,14 @@
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Murriztapenak ditu ezarpenak"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Zure segurtasuna bermatzeko, ezarpena ez dago erabilgarri une honetan."</string>
     <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Ekintza hori ez dago erabilgarri telefono-deietan"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"Telefono-dei batean zaudenean ezin diezu eman beste aplikazio batzuk instalatzeko baimena aplikazioei.\n\n Iruzurgileek halako ekintzak egiteko eskatu ohi dute telefono bidezko elkarrizketetan; beraz, aukera hori blokeatu dugu zu babesteko. Ezagutzen ez duzun norbaitek halako zerbait egiteko esaten badizu, baliteke azpikeria izatea."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8861786545031902839) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (2832355924914011814) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (5336417371950046729) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (4453183594330342865) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Aplikazioari <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> erabiltzeko baimena ukatu zaio"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Kontuzko informazioa erabiltzeko baimen bat eskatu du aplikazioak, eta agian horrek arriskuan jarriko ditu zure informazio pertsonala eta finantzei buruzko informazioa.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Baliteke aplikazioak behar bezala ez funtzionatzea baimen murriztu hori gabe. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Lortu baimena emateko argibideak&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Aplikazioari <xliff:g id="ROLE_NAME">%1$s</xliff:g> lehenetsia izateko baimena ukatu zaio"</string>

@@ -675,7 +675,14 @@
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Шектелген параметр"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Қауіпсіздік мақсатында бұл параметрді қазір пайдалану мүмкін емес."</string>
     <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Телефон қоңырауы кезінде бұл әрекет мүмкін емес"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"Телефон қоңырауы кезінде қолданбаларға басқа қолданбаларды орнатуға тыйым салынады.\n\n Алаяқтар телефонмен сөйлесу кезінде көбіне осындай әрекеттерді жасауды сұрайды, сондықтан сізді қорғау үшін бұл әрекет блокталған. Таныс емес адам осылай әрекет етуге нұсқау берсе, бұл алаяқтық болуы мүмкін."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8861786545031902839) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (2832355924914011814) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (5336417371950046729) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (4453183594330342865) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Қолданбаға <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> рұқсаты берілмеді"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Қолданба жеке және қаржылық ақпаратыңызға қауіп төндіруі мүмкін құпия ақпарат рұқсатын сұрады.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Қолданба бұл шектеулі рұқсатсыз дұрыс жұмыс істемеуі мүмкін. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Рұқсат беру туралы ақпарат&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Қолданбаға әдепкі <xliff:g id="ROLE_NAME">%1$s</xliff:g> болу рұқсаты берілмеді"</string>
