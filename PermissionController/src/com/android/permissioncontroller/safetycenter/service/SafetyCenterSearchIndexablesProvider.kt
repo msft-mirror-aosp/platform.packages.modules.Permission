@@ -338,8 +338,12 @@ class SafetyCenterSearchIndexablesProvider : BaseSearchIndexablesProvider() {
 
     companion object {
         private const val BIOMETRIC_SOURCE_ID = "AndroidBiometrics"
+        private const val FACE_SOURCE_ID = "AndroidFaceUnlock"
+        private const val FINGERPRINT_SOURCE_ID = "AndroidFingerprintUnlock"
+        private const val WEAR_SOURCE_ID = "AndroidWearUnlock"
 
-        private val biometricsSources = listOf(BIOMETRIC_SOURCE_ID)
+        private val biometricsSources =
+            listOf(BIOMETRIC_SOURCE_ID, FACE_SOURCE_ID, FINGERPRINT_SOURCE_ID, WEAR_SOURCE_ID)
 
         private val privacyControlKeys: List<String>
             get() = Pref.values().map { it.key }
