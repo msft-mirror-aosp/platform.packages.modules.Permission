@@ -1920,6 +1920,11 @@
         systemOnly="true"
         visible="false">
         <permissions>
+            <permission name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+            <permission name="android.permission.ACCESS_COARSE_LOCATION" />
+            <permission name="android.permission.ACCESS_FINE_LOCATION" />
+            <permission name="android.permission.READ_MEDIA_IMAGES" />
+            <permission name="android.permission.READ_MEDIA_VIDEO" />
             <permission name="android.permission.READ_GLOBAL_APP_SEARCH_DATA" />
             <permission name="android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED"
                 featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
