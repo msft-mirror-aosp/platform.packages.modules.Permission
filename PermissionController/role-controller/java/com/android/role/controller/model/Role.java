@@ -47,6 +47,7 @@ import androidx.annotation.VisibleForTesting;
 
 import com.android.modules.utils.build.SdkLevel;
 import com.android.role.controller.util.CollectionUtils;
+import com.android.role.controller.util.IntentCompat;
 import com.android.role.controller.util.PackageUtils;
 import com.android.role.controller.util.RoleFlags;
 import com.android.role.controller.util.RoleManagerCompat;
@@ -1151,14 +1152,36 @@ public class Role {
     @Nullable
     public Intent getRestrictionIntentAsUser(@NonNull UserHandle user, @NonNull Context context) {
         if (SdkLevel.isAtLeastU() && isExclusive()) {
-            // TODO(b/379143953): if role is profile group exclusive
-            //  check DISALLOW_CONFIG_DEFAULT_APPS for all users
-            UserManager userManager = context.getSystemService(UserManager.class);
-            if (userManager.hasUserRestrictionForUser(UserManager.DISALLOW_CONFIG_DEFAULT_APPS,
-                    user)) {
-                return new Intent(Settings.ACTION_SHOW_ADMIN_SUPPORT_DETAILS)
-                    .putExtra(DevicePolicyManager.EXTRA_RESTRICTION,
-                        UserManager.DISALLOW_CONFIG_DEFAULT_APPS);
+            boolean crossUserRoleUxBugfixEnabled =
+                    com.android.permission.flags.Flags.crossUserRoleUxBugfixEnabled();
+            if (crossUserRoleUxBugfixEnabled && getExclusivity() == EXCLUSIVITY_PROFILE_GROUP) {
+                DevicePolicyManager devicePolicyManager =
+                        context.getSystemService(DevicePolicyManager.class);
+                if (!devicePolicyManager.isOrganizationOwnedDeviceWithManagedProfile()) {
+                    // For profileGroup exclusive roles users on BYOD are free to choose personal or
+                    // work profile app regardless of DISALLOW_CONFIG_DEFAULT_APPS
+                    return null;
+                }
+            }
+
+            // Otherwise if role is profileGroup exclusive check DISALLOW_CONFIG_DEFAULT_APPS for
+            // all users
+            List<UserHandle> profiles =
+                    (crossUserRoleUxBugfixEnabled && getExclusivity() == EXCLUSIVITY_PROFILE_GROUP)
+                            ? UserUtils.getUserProfiles(context, true) : List.of(user);
+            final int profilesSize = profiles.size();
+            for (int i = 0; i < profilesSize; i++) {
+                UserHandle profile = profiles.get(i);
+                UserManager userManager = context.getSystemService(UserManager.class);
+                if (userManager.hasUserRestrictionForUser(
+                        UserManager.DISALLOW_CONFIG_DEFAULT_APPS, profile)) {
+                    return new Intent(Settings.ACTION_SHOW_ADMIN_SUPPORT_DETAILS)
+                            .putExtra(
+                                    DevicePolicyManager.EXTRA_RESTRICTION,
+                                    UserManager.DISALLOW_CONFIG_DEFAULT_APPS)
+                            .putExtra(Intent.EXTRA_USER, profile)
+                            .putExtra(IntentCompat.EXTRA_USER_ID, profile.getIdentifier());
+                }
             }
         }
         return null;
