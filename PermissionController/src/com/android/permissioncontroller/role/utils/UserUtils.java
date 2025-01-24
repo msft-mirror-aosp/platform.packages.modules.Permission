@@ -132,19 +132,6 @@ public class UserUtils {
     }
 
     /**
-     * Returns whether the user is a parent/full-user or not.
-     *
-     * @param userHandle the {@code UserHandle} to check is private profile
-     * @param context the {@code Context} to retrieve system services
-     */
-    public static boolean isProfileParent(@NonNull UserHandle userHandle,
-            @NonNull Context context) {
-        // If profile parent user is null, then original user is the parent
-        return com.android.role.controller.util.UserUtils.getProfileParent(userHandle, context)
-                == null;
-    }
-
-    /**
      * Returns whether the user is a private profile or not.
      *
      * @param userHandle the {@code UserHandle} to check is private profile

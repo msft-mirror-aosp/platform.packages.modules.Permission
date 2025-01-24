@@ -28,12 +28,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.android.permission.flags.Flags;
 import com.android.permissioncontroller.permission.utils.Utils;
 import com.android.permissioncontroller.role.utils.UserUtils;
 import com.android.role.controller.model.Role;
 import com.android.role.controller.util.RoleFlags;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -58,18 +60,21 @@ public class DefaultAppListViewModel extends AndroidViewModel {
         super(application);
 
         mUser = Process.myUserHandle();
-        boolean isProfileParent = UserUtils.isProfileParent(mUser, application);
+        UserHandle profileParent = UserUtils.getProfileParentOrSelf(mUser, application);
+        UserHandle workProfile = UserUtils.getWorkProfileOrSelf(application);
+        boolean isProfileParent = Objects.equals(mUser, profileParent);
+        boolean isWorkProfile = Objects.equals(mUser, workProfile);
         RoleListLiveData liveData = new RoleListLiveData(true, mUser, application);
         RoleListSortFunction sortFunction = new RoleListSortFunction(application);
         // Only show the work profile section if the current user is a full user
         mWorkProfile = isProfileParent ? UserUtils.getWorkProfile(application) : null;
         if (RoleFlags.isProfileGroupExclusivityAvailable()) {
+            Predicate<RoleItem> exclusivityPredicate = roleItem ->
+                    roleItem.getRole().getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP;
             if (mWorkProfile != null) {
                 // Show profile group exclusive roles from work profile in primary group.
                 RoleListLiveData workLiveData =
                         new RoleListLiveData(true, mWorkProfile, application);
-                Predicate<RoleItem> exclusivityPredicate = roleItem ->
-                        roleItem.getRole().getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP;
                 mLiveData = Transformations.map(
                         new MergeRoleListLiveData(liveData,
                                 Transformations.map(workLiveData,
@@ -79,6 +84,17 @@ public class DefaultAppListViewModel extends AndroidViewModel {
                         Transformations.map(workLiveData,
                                 new RoleListFilterFunction(exclusivityPredicate.negate())),
                         sortFunction);
+            } else if (Flags.crossUserRoleUxBugfixEnabled() && isWorkProfile) {
+                // Show profile group exclusive roles from the profile parent (full user) in primary
+                // group when the current user (primary group) is a work profile
+                RoleListLiveData profileParentLiveData =
+                        new RoleListLiveData(true, profileParent, application);
+                mLiveData = Transformations.map(
+                        new MergeRoleListLiveData(liveData,
+                                Transformations.map(profileParentLiveData,
+                                        new RoleListFilterFunction(exclusivityPredicate))),
+                        sortFunction);
+                mWorkLiveData = null;
             } else {
                 mLiveData = Transformations.map(liveData, sortFunction);
                 mWorkLiveData = null;

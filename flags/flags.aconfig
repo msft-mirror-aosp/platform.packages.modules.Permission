@@ -119,6 +119,18 @@ flag {
 }
 
 flag {
+    name: "cross_user_role_ux_bugfix_enabled"
+    is_exported: true
+    namespace: "permissions"
+    description: "This flag enables cross-user roles support ux bug fixes"
+    bug: "367732307"
+    is_fixed_read_only: true
+    metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}
+
+flag {
     name: "permission_timeline_attribution_label_fix"
     is_exported: true
     namespace: "permissions"
