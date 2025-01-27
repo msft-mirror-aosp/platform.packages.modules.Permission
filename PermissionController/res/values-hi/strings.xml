@@ -675,14 +675,10 @@
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"इस सेटिंग पर पाबंदी लगाई गई है"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"आपकी सुरक्षा के लिए, यह सेटिंग फ़िलहाल उपलब्ध नहीं है."</string>
     <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"फ़ोन कॉल के दौरान, कार्रवाई नहीं की जा सकती"</string>
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8861786545031902839) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (2832355924914011814) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (5336417371950046729) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (4453183594330342865) -->
-    <skip />
+    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8861786545031902839">"<xliff:g id="SETTING_DESCRIPTION">%1$s</xliff:g>\n\n फ़ोन कॉल पर बातचीत करते समय, धोखाधड़ी करने वाले लोग अक्सर इस तरह की कार्रवाई करने का अनुरोध करते हैं. इसलिए, आपको सुरक्षित रखने के लिए यह अनुमति नहीं दी जाती है. अगर कोई अनज़ान व्यक्ति, आपको यह कार्रवाई करने के निर्देश देता है, तो हो सकता है कि आपके साथ धोखाधड़ी की कोशिश की जा रही हो."</string>
+    <string name="enhanced_confirmation_phone_state_dialog_install_desc_prefix" msgid="2832355924914011814">"फ़ोन कॉल के दौरान, ऐप्लिकेशन को अन्य ऐप्लिकेशन इंस्टॉल करने की अनुमति नहीं है."</string>
+    <string name="enhanced_confirmation_phone_state_dialog_a11y_desc_prefix" msgid="5336417371950046729">"फ़ोन कॉल के दौरान, किसी ऐप्लिकेशन को सुलभता सेवा का ऐक्सेस देने की अनुमति नहीं है."</string>
+    <string name="enhanced_confirmation_phone_state_dialog_generic_desc_prefix" msgid="4453183594330342865">"फ़ोन कॉल के दौरान, इस सेटिंग को चालू करने की अनुमति नहीं है."</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"ऐप्लिकेशन को, <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> को ऐक्सेस करने की अनुमति नहीं मिली"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"इस ऐप्लिकेशन ने संवेदनशील जानकारी ऐक्सेस करने का अनुरोध किया है. इसे अनुमति देने पर, आपकी निजी और वित्तीय जानकारी की सुरक्षा को खतरा हो सकता है.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>हालांकि, हो सकता है कि पाबंदी वाली अनुमति न मिलने पर, ऐप्लिकेशन सही तरह से काम न करें. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;ऐक्सेस देने का तरीका जानें&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"ऐप्लिकेशन को डिफ़ॉल्ट <xliff:g id="ROLE_NAME">%1$s</xliff:g> के तौर पर सेट करने की अनुमति नहीं दी गई"</string>

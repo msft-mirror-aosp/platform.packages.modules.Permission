@@ -675,14 +675,10 @@
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"受限制的设置"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"出于安全考虑，此设置目前不可用。"</string>
     <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"通话期间无法执行此类操作"</string>
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8861786545031902839) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (2832355924914011814) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (5336417371950046729) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (4453183594330342865) -->
-    <skip />
+    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8861786545031902839">"<xliff:g id="SETTING_DESCRIPTION">%1$s</xliff:g>\n\n诈骗者经常会在通话过程中要求执行此类操作，所以系统阻止了此类操作来保障您的安全。如果您正在陌生人的指引下执行此类操作，要当心，这可能是骗局。"</string>
+    <string name="enhanced_confirmation_phone_state_dialog_install_desc_prefix" msgid="2832355924914011814">"在通话期间，不允许应用安装其他应用。"</string>
+    <string name="enhanced_confirmation_phone_state_dialog_a11y_desc_prefix" msgid="5336417371950046729">"在通话期间，不允许授予应用无障碍服务访问权限。"</string>
+    <string name="enhanced_confirmation_phone_state_dialog_generic_desc_prefix" msgid="4453183594330342865">"在通话期间，不允许启用此设置。"</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"系统已拒绝向此应用授予<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>访问权限"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"该应用请求获得敏感权限，授予这项权限可能会导致您的个人信息和财务信息面临风险。<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>如果不授予这项受限权限，该应用可能无法正常运行。&lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;了解如何授予访问权限&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"系统已拒绝向此应用授予作为默认<xliff:g id="ROLE_NAME">%1$s</xliff:g>的访问权限"</string>

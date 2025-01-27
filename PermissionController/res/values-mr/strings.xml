@@ -675,14 +675,10 @@
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"प्रतिबंधित सेटिंग"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"तुमच्या सुरक्षेसाठी, हे सेटिंग सध्या उपलब्ध नाही."</string>
     <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"फोन कॉलवर असताना कृती उपलब्ध नाही"</string>
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (8861786545031902839) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (2832355924914011814) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (5336417371950046729) -->
-    <skip />
-    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (4453183594330342865) -->
-    <skip />
+    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8861786545031902839">"<xliff:g id="SETTING_DESCRIPTION">%1$s</xliff:g>\n\n फोन कॉल संभाषणांदरम्यान घोटाळेबाज व्यक्ती या प्रकारच्या कृतीची विनंती करतात, यामुळे तुमचे संरक्षण करण्यासाठी ती ब्लॉक केली आहे. तुम्ही ओळखत नसलेल्या एखाद्या व्यक्तीद्वारे तुम्हाला ही कृती करण्यास सांगितले जात असल्यास, तो घोटाळा असू शकतो."</string>
+    <string name="enhanced_confirmation_phone_state_dialog_install_desc_prefix" msgid="2832355924914011814">"फोन कॉलदरम्यान ॲप्सना इतर ॲप्स इंस्टॉल करण्याची अनुमती नाही."</string>
+    <string name="enhanced_confirmation_phone_state_dialog_a11y_desc_prefix" msgid="5336417371950046729">"फोन कॉलदरम्यान अ‍ॅपला अ‍ॅक्सेसिबिलिटीचा अ‍ॅक्सेस देण्याची अनुमती नाही."</string>
+    <string name="enhanced_confirmation_phone_state_dialog_generic_desc_prefix" msgid="4453183594330342865">"फोन कॉलदरम्यान ही सेटिंग सुरू करण्याची अनुमती नाही."</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"अ‍ॅपचा <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> साठीचा अ‍ॅक्सेस नाकारला गेला आहे"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"ॲपने संवेदनशील परवानगीसाठी अ‍ॅक्सेसची विनंती केली आहे, ज्यामुळे तुमची वैयक्तिक आणि आर्थिक माहिती धोक्यात येऊ शकते.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>या प्रतिबंधित परवानगीशिवाय ॲप कदाचित योग्यरीत्या काम करणार नाही. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;अ‍ॅक्सेसला अनुमती कशी द्यावी हे जाणून घ्या&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"अ‍ॅपचा डीफॉल्ट <xliff:g id="ROLE_NAME">%1$s</xliff:g> असण्यासाठीचा अ‍ॅक्सेस नाकारला गेला आहे"</string>
