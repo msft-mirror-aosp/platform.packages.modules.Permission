@@ -37,6 +37,7 @@ import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.os.PersistableBundle
 import android.os.SystemClock
+import android.permission.cts.TestUtils
 import android.platform.test.rule.ScreenRecordRule
 import android.provider.DeviceConfig
 import android.provider.Settings
@@ -72,6 +73,7 @@ import org.junit.After
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 
@@ -157,6 +159,7 @@ abstract class BasePermissionTest {
 
     @Before
     fun setUp() {
+        assumeTrue(TestUtils.isCddCompliantScreenSize())
         runWithShellPermissionIdentity {
             screenTimeoutBeforeTest =
                 Settings.System.getLong(context.contentResolver, Settings.System.SCREEN_OFF_TIMEOUT)
@@ -191,6 +194,9 @@ abstract class BasePermissionTest {
 
     @After
     fun tearDown() {
+        if (!TestUtils.isCddCompliantScreenSize()) {
+            return;
+        }
         runWithShellPermissionIdentity {
             Settings.System.putLong(
                 context.contentResolver,
