@@ -22,7 +22,6 @@ import static android.app.AppOpsManager.OPSTR_FINE_LOCATION;
 import static android.app.AppOpsManager.OP_FLAGS_ALL_TRUSTED;
 import static android.content.Context.BIND_AUTO_CREATE;
 import static android.content.Context.BIND_NOT_FOREGROUND;
-import static android.location.Criteria.ACCURACY_FINE;
 import static android.os.Process.myUserHandle;
 import static android.provider.Settings.Secure.LOCATION_ACCESS_CHECK_DELAY_MILLIS;
 import static android.provider.Settings.Secure.LOCATION_ACCESS_CHECK_INTERVAL_MILLIS;
@@ -38,8 +37,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.AppOpsManager;
@@ -51,14 +48,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.Process;
 import android.permission.cts.appthataccesseslocation.IAccessLocationOnCommand;
 import android.platform.test.annotations.AppModeFull;
@@ -91,7 +83,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * Tests the {@code LocationAccessCheck} in permission controller.
@@ -143,13 +134,6 @@ public class LocationAccessCheckTest {
     private static final String LocationAccessCheckOnBootReceiver =
             "com.android.permissioncontroller.permission.service"
                     + ".LocationAccessCheck$SetupPeriodicBackgroundLocationAccessCheck";
-
-
-    /**
-     * The result of {@link #assumeCanGetFineLocation()}, so we don't have to run it over and over
-     * again.
-     */
-    private static Boolean sCanAccessFineLocation = null;
 
     private static ServiceConnection sConnection;
     private static IAccessLocationOnCommand sLocationAccessor;
@@ -411,6 +395,7 @@ public class LocationAccessCheckTest {
         assertTrue(output.contains("Success"));
         // Wait for user sensitive to be updated, which is checked by LocationAccessCheck.
         Thread.sleep(5000);
+        runShellCommand("cmd appops set " + TEST_APP_PKG + " android:mock_location allow");
     }
 
     public static void uninstallTestApp() {
@@ -479,7 +464,6 @@ public class LocationAccessCheckTest {
         wakeUpAndDismissKeyguard();
         bindService();
         resetPermissionControllerBeforeEachTest();
-        assumeCanGetFineLocation();
     }
 
     /**
@@ -499,46 +483,6 @@ public class LocationAccessCheckTest {
                 "cmd jobscheduler reset-execution-quota -u " + myUserHandle().getIdentifier() + " "
                         + PERMISSION_CONTROLLER_PKG);
         runShellCommand("cmd jobscheduler reset-schedule-quota");
-    }
-
-    /**
-     * Make sure fine location can be accessed at all.
-     */
-    public void assumeCanGetFineLocation() {
-        if (sCanAccessFineLocation == null) {
-            Criteria crit = new Criteria();
-            crit.setAccuracy(ACCURACY_FINE);
-
-            CountDownLatch locationCounter = new CountDownLatch(1);
-            sContext.getSystemService(LocationManager.class).requestSingleUpdate(crit,
-                    new LocationListener() {
-                        @Override
-                        public void onLocationChanged(Location location) {
-                            locationCounter.countDown();
-                        }
-
-                        @Override
-                        public void onStatusChanged(String provider, int status, Bundle extras) {
-                        }
-
-                        @Override
-                        public void onProviderEnabled(String provider) {
-                        }
-
-                        @Override
-                        public void onProviderDisabled(String provider) {
-                        }
-                    }, Looper.getMainLooper());
-
-
-            try {
-                sCanAccessFineLocation = locationCounter.await(LOCATION_ACCESS_TIMEOUT_MILLIS,
-                        MILLISECONDS);
-            } catch (InterruptedException ignored) {
-            }
-        }
-
-        assumeTrue(sCanAccessFineLocation);
     }
 
     /**
