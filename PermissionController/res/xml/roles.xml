@@ -725,6 +725,11 @@
             <permission name="android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED"
                 featureFlag="android.app.appfunctions.flags.Flags.enableAppFunctionManager" />
         </permissions>
+        <!-- App ops needed to allow background access to audio APIs for CTS -->
+        <app-ops>
+            <app-op name="android:control_audio" mode="allowed" minSdkVersion="36"/>
+            <app-op name="android:control_audio_partial" mode="allowed" minSdkVersion="36"/>
+        </app-ops>
     </role>
 
     <role
