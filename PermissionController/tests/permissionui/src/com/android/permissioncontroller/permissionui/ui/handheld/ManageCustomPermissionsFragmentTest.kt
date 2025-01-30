@@ -134,6 +134,8 @@ class ManageCustomPermissionsFragmentTest : BaseHandheldPermissionUiTest() {
     @RequiresFlagsEnabled(Flags.FLAG_REPLACE_BODY_SENSOR_PERMISSION_ENABLED)
     @Test
     fun testFindBodySensor_replaceBodySensorFlagEnabled_labelNotDisplayed() {
+        install(ONE_PERMISSION_DEFINER_APK)
+
         assertNull(waitFindObjectOrNull(By.textContains(BODY_SENSORS_LABEL)))
         waitFindObject(By.textContains(ADDITIONAL_PERMISSIONS_LABEL)).click()
         assertNull(waitFindObjectOrNull(By.textContains(BODY_SENSORS_LABEL)))
