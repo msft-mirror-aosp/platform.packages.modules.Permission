@@ -658,7 +658,7 @@
                 minSdkVersion="33" />
             <permission name="android.permission.MANAGE_SAFETY_CENTER"
                 minSdkVersion="33" />
-            <permission name="android.permission.ASSOCIATE_COMPANION_DEVICES" minSdkVersion="35" />
+            <permission name="android.permission.ASSOCIATE_COMPANION_DEVICES" minSdkVersion="36" />
             <permission name="android.permission.CREATE_VIRTUAL_DEVICE" minSdkVersion="33" />
             <permission name="android.permission.ADD_TRUSTED_DISPLAY" minSdkVersion="33" />
             <permission name="android.permission.ADD_ALWAYS_UNLOCKED_DISPLAY" minSdkVersion="33" />
@@ -1228,7 +1228,6 @@
       -->
     <role
         name="android.app.role.COMPANION_DEVICE_APP_STREAMING"
-        allowBypassingQualification="true"
         behavior="v33.CompanionDeviceAppStreamingRoleBehavior"
         description="@string/role_app_streaming_description"
         exclusive="false"
@@ -1304,7 +1303,7 @@
 
     <role
         name="android.app.role.COMPANION_DEVICE_NEARBY_DEVICE_STREAMING"
-        allowBypassingQualification="true"
+        behavior="v34.CompanionDeviceNearbyDeviceStreamingRoleBehavior"
         exclusive="false"
         exclusivity="none"
         minSdkVersion="34"
@@ -1933,7 +1932,6 @@
 
     <role
         name="android.app.role.COMPANION_DEVICE_SENSOR_DEVICE_STREAMING"
-        allowBypassingQualification="true"
         exclusive="false"
         exclusivity="none"
         featureFlag="android.companion.virtualdevice.flags.Flags.enableLimitedVdmRole"

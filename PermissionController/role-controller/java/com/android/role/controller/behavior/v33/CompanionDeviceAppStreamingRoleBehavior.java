@@ -20,10 +20,12 @@ import android.content.Context;
 import android.os.UserHandle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.role.controller.model.Role;
 import com.android.role.controller.model.RoleBehavior;
 import com.android.role.controller.util.NotificationUtils;
+import com.android.role.controller.util.RoleFlags;
 import com.android.role.controller.util.UserUtils;
 
 /**
@@ -45,5 +47,11 @@ public class CompanionDeviceAppStreamingRoleBehavior implements RoleBehavior {
         if (!UserUtils.isManagedProfile(user, context)) {
             NotificationUtils.revokeNotificationAccessForPackageAsUser(packageName, user, context);
         }
+    }
+
+    @Override
+    @Nullable
+    public Boolean shouldAllowBypassingQualification(@NonNull Role role, @NonNull Context context) {
+        return !RoleFlags.isAtLeastB();
     }
 }
