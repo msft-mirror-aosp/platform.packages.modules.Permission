@@ -1931,7 +1931,6 @@
             <permission name="android.permission.ACCESS_FINE_LOCATION" />
             <permission name="android.permission.READ_MEDIA_IMAGES" />
             <permission name="android.permission.READ_MEDIA_VIDEO" />
-            <permission name="android.permission.READ_GLOBAL_APP_SEARCH_DATA" />
         </permissions>
     </role>
 
