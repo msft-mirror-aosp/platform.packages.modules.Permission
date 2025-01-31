@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -60,13 +59,9 @@ fun AlertDialog(
     iconRes: WearPermissionIconBuilder? = null,
     scalingLazyListState: ScalingLazyListState,
 ) {
-    val focusManager = LocalFocusManager.current
     Dialog(
         showDialog = showDialog,
-        onDismissRequest = {
-            focusManager.clearFocus()
-            negativeButtonContent?.onClick?.invoke()
-        },
+        onDismissRequest = { negativeButtonContent?.onClick?.invoke() },
         scrollState = scalingLazyListState,
         modifier = modifier,
     ) {
