@@ -16,8 +16,6 @@
 
 package com.android.permissioncontroller.role.ui.wear
 
-import android.content.pm.ApplicationInfo
-import android.util.Pair
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +23,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.android.permissioncontroller.role.ui.RoleApplicationItem
 import com.android.permissioncontroller.role.ui.wear.model.ConfirmDialogArgs
 import com.android.permissioncontroller.wear.permission.components.ScrollableScreen
 import com.android.permissioncontroller.wear.permission.components.material3.DialogButtonContent
@@ -39,7 +38,7 @@ import com.android.permissioncontroller.wear.permission.components.theme.WearPer
 
 @Composable
 fun WearDefaultAppScreen(helper: WearDefaultAppHelper) {
-    val roleLiveData = helper.viewModel.roleLiveData.observeAsState(emptyList())
+    val roleLiveData = helper.viewModel.liveData.observeAsState(emptyList())
     val showConfirmDialog =
         helper.confirmDialogViewModel.showConfirmDialogLiveData.observeAsState(false)
     var isLoading by remember { mutableStateOf(true) }
@@ -60,11 +59,11 @@ fun WearDefaultAppScreen(helper: WearDefaultAppHelper) {
 @Composable
 private fun WearDefaultAppContent(
     isLoading: Boolean,
-    qualifyingApplications: List<Pair<ApplicationInfo, Boolean>>,
+    applicationItems: List<RoleApplicationItem>,
     helper: WearDefaultAppHelper,
 ) {
     ScrollableScreen(title = helper.getTitle(), isLoading = isLoading) {
-        helper.getNonePreference(qualifyingApplications)?.let {
+        helper.getNonePreference(applicationItems)?.let {
             item {
                 WearPermissionToggleControl(
                     label = it.title.toString(),
@@ -76,7 +75,7 @@ private fun WearDefaultAppContent(
                 )
             }
         }
-        for (pref in helper.getPreferences(qualifyingApplications)) {
+        for (pref in helper.getPreferences(applicationItems)) {
             item {
                 WearPermissionToggleControl(
                     label = pref.title.toString(),
