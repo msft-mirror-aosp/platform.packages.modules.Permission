@@ -29,11 +29,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.LiveData
 import androidx.wear.compose.material.Text
 import com.android.permissioncontroller.R
-import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButton
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionButtonStyle
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
 import com.android.permissioncontroller.role.ui.RoleItem
+import com.android.permissioncontroller.wear.permission.components.ScrollableScreen
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionButton
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionButtonStyle
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionIconBuilder
 
 @Composable
 fun WearDefaultAppListScreen(

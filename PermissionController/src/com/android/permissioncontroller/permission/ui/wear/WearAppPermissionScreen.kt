@@ -30,20 +30,20 @@ import com.android.permissioncontroller.permission.ui.model.AppPermissionViewMod
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonState
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType
 import com.android.permissioncontroller.permission.ui.v33.AdvancedConfirmDialogArgs
-import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.ListFooter
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.ToggleChip
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.toggleChipDisabledColors
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.DialogButtonContent
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionConfirmationDialog
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControlType
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.defaultAlertConfirmIcon
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.defaultAlertDismissIcon
 import com.android.permissioncontroller.permission.ui.wear.model.AppPermissionConfirmDialogViewModel
 import com.android.permissioncontroller.permission.ui.wear.model.ConfirmDialogArgs
-import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
-import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
+import com.android.permissioncontroller.wear.permission.components.ScrollableScreen
+import com.android.permissioncontroller.wear.permission.components.material2.ListFooter
+import com.android.permissioncontroller.wear.permission.components.material2.ToggleChip
+import com.android.permissioncontroller.wear.permission.components.material2.toggleChipDisabledColors
+import com.android.permissioncontroller.wear.permission.components.material3.DialogButtonContent
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionConfirmationDialog
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionIconBuilder
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionToggleControlType
+import com.android.permissioncontroller.wear.permission.components.material3.defaultAlertConfirmIcon
+import com.android.permissioncontroller.wear.permission.components.material3.defaultAlertDismissIcon
+import com.android.permissioncontroller.wear.permission.components.theme.ResourceHelper
+import com.android.permissioncontroller.wear.permission.components.theme.WearPermissionMaterialUIVersion
 import com.android.settingslib.RestrictedLockUtils
 
 @Composable

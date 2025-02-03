@@ -25,17 +25,17 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.DialogButtonContent
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionConfirmationDialog
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionListFooter
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControl
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControlStyle
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionToggleControlType
-import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
-import com.android.permissioncontroller.permission.ui.wear.theme.WearPermissionMaterialUIVersion
 import com.android.permissioncontroller.role.ui.wear.model.ConfirmDialogArgs
+import com.android.permissioncontroller.wear.permission.components.ScrollableScreen
+import com.android.permissioncontroller.wear.permission.components.material3.DialogButtonContent
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionConfirmationDialog
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionIconBuilder
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionListFooter
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionToggleControl
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionToggleControlStyle
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionToggleControlType
+import com.android.permissioncontroller.wear.permission.components.theme.ResourceHelper
+import com.android.permissioncontroller.wear.permission.components.theme.WearPermissionMaterialUIVersion
 
 @Composable
 fun WearDefaultAppScreen(helper: WearDefaultAppHelper) {

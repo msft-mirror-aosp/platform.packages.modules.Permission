@@ -39,20 +39,20 @@ import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.SwipeToDismissBox
 import com.android.permissioncontroller.R
-import com.android.permissioncontroller.permission.ui.wear.elements.CheckYourPhoneScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.CheckYourPhoneState
-import com.android.permissioncontroller.permission.ui.wear.elements.CheckYourPhoneState.InProgress
-import com.android.permissioncontroller.permission.ui.wear.elements.CheckYourPhoneState.Success
-import com.android.permissioncontroller.permission.ui.wear.elements.ScrollableScreen
-import com.android.permissioncontroller.permission.ui.wear.elements.dismiss
-import com.android.permissioncontroller.permission.ui.wear.elements.findActivity
-import com.android.permissioncontroller.permission.ui.wear.elements.material2.Chip
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.DialogButtonContent
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionConfirmationDialog
-import com.android.permissioncontroller.permission.ui.wear.elements.material3.WearPermissionIconBuilder
 import com.android.permissioncontroller.permission.ui.wear.model.WearEnhancedConfirmationViewModel
 import com.android.permissioncontroller.permission.ui.wear.model.WearEnhancedConfirmationViewModel.ScreenState
-import com.android.permissioncontroller.permission.ui.wear.theme.ResourceHelper
+import com.android.permissioncontroller.wear.permission.components.CheckYourPhoneScreen
+import com.android.permissioncontroller.wear.permission.components.CheckYourPhoneState
+import com.android.permissioncontroller.wear.permission.components.CheckYourPhoneState.InProgress
+import com.android.permissioncontroller.wear.permission.components.CheckYourPhoneState.Success
+import com.android.permissioncontroller.wear.permission.components.ScrollableScreen
+import com.android.permissioncontroller.wear.permission.components.dismiss
+import com.android.permissioncontroller.wear.permission.components.findActivity
+import com.android.permissioncontroller.wear.permission.components.material2.Chip
+import com.android.permissioncontroller.wear.permission.components.material3.DialogButtonContent
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionConfirmationDialog
+import com.android.permissioncontroller.wear.permission.components.material3.WearPermissionIconBuilder
+import com.android.permissioncontroller.wear.permission.components.theme.ResourceHelper
 
 @Composable
 fun WearEnhancedConfirmationScreen(
