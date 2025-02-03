@@ -1129,9 +1129,16 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             }
         }
     }
+    protected fun navigateToIndividualPermissionSetting(
+        permission: String,
+        manuallyNavigate: Boolean = false,
+    ) {
+        navigateToIndividualPermissionSetting(permission, APP_PACKAGE_NAME, manuallyNavigate)
+    }
 
     protected fun navigateToIndividualPermissionSetting(
         permission: String,
+        packageName: String,
         manuallyNavigate: Boolean = false,
     ) {
         val useLegacyNavigation = isWatch || isAutomotive || manuallyNavigate
@@ -1150,7 +1157,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             runWithShellPermissionIdentity {
                 context.startActivity(
                     Intent(Intent.ACTION_MANAGE_APP_PERMISSION).apply {
-                        putExtra(Intent.EXTRA_PACKAGE_NAME, APP_PACKAGE_NAME)
+                        putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                         putExtra(Intent.EXTRA_PERMISSION_NAME, permission)
                         putExtra(Intent.EXTRA_USER, Process.myUserHandle())
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
