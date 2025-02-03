@@ -202,6 +202,10 @@
     <string name="app_permission_header_with_device_name" msgid="7193042925656173271">"<xliff:g id="DEVICE_NAME">%2$s</xliff:g> എന്നതിലെ ഈ ആപ്പിനുള്ള <xliff:g id="PERM">%1$s</xliff:g> ആക്സസ്"</string>
     <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"എല്ലാ <xliff:g id="APP">%1$s</xliff:g> അനുമതികളും കാണുക"</string>
     <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"ഈ അനുമതിയുള്ള എല്ലാ ആപ്പുകളും കാണുക"</string>
+    <!-- no translation found for app_permission_info_button (8973692370208562556) -->
+    <skip />
+    <!-- no translation found for app_permission_settings_button (4582916817451973752) -->
+    <skip />
     <string name="assistant_mic_label" msgid="1011432357152323896">"സഹായ മൈക്രോഫോൺ ഉപയോഗം കാണിക്കുക"</string>
     <string name="unused_apps_category_title" msgid="2988455616845243901">"ഉപയോഗിക്കാത്ത ആപ്പ് ക്രമീകരണം"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"ഉപയോഗിക്കാത്ത ആപ്പാണെങ്കിൽ അനുമതികൾ നീക്കം ചെയ്യുക"</string>
