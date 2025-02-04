@@ -112,7 +112,9 @@ class AppOpRepositoryImpl(
 
                 fun sendUpdate() {
                     if (job == null || job?.isActive == false) {
-                        job = coroutineScope.launch { trySend(getDiscreteOps(opNames)) }
+                        job = coroutineScope.launch(dispatcher) {
+                            trySend(getDiscreteOps(opNames))
+                        }
                     }
                 }
 
