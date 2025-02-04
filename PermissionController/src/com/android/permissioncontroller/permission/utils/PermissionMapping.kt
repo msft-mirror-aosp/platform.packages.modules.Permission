@@ -27,6 +27,7 @@ import android.util.Log
 import com.android.modules.utils.build.SdkLevel
 import com.android.permission.safetylabel.DataCategoryConstants
 import com.android.permissioncontroller.permission.model.livedatatypes.LightAppPermGroup
+import com.android.permissioncontroller.permission.utils.v31.AdminRestrictedPermissionsUtils
 
 /**
  * This file contains the canonical mapping of permission to permission group, used in the
@@ -332,6 +333,9 @@ object PermissionMapping {
             PLATFORM_PERMISSIONS[permission] = HEALTH_PERMISSION_GROUP
             PLATFORM_PERMISSION_GROUPS[HEALTH_PERMISSION_GROUP]?.add(permission)
             HEALTH_PERMISSIONS_SET.add(permission)
+            if (Flags.replaceBodySensorPermissionEnabled()) {
+                AdminRestrictedPermissionsUtils.addAdminRestrictedPermission(permission)
+            }
         }
     }
 
