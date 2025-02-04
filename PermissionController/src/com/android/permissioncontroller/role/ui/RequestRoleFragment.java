@@ -30,7 +30,6 @@ import android.os.Process;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -236,7 +235,7 @@ public class RequestRoleFragment extends DialogFragment {
         ViewModelProvider.Factory viewModelFactory = new RequestRoleViewModel.Factory(mRole,
                 requireActivity().getApplication());
         mViewModel = new ViewModelProvider(this, viewModelFactory).get(RequestRoleViewModel.class);
-        mViewModel.getRoleLiveData().observe(this, this::onRoleDataChanged);
+        mViewModel.getLiveData().observe(this, this::onApplicationListChanged);
         mViewModel.getManageRoleHolderStateLiveData().observe(this,
                 this::onManageRoleHolderStateChanged);
     }
@@ -272,9 +271,9 @@ public class RequestRoleFragment extends DialogFragment {
         setDeniedOnceAndFinish();
     }
 
-    private void onRoleDataChanged(
-            @NonNull List<Pair<ApplicationInfo, Boolean>> qualifyingApplications) {
-        mAdapter.replace(qualifyingApplications);
+    private void onApplicationListChanged(
+            @NonNull List<RoleApplicationItem> applicationItems) {
+        mAdapter.replace(applicationItems);
         updateUi();
     }
 
@@ -364,8 +363,8 @@ public class RequestRoleFragment extends DialogFragment {
         boolean dontAskAgain = mDontAskAgainCheck != null && mDontAskAgainCheck.isChecked();
         mAdapter.setDontAskAgain(dontAskAgain);
         AlertDialog dialog = getDialog();
-        boolean hasRoleData = mViewModel.getRoleLiveData().getValue() != null;
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled && hasRoleData
+        boolean hasApplicationList = mViewModel.getLiveData().getValue() != null;
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled && hasApplicationList
                 && (dontAskAgain || !mAdapter.isHolderApplicationChecked()));
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(enabled);
     }
@@ -420,12 +419,12 @@ public class RequestRoleFragment extends DialogFragment {
         }
         int count = mAdapter.getCount();
         for (int i = 0; i < count; i++) {
-            Pair<ApplicationInfo, Boolean> qualifyingApplication = mAdapter.getItem(i);
-            if (qualifyingApplication == null) {
+            RoleApplicationItem applicationItem = mAdapter.getItem(i);
+            if (applicationItem == null) {
                 // Skip the "None" item.
                 continue;
             }
-            ApplicationInfo applicationInfo = qualifyingApplication.first;
+            ApplicationInfo applicationInfo = applicationItem.getApplicationInfo();
             if (Objects.equals(UserPackage.from(applicationInfo), userPackage)) {
                 return applicationInfo.uid;
             }
@@ -493,8 +492,7 @@ public class RequestRoleFragment extends DialogFragment {
 
         // We'll use a null to represent the "None" item.
         @NonNull
-        private final List<Pair<ApplicationInfo, Boolean>> mQualifyingApplications =
-                new ArrayList<>();
+        private final List<RoleApplicationItem> mApplicationItems = new ArrayList<>();
 
         @Nullable
         private UserPackage mHolderUserPackage;
@@ -546,12 +544,12 @@ public class RequestRoleFragment extends DialogFragment {
         }
 
         public void onItemClicked(int position) {
-            Pair<ApplicationInfo, Boolean> qualifyingApplication = getItem(position);
-            if (qualifyingApplication == null) {
+            RoleApplicationItem applicationItem = getItem(position);
+            if (applicationItem == null) {
                 mUserChecked = true;
                 mCheckedUserPackage = null;
             } else {
-                ApplicationInfo applicationInfo = qualifyingApplication.first;
+                ApplicationInfo applicationInfo = applicationItem.getApplicationInfo();
                 UserHandle user = UserHandle.getUserHandleForUid(applicationInfo.uid);
                 Intent restrictionIntent = mRole.getApplicationRestrictionIntentAsUser(
                         applicationInfo, user, mListView.getContext());
@@ -566,24 +564,24 @@ public class RequestRoleFragment extends DialogFragment {
             notifyDataSetChanged();
         }
 
-        public void replace(@NonNull List<Pair<ApplicationInfo, Boolean>> qualifyingApplications) {
-            mQualifyingApplications.clear();
+        public void replace(@NonNull List<RoleApplicationItem> applicationItems) {
+            mApplicationItems.clear();
             if (mRole.shouldShowNone()) {
-                mQualifyingApplications.add(0, null);
+                mApplicationItems.add(0, null);
             }
-            mQualifyingApplications.addAll(qualifyingApplications);
-            mHolderUserPackage = getHolderUserPackage(qualifyingApplications);
+            mApplicationItems.addAll(applicationItems);
+            mHolderUserPackage = getHolderUserPackage(applicationItems);
 
             if (mUserChecked && mCheckedUserPackage != null) {
                 boolean isCheckedPackageNameFound = false;
                 int count = getCount();
                 for (int i = 0; i < count; i++) {
-                    Pair<ApplicationInfo, Boolean> qualifyingApplication = getItem(i);
-                    if (qualifyingApplication == null) {
+                    RoleApplicationItem applicationItem = getItem(i);
+                    if (applicationItem == null) {
                         continue;
                     }
-                    ApplicationInfo applicationInfo = qualifyingApplication.first;
-                    UserPackage userPackage = UserPackage.from(applicationInfo);
+                    UserPackage userPackage =
+                            UserPackage.from(applicationItem.getApplicationInfo());
 
                     if (Objects.equals(userPackage, mCheckedUserPackage)) {
                         mUserChecked = true;
@@ -606,19 +604,15 @@ public class RequestRoleFragment extends DialogFragment {
 
         @Nullable
         private static UserPackage getHolderUserPackage(
-                @NonNull List<Pair<ApplicationInfo, Boolean>> qualifyingApplications) {
-            int qualifyingApplicationSize = qualifyingApplications.size();
-            for (int i = 0; i < qualifyingApplicationSize; i++) {
-                Pair<ApplicationInfo, Boolean> qualifyingApplication = qualifyingApplications.get(
-                        i);
-                if (qualifyingApplication == null) {
+                @NonNull List<RoleApplicationItem> applicationItems) {
+            int applicationItemSize = applicationItems.size();
+            for (int i = 0; i < applicationItemSize; i++) {
+                RoleApplicationItem applicationItem = applicationItems.get(i);
+                if (applicationItem == null) {
                     continue;
                 }
-                ApplicationInfo applicationInfo = qualifyingApplication.first;
-                boolean isHolderApplication = qualifyingApplication.second;
-
-                if (isHolderApplication) {
-                    return UserPackage.from(applicationInfo);
+                if (applicationItem.isHolderApplication()) {
+                    return UserPackage.from(applicationItem.getApplicationInfo());
                 }
             }
             return null;
@@ -645,13 +639,13 @@ public class RequestRoleFragment extends DialogFragment {
 
         @Override
         public int getCount() {
-            return mQualifyingApplications.size();
+            return mApplicationItems.size();
         }
 
         @Nullable
         @Override
-        public Pair<ApplicationInfo, Boolean> getItem(int position) {
-            return mQualifyingApplications.get(position);
+        public RoleApplicationItem getItem(int position) {
+            return mApplicationItems.get(position);
         }
 
         @Override
@@ -660,9 +654,9 @@ public class RequestRoleFragment extends DialogFragment {
                 // Work around AbsListView.confirmCheckedPositionsById() not respecting our count.
                 return ListView.INVALID_ROW_ID;
             }
-            Pair<ApplicationInfo, Boolean> qualifyingApplication = getItem(position);
-            return qualifyingApplication == null ? 0
-                    : qualifyingApplication.first.packageName.hashCode();
+            RoleApplicationItem applicationItem = getItem(position);
+            return applicationItem == null ? 0
+                    : applicationItem.getApplicationInfo().packageName.hashCode();
         }
 
         @Override
@@ -670,12 +664,11 @@ public class RequestRoleFragment extends DialogFragment {
             if (!mDontAskAgain) {
                 return true;
             }
-            Pair<ApplicationInfo, Boolean> qualifyingApplication = getItem(position);
-            if (qualifyingApplication == null) {
+            RoleApplicationItem applicationItem = getItem(position);
+            if (applicationItem == null) {
                 return mHolderUserPackage == null;
             } else {
-                boolean isHolderApplication = qualifyingApplication.second;
-                return isHolderApplication;
+                return applicationItem.isHolderApplication();
             }
         }
 
@@ -697,14 +690,14 @@ public class RequestRoleFragment extends DialogFragment {
                         LAYOUT_TRANSITION_DURATION_MILLIS);
             }
 
-            Pair<ApplicationInfo, Boolean> qualifyingApplication = getItem(position);
+            RoleApplicationItem applicationItem = getItem(position);
             ApplicationInfo applicationInfo;
             boolean restricted;
             boolean checked;
             Drawable icon;
             String title;
             String subtitle;
-            if (qualifyingApplication == null) {
+            if (applicationItem == null) {
                 applicationInfo = null;
                 restricted = false;
                 checked = mCheckedUserPackage == null;
@@ -713,15 +706,14 @@ public class RequestRoleFragment extends DialogFragment {
                 subtitle = mHolderUserPackage == null ? context.getString(
                         R.string.request_role_current_default) : null;
             } else {
-                applicationInfo = qualifyingApplication.first;
+                applicationInfo = applicationItem.getApplicationInfo();
                 UserPackage userPackage = UserPackage.from(applicationInfo);
                 restricted = mRole.getApplicationRestrictionIntentAsUser(applicationInfo,
                         userPackage.user, context) != null;
                 checked = Objects.equals(userPackage, mCheckedUserPackage);
                 icon = Utils.getBadgedIcon(context, applicationInfo);
                 title = Utils.getAppLabel(applicationInfo, context);
-                boolean isHolderApplication = qualifyingApplication.second;
-                subtitle = isHolderApplication
+                subtitle = applicationItem.isHolderApplication()
                         ? context.getString(R.string.request_role_current_default)
                         : checked ? context.getString(mRole.getRequestDescriptionResource()) : null;
             }

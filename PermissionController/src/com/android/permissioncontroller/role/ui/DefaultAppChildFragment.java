@@ -25,7 +25,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.util.ArrayMap;
-import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,6 +33,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
@@ -125,13 +125,17 @@ public class DefaultAppChildFragment<PF extends PreferenceFragmentCompat
         ViewModelProvider.Factory viewModelFactory = new DefaultAppViewModel.Factory(mRole, mUser,
                 activity.getApplication());
         mViewModel = new ViewModelProvider(this, viewModelFactory).get(DefaultAppViewModel.class);
-        mViewModel.getRoleLiveData().observe(this, this::onRoleChanged);
+        mViewModel.getLiveData().observe(this, applicationItems -> onApplicationListChanged());
         mViewModel.getManageRoleHolderStateLiveData().observe(this,
                 this::onManageRoleHolderStateChanged);
     }
 
-    private void onRoleChanged(
-            @NonNull List<Pair<ApplicationInfo, Boolean>> qualifyingApplications) {
+    private void onApplicationListChanged() {
+        List<RoleApplicationItem> applicationItems = mViewModel.getLiveData().getValue();
+        if (applicationItems == null) {
+            return;
+        }
+
         PF preferenceFragment = requirePreferenceFragment();
         PreferenceManager preferenceManager = preferenceFragment.getPreferenceManager();
         Context context = preferenceManager.getContext();
@@ -142,37 +146,12 @@ public class DefaultAppChildFragment<PF extends PreferenceFragmentCompat
             preferenceScreen = preferenceManager.createPreferenceScreen(context);
             preferenceFragment.setPreferenceScreen(preferenceScreen);
         } else {
-            for (int i = preferenceScreen.getPreferenceCount() - 1; i >= 0; --i) {
-                Preference preference = preferenceScreen.getPreference(i);
-
-                preferenceScreen.removePreference(preference);
-                preference.setOrder(Preference.DEFAULT_ORDER);
-                oldPreferences.put(preference.getKey(), preference);
-            }
+            clearPreferences(preferenceScreen, oldPreferences);
         }
 
-        if (mRole.shouldShowNone()) {
-            Drawable icon = AppCompatResources.getDrawable(context, R.drawable.ic_remove_circle);
-            String title = getString(R.string.default_app_none);
-            boolean noHolderApplication = !hasHolderApplication(qualifyingApplications);
-            addPreference(PREFERENCE_KEY_NONE, icon, title, noHolderApplication, null,
-                    oldPreferences, preferenceScreen, context);
-        }
-
-        int qualifyingApplicationsSize = qualifyingApplications.size();
-        for (int i = 0; i < qualifyingApplicationsSize; i++) {
-            Pair<ApplicationInfo, Boolean> qualifyingApplication = qualifyingApplications.get(i);
-            ApplicationInfo qualifyingApplicationInfo = qualifyingApplication.first;
-            boolean isHolderApplication = qualifyingApplication.second;
-
-            int userId =
-                    UserHandle.getUserHandleForUid(qualifyingApplicationInfo.uid).getIdentifier();
-            String key = qualifyingApplicationInfo.packageName + "@" + userId;
-            Drawable icon = Utils.getBadgedIcon(context, qualifyingApplicationInfo);
-            String title = Utils.getFullAppLabel(qualifyingApplicationInfo, context);
-            addPreference(key, icon, title, isHolderApplication, qualifyingApplicationInfo,
-                    oldPreferences, preferenceScreen, context);
-        }
+        boolean noneChecked = !hasHolderApplication(applicationItems);
+        addNonePreferenceIfNeeded(preferenceScreen, noneChecked, oldPreferences, context);
+        addApplicationPreferences(preferenceScreen, applicationItems, oldPreferences, context);
 
         addNonPaymentNfcServicesPreference(preferenceScreen, oldPreferences, context);
         addDescriptionPreference(preferenceScreen, oldPreferences);
@@ -180,24 +159,64 @@ public class DefaultAppChildFragment<PF extends PreferenceFragmentCompat
         preferenceFragment.onPreferenceScreenChanged();
     }
 
-    private static boolean hasHolderApplication(
-            @NonNull List<Pair<ApplicationInfo, Boolean>> qualifyingApplications) {
-        int qualifyingApplicationsSize = qualifyingApplications.size();
-        for (int i = 0; i < qualifyingApplicationsSize; i++) {
-            Pair<ApplicationInfo, Boolean> qualifyingApplication = qualifyingApplications.get(i);
-            boolean isHolderApplication = qualifyingApplication.second;
+    private static void clearPreferences(@NonNull PreferenceGroup preferenceGroup,
+            @NonNull ArrayMap<String, Preference> oldPreferences) {
+        for (int i = preferenceGroup.getPreferenceCount() - 1; i >= 0; --i) {
+            Preference preference = preferenceGroup.getPreference(i);
 
-            if (isHolderApplication) {
+            preferenceGroup.removePreference(preference);
+            preference.setOrder(Preference.DEFAULT_ORDER);
+            oldPreferences.put(preference.getKey(), preference);
+        }
+    }
+
+    private static boolean hasHolderApplication(
+            @NonNull List<RoleApplicationItem> applicationItems) {
+        int applicationItemsSize = applicationItems.size();
+        for (int i = 0; i < applicationItemsSize; i++) {
+            RoleApplicationItem applicationItem = applicationItems.get(i);
+            if (applicationItem.isHolderApplication()) {
                 return true;
             }
         }
         return false;
     }
 
-    private void addPreference(@NonNull String key, @NonNull Drawable icon,
-            @NonNull CharSequence title, boolean checked, @Nullable ApplicationInfo applicationInfo,
-            @NonNull ArrayMap<String, Preference> oldPreferences,
-            @NonNull PreferenceScreen preferenceScreen, @NonNull Context context) {
+    private void addNonePreferenceIfNeeded(@NonNull PreferenceGroup preferenceGroup,
+            boolean checked, @NonNull ArrayMap<String, Preference> oldPreferences,
+            @NonNull Context context) {
+        if (!mRole.shouldShowNone()) {
+            return;
+        }
+
+        Drawable icon = AppCompatResources.getDrawable(context, R.drawable.ic_remove_circle);
+        String title = getString(R.string.default_app_none);
+        addApplicationPreference(preferenceGroup, PREFERENCE_KEY_NONE, icon, title, checked, null,
+                oldPreferences, context);
+    }
+
+    private void addApplicationPreferences(@NonNull PreferenceGroup preferenceGroup,
+            @NonNull List<RoleApplicationItem> applicationItems,
+            @NonNull ArrayMap<String, Preference> oldPreferences, @NonNull Context context) {
+        int applicationItemsSize = applicationItems.size();
+        for (int i = 0; i < applicationItemsSize; i++) {
+            RoleApplicationItem applicationItem = applicationItems.get(i);
+            ApplicationInfo applicationInfo = applicationItem.getApplicationInfo();
+            int userId = UserHandle.getUserHandleForUid(applicationInfo.uid).getIdentifier();
+            String key = applicationInfo.packageName + "@" + userId;
+            Drawable icon = Utils.getBadgedIcon(context, applicationInfo);
+            String title = Utils.getFullAppLabel(applicationInfo, context);
+            boolean isHolderApplication = applicationItem.isHolderApplication();
+
+            addApplicationPreference(preferenceGroup, key, icon, title, isHolderApplication,
+                    applicationInfo, oldPreferences, context);
+        }
+    }
+
+    private void addApplicationPreference(@NonNull PreferenceGroup preferenceGroup,
+            @NonNull String key, @NonNull Drawable icon, @NonNull CharSequence title,
+            boolean checked, @Nullable ApplicationInfo applicationInfo,
+            @NonNull ArrayMap<String, Preference> oldPreferences, @NonNull Context context) {
         RoleApplicationPreference roleApplicationPreference =
                 (RoleApplicationPreference) oldPreferences.get(key);
         TwoStatePreference preference;
@@ -233,7 +252,7 @@ public class DefaultAppChildFragment<PF extends PreferenceFragmentCompat
                     applicationInfo, user, context);
         }
 
-        preferenceScreen.addPreference(preference);
+        preferenceGroup.addPreference(preference);
     }
 
     private void onManageRoleHolderStateChanged(int state) {

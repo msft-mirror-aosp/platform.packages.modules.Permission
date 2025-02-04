@@ -231,11 +231,11 @@ class WearRequestRoleFragment : Fragment() {
         if (userPackage == null) {
             return -1
         }
-        viewModel.roleLiveData.value?.let { qualifyingApplications ->
-            for (qualifyingApplication in qualifyingApplications) {
-                val qualifyingApplicationInfo = qualifyingApplication.first
-                val qualifyingAppUserPackage = UserPackage.from(qualifyingApplicationInfo)
-                if (Objects.equals(qualifyingAppUserPackage, userPackage)) {
+        viewModel.liveData.value?.let { applicationItems ->
+            for (applicationItem in applicationItems) {
+                val qualifyingApplicationInfo = applicationItem.applicationInfo
+                val qualifyingUserPackage = UserPackage.from(qualifyingApplicationInfo)
+                if (Objects.equals(qualifyingUserPackage, userPackage)) {
                     return qualifyingApplicationInfo.uid
                 }
             }
@@ -244,12 +244,10 @@ class WearRequestRoleFragment : Fragment() {
     }
 
     private fun getHolderUserPackage(): UserPackage? {
-        viewModel.roleLiveData.value?.let { qualifyingApplications ->
+        viewModel.liveData.value?.let { qualifyingApplications ->
             for (qualifyingApplication in qualifyingApplications) {
-                val isHolderApplication = qualifyingApplication.second
-                if (isHolderApplication) {
-                    val applicationInfo = qualifyingApplication.first
-                    return UserPackage.from(applicationInfo)
+                if (qualifyingApplication.isHolderApplication) {
+                    return UserPackage.from(qualifyingApplication.applicationInfo)
                 }
             }
         }
@@ -257,7 +255,7 @@ class WearRequestRoleFragment : Fragment() {
     }
 
     private fun getQualifyingApplicationCount(): Int {
-        return viewModel.roleLiveData.value?.size ?: -1
+        return viewModel.liveData.value?.size ?: -1
     }
 
     private fun setDeniedAlwaysAndFinish() {

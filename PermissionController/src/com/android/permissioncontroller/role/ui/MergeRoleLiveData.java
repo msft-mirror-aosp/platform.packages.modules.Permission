@@ -16,9 +16,6 @@
 
 package com.android.permissioncontroller.role.ui;
 
-import android.content.pm.ApplicationInfo;
-import android.util.Pair;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MediatorLiveData;
 
@@ -28,7 +25,7 @@ import java.util.List;
 /**
  * {@link MediatorLiveData} that merges multiple {@link RoleLiveData} instances.
  */
-public class MergeRoleLiveData extends MediatorLiveData<List<Pair<ApplicationInfo, Boolean>>> {
+public class MergeRoleLiveData extends MediatorLiveData<List<RoleApplicationItem>> {
 
     @NonNull
     private final RoleLiveData[] mLiveDatas;
@@ -40,23 +37,23 @@ public class MergeRoleLiveData extends MediatorLiveData<List<Pair<ApplicationInf
         for (int i = 0; i < liveDatasLength; i++) {
             RoleLiveData liveData = mLiveDatas[i];
 
-            addSource(liveData, roleItems -> onRoleChanged());
+            addSource(liveData, items -> onRoleChanged());
         }
     }
 
     private void onRoleChanged() {
-        List<Pair<ApplicationInfo, Boolean>> mergedQualifyingApplications = new ArrayList<>();
+        List<RoleApplicationItem> mergedItems = new ArrayList<>();
         int liveDatasLength = mLiveDatas.length;
         for (int i = 0; i < liveDatasLength; i++) {
             RoleLiveData liveData = mLiveDatas[i];
 
-            List<Pair<ApplicationInfo, Boolean>> qualifyingApplications = liveData.getValue();
-            if (qualifyingApplications == null) {
+            List<RoleApplicationItem> items = liveData.getValue();
+            if (items == null) {
                 return;
             }
-            mergedQualifyingApplications.addAll(qualifyingApplications);
+            mergedItems.addAll(items);
         }
 
-        setValue(mergedQualifyingApplications);
+        setValue(mergedItems);
     }
 }

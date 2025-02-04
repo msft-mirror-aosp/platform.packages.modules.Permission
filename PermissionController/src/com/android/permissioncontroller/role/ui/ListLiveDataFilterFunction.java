@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.permissioncontroller.role.ui;
 
 import androidx.annotation.NonNull;
@@ -25,29 +26,32 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * A function for {@link androidx.lifecycle#map(androidx.lifecycle.LiveData, Function1)}
- * that filters a live data for role list.
+ * A function for
+ * {@link androidx.lifecycle.Transformations#map(androidx.lifecycle.LiveData, Function1)}
+ * that filters a live data for a list.
+ *
+ * @param <T> the type of the list elements
  */
-public class RoleListFilterFunction implements Function1<List<RoleItem>, List<RoleItem>> {
-    private final Predicate<RoleItem> mPredicate;
+public class ListLiveDataFilterFunction<T> implements Function1<List<T>, List<T>> {
+    private final Predicate<T> mPredicate;
 
-    public RoleListFilterFunction(@NonNull Predicate<RoleItem> predicate) {
+    public ListLiveDataFilterFunction(@NonNull Predicate<T> predicate) {
         mPredicate = predicate;
     }
 
     @NonNull
     @Override
-    public List<RoleItem> invoke(@Nullable List<RoleItem> roleItems) {
-        List<RoleItem> filteredRoleItems = new ArrayList<>();
-        if (roleItems != null) {
-            int roleItemsSize = roleItems.size();
-            for (int i = 0; i < roleItemsSize; i++) {
-                RoleItem roleItem = roleItems.get(i);
-                if (mPredicate.test(roleItem)) {
-                    filteredRoleItems.add(roleItem);
+    public List<T> invoke(@Nullable List<T> items) {
+        List<T> filteredItems = new ArrayList<>();
+        if (items != null) {
+            int itemsSize = items.size();
+            for (int i = 0; i < itemsSize; i++) {
+                T item = items.get(i);
+                if (mPredicate.test(item)) {
+                    filteredItems.add(item);
                 }
             }
         }
-        return filteredRoleItems;
+        return filteredItems;
     }
 }

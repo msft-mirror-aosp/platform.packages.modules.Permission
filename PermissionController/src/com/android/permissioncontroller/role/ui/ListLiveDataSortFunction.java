@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,34 @@
 
 package com.android.permissioncontroller.role.ui;
 
-import android.content.Context;
-import android.icu.text.Collator;
-
 import androidx.annotation.NonNull;
 
 import kotlin.jvm.functions.Function1;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * A function for
  * {@link androidx.lifecycle.Transformations#map(androidx.lifecycle.LiveData, Function1)}
- * that sorts a live data for role list.
+ * that sorts a live data for a list.
+ *
+ * @param <T> the type of the list elements
  */
-public class RoleListSortFunction extends ListLiveDataSortFunction<RoleItem> {
+public class ListLiveDataSortFunction<T> implements Function1<List<T>, List<T>> {
 
-    public RoleListSortFunction(@NonNull Context context) {
-        super(createComparator(context));
+    @NonNull
+    private final Comparator<T> mComparator;
+
+    public ListLiveDataSortFunction(@NonNull Comparator<T> comparator) {
+        mComparator = comparator;
     }
 
-    private static Comparator<RoleItem> createComparator(@NonNull Context context) {
-        Collator collator = Collator.getInstance(context.getResources().getConfiguration()
-                .getLocales().get(0));
-        return Comparator.comparing(item -> context.getString(
-                item.getRole().getShortLabelResource()), collator);
+    @Override
+    public List<T> invoke(List<T> items) {
+        List<T> sortedItems = new ArrayList<>(items);
+        sortedItems.sort(mComparator);
+        return sortedItems;
     }
 }

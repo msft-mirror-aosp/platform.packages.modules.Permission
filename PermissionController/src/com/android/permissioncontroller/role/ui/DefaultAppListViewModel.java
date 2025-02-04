@@ -78,11 +78,11 @@ public class DefaultAppListViewModel extends AndroidViewModel {
                 mLiveData = Transformations.map(
                         new MergeRoleListLiveData(liveData,
                                 Transformations.map(workLiveData,
-                                        new RoleListFilterFunction(exclusivityPredicate))),
+                                        new ListLiveDataFilterFunction<>(exclusivityPredicate))),
                         sortFunction);
                 mWorkLiveData = Transformations.map(
                         Transformations.map(workLiveData,
-                                new RoleListFilterFunction(exclusivityPredicate.negate())),
+                                new ListLiveDataFilterFunction<>(exclusivityPredicate.negate())),
                         sortFunction);
             } else if (Flags.crossUserRoleUxBugfixEnabled() && isWorkProfile) {
                 // Show profile group exclusive roles from the profile parent (full user) in primary
@@ -92,7 +92,7 @@ public class DefaultAppListViewModel extends AndroidViewModel {
                 mLiveData = Transformations.map(
                         new MergeRoleListLiveData(liveData,
                                 Transformations.map(profileParentLiveData,
-                                        new RoleListFilterFunction(exclusivityPredicate))),
+                                        new ListLiveDataFilterFunction<>(exclusivityPredicate))),
                         sortFunction);
                 mWorkLiveData = null;
             } else {
