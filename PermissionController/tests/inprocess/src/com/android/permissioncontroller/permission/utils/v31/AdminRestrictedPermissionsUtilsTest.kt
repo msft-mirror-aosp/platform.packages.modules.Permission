@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.permissioncontroller.permission.util.v31
+package com.android.permissioncontroller.permission.utils.v31
 
 import android.app.admin.DevicePolicyManager
 import android.content.Context
@@ -28,7 +28,6 @@ import android.platform.test.flag.junit.DeviceFlagsValueProvider
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
-import com.android.permissioncontroller.permission.utils.v31.AdminRestrictedPermissionsUtils
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

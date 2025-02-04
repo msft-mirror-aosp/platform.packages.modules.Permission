@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.permissioncontroller.permission.util
+package com.android.permissioncontroller.permission.utils
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.android.permissioncontroller.permission.utils.ArrayUtils
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
