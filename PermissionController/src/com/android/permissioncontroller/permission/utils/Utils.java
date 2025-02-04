@@ -35,6 +35,7 @@ import static android.app.AppOpsManager.MODE_ALLOWED;
 import static android.app.AppOpsManager.OPSTR_LEGACY_STORAGE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Intent.EXTRA_PACKAGE_NAME;
+import static android.content.Intent.EXTRA_REASON;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_RESTRICTION_INSTALLER_EXEMPT;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_RESTRICTION_SYSTEM_EXEMPT;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_RESTRICTION_UPGRADE_EXEMPT;
@@ -1500,6 +1501,19 @@ public final class Utils {
     public static void navigateToHealthConnectSettings(@NonNull Context context) {
         Intent healthConnectIntent = new Intent(ACTION_MANAGE_HEALTH_PERMISSIONS);
         context.startActivity(healthConnectIntent);
+    }
+
+
+    /**
+     * Navigate to health connect settings Wear privacy dashboard.
+     *
+     * @param context The current Context
+     */
+    public static void navigateToWearHealthConnectSettingsPrivacyDashboard(
+        @NonNull Context context) {
+        Intent privacyDashboardHealthConnectIntent = new Intent(ACTION_MANAGE_HEALTH_PERMISSIONS);
+        privacyDashboardHealthConnectIntent.putExtra(EXTRA_REASON, "privacy_dashboard");
+        context.startActivity(privacyDashboardHealthConnectIntent);
     }
 
     /**
