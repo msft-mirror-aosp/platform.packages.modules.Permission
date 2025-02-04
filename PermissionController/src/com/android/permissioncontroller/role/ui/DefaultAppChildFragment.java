@@ -32,6 +32,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceManager;
@@ -39,6 +40,7 @@ import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
 
 import com.android.modules.utils.build.SdkLevel;
+import com.android.permission.flags.Flags;
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.permission.utils.Utils;
 import com.android.permissioncontroller.role.utils.PackageUtils;
@@ -63,6 +65,10 @@ public class DefaultAppChildFragment<PF extends PreferenceFragmentCompat
         implements DefaultAppConfirmationDialogFragment.Listener,
         Preference.OnPreferenceClickListener {
 
+    private static final String PREFERENCE_KEY_RECOMMENDED_CATEGORY =
+            DefaultAppChildFragment.class.getName() + ".preference.RECOMMENDED_CATEGORY";
+    private static final String PREFERENCE_KEY_OTHERS_CATEGORY =
+            DefaultAppChildFragment.class.getName() + ".preference.OTHERS_CATEGORY";
     private static final String PREFERENCE_KEY_NONE = DefaultAppChildFragment.class.getName()
             + ".preference.NONE";
     private static final String PREFERENCE_KEY_DESCRIPTION = DefaultAppChildFragment.class.getName()
@@ -125,14 +131,21 @@ public class DefaultAppChildFragment<PF extends PreferenceFragmentCompat
         ViewModelProvider.Factory viewModelFactory = new DefaultAppViewModel.Factory(mRole, mUser,
                 activity.getApplication());
         mViewModel = new ViewModelProvider(this, viewModelFactory).get(DefaultAppViewModel.class);
+        mViewModel.getRecommendedLiveData().observe(this,
+                applicationItems -> onApplicationListChanged());
         mViewModel.getLiveData().observe(this, applicationItems -> onApplicationListChanged());
         mViewModel.getManageRoleHolderStateLiveData().observe(this,
                 this::onManageRoleHolderStateChanged);
     }
 
     private void onApplicationListChanged() {
-        List<RoleApplicationItem> applicationItems = mViewModel.getLiveData().getValue();
-        if (applicationItems == null) {
+        List<RoleApplicationItem> recommendedApplicationItems =
+                mViewModel.getRecommendedLiveData().getValue();
+        if (recommendedApplicationItems == null) {
+            return;
+        }
+        List<RoleApplicationItem> otherApplicationItems = mViewModel.getLiveData().getValue();
+        if (otherApplicationItems == null) {
             return;
         }
 
@@ -141,22 +154,58 @@ public class DefaultAppChildFragment<PF extends PreferenceFragmentCompat
         Context context = preferenceManager.getContext();
 
         PreferenceScreen preferenceScreen = preferenceFragment.getPreferenceScreen();
+        PreferenceCategory oldRecommendedPreferenceCategory = null;
+        PreferenceCategory oldOthersPreferenceCategory = null;
         ArrayMap<String, Preference> oldPreferences = new ArrayMap<>();
         if (preferenceScreen == null) {
             preferenceScreen = preferenceManager.createPreferenceScreen(context);
             preferenceFragment.setPreferenceScreen(preferenceScreen);
         } else {
+            if (Flags.defaultAppsRecommendationEnabled()) {
+                oldRecommendedPreferenceCategory =
+                        preferenceScreen.findPreference(PREFERENCE_KEY_RECOMMENDED_CATEGORY);
+                clearPreferenceCategory(oldRecommendedPreferenceCategory, oldPreferences);
+                oldOthersPreferenceCategory =
+                        preferenceScreen.findPreference(PREFERENCE_KEY_OTHERS_CATEGORY);
+                clearPreferenceCategory(oldOthersPreferenceCategory, oldPreferences);
+            }
             clearPreferences(preferenceScreen, oldPreferences);
         }
 
-        boolean noneChecked = !hasHolderApplication(applicationItems);
-        addNonePreferenceIfNeeded(preferenceScreen, noneChecked, oldPreferences, context);
-        addApplicationPreferences(preferenceScreen, applicationItems, oldPreferences, context);
+        if (Flags.defaultAppsRecommendationEnabled() && !recommendedApplicationItems.isEmpty()) {
+            addApplicationPreferenceCategory(oldRecommendedPreferenceCategory,
+                    PREFERENCE_KEY_RECOMMENDED_CATEGORY,
+                    getString(R.string.default_app_recommended), preferenceScreen, false, false,
+                    recommendedApplicationItems, oldPreferences, context);
+            if (mRole.shouldShowNone() || !otherApplicationItems.isEmpty()) {
+                boolean noneChecked = !(hasHolderApplication(recommendedApplicationItems)
+                        || hasHolderApplication(otherApplicationItems));
+                addApplicationPreferenceCategory(oldOthersPreferenceCategory,
+                        PREFERENCE_KEY_OTHERS_CATEGORY, getString(R.string.default_app_others),
+                        preferenceScreen, true, noneChecked, otherApplicationItems, oldPreferences,
+                        context);
+            }
+        } else {
+            boolean noneChecked = !hasHolderApplication(otherApplicationItems);
+            addNonePreferenceIfNeeded(preferenceScreen, noneChecked, oldPreferences, context);
+            addApplicationPreferences(preferenceScreen, otherApplicationItems, oldPreferences,
+                    context);
+        }
 
         addNonPaymentNfcServicesPreference(preferenceScreen, oldPreferences, context);
         addDescriptionPreference(preferenceScreen, oldPreferences);
 
         preferenceFragment.onPreferenceScreenChanged();
+    }
+
+    private static void clearPreferenceCategory(@Nullable PreferenceCategory preferenceCategory,
+            @NonNull ArrayMap<String, Preference> oldPreferences) {
+        if (preferenceCategory == null) {
+            return;
+        }
+        clearPreferences(preferenceCategory, oldPreferences);
+        preferenceCategory.getParent().removePreference(preferenceCategory);
+        preferenceCategory.setOrder(Preference.DEFAULT_ORDER);
     }
 
     private static void clearPreferences(@NonNull PreferenceGroup preferenceGroup,
@@ -168,6 +217,25 @@ public class DefaultAppChildFragment<PF extends PreferenceFragmentCompat
             preference.setOrder(Preference.DEFAULT_ORDER);
             oldPreferences.put(preference.getKey(), preference);
         }
+    }
+
+    private void addApplicationPreferenceCategory(
+            @Nullable PreferenceCategory oldPreferenceCategory, @NonNull String key,
+            @Nullable String title, @NonNull PreferenceScreen preferenceScreen,
+            boolean addNonePreferenceIfNeeded, boolean noneChecked,
+            @NonNull List<RoleApplicationItem> applicationItems,
+            @NonNull ArrayMap<String, Preference> oldPreferences, @NonNull Context context) {
+        PreferenceCategory preferenceCategory = oldPreferenceCategory;
+        if (preferenceCategory == null) {
+            preferenceCategory = new PreferenceCategory(context);
+            preferenceCategory.setKey(key);
+            preferenceCategory.setTitle(title);
+        }
+        preferenceScreen.addPreference(preferenceCategory);
+        if (addNonePreferenceIfNeeded) {
+            addNonePreferenceIfNeeded(preferenceCategory, noneChecked, oldPreferences, context);
+        }
+        addApplicationPreferences(preferenceCategory, applicationItems, oldPreferences, context);
     }
 
     private static boolean hasHolderApplication(

@@ -371,14 +371,15 @@
             <item type="style" name="ThemeOverlay.PermissionSettings" />
             <!-- END THEMES -->
 
-            <!-- START VISIBILITY CONFIGS -->
-            <!-- Assistant role uses: config_showDefaultAssistant -->
-            <!-- Home role uses: config_showDefaultHome -->
-            <!-- Emergency role uses: config_showDefaultEmergency -->
+            <!-- START ROLE CONFIGS -->
+            <!-- Assistant role uses android:bool/config_showDefaultAssistant -->
+            <!-- Home role uses android:bool/config_showDefaultHome -->
+            <!-- Emergency role uses android:bool/config_showDefaultEmergency -->
             <item type="bool" name="config_showBrowserRole" />
             <item type="bool" name="config_showDialerRole" />
             <item type="bool" name="config_showSmsRole" />
-            <!-- END VISIBILITY CONFIGS -->
+            <item type="string" name="config_recommendedAssistants" />
+            <!-- END ROLE CONFIGS -->
 
             <!-- START CAR DIMENS -->
             <item type="dimen" name="car_action_bar_height" />
