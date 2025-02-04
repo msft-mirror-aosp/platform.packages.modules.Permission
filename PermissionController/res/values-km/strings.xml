@@ -202,10 +202,8 @@
     <string name="app_permission_header_with_device_name" msgid="7193042925656173271">"សិទ្ធិចូលប្រើ <xliff:g id="PERM">%1$s</xliff:g> សម្រាប់កម្មវិធីនេះនៅលើ <xliff:g id="DEVICE_NAME">%2$s</xliff:g>"</string>
     <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"មើល​ការអនុញ្ញាតទាំងអស់ឱ្យទៅ <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"មើលកម្មវិធី​ទាំងអស់​ដែលមាន​ការអនុញ្ញាត​នេះ"</string>
-    <!-- no translation found for app_permission_info_button (8973692370208562556) -->
-    <skip />
-    <!-- no translation found for app_permission_settings_button (4582916817451973752) -->
-    <skip />
+    <string name="app_permission_info_button" msgid="8973692370208562556">"ព័ត៌មាន"</string>
+    <string name="app_permission_settings_button" msgid="4582916817451973752">"ការកំណត់"</string>
     <string name="assistant_mic_label" msgid="1011432357152323896">"បង្ហាញការប្រើប្រាស់​មីក្រូហ្វូនរបស់ជំនួយការ"</string>
     <string name="unused_apps_category_title" msgid="2988455616845243901">"ការកំណត់កម្មវិធីដែលមិនប្រើ"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"ដកការ​អនុញ្ញាតចេញ ប្រសិនបើ​មិនប្រើប្រាស់​កម្មវិធី"</string>
@@ -678,11 +676,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"អនុញ្ញាតការកំណត់​ដែលបានដាក់កំហិត"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"ការកំណត់​ដែលបានដាក់កំហិត"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"ដើម្បីសុវត្ថិភាព​របស់អ្នក បច្ចុប្បន្នមិនអាចប្រើការកំណត់នេះបានទេ។"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"មិនអាចធ្វើសកម្មភាពបានទេ ពេលកំពុងហៅទូរសព្ទ"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8861786545031902839">"<xliff:g id="SETTING_DESCRIPTION">%1$s</xliff:g>\n\n ជារឿយៗ ជនឆបោកស្នើសុំសកម្មភាពប្រភេទនេះ ក្នុងអំឡុងពេលសន្ទនាតាមទូរសព្ទ ដូច្នេះសកម្មភាពនេះត្រូវបានទប់ស្កាត់ដើម្បីការពារអ្នក។ ប្រសិនបើអ្នកត្រូវបានណែនាំឱ្យធ្វើសកម្មភាពនេះដោយនរណាម្នាក់ដែលអ្នកមិនស្គាល់ វាអាចជាការឆបោក។"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_install_desc_prefix" msgid="2832355924914011814">"ការអនុញ្ញាតឱ្យកម្មវិធីដំឡើងកម្មវិធីផ្សេងទៀតមិនត្រូវបានអនុញ្ញាត ក្នុងអំឡុងការហៅទូរសព្ទទេ។"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_a11y_desc_prefix" msgid="5336417371950046729">"ការផ្ដល់សិទ្ធិឱ្យកម្មវិធីចូលប្រើភាពងាយស្រួលមិនត្រូវបានអនុញ្ញាត ក្នុងអំឡុងការហៅទូរសព្ទទេ។"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_generic_desc_prefix" msgid="4453183594330342865">"ការបើកការកំណត់នេះមិនត្រូវបានអនុញ្ញាត ក្នុងអំឡុងការហៅទូរសព្ទទេ។"</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"កម្មវិធីត្រូវបានបដិសេធមិនឱ្យចូលប្រើ<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"កម្មវិធីបានស្នើសុំសិទ្ធិចូលប្រើការអនុញ្ញាត​ដែលមានលក្ខណៈរសើប ដែលអាចធ្វើឱ្យព័ត៌មានហិរញ្ញវត្ថុ និងព័ត៌មានផ្ទាល់ខ្លួនរបស់អ្នកប្រឈមនឹងហានិភ័យ។<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>កម្មវិធីអាចនឹងមិនដំណើរការបានត្រឹមត្រូវទេ ប្រសិនបើគ្មានការអនុញ្ញាតដែលមានការរឹតបន្តឹងនេះ។ &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;ស្វែងយល់អំពីរបៀបផ្ដល់សិទ្ធិចូលប្រើ&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"កម្មវិធីត្រូវបានបដិសេធមិនឱ្យចូលប្រើជា<xliff:g id="ROLE_NAME">%1$s</xliff:g>លំនាំដើម"</string>

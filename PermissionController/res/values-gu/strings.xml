@@ -64,7 +64,7 @@
     <string name="unused_apps" msgid="2058057455175955094">"ન વપરાયેલી ઍપ"</string>
     <string name="edit_photos_description" msgid="5540108003480078892">"આ ઍપ માટે પસંદ કરેલા ફોટામાં ફેરફાર કરો"</string>
     <string name="no_unused_apps" msgid="12809387670415295">"કોઈ બિનવપરાયેલી ઍપ નથી"</string>
-    <string name="zero_unused_apps" msgid="9024448554157499748">"બિનવપરાયેલી 0 ઍપ"</string>
+    <string name="zero_unused_apps" msgid="9024448554157499748">"0 બિનવપરાયેલી ઍપ"</string>
     <string name="review_permission_decisions" msgid="309559429150613632">"પરવાનગી સંબંધિત નિર્ણયો"</string>
     <string name="review_permission_decisions_view_all" msgid="90391040431566130">"તાજેતરની પરવાનગી સંબંધિત બધા નિર્ણયો જુઓ"</string>
     <string name="review_permission_decisions_empty" msgid="8120775336417279806">"તાજેતરની પરવાનગી સંબંધિત કોઈ નિર્ણય નથી"</string>
@@ -678,11 +678,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"પ્રતિબંધિત સેટિંગને મંજૂરી આપો"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"પ્રતિબંધિત સેટિંગ"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"તમારી સુરક્ષા માટે, આ સેટિંગ હાલમાં ઉપલબ્ધ નથી."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"ફોન કૉલ પર હોવા દરમિયાન આ ક્રિયા ઉપલબ્ધ હોતી નથી"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8861786545031902839">"<xliff:g id="SETTING_DESCRIPTION">%1$s</xliff:g>\n\n સ્કૅમર દ્વારા ફોન કૉલ પરની વાતચીતો દરમિયાન આ પ્રકારની ક્રિયાની વિનંતી સામાન્ય રીતે કરવામાં આવતી હોય છે, તેથી તમારી સુરક્ષા માટે આને બ્લૉક કરવામાં આવે છે. જો કોઈ અજાણી વ્યક્તિ દ્વારા આ ક્રિયા કરવા માટે તમને માર્ગદર્શન આપવામાં આવતું હોય, તો આ સ્કૅમ હોઈ શકે છે."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_install_desc_prefix" msgid="2832355924914011814">"ફોન કૉલ દરમિયાન, ઍપને બીજી ઍપ ઇન્સ્ટૉલ કરવાની મંજૂરી આપવામાં આવતી નથી."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_a11y_desc_prefix" msgid="5336417371950046729">"ફોન કૉલ દરમિયાન કોઈ ઍપને ઍક્સેસિબિલિટીનો ઍક્સેસ આપવાની મંજૂરી આપવામાં આવતી નથી."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_generic_desc_prefix" msgid="4453183594330342865">"ફોન કૉલ દરમિયાન આ સેટિંગ ચાલુ કરવાની મંજૂરી આપવામાં આવતી નથી."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"ઍપને <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>નો ઍક્સેસ નકારવામાં આવ્યો"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"આ ઍપ દ્વારા કોઈ સંવેદનશીલ માહિતીની પરવાનગીના ઍક્સેસની વિનંતી કરવામાં આવી છે, જેને કારણે તમારી વ્યક્તિગત અને નાણાકીય માહિતી જોખમમાં આવી શકે છે.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>એ પણ શક્ય છે કે આ પ્રતિબંધિત પરવાનગી વિના ઍપ કદાચ યોગ્ય રીતે કામ ન પણ કરી શકે. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;ઍક્સેસ મંજૂર કરવાની રીત જાણો&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"ઍપને ડિફૉલ્ટ <xliff:g id="ROLE_NAME">%1$s</xliff:g> બનવાનો ઍક્સેસ નકારવામાં આવ્યો"</string>

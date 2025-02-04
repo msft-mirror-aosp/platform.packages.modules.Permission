@@ -361,11 +361,11 @@
     <string name="role_assistant_short_label" msgid="3369003713187703399">"Appli d\'assistant numérique"</string>
     <string name="role_assistant_description" msgid="6622458130459922952">"Les applis d\'assistance peuvent vous aider en fonction de l\'information affichée à l\'écran. Certaines applis sont compatibles à la fois avec le lanceur d\'applis et les services d\'entrée vocale, vous permettant de bénéficier d\'une assistance intégrée."</string>
     <string name="role_browser_label" msgid="2877796144554070207">"Appli de navigation par défaut"</string>
-    <string name="role_browser_short_label" msgid="6745009127123292296">"Appli de navigateur"</string>
+    <string name="role_browser_short_label" msgid="6745009127123292296">"Appli de navigation"</string>
     <string name="role_browser_description" msgid="3465253637499842671">"Applis qui vous donnent accès à Internet et qui affichent des liens que vous pouvez toucher"</string>
     <string name="role_browser_request_title" msgid="2895200507835937192">"Définir <xliff:g id="APP_NAME">%1$s</xliff:g> comme appli par défaut pour la navigation?"</string>
     <string name="role_browser_request_description" msgid="5888803407905985941">"Aucune autorisation nécessaire"</string>
-    <string name="role_dialer_label" msgid="1100224146343237968">"Appli de téléphone par défaut"</string>
+    <string name="role_dialer_label" msgid="1100224146343237968">"Appli Téléphone par défaut"</string>
     <string name="role_dialer_short_label" msgid="7186888549465352489">"Appli Téléphone"</string>
     <string name="role_dialer_description" msgid="8768708633696539612">"Applis qui vous permettent de faire et de recevoir des appels téléphoniques sur votre appareil"</string>
     <string name="role_dialer_request_title" msgid="5959618560705912058">"Définir <xliff:g id="APP_NAME">%1$s</xliff:g> comme appli de téléphonie par défaut?"</string>
@@ -384,8 +384,8 @@
     <string name="role_emergency_request_description" msgid="131645948770262850">"Aucune autorisation nécessaire"</string>
     <string name="role_emergency_search_keywords" msgid="1920007722599213358">"En cas d\'urgence"</string>
     <string name="role_home_label" msgid="3871847846649769412">"Appli d\'accueil par défaut"</string>
-    <string name="role_home_short_label" msgid="8544733747952272337">"Appli sur l\'écran d\'accueil"</string>
-    <string name="role_home_description" msgid="7997371519626556675">"Applis qui remplacent les écrans d\'accueil sur votre appareil Android et qui vous donnent accès au contenu et aux fonctionnalités de votre appareil"</string>
+    <string name="role_home_short_label" msgid="8544733747952272337">"Appli d\'accueil"</string>
+    <string name="role_home_description" msgid="7997371519626556675">"Applis, aussi appelées lanceurs d\'applis, qui remplacent les écrans d\'accueil sur votre appareil Android et qui vous donnent accès au contenu et aux fonctionnalités de votre appareil"</string>
     <string name="role_home_request_title" msgid="738136983453341081">"Définir <xliff:g id="APP_NAME">%1$s</xliff:g> comme appli d\'écran d\'accueil par défaut?"</string>
     <string name="role_home_request_description" msgid="2658833966716057673">"Aucune autorisation nécessaire"</string>
     <string name="role_home_search_keywords" msgid="3830755001192666285">"lanceur d\'applis"</string>
@@ -678,11 +678,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Autoriser les paramètres restreints"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Paramètre restreint"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Pour protéger votre sécurité, ce paramètre n\'est pas accessible actuellement."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Action non proposée lors d\'un appel téléphonique"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8861786545031902839">"<xliff:g id="SETTING_DESCRIPTION">%1$s</xliff:g>\n\n Les escrocs demandent souvent ce type d\'action lors de conversations téléphoniques, alors ces actions sont bloquées pour vous protéger. Si quelqu\'un que vous ne connaissez pas vous guide dans cette démarche, il pourrait s\'agir d\'une escroquerie."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_install_desc_prefix" msgid="2832355924914011814">"Autoriser les applis à installer d\'autres applis n\'est pas permis lors d\'un appel téléphonique."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_a11y_desc_prefix" msgid="5336417371950046729">"Donner à une appli l\'accès au service d\'accessibilité n\'est pas permis lors d\'un appel téléphonique."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_generic_desc_prefix" msgid="4453183594330342865">"L\'activation de ce paramètre n\'est pas permise lors d\'un appel téléphonique."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"L\'appli n\'a pas obtenu l\'accès à <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"L\'appli a demandé l\'accès à une autorisation sensible qui pose un risque pour vos renseignements personnels et financiers.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Il est possible que l\'appli ne fonctionne pas correctement sans cette autorisation limitée. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Découvrir comment autoriser l\'accès&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"L\'appli n\'a pas obtenu l\'accès pour avoir le rôle<xliff:g id="ROLE_NAME">%1$s</xliff:g> par défaut"</string>
