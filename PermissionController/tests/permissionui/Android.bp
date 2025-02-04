@@ -72,6 +72,8 @@ android_test {
         ":PermissionUiUseAdditionalPermissionApp",
         ":PermissionUiUseTwoAdditionalPermissionsApp",
         ":PermissionUiReadCalendarPermissionApp",
+        ":PermissionUiUseLegacyBodySensorsPermissionApp",
+        ":PermissionUiUseReadHeartRatePermissionApp",
     ],
     per_testcase_directory: true,
 }
