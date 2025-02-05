@@ -28,6 +28,8 @@ data class WearPermissionScaffoldPaddingDefaults(
     private val titleHorizontalPadding = (screenWidth * 0.0520).dp
     private val subtitleHorizontalPadding = (screenWidth * 0.0624).dp
     private val scrollContentTopPadding = (screenHeight * 0.1664).dp
+    private val dialogScrollContentLargeTopPadding = (screenHeight * 0.10).dp
+    private val dialogScrollContentTopPadding = (screenHeight * 0.012).dp
     private val scrollContentBottomPadding = (screenHeight * 0.3646).dp
     private val noPadding = 0.dp
     private val defaultItemPadding = 4.dp
@@ -48,6 +50,19 @@ data class WearPermissionScaffoldPaddingDefaults(
             top = if (needsLargePadding) extraLargePadding else noPadding,
             bottom = largeItemPadding,
             end = subtitleHorizontalPadding,
+        )
+
+    fun scrollContentPaddingForDialogs(needsLargePadding: Boolean) =
+        PaddingValues(
+            start = scrollContentHorizontalPadding,
+            end = scrollContentHorizontalPadding,
+            top =
+                if (needsLargePadding) {
+                    dialogScrollContentLargeTopPadding
+                } else {
+                    dialogScrollContentTopPadding
+                },
+            bottom = scrollContentBottomPadding,
         )
 
     val subTitlePaddingValues =

@@ -179,6 +179,7 @@ private fun WearPermissionScaffoldInternal(
                     } else {
                         LazyColumnView(
                             asScalingList = asScalingList,
+                            showTimeText = showTimeText,
                             listState = listState,
                             title = title,
                             subtitle = subtitle,
@@ -197,6 +198,7 @@ private fun WearPermissionScaffoldInternal(
 @Composable
 private fun BoxScope.LazyColumnView(
     asScalingList: Boolean = false,
+    showTimeText: Boolean,
     listState: ScrollableState,
     title: String?,
     subtitle: CharSequence?,
@@ -213,6 +215,12 @@ private fun BoxScope.LazyColumnView(
             screenHeight = screenHeight,
         )
     val painterImage = image?.let { painterFromImage(image = image) }
+    val scrollContentPadding =
+        if (showTimeText) {
+            paddingDefaults.scrollContentPadding
+        } else {
+            paddingDefaults.scrollContentPaddingForDialogs(painterImage == null)
+        }
 
     fun BoxScope.scrollingViewContent(scopeWrapper: ListScopeWrapper) {
         with(scopeWrapper) {
@@ -237,14 +245,14 @@ private fun BoxScope.LazyColumnView(
 
     if (asScalingList) {
         ScalingLazyColumn(
-            contentPadding = paddingDefaults.scrollContentPadding,
+            contentPadding = scrollContentPadding,
             state = listState as ScalingLazyListState,
             modifier = Modifier.background(MaterialTheme.colorScheme.background),
             content = { scrollingViewContent(ScalingScopeConverter(this)) },
         )
     } else {
         TransformingLazyColumn(
-            contentPadding = paddingDefaults.scrollContentPadding,
+            contentPadding = scrollContentPadding,
             state = listState as TransformingLazyColumnState,
             modifier = Modifier.background(MaterialTheme.colorScheme.background),
             content = { scrollingViewContent(TransformingScopeConverter(this)) },
