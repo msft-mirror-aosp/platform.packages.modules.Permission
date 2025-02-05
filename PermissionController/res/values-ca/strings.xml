@@ -678,11 +678,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Permet la configuració restringida"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Opció de configuració restringida"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Per a la teva seguretat, aquesta opció de configuració no està disponible en aquests moments."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Acció no disponible durant les trucades"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8861786545031902839">"<xliff:g id="SETTING_DESCRIPTION">%1$s</xliff:g>\n\n Els estafadors solen demanar aquest tipus d\'acció durant les trucades, de manera que s\'ha bloquejat per protegir-te. Si algú que no coneixes t\'indica que facis aquesta acció, pot ser que es tracti d\'una estafa."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_install_desc_prefix" msgid="2832355924914011814">"No es permet que les aplicacions instal·lin altres aplicacions durant una trucada."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_a11y_desc_prefix" msgid="5336417371950046729">"No es permet donar a una aplicació accés a l\'accessibilitat durant una trucada."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_generic_desc_prefix" msgid="4453183594330342865">"No es permet activar aquesta opció de configuració durant una trucada."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"A l\'aplicació se li ha denegat l\'accés a <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"L\'aplicació ha demanat accés a un permís sensible, el qual pot posar en risc la teva informació personal o financera.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>És possible que l\'aplicació no funcioni correctament sense aquest permís restringit. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Més informació sobre com pots permetre l\'accés&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"A l\'aplicació se li ha denegat l\'accés per ser <xliff:g id="ROLE_NAME">%1$s</xliff:g> de manera predeterminada"</string>

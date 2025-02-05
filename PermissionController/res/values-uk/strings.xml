@@ -678,11 +678,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Дозволити налаштування з обмеженнями"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Налаштування з обмеженнями"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"З міркувань безпеки це налаштування наразі недоступне."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Дія недоступна під час телефонного виклику"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8861786545031902839">"<xliff:g id="SETTING_DESCRIPTION">%1$s</xliff:g>\n\n Шахраї часто просять виконати такі дії під час телефонних розмов, тому цю можливість заблоковано задля вашого захисту. Якщо незнайома особа просить вас виконати таку дію, це може бути шахрайством."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_install_desc_prefix" msgid="2832355924914011814">"Під час телефонного виклику не можна надавати додаткам дозвіл на встановлення інших додатків."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_a11y_desc_prefix" msgid="5336417371950046729">"Під час телефонного виклику додатку не можна надавати доступ до функцій доступності."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_generic_desc_prefix" msgid="4453183594330342865">"Під час телефонного виклику не можна вмикати це налаштування."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Додатку не надано дозвіл \"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>\""</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Додаток запитав дозвіл на доступ до чутливих даних, що може поставити під загрозу вашу особисту й фінансову інформацію.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Без цього обмеженого дозволу додаток може не працювати належним чином. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Як надати доступ&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Додатку не надано доступ до ролі \"<xliff:g id="ROLE_NAME">%1$s</xliff:g>\" за умовчанням"</string>

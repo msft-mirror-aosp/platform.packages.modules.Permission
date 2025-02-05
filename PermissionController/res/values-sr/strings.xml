@@ -202,10 +202,8 @@
     <string name="app_permission_header_with_device_name" msgid="7193042925656173271">"Ова апликација има приступ за: <xliff:g id="PERM">%1$s</xliff:g> на уређају <xliff:g id="DEVICE_NAME">%2$s</xliff:g>"</string>
     <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"Прикажи све дозволе за: <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"Прикажи све апликације са овом дозволом"</string>
-    <!-- no translation found for app_permission_info_button (8973692370208562556) -->
-    <skip />
-    <!-- no translation found for app_permission_settings_button (4582916817451973752) -->
-    <skip />
+    <string name="app_permission_info_button" msgid="8973692370208562556">"Информације"</string>
+    <string name="app_permission_settings_button" msgid="4582916817451973752">"Подешавања"</string>
     <string name="assistant_mic_label" msgid="1011432357152323896">"Прикажи како Помоћник користи микрофон"</string>
     <string name="unused_apps_category_title" msgid="2988455616845243901">"Подешавања некоришћених апликација"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"Уклони дозволе ако се апликација не користи"</string>
@@ -678,11 +676,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Дозволи ограничена подешавања"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Ограничено подешавање"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Ово подешавање је тренутно недоступно ради ваше безбедности."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Радња није доступна током телефонског позива"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8861786545031902839">"<xliff:g id="SETTING_DESCRIPTION">%1$s</xliff:g>\n\n Преваранти често траже овај тип радње током телефонског позива, па смо је блокирали да бисмо вас заштитили. Ако вас неко кога не познајете упућује на ову радњу, то би могла да буде превара."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_install_desc_prefix" msgid="2832355924914011814">"Није дозвољено да апликације инсталирају друге апликације током телефонског позива."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_a11y_desc_prefix" msgid="5336417371950046729">"Није дозвољено да апликација добије приступ услузи приступачности током телефонског позива."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_generic_desc_prefix" msgid="4453183594330342865">"Омогућавање овог подешавања није дозвољено током телефонског позива."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Апликацији није дозвољен приступ дозволи: <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Апликација је затражила приступ осетљивој дозволи, што може да угрози безбедност личних и финансијских података.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Апликација можда неће радити исправно без ове ограничене дозволе. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Сазнајте како да дозволите приступ&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Апликацији није дозвољен приступ да постане подразумевана: <xliff:g id="ROLE_NAME">%1$s</xliff:g>"</string>

@@ -202,10 +202,8 @@
     <string name="app_permission_header_with_device_name" msgid="7193042925656173271">"<xliff:g id="DEVICE_NAME">%2$s</xliff:g> എന്നതിലെ ഈ ആപ്പിനുള്ള <xliff:g id="PERM">%1$s</xliff:g> ആക്സസ്"</string>
     <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"എല്ലാ <xliff:g id="APP">%1$s</xliff:g> അനുമതികളും കാണുക"</string>
     <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"ഈ അനുമതിയുള്ള എല്ലാ ആപ്പുകളും കാണുക"</string>
-    <!-- no translation found for app_permission_info_button (8973692370208562556) -->
-    <skip />
-    <!-- no translation found for app_permission_settings_button (4582916817451973752) -->
-    <skip />
+    <string name="app_permission_info_button" msgid="8973692370208562556">"വിവരങ്ങൾ"</string>
+    <string name="app_permission_settings_button" msgid="4582916817451973752">"ക്രമീകരണം"</string>
     <string name="assistant_mic_label" msgid="1011432357152323896">"സഹായ മൈക്രോഫോൺ ഉപയോഗം കാണിക്കുക"</string>
     <string name="unused_apps_category_title" msgid="2988455616845243901">"ഉപയോഗിക്കാത്ത ആപ്പ് ക്രമീകരണം"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"ഉപയോഗിക്കാത്ത ആപ്പാണെങ്കിൽ അനുമതികൾ നീക്കം ചെയ്യുക"</string>
@@ -678,11 +676,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"നിയന്ത്രിത ക്രമീകരണം അനുവദിക്കുക"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"നിയന്ത്രിത ക്രമീകരണം"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"നിങ്ങളുടെ സുരക്ഷയ്ക്ക്, ഈ ക്രമീകരണം നിലവിൽ ലഭ്യമല്ല."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"ഫോൺ കോളിനിടെ പ്രവർത്തനം ലഭ്യമല്ല"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8861786545031902839">"<xliff:g id="SETTING_DESCRIPTION">%1$s</xliff:g>\n\n ഫോൺ കോൾ സംഭാഷണത്തിനിടെ സ്‌കാമർമാർ പലപ്പോഴും ഇത്തരത്തിലുള്ള പ്രവർത്തനം അഭ്യർത്ഥിക്കാറുണ്ട്, അതിനാൽ നിങ്ങളെ പരിരക്ഷിക്കുന്നതിനായി ഇത് ബ്ലോക്ക് ചെയ്തിരിക്കുന്നു. പരിചയമില്ലാത്ത ആരെങ്കിലുമാണ് ഈ പ്രവർത്തനം നിങ്ങളോട് നിർദ്ദേശിക്കുന്നതെങ്കിൽ, അതൊരു സ്കാം ആയേക്കാം."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_install_desc_prefix" msgid="2832355924914011814">"ഫോൺ കോളിനിടെ മറ്റ് ആപ്പുകൾ ഇൻസ്റ്റാൾ ചെയ്യാനുള്ള അനുവാദം ആപ്പുകൾക്കില്ല."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_a11y_desc_prefix" msgid="5336417371950046729">"ഒരു ഫോൺ കോളിനിടെ ആപ്പിന് ഉപയോഗസഹായിലേക്ക് ആക്‌സസ് നൽകുന്നത് അനുവദനീയമല്ല."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_generic_desc_prefix" msgid="4453183594330342865">"ഫോൺ കോളിനിടെ ഈ ക്രമീകരണം പ്രവർത്തനക്ഷമമാക്കുന്നത് അനുവദനീയമല്ല."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"ആപ്പിന് <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> എന്നതിലേക്കുള്ള ആക്‌സസ് നിരസിച്ചു"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"ആപ്പ് സെൻസിറ്റീവ് വിവരങ്ങൾക്കുള്ള അനുമതിയിലേക്ക് ആക്‌സസ് അഭ്യർത്ഥിച്ചു, ഇത് നിങ്ങളുടെ വ്യക്തിപരവും സാമ്പത്തികവുമായ വിവരങ്ങളെ അപകടത്തിലാക്കിയേക്കാം.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ഈ നിയന്ത്രിത അനുമതിയില്ലാതെ ആപ്പ് ശരിയായി പ്രവർത്തിച്ചേക്കില്ല. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;ആക്സസ് എങ്ങനെ അനുവദിക്കുന്നുവെന്നറിയുക&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"ആപ്പിന് ഡിഫോൾട്ട് <xliff:g id="ROLE_NAME">%1$s</xliff:g> ആകാനുള്ള ആക്‌സസ് നിരസിച്ചു"</string>

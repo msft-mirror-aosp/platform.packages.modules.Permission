@@ -529,7 +529,7 @@
     <string name="permgroupupgraderequestdetail_camera" msgid="6642747548010962597">"Aplicația dorește să fotografieze și să înregistreze videoclipuri permanent, chiar și când nu o folosești. "<annotation id="link">"Acordă această permisiune din setări."</annotation></string>
     <string name="permgrouprequest_calllog" msgid="2065327180175371397">"Permiți ca &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; să-ți acceseze jurnalele de apeluri?"</string>
     <string name="permgrouprequest_device_aware_calllog" msgid="8220927190376843309">"Permiți ca &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; să-ți acceseze jurnalele de apeluri telefonice de pe &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;?"</string>
-    <string name="permgrouprequest_phone" msgid="1829234136997316752">"Permiți ca &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; să dea și să gestioneze apeluri telefonice?"</string>
+    <string name="permgrouprequest_phone" msgid="1829234136997316752">"Permiți ca &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; să  și să gestioneze apeluri telefonice?"</string>
     <string name="permgrouprequest_device_aware_phone" msgid="590399263670349955">"Permiți ca &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; să inițieze și să gestioneze apeluri telefonice pe &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;?"</string>
     <string name="permgrouprequest_sensors" msgid="4397358316850652235">"Permiți ca &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; să acceseze datele de la senzori despre semnele vitale?"</string>
     <string name="permgrouprequest_device_aware_sensors" msgid="3874451050573615157">"Permiți ca &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; să acceseze datele de la senzori despre semnele tale vitale de pe &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;?"</string>
@@ -678,11 +678,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Permite setările restricționate"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Setare restricționată"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Pentru securitatea ta, setarea este momentan indisponibilă."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Acțiune indisponibilă în timpul apelului telefonic"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8861786545031902839">"<xliff:g id="SETTING_DESCRIPTION">%1$s</xliff:g>\n\n Escrocii solicită adesea acest tip de acțiune în timpul conversațiilor telefonice, astfel că opțiunea este blocată pentru a te proteja. Dacă o persoană necunoscută te îndrumă să faci această acțiune, este posibil să fie o escrocherie."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_install_desc_prefix" msgid="2832355924914011814">"Nu este permisă instalarea altor aplicații în timpul unui apel telefonic."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_a11y_desc_prefix" msgid="5336417371950046729">"Nu este permisă acordarea accesului la accesibilitate pentru o aplicație în timpul unui apel telefonic."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_generic_desc_prefix" msgid="4453183594330342865">"Activarea acestei setări nu este permisă în timpul unui apel telefonic."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Accesul aplicației la <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> a fost refuzat"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Aplicația a solicitat acces la o permisiune de accesare a informațiilor sensibile care îți poate pune în pericol informațiile financiare și cu caracter personal.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Este posibil ca aplicația să nu funcționeze corect fără această permisiune restricționată. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Află cum să permiți accesul&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Accesul aplicației pentru a deveni <xliff:g id="ROLE_NAME">%1$s</xliff:g> prestabilită a fost refuzat"</string>

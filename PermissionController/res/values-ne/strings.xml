@@ -587,7 +587,7 @@
     <string name="safety_privacy_qs_tile_subtitle" msgid="3621544532041936749">"स्थिति जाँच गर्नुहोस्"</string>
     <string name="privacy_controls_qs" msgid="5780144882040591169">"तपाईंका गोपनीयतासम्बन्धी सेटिङ"</string>
     <string name="security_settings_button_label_qs" msgid="8280343822465962330">"थप सेटिङ"</string>
-    <string name="camera_toggle_label_qs" msgid="3880261453066157285">"क्यामेरा प्रयोग गर्ने अनुमति"</string>
+    <string name="camera_toggle_label_qs" msgid="3880261453066157285">"क्यामेरा एक्सेस"</string>
     <string name="microphone_toggle_label_qs" msgid="8132912469813396552">"माइक एक्सेस"</string>
     <string name="permissions_removed_qs" msgid="8957319130625294572">"अनुमति हटाइएको छ"</string>
     <string name="camera_usage_qs" msgid="4394233566086665994">"हालसालै गरिएको क्यामेराको प्रयोगसम्बन्धी जानकारी हेर्नुहोस्"</string>
@@ -629,7 +629,7 @@
     <string name="safety_center_background_location_access_revoked" msgid="6972274943343442213">"अनुमति बदलियो"</string>
     <string name="safety_center_view_recent_location_access" msgid="3524391299490678243">"हालसालै कहिले लोकेसनसम्बन्धी प्रयोग गरिएको थियो हेर्नुहोस्"</string>
     <string name="privacy_controls_title" msgid="7605929972256835199">"गोपनीयतासम्बन्धी सेटिङ"</string>
-    <string name="camera_toggle_title" msgid="1251201397431837666">"क्यामेरा प्रयोग गर्ने अनुमति"</string>
+    <string name="camera_toggle_title" msgid="1251201397431837666">"क्यामेरा एक्सेस"</string>
     <string name="mic_toggle_title" msgid="2649991093496110162">"माइक्रोफोन प्रयोग गर्ने अनुमति"</string>
     <string name="perm_toggle_description" msgid="7801326363741451379">"एप तथा सेवाहरूका हकमा"</string>
     <string name="mic_toggle_description" msgid="9163104307990677157">"एप तथा सेवाहरूका हकमा। यो सेटिङ अफ गरिएको अवस्थामा तपाईंले आपत्‍कालीन नम्बरमा कल गर्नुभयो भने माइक्रोफोनसम्बन्धी डेटा अझै पनि सेयर गरिन सक्छ।"</string>
@@ -678,11 +678,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"प्रतिबन्ध लगाइएका सेटिङ अनलक गर्नुहोस्"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"प्रतिबन्ध लगाइएका सेटिङ"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"तपाईंको खाताको सुरक्षार्थ यो सेटिङ हाल उपलब्ध छैन।"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"फोन कल चलिरहेका बेला यो कारबाही गर्न मिल्दैन"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8861786545031902839">"<xliff:g id="SETTING_DESCRIPTION">%1$s</xliff:g>\n\n स्क्याम गर्ने व्यक्तिले फोन कल चलिरहेका बेला प्रायः यस प्रकारको कारबाही गर्न अनुरोध गर्ने भएकाले तपाईंको सुरक्षार्थ यो कारबाही गर्न रोक लगाइएको हो। तपाईंलाई कुनै अपरिचित व्यक्तिले यो कारबाही गर्ने मार्गदर्शन गर्दै छ भने त्यो जालसाजी हुन सक्छ।"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_install_desc_prefix" msgid="2832355924914011814">"फोन कल चलिरहेका बेला एपहरूलाई अन्य एप इन्स्टल गर्ने अनुमति दिन मिल्दैन।"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_a11y_desc_prefix" msgid="5336417371950046729">"फोन कल चलिरहेका बेला एपलाई सर्वसुलभतासम्बन्धी सेवा एक्सेस गर्ने अनुमति दिन मिल्दैन।"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_generic_desc_prefix" msgid="4453183594330342865">"फोन कल चलिरहेका बेला यो सेटिङ अन गर्ने अनुमति दिन मिल्दैन।"</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"एपले <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> प्रयोग गर्न मागेको अनुमति अस्वीकार गरिएको छ"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"यो एपले तपाईंको व्यक्तिगत तथा वित्तीय जानकारी जोखिममा पार्न सक्ने खालको संवेदनशील अनुमति मागेको छ।<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>तपाईले उक्त प्रतिबन्धित अनुमति नदिएका खण्डमा यो एपले राम्रोसँग काम नगर्न सक्छ। &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;अनुमति दिने तरिका सिक्नुहोस्&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"यो एपले डिफल्ट <xliff:g id="ROLE_NAME">%1$s</xliff:g> का रूपमा काम गर्न मागेको अनुमति अस्वीकार गरिएको छ"</string>
