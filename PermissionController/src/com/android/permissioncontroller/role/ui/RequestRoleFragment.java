@@ -110,6 +110,7 @@ public class RequestRoleFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setCancelable(false);
 
         Bundle arguments = getArguments();
         mPackageName = arguments.getString(Intent.EXTRA_PACKAGE_NAME);
