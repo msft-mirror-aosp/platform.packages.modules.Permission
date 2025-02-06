@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.permissioncontroller.permission.util
+package com.android.permissioncontroller.permission.utils
 
 import android.Manifest.permission.BODY_SENSORS
 import android.Manifest.permission.BODY_SENSORS_BACKGROUND
@@ -52,7 +52,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.android.permissioncontroller.Constants.EXTRA_SESSION_ID
 import com.android.permissioncontroller.Constants.INVALID_SESSION_ID
 import com.android.permissioncontroller.R
-import com.android.permissioncontroller.permission.utils.Utils
 import com.android.permissioncontroller.privacysources.WorkPolicyInfo
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith

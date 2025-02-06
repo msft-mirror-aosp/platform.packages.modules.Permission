@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.permissioncontroller.permission.util
+package com.android.permissioncontroller.permission.utils
 
 import android.Manifest
 import android.app.AppOpsManager
@@ -28,8 +28,6 @@ import android.platform.test.flag.junit.DeviceFlagsValueProvider
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
-import com.android.permissioncontroller.permission.utils.PermissionMapping
-import com.android.permissioncontroller.permission.utils.Utils;
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
