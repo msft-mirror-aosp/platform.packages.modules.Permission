@@ -65,7 +65,7 @@ public final class UserUtils {
             DevicePolicyManager devicePolicyManager =
                     context.getSystemService(DevicePolicyManager.class);
             if (!devicePolicyManager.isOrganizationOwnedDeviceWithManagedProfile()) {
-                // For profileGroup exclusive roles users on BYOD are free to choose personal o
+                // For profileGroup exclusive roles users on BYOD are free to choose personal or
                 // work profile app regardless of DISALLOW_DEBUGGING_FEATURES
                 return;
             }

@@ -28,6 +28,9 @@ import androidx.annotation.Nullable;
 
 import com.android.modules.utils.build.SdkLevel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Utility class to deal with Android users. */
 public final class UserUtils {
 
@@ -131,5 +134,30 @@ public final class UserUtils {
         Context userContext = getUserContext(context, user);
         UserManager userManager = userContext.getSystemService(UserManager.class);
         return userManager.getProfileParent(user);
+    }
+
+    /**
+     * Returns all the enabled user profiles on the device
+     *
+     * @param context the {@link Context}
+     * @param excludePrivate {@code true} to exclude private profiles from returned list of users
+     */
+    @NonNull
+    public static List<UserHandle> getUserProfiles(@NonNull Context context,
+            boolean excludePrivate) {
+        UserManager userManager = context.getSystemService(UserManager.class);
+        List<UserHandle> profiles = userManager.getUserProfiles();
+        if (!excludePrivate) {
+            return profiles;
+        }
+        List<UserHandle> filteredProfiles = new ArrayList<>();
+        final int profilesSize = profiles.size();
+        for (int i = 0; i < profilesSize; i++) {
+            UserHandle profile = profiles.get(i);
+            if (!isPrivateProfile(profile, context)) {
+                filteredProfiles.add(profile);
+            }
+        }
+        return filteredProfiles;
     }
 }
