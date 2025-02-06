@@ -75,7 +75,7 @@
     <string name="app_disable_dlg_positive" msgid="7418444149981904940">"غیرفعال کردن برنامه"</string>
     <string name="app_disable_dlg_text" msgid="3126943217146120240">"‏اگر این برنامه را غیرفعال کنید، ممکن است Android و سایر برنامه‌های دیگر عملکرد موردانتظار را نداشته باشند. به‌خاطر داشته باشید که نمی‌توانید این برنامه را حذف کنید، چون از برنامه‌های ازپیش نصب‌شده روی دستگاه است. این برنامه، با غیرفعال کردن، خاموش می‌شود و در دستگاه پنهان می‌شود."</string>
     <string name="app_permission_manager" msgid="3903811137630909550">"مدیر اجازه‌ها"</string>
-    <string name="never_ask_again" msgid="4728762438198560329">"دوباره سؤال نشود"</string>
+    <string name="never_ask_again" msgid="4728762438198560329">"دوباره پرسیده نشود"</string>
     <string name="no_permissions" msgid="3881676756371148563">"مجوزی موجود نیست"</string>
     <string name="additional_permissions" msgid="5801285469338873430">"اجازه‌های جانبی"</string>
     <string name="app_permissions_info_button_label" msgid="7633312050729974623">"باز کردن اطلاعات برنامه"</string>
@@ -202,6 +202,8 @@
     <string name="app_permission_header_with_device_name" msgid="7193042925656173271">"دسترسی <xliff:g id="PERM">%1$s</xliff:g> از این برنامه در <xliff:g id="DEVICE_NAME">%2$s</xliff:g>"</string>
     <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"مشاهده همه اجازه‌های <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"دیدن همه برنامه‌هایی که این مجوز را دارند"</string>
+    <string name="app_permission_info_button" msgid="8973692370208562556">"اطلاعات"</string>
+    <string name="app_permission_settings_button" msgid="4582916817451973752">"تنظیمات"</string>
     <string name="assistant_mic_label" msgid="1011432357152323896">"نمایش میزان استفاده «دستیار» از میکروفون"</string>
     <string name="unused_apps_category_title" msgid="2988455616845243901">"تنظیمات برنامه‌های استفاده‌نشده"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"اگر از برنامه استفاده نمی‌شود، اجازه‌ها برداشته شوند"</string>
@@ -320,7 +322,7 @@
     <string name="permission_subtitle_only_in_foreground" msgid="9068389431267377564">"تنها هنگام استفاده از برنامه"</string>
     <string name="permission_subtitle_media_only" msgid="8917869683764720717">"رسانه"</string>
     <string name="permission_subtitle_all_files" msgid="4982613338298067862">"همه فایل‌ها"</string>
-    <string name="permission_subtitle_background" msgid="8916750995309083180">"همیشه مجاز بودن"</string>
+    <string name="permission_subtitle_background" msgid="8916750995309083180">"همیشه مجاز است"</string>
     <string name="app_perms_24h_access" msgid="99069906850627181">"آخرین زمان دسترسی: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
     <string name="app_perms_24h_access_yest" msgid="5411926024794555022">"آخرین زمان دسترسی دیروز ساعت <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
     <string name="app_perms_7d_access" msgid="4945055548894683751">"آخرین دسترسی: <xliff:g id="TIME_DATE_0">%1$s</xliff:g> ساعت <xliff:g id="TIME_DATE_1">%2$s</xliff:g>"</string>
@@ -601,7 +603,7 @@
     <string name="active_app_usage_2_qs" msgid="6107866785243565283">"<xliff:g id="APP_NAME">%1$s</xliff:g> درحال استفاده از آن است (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g> • <xliff:g id="PROXY_LABEL">%3$s</xliff:g>)"</string>
     <string name="recent_app_usage_2_qs" msgid="3591205954235694403">"اخیراً <xliff:g id="APP_NAME">%1$s</xliff:g> از آن استفاده کرده است (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g> • <xliff:g id="PROXY_LABEL">%3$s</xliff:g>)"</string>
     <string name="media_confirm_dialog_positive_button" msgid="9020793594051526399">"تأیید"</string>
-    <string name="media_confirm_dialog_negative_button" msgid="226987376924861785">"برگشت"</string>
+    <string name="media_confirm_dialog_negative_button" msgid="226987376924861785">"برگشتن"</string>
     <string name="media_confirm_dialog_title_a_to_p_aural_allow" msgid="8560601114044699903">"دسترسی به فایل‌های دیگر نیز مجاز می‌شود"</string>
     <string name="media_confirm_dialog_title_a_to_p_aural_deny" msgid="7841428716317307685">"دسترسی به فایل‌های دیگر نیز مجاز نمی‌شود"</string>
     <string name="media_confirm_dialog_title_a_to_p_visual_allow" msgid="6469086448310893751">"دسترسی به فایل‌های دیگر نیز مجاز می‌شود"</string>
@@ -674,8 +676,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"مجاز کردن تنظیمات محدودشده"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"تنظیم محدودشده"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"برای حفظ امنیت شما، درحال‌حاضر این تنظیم دردسترس نیست."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"اقدام درطول تماس تلفنی دردسترس نیست"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"درطول تماس تلفنی، اجازه دادن به برنامه‌ها برای نصب برنامه‌های دیگر مجاز نیست.\n\n افراد کلاهبردار اغلب این نوع اقدامات را درطول مکالمه‌های تلفنی درخواست می‌کنند، بنابراین این کار برای محافظت از شما مسدود شده است. اگر شخص ناآشنایی شما را ترغیب به انجام این اقدام می‌کند، ممکن است موضوع کلاهبرداری باشد."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"درخواست برنامه برای دسترسی به <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> رد شد"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"‏این برنامه درخواست دسترسی به اجازه‌ای حساس را داشته است که می‌تواند اطلاعات شخصی و مالی‌تان را درمعرض خطر قرار دهد.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>ممکن است برنامه بدون این اجازه محدودشده به‌درستی کار نکند. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;با نحوه اعطای دسترسی آشنا شوید&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"درخواست دسترسی برنامه برای تبدیل شدن به <xliff:g id="ROLE_NAME">%1$s</xliff:g> پیش‌فرض رد شد"</string>

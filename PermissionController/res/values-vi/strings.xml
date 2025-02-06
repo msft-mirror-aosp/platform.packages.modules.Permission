@@ -202,11 +202,15 @@
     <string name="app_permission_header_with_device_name" msgid="7193042925656173271">"Quyền truy cập <xliff:g id="PERM">%1$s</xliff:g> cho ứng dụng này trên <xliff:g id="DEVICE_NAME">%2$s</xliff:g>"</string>
     <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"Xem tất cả các quyền của <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"Xem tất cả ứng dụng có quyền này"</string>
+    <!-- no translation found for app_permission_info_button (8973692370208562556) -->
+    <skip />
+    <!-- no translation found for app_permission_settings_button (4582916817451973752) -->
+    <skip />
     <string name="assistant_mic_label" msgid="1011432357152323896">"Hiển thị việc sử dụng micrô của Trợ lý"</string>
     <string name="unused_apps_category_title" msgid="2988455616845243901">"Chế độ cài đặt cho ứng dụng không dùng đến"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"Thu hồi quyền nếu bạn không dùng ứng dụng"</string>
     <string name="unused_apps_label" msgid="2595428768404901064">"Thu hồi quyền và giải phóng dung lượng"</string>
-    <string name="unused_apps_label_v2" msgid="7058776770056517980">"Tạm dừng hoạt động của ứng dụng nếu không dùng"</string>
+    <string name="unused_apps_label_v2" msgid="7058776770056517980">"Dừng hoạt động ứng dụng nếu không dùng"</string>
     <string name="unused_apps_label_v3" msgid="693340578642156657">"Quản lý ứng dụng nếu không dùng"</string>
     <string name="unused_apps_summary" msgid="8839466950318403115">"Loại bỏ quyền, xoá tệp tạm thời và dừng thông báo"</string>
     <string name="unused_apps_summary_v2" msgid="5011313200815115802">"Loại bỏ quyền, xoá tệp tạm thời, dừng thông báo và lưu trữ ứng dụng"</string>
@@ -674,8 +678,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Cho phép các chế độ cài đặt bị hạn chế"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Chế độ cài đặt bị hạn chế"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Để đảm bảo an toàn cho bạn, chế độ cài đặt này hiện không dùng được."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Không thao tác được khi đang gọi điện"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"Không cho phép ứng dụng cài đặt các ứng dụng khác trong khi bạn gọi điện.\n\n Kẻ lừa đảo thường yêu cầu bạn cài đặt ứng dụng trong khi gọi điện, vì vậy, hành động này bị chặn để bảo vệ bạn. Nếu người mà bạn không biết hướng dẫn bạn cài đặt ứng dụng, thì đó có thể là thủ đoạn lừa đảo."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Ứng dụng đã bị từ chối cấp quyền truy cập vào <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Ứng dụng này yêu cầu quyền truy cập vào thông tin nhạy cảm. Việc đó có thể khiến thông tin cá nhân và thông tin tài chính của bạn gặp rủi ro.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Có thể ứng dụng sẽ hoạt động không đúng cách nếu không được cấp quyền bị hạn chế này. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Tìm hiểu cách cấp quyền&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Ứng dụng đã bị từ chối cấp quyền để làm <xliff:g id="ROLE_NAME">%1$s</xliff:g> mặc định"</string>

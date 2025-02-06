@@ -20,12 +20,12 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.graphics.drawable.Drawable
 import android.os.Process
-import android.util.Pair
 import com.android.permissioncontroller.R
 import com.android.permissioncontroller.permission.utils.Utils
 import com.android.permissioncontroller.role.UserPackage
 import com.android.permissioncontroller.role.model.UserDeniedManager
 import com.android.permissioncontroller.role.ui.RequestRoleViewModel
+import com.android.permissioncontroller.role.ui.RoleApplicationItem
 import com.android.permissioncontroller.role.ui.wear.model.WearRequestRoleViewModel
 import com.android.role.controller.model.Role
 import java.util.Objects
@@ -50,11 +50,11 @@ class WearRequestRoleHelper(
         UserDeniedManager.getInstance(context).isDeniedOnce(roleName, packageName)
 
     fun getNonePreference(
-        qualifyingApplications: List<Pair<ApplicationInfo, Boolean>>,
+        applicationItems: List<RoleApplicationItem>,
         selectedPackage: UserPackage?,
     ): RequestRolePreference? =
         if (role.shouldShowNone()) {
-            val hasHolderApplication = hasHolderApplication(qualifyingApplications)
+            val hasHolderApplication = hasHolderApplication(applicationItems)
             RequestRolePreference(
                 userPackage = null,
                 label = context.getString(R.string.default_app_none),
@@ -79,48 +79,47 @@ class WearRequestRoleHelper(
         }
 
     fun getPreferences(
-        qualifyingApplications: List<Pair<ApplicationInfo, Boolean>>,
+        applicationItems: List<RoleApplicationItem>,
         selectedPackage: UserPackage?,
     ): List<RequestRolePreference> {
-        return qualifyingApplications
-            .map { qualifyingApplication ->
-                val userPackage = UserPackage.from(qualifyingApplication.first)
+        return applicationItems
+            .map { applicationItem ->
+                val userPackage = UserPackage.from(applicationItem.applicationInfo)
                 RequestRolePreference(
                     userPackage = userPackage,
-                    label = Utils.getAppLabel(qualifyingApplication.first, context),
+                    label = Utils.getAppLabel(applicationItem.applicationInfo, context),
                     subTitle =
-                        if (qualifyingApplication.second) {
+                        if (applicationItem.isHolderApplication) {
                             context.getString(R.string.request_role_current_default)
                         } else {
                             context.getString(role.requestDescriptionResource)
                         },
-                    icon = Utils.getBadgedIcon(context, qualifyingApplication.first),
+                    icon = Utils.getBadgedIcon(context, applicationItem.applicationInfo),
                     checked = Objects.equals(userPackage, selectedPackage),
                     enabled =
                         if (!wearViewModel.dontAskAgain()) {
                             true
                         } else {
-                            qualifyingApplication.second
+                            applicationItem.isHolderApplication
                         },
-                    isHolder = qualifyingApplication.second,
+                    isHolder = applicationItem.isHolderApplication,
                 )
             }
             .toList()
     }
 
-    private fun hasHolderApplication(
-        qualifyingApplications: List<Pair<ApplicationInfo, Boolean>>
-    ): Boolean = qualifyingApplications.map { it.second }.contains(true)
+    private fun hasHolderApplication(applicationItems: List<RoleApplicationItem>): Boolean =
+        applicationItems.map { it.isHolderApplication }.contains(true)
 
     fun shouldSetAsDefaultEnabled(enabled: Boolean): Boolean {
         return enabled && (wearViewModel.dontAskAgain() || !wearViewModel.isHolderChecked)
     }
 
-    fun initializeHolderPackage(qualifyingApplications: List<Pair<ApplicationInfo, Boolean>>) {
+    fun initializeHolderPackage(applicationItems: List<RoleApplicationItem>) {
         wearViewModel.holderPackage =
-            qualifyingApplications
-                .find { it.second }
-                ?.first
+            applicationItems
+                .find { it.isHolderApplication }
+                ?.applicationInfo
                 ?.let { appInfo -> UserPackage.from(appInfo) }
     }
 

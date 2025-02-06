@@ -202,6 +202,8 @@
     <string name="app_permission_header_with_device_name" msgid="7193042925656173271">"Acceso a <xliff:g id="PERM">%1$s</xliff:g> para esta app en <xliff:g id="DEVICE_NAME">%2$s</xliff:g>"</string>
     <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"Ver todos los permisos de <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"Ver todas las apps que tienen este permiso"</string>
+    <string name="app_permission_info_button" msgid="8973692370208562556">"Información"</string>
+    <string name="app_permission_settings_button" msgid="4582916817451973752">"Configuración"</string>
     <string name="assistant_mic_label" msgid="1011432357152323896">"Mostrar el uso del micrófono del Asistente"</string>
     <string name="unused_apps_category_title" msgid="2988455616845243901">"Configuración de apps sin usar"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"Quitar los permisos si la app no se usa"</string>
@@ -674,8 +676,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Permitir configuración restringida"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Parámetro restringido"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Por seguridad, este parámetro de configuración no está disponible actualmente."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"La acción no está disponible durante una llamada telefónica"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"No se permite que las apps instalen otras apps durante una llamada telefónica.\n\n Esto se debe a que los estafadores suelen solicitar este tipo de acciones durante conversaciones telefónicas. Si alguien que no conoces te indica que realices esta acción, es posible que se trate de una estafa."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"A la app se le negó el acceso a <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"La app solicitó acceso a un permiso sensible, lo que puede poner en riesgo tu información financiera y personal.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Es posible que la app no funcione como corresponde sin este permiso restringido. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Descubre cómo permitir el acceso&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"A la app se le negó el acceso para usarse como <xliff:g id="ROLE_NAME">%1$s</xliff:g> de forma predeterminada"</string>

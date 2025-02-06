@@ -18,10 +18,8 @@ package com.android.permissioncontroller.role.ui;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.os.UserHandle;
 import android.util.Log;
-import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -30,10 +28,12 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.android.permissioncontroller.role.utils.RoleUiBehaviorUtils;
 import com.android.permissioncontroller.role.utils.UserUtils;
 import com.android.role.controller.model.Role;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * {@link ViewModel} for a default app.
@@ -48,7 +48,10 @@ public class DefaultAppViewModel extends AndroidViewModel {
     private final UserHandle mUser;
 
     @NonNull
-    private final LiveData<List<Pair<ApplicationInfo, Boolean>>> mRoleLiveData;
+    private final LiveData<List<RoleApplicationItem>> mRecommendedLiveData;
+
+    @NonNull
+    private final LiveData<List<RoleApplicationItem>> mLiveData;
 
     @NonNull
     private final ManageRoleHolderStateLiveData mManageRoleHolderStateLiveData =
@@ -60,30 +63,42 @@ public class DefaultAppViewModel extends AndroidViewModel {
 
         mRole = role;
         // If EXCLUSIVITY_PROFILE_GROUP this user should be profile parent
-        mUser = mRole.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP
+        mUser = role.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP
                 ? UserUtils.getProfileParentOrSelf(user, application)
                 : user;
-        RoleLiveData liveData = new RoleLiveData(mRole, mUser, application);
+        RoleLiveData userLiveData = new RoleLiveData(role, mUser, application);
         RoleSortFunction sortFunction = new RoleSortFunction(application);
-        if (mRole.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP) {
+        LiveData<List<RoleApplicationItem>> liveData;
+        if (role.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP) {
             // Context user might be work profile, ensure we get a non-null UserHandle if work
             // profile exists. getWorkProfile returns null if context user is work profile.
             UserHandle workProfile  = UserUtils.getWorkProfileOrSelf(application);
             if (workProfile != null) {
                 RoleLiveData workLiveData = new RoleLiveData(role, workProfile, application);
-                mRoleLiveData = Transformations.map(new MergeRoleLiveData(liveData, workLiveData),
+                liveData = Transformations.map(new MergeRoleLiveData(userLiveData, workLiveData),
                         sortFunction);
             } else {
-                mRoleLiveData = Transformations.map(liveData, sortFunction);
+                liveData = Transformations.map(userLiveData, sortFunction);
             }
         } else {
-            mRoleLiveData = Transformations.map(liveData, sortFunction);
+            liveData = Transformations.map(userLiveData, sortFunction);
         }
+        Predicate<RoleApplicationItem> recommendedApplicationFilter =
+                RoleUiBehaviorUtils.getRecommendedApplicationFilter(role, application);
+        mRecommendedLiveData = Transformations.map(liveData,
+                new ListLiveDataFilterFunction<>(recommendedApplicationFilter));
+        mLiveData = Transformations.map(liveData,
+                new ListLiveDataFilterFunction<>(recommendedApplicationFilter.negate()));
     }
 
     @NonNull
-    public LiveData<List<Pair<ApplicationInfo, Boolean>>> getRoleLiveData() {
-        return mRoleLiveData;
+    public LiveData<List<RoleApplicationItem>> getRecommendedLiveData() {
+        return mRecommendedLiveData;
+    }
+
+    @NonNull
+    public LiveData<List<RoleApplicationItem>> getLiveData() {
+        return mLiveData;
     }
 
     @NonNull

@@ -131,6 +131,12 @@ public class UserUtils {
         return null;
     }
 
+    /**
+     * Returns whether the user is a private profile or not.
+     *
+     * @param userHandle the {@code UserHandle} to check is private profile
+     * @param context the {@code Context} to retrieve system services
+     */
     private static boolean isPrivateProfile(@NonNull UserHandle userHandle,
             @NonNull Context context) {
         if (!SdkLevel.isAtLeastV() || !android.os.Flags.allowPrivateProfile()) {

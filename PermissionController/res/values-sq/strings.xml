@@ -202,6 +202,10 @@
     <string name="app_permission_header_with_device_name" msgid="7193042925656173271">"Qasja te <xliff:g id="PERM">%1$s</xliff:g> për këtë aplikacion në <xliff:g id="DEVICE_NAME">%2$s</xliff:g>"</string>
     <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"Shiko të gjitha lejet e aplikacionit \"<xliff:g id="APP">%1$s</xliff:g>\""</string>
     <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"Shiko të gjitha aplikacionet me këtë leje"</string>
+    <!-- no translation found for app_permission_info_button (8973692370208562556) -->
+    <skip />
+    <!-- no translation found for app_permission_settings_button (4582916817451973752) -->
+    <skip />
     <string name="assistant_mic_label" msgid="1011432357152323896">"Shfaq përdorimin e mikrofonit të \"Asistentit\""</string>
     <string name="unused_apps_category_title" msgid="2988455616845243901">"Cilësimet e aplikacioneve të papërdorura"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"Hiq lejet nëse aplikacioni nuk është përdorur"</string>
@@ -445,7 +449,7 @@
     <string name="car_default_app_selected" msgid="5416420830430644174">"Zgjedhur"</string>
     <string name="car_default_app_selected_with_info" msgid="1932204186080593500">"Zgjedhur - <xliff:g id="ADDITIONAL_INFO">%1$s</xliff:g>"</string>
     <string name="special_app_access_search_keyword" msgid="8032347212290774210">"qasje e veçantë e aplikacionit"</string>
-    <string name="special_app_access" msgid="5019319067120213797">"Qasje e veçantë aplikacioni"</string>
+    <string name="special_app_access" msgid="5019319067120213797">"Qasja e veçantë e apl."</string>
     <string name="no_special_app_access" msgid="6950277571805106247">"Jo qasje e veçantë aplikacioni"</string>
     <string name="special_app_access_no_apps" msgid="4102911722787886970">"Nuk ka aplikacione"</string>
     <string name="home_missing_work_profile_support" msgid="1756855847669387977">"Profili i punës nuk mbështetet"</string>
@@ -674,8 +678,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Lejo cilësimet e kufizuara"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Cilësim i kufizuar"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Për sigurinë tënde, ky cilësim nuk ofrohet për momentin."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Veprimi nuk ofrohet kur je në një telefonatë"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"Nuk lejohet që aplikacionet të lejohen të instalojnë aplikacione të tjera gjatë një telefonate.\n\n Mashtruesit e kërkojnë shpesh këtë lloj veprimi gjatë bisedave të telefonatave, prandaj kjo është bllokuar për të të mbrojtur ty. Nëse po udhëzohesh ta kryesh këtë veprim nga dikush që nuk e njeh, mund të jetë një mashtrim."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Aplikacionit iu refuzua qasja te: <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Aplikacioni kërkoi qasje në një leje delikate që mund t\'i vendosë në rrezik informacionet e tua personale dhe financiare.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Ka mundësi që aplikacioni të mos funksionojë si duhet pa këtë leje të kufizuar. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Mëso se si të lejosh qasjen&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Aplikacionit iu refuzua qasja për të qenë parazgjedhja për: <xliff:g id="ROLE_NAME">%1$s</xliff:g>"</string>

@@ -202,6 +202,8 @@
     <string name="app_permission_header_with_device_name" msgid="7193042925656173271">"<xliff:g id="PERM">%1$s</xliff:g> prieiga šiai programai „<xliff:g id="DEVICE_NAME">%2$s</xliff:g>“"</string>
     <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"Žr. visus „<xliff:g id="APP">%1$s</xliff:g>“ leidimus"</string>
     <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"Žr. visas programas, kurioms suteiktas šis leidimas"</string>
+    <string name="app_permission_info_button" msgid="8973692370208562556">"Informacija"</string>
+    <string name="app_permission_settings_button" msgid="4582916817451973752">"Nustatymai"</string>
     <string name="assistant_mic_label" msgid="1011432357152323896">"Rodyti Padėjėjo mikrofono naudojimą"</string>
     <string name="unused_apps_category_title" msgid="2988455616845243901">"Nenaudojamos programos nustatymai"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"Pašalinti leidimus, jei programa nenaudojama"</string>
@@ -674,8 +676,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Leisti apribotus nustatymus"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Apribotas nustatymas"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Šis nustatymas šiuo metu nepasiekiamas dėl jūsų saugumo."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Veiksmas nepasiekiamas vykstant pokalbiui telefonu"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"Leidimas programoms įdiegti kitas programas neveikia vykstant pokalbiui telefonu.\n\n Sukčiai dažnai prašo atlikti tokio tipo veiksmus vykstant pokalbiui telefonu, todėl šis veiksmas blokuojamas siekiant jus apsaugoti. Jei nepažįstamas asmuo prašo atlikti šį veiksmą, tai gali būti sukčiavimas."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Programai prieiga nesuteikta:<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Programa pateikė leidimo pasiekti neskelbtiną informaciją, dėl kurio gali kilti pavojus jūsų asmens ir finansinei informacijai, užklausą.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Gali būti, kad be šio apriboto leidimo programa neveiks tinkamai. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Sužinokite, kaip suteikti prieigą&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Programai nesuteikta prieiga kaip numatytojo šio vaidmens: <xliff:g id="ROLE_NAME">%1$s</xliff:g>"</string>

@@ -16,7 +16,11 @@
 
 package com.android.ecm;
 
+import static android.app.ecm.EnhancedConfirmationManager.REASON_PACKAGE_RESTRICTED;
+import static android.app.ecm.EnhancedConfirmationManager.REASON_PHONE_STATE;
+
 import android.Manifest;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -51,10 +55,12 @@ import android.telephony.TelephonyManager;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
+import android.view.accessibility.AccessibilityManager;
 
 import androidx.annotation.Keep;
 import androidx.annotation.RequiresApi;
 
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 import com.android.permission.util.UserUtils;
 import com.android.server.LocalManagerRegistry;
@@ -89,7 +95,7 @@ public class EnhancedConfirmationService extends SystemService {
 
     private static final int CALL_TYPE_UNTRUSTED = 0;
     private static final int CALL_TYPE_TRUSTED = 1;
-    private static final int CALL_TYPE_EMERGENCY = 2;
+    private static final int CALL_TYPE_EMERGENCY = 1 << 1;
     @IntDef(flag = true, value = {
             CALL_TYPE_UNTRUSTED,
             CALL_TYPE_TRUSTED,
@@ -106,6 +112,10 @@ public class EnhancedConfirmationService extends SystemService {
 
     private ContentResolver mContentResolver;
     private TelephonyManager mTelephonyManager;
+
+    @GuardedBy("mUserAccessibilityManagers")
+    private final Map<Integer, AccessibilityManager> mUserAccessibilityManagers =
+            new ArrayMap<>();
 
     @Override
     public void onStart() {
@@ -237,7 +247,7 @@ public class EnhancedConfirmationService extends SystemService {
             int ECM_STATE_IMPLICIT = AppOpsManager.MODE_DEFAULT;
         }
 
-        private static final ArraySet<String> PROTECTED_SETTINGS = new ArraySet<>();
+        private static final ArraySet<String> PER_PACKAGE_PROTECTED_SETTINGS = new ArraySet<>();
 
         // Settings restricted when an untrusted call is ongoing. These must also be added to
         // PROTECTED_SETTINGS
@@ -245,30 +255,31 @@ public class EnhancedConfirmationService extends SystemService {
 
         static {
             // Runtime permissions
-            PROTECTED_SETTINGS.add(Manifest.permission.SEND_SMS);
-            PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_SMS);
-            PROTECTED_SETTINGS.add(Manifest.permission.READ_SMS);
-            PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_MMS);
-            PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_WAP_PUSH);
-            PROTECTED_SETTINGS.add(Manifest.permission.READ_CELL_BROADCASTS);
-            PROTECTED_SETTINGS.add(Manifest.permission_group.SMS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.SEND_SMS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_SMS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.READ_SMS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_MMS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.RECEIVE_WAP_PUSH);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.READ_CELL_BROADCASTS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission_group.SMS);
 
-            PROTECTED_SETTINGS.add(Manifest.permission.BIND_DEVICE_ADMIN);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(Manifest.permission.BIND_DEVICE_ADMIN);
             // App ops
-            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_BIND_ACCESSIBILITY_SERVICE);
-            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_ACCESS_NOTIFICATIONS);
-            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW);
-            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_GET_USAGE_STATS);
-            PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_LOADER_USAGE_STATS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_BIND_ACCESSIBILITY_SERVICE);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_ACCESS_NOTIFICATIONS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_GET_USAGE_STATS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_LOADER_USAGE_STATS);
             // Default application roles.
-            PROTECTED_SETTINGS.add(RoleManager.ROLE_DIALER);
-            PROTECTED_SETTINGS.add(RoleManager.ROLE_SMS);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(RoleManager.ROLE_DIALER);
+            PER_PACKAGE_PROTECTED_SETTINGS.add(RoleManager.ROLE_SMS);
 
             if (Flags.unknownCallPackageInstallBlockingEnabled()) {
                 // Requesting package installs, limited during phone calls
-                PROTECTED_SETTINGS.add(AppOpsManager.OPSTR_REQUEST_INSTALL_PACKAGES);
                 UNTRUSTED_CALL_RESTRICTED_SETTINGS.add(
                         AppOpsManager.OPSTR_REQUEST_INSTALL_PACKAGES);
+                UNTRUSTED_CALL_RESTRICTED_SETTINGS.add(
+                        AppOpsManager.OPSTR_BIND_ACCESSIBILITY_SERVICE);
             }
         }
 
@@ -287,10 +298,16 @@ public class EnhancedConfirmationService extends SystemService {
 
         public boolean isRestricted(@NonNull String packageName, @NonNull String settingIdentifier,
                 @UserIdInt int userId) {
+            return getRestrictionReason(packageName, settingIdentifier, userId) != null;
+        }
+
+        public String getRestrictionReason(@NonNull String packageName,
+                @NonNull String settingIdentifier,
+                @UserIdInt int userId) {
             enforcePermissions("isRestricted", userId);
             if (!UserUtils.isUserExistent(userId, getContext())) {
                 Log.e(LOG_TAG, "user " + userId + " does not exist");
-                return false;
+                return null;
             }
 
             Preconditions.checkStringNotEmpty(packageName, "packageName cannot be null or empty");
@@ -299,12 +316,17 @@ public class EnhancedConfirmationService extends SystemService {
 
             try {
                 if (!isSettingEcmProtected(settingIdentifier)) {
-                    return false;
+                    return null;
                 }
-                if (isSettingProtectedGlobally(settingIdentifier)) {
-                    return true;
+                if (isSettingEcmGuardedForPackage(settingIdentifier, packageName, userId)) {
+                    return REASON_PACKAGE_RESTRICTED;
                 }
-                return isPackageEcmGuarded(packageName, userId);
+                String globalProtectionReason =
+                        getGlobalProtectionReason(settingIdentifier, packageName, userId);
+                if (globalProtectionReason != null) {
+                    return globalProtectionReason;
+                }
+                return null;
             } catch (NameNotFoundException e) {
                 throw new IllegalArgumentException(e);
             }
@@ -436,6 +458,14 @@ public class EnhancedConfirmationService extends SystemService {
                     || isAllowlistedInstaller(installingPackageName));
         }
 
+        private boolean isSettingEcmGuardedForPackage(@NonNull String settingIdentifier,
+                @NonNull String packageName, @UserIdInt int userId) throws NameNotFoundException {
+            if (!PER_PACKAGE_PROTECTED_SETTINGS.contains(settingIdentifier)) {
+                return false;
+            }
+            return isPackageEcmGuarded(packageName, userId);
+        }
+
         private boolean isAllowlistedPackage(String packageName) {
             return isPackageSignedWithAnyOf(packageName,
                     mTrustedPackageCertDigests.get(packageName));
@@ -506,18 +536,53 @@ public class EnhancedConfirmationService extends SystemService {
                 return false;
             }
 
-            if (PROTECTED_SETTINGS.contains(settingIdentifier)) {
+            if (PER_PACKAGE_PROTECTED_SETTINGS.contains(settingIdentifier)) {
+                return true;
+            }
+            if (UNTRUSTED_CALL_RESTRICTED_SETTINGS.contains(settingIdentifier)) {
                 return true;
             }
             // TODO(b/310218979): Add role selections as protected settings
             return false;
         }
 
-        private boolean isSettingProtectedGlobally(@NonNull String settingIdentifier) {
-            if (UNTRUSTED_CALL_RESTRICTED_SETTINGS.contains(settingIdentifier)) {
-                return isUntrustedCallOngoing();
+        private String getGlobalProtectionReason(@NonNull String settingIdentifier,
+                @NonNull String packageName, @UserIdInt int userId) {
+            if (UNTRUSTED_CALL_RESTRICTED_SETTINGS.contains(settingIdentifier)
+                    && isUntrustedCallOngoing()) {
+                if (!AppOpsManager.OPSTR_BIND_ACCESSIBILITY_SERVICE.equals(settingIdentifier)) {
+                    return REASON_PHONE_STATE;
+                }
+                if (!isAccessibilityTool(packageName, userId)) {
+                    return REASON_PHONE_STATE;
+                }
+                return null;
             }
+            return null;
+        }
 
+        private boolean isAccessibilityTool(@NonNull String packageName, @UserIdInt int userId) {
+            AccessibilityManager am;
+            synchronized (mUserAccessibilityManagers) {
+                if (!mUserAccessibilityManagers.containsKey(userId)) {
+                    Context userContext =
+                            getContext().createContextAsUser(UserHandle.of(userId), 0);
+                    mUserAccessibilityManagers.put(userId, userContext.getSystemService(
+                            AccessibilityManager.class));
+                }
+                am = mUserAccessibilityManagers.get(userId);
+            }
+            List<AccessibilityServiceInfo> infos = am.getInstalledAccessibilityServiceList();
+            for (int i = 0; i < infos.size(); i++) {
+                AccessibilityServiceInfo info = infos.get(i);
+                String servicePackageName = null;
+                if (info.getResolveInfo() != null && info.getResolveInfo().serviceInfo != null) {
+                    servicePackageName = info.getResolveInfo().serviceInfo.packageName;
+                }
+                if (packageName.equals(servicePackageName)) {
+                    return info.isAccessibilityTool();
+                }
+            }
             return false;
         }
 

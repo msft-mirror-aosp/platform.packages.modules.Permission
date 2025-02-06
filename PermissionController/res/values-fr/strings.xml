@@ -202,6 +202,10 @@
     <string name="app_permission_header_with_device_name" msgid="7193042925656173271">"Accès à <xliff:g id="PERM">%1$s</xliff:g> pour cette application sur <xliff:g id="DEVICE_NAME">%2$s</xliff:g>"</string>
     <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"Voir toutes les autorisations pour <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"Voir toutes les applis ayant cette autorisation"</string>
+    <!-- no translation found for app_permission_info_button (8973692370208562556) -->
+    <skip />
+    <!-- no translation found for app_permission_settings_button (4582916817451973752) -->
+    <skip />
     <string name="assistant_mic_label" msgid="1011432357152323896">"Afficher l\'utilisation du micro par l\'Assistant"</string>
     <string name="unused_apps_category_title" msgid="2988455616845243901">"Paramètres des applis inutilisées"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"Supprimer les autorisations si l\'application n\'est pas utilisée"</string>
@@ -674,8 +678,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Autoriser les paramètres restreints"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Paramètre restreint"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Pour votre sécurité, ce paramètre est actuellement indisponible."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Action non disponible lors d\'un appel téléphonique"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"Vous ne pouvez pas autoriser des applis à installer d\'autres applis pendant un appel téléphonique.\n\n Les escrocs demandent souvent d\'effectuer ce type d\'action lors d\'appels téléphoniques. Cette action est donc bloquée pour vous protéger. Si quelqu\'un que vous ne connaissez pas vous demande d\'effectuer cette action, il s\'agit peut-être d\'une escroquerie."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"L\'appli s\'est vu refuser l\'accès à <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Cette appli a demandé l\'accès à une autorisation sensible susceptible d\'exposer vos informations financières et personnelles à un risque.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Si elle ne dispose pas d\'un accès à cette autorisation restreinte, l\'appli peut ne pas fonctionner correctement. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Découvrez comment autoriser l\'accès&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"L\'appli s\'est vu refuser l\'accès au statut de <xliff:g id="ROLE_NAME">%1$s</xliff:g> par défaut"</string>

@@ -26,8 +26,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.permission.PermissionManager
+import android.permission.cts.TestUtils
 import android.permission.flags.Flags
-import android.permissionmultidevice.cts.PermissionUtils.isCddCompliantScreenSize
 import android.platform.test.annotations.RequiresFlagsEnabled
 import android.virtualdevice.cts.common.VirtualDeviceRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -79,7 +79,7 @@ class AppPermissionsTest {
         assumeFalse(PermissionUtils.isAutomotive(defaultDeviceContext))
         assumeFalse(PermissionUtils.isTv(defaultDeviceContext))
         assumeFalse(PermissionUtils.isWatch(defaultDeviceContext))
-        assumeTrue(isCddCompliantScreenSize())
+        assumeTrue(TestUtils.isCddCompliantScreenSize())
 
         PackageManagementUtils.installPackage(APP_APK_PATH_STREAMING)
 

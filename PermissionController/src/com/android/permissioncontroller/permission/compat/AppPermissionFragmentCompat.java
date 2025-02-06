@@ -33,6 +33,7 @@ import com.android.permission.flags.Flags;
 import com.android.permissioncontroller.R;
 import com.android.permissioncontroller.permission.ui.handheld.max35.LegacyAppPermissionFragment;
 import com.android.permissioncontroller.permission.ui.handheld.v36.AppPermissionFragment;
+import com.android.role.controller.util.RoleFlags;
 
 /** Helper methods for AppPermissionFragment across SDKs for compatibility. */
 public class AppPermissionFragmentCompat {
@@ -44,8 +45,8 @@ public class AppPermissionFragmentCompat {
      */
     @NonNull
     public static PreferenceFragmentCompat createFragment(@NonNull Context context) {
-        if (SdkLevel.isAtLeastV() && (Flags.appPermissionFragmentUsesPreferences()
-                || context.getResources().getBoolean(
+        if ((RoleFlags.isAtLeastB() && Flags.appPermissionFragmentUsesPreferences())
+                || (SdkLevel.isAtLeastV() && context.getResources().getBoolean(
                 R.bool.config_usePreferenceForAppPermissionSettings))) {
             return new AppPermissionFragment();
         } else {

@@ -27,6 +27,7 @@ import android.util.Log
 import com.android.modules.utils.build.SdkLevel
 import com.android.permission.safetylabel.DataCategoryConstants
 import com.android.permissioncontroller.permission.model.livedatatypes.LightAppPermGroup
+import com.android.permissioncontroller.permission.utils.v31.AdminRestrictedPermissionsUtils
 
 /**
  * This file contains the canonical mapping of permission to permission group, used in the
@@ -181,13 +182,18 @@ object PermissionMapping {
                 Manifest.permission_group.CAMERA
         }
 
-        PLATFORM_PERMISSIONS[Manifest.permission.BODY_SENSORS] = Manifest.permission_group.SENSORS
-
         if (SdkLevel.isAtLeastT()) {
             PLATFORM_PERMISSIONS[Manifest.permission.POST_NOTIFICATIONS] =
                 Manifest.permission_group.NOTIFICATIONS
-            PLATFORM_PERMISSIONS[Manifest.permission.BODY_SENSORS_BACKGROUND] =
+        }
+
+        if (!Flags.replaceBodySensorPermissionEnabled()) {
+            PLATFORM_PERMISSIONS[Manifest.permission.BODY_SENSORS] =
                 Manifest.permission_group.SENSORS
+            if (SdkLevel.isAtLeastT()) {
+                PLATFORM_PERMISSIONS[Manifest.permission.BODY_SENSORS_BACKGROUND] =
+                    Manifest.permission_group.SENSORS
+            }
         }
 
         for ((permission, permissionGroup) in PLATFORM_PERMISSIONS) {
@@ -327,6 +333,9 @@ object PermissionMapping {
             PLATFORM_PERMISSIONS[permission] = HEALTH_PERMISSION_GROUP
             PLATFORM_PERMISSION_GROUPS[HEALTH_PERMISSION_GROUP]?.add(permission)
             HEALTH_PERMISSIONS_SET.add(permission)
+            if (Flags.replaceBodySensorPermissionEnabled()) {
+                AdminRestrictedPermissionsUtils.addAdminRestrictedPermission(permission)
+            }
         }
     }
 
@@ -343,19 +352,13 @@ object PermissionMapping {
 
         val appSupportsPickerPrompt =
             group.permissions[Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED]?.isImplicit ==
-                false
+              false
 
         return if (appSupportsPickerPrompt) {
             PARTIAL_MEDIA_PERMISSIONS
         } else {
             setOf(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
         }
-    }
-
-    /** Returns true if the given permission is a health platform permission. */
-    @JvmStatic
-    fun isHealthPermission(permissionName: String): Boolean {
-        return HEALTH_PERMISSIONS_SET.contains(permissionName)
     }
 
     /**

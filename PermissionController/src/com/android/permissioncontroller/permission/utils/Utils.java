@@ -35,9 +35,11 @@ import static android.app.AppOpsManager.MODE_ALLOWED;
 import static android.app.AppOpsManager.OPSTR_LEGACY_STORAGE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Intent.EXTRA_PACKAGE_NAME;
+import static android.content.Intent.EXTRA_REASON;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_RESTRICTION_INSTALLER_EXEMPT;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_RESTRICTION_SYSTEM_EXEMPT;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_RESTRICTION_UPGRADE_EXEMPT;
+import static android.content.pm.PackageManager.FLAG_PERMISSION_REVOKE_WHEN_REQUESTED;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_USER_SENSITIVE_WHEN_DENIED;
 import static android.content.pm.PackageManager.FLAG_PERMISSION_USER_SENSITIVE_WHEN_GRANTED;
 import static android.content.pm.PackageManager.MATCH_SYSTEM_ONLY;
@@ -77,6 +79,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.SensorPrivacyManager;
 import android.health.connect.HealthConnectManager;
+import android.health.connect.HealthPermissions;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Parcelable;
@@ -547,8 +550,14 @@ public final class Utils {
         if (group.equals(Manifest.permission_group.UNDEFINED)) {
             List<PermissionInfo> undefinedPerms = new ArrayList<>();
             for (PermissionInfo permissionInfo : installedRuntime) {
+                if (Flags.replaceBodySensorPermissionEnabled()
+                    && (permissionInfo.name.equals(Manifest.permission.BODY_SENSORS) ||
+                    permissionInfo.name.equals(Manifest.permission.BODY_SENSORS_BACKGROUND))) {
+                    continue;
+                }
+
                 String permGroup =
-                        PermissionMapping.getGroupOfPlatformPermission(permissionInfo.name);
+                    PermissionMapping.getGroupOfPlatformPermission(permissionInfo.name);
                 if (permGroup == null || permGroup.equals(Manifest.permission_group.UNDEFINED)) {
                     undefinedPerms.add(permissionInfo);
                 }
@@ -1100,15 +1109,29 @@ public final class Utils {
             return false;
         }
 
+        // Always show Fitness&Wellness chip on Wear.
+        if (Flags.replaceBodySensorPermissionEnabled()
+            && pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+            return true;
+        }
+
         // Check in permission is already granted as we should not hide it in the UX at that point.
         List<String> grantedPermissions = packageInfo.getGrantedPermissions();
         for (PermissionInfo permission : permissions) {
             boolean isCurrentlyGranted = grantedPermissions.contains(permission.name);
             if (isCurrentlyGranted) {
-                Log.d(LOG_TAG, "At least one Health permission group permission is granted, "
+                Log.d(
+                    LOG_TAG,
+                    "At least one Health permission group permission is granted, "
                         + "show permission group entry");
                 return true;
             }
+        }
+
+        // When none health permission is granted, exempt health permission view usage intent filter
+        // if all the requested health permissions are from permission splits.
+        if (isRequestFromSplitHealthPermission(packageInfo)) {
+            return true;
         }
 
         Intent viewUsageIntent = new Intent(Intent.ACTION_VIEW_PERMISSION_USAGE);
@@ -1122,6 +1145,71 @@ public final class Utils {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Returns true if the request is being made as the result of a split health permission from
+     * BODY_SENSORS call.
+     */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private static boolean isRequestFromSplitHealthPermission(LightPackageInfo packageInfo) {
+        // Sdk check to make sure HealthConnectManager.isHealthPermission() is supported.
+        if (!SdkLevel.isAtLeastU() || !Flags.replaceBodySensorPermissionEnabled()) {
+            return false;
+        }
+
+        PermissionControllerApplication app = PermissionControllerApplication.get();
+        PackageManager pm = app.getPackageManager();
+        String packageName = packageInfo.getPackageName();
+        UserHandle user = UserHandle.getUserHandleForUid(packageInfo.getUid());
+        Context context = Utils.getUserContext(app, user);
+
+        List<String> requestedHealthPermissions = new ArrayList<>();
+        for (String permission : packageInfo.getRequestedPermissions()) {
+            if (HealthConnectManager.isHealthPermission(context, permission)) {
+                requestedHealthPermissions.add(permission);
+            }
+        }
+
+        // Split permission only applies to READ_HEART_RATE.
+        if (!requestedHealthPermissions.contains(HealthPermissions.READ_HEART_RATE)) {
+            return false;
+        }
+
+        // If there are other health permissions (other than READ_HEALTH_DATA_IN_BACKGROUND)
+        // don't consider this a pure split-permission request.
+        if (requestedHealthPermissions.size() > 2) {
+            return false;
+        }
+
+        boolean isBackgroundPermissionRequested =
+            requestedHealthPermissions.contains(
+                HealthPermissions.READ_HEALTH_DATA_IN_BACKGROUND);
+        // If there are two health permissions declared, make sure the other is
+        // READ_HEALTH_DATA_IN_BACKGROUND.
+        if (requestedHealthPermissions.size() == 2 && !isBackgroundPermissionRequested) {
+            return false;
+        }
+
+        // If READ_HEALTH_DATA_IN_BACKGROUND is requested, check permission flag to see if is from
+        // split permission.
+        if (isBackgroundPermissionRequested) {
+            int readHealthDataInBackgroundFlag =
+                pm.getPermissionFlags(
+                    HealthPermissions.READ_HEALTH_DATA_IN_BACKGROUND, packageName, user);
+            if (!isFromSplitPermission(readHealthDataInBackgroundFlag)) {
+                return false;
+            }
+        }
+
+        // Check READ_HEART_RATE permission flag to see if is from split permission.
+        int readHeartRateFlag =
+            pm.getPermissionFlags(HealthPermissions.READ_HEART_RATE, packageName, user);
+        return isFromSplitPermission(readHeartRateFlag);
+    }
+
+    private static boolean isFromSplitPermission(int permissionFlag) {
+        return (permissionFlag & FLAG_PERMISSION_REVOKE_WHEN_REQUESTED) != 0;
     }
 
     /**
@@ -1494,6 +1582,19 @@ public final class Utils {
     public static void navigateToHealthConnectSettings(@NonNull Context context) {
         Intent healthConnectIntent = new Intent(ACTION_MANAGE_HEALTH_PERMISSIONS);
         context.startActivity(healthConnectIntent);
+    }
+
+
+    /**
+     * Navigate to health connect settings Wear privacy dashboard.
+     *
+     * @param context The current Context
+     */
+    public static void navigateToWearHealthConnectSettingsPrivacyDashboard(
+        @NonNull Context context) {
+        Intent privacyDashboardHealthConnectIntent = new Intent(ACTION_MANAGE_HEALTH_PERMISSIONS);
+        privacyDashboardHealthConnectIntent.putExtra(EXTRA_REASON, "privacy_dashboard");
+        context.startActivity(privacyDashboardHealthConnectIntent);
     }
 
     /**

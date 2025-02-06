@@ -202,6 +202,10 @@
     <string name="app_permission_header_with_device_name" msgid="7193042925656173271">"<xliff:g id="PERM">%1$s</xliff:g> erabiltzeko baimena aplikazio honetarako <xliff:g id="DEVICE_NAME">%2$s</xliff:g> gailuan"</string>
     <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"Ikusi <xliff:g id="APP">%1$s</xliff:g> aplikazioaren baimen guztiak"</string>
     <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"Ikusi baimen hau duten aplikazio guztiak"</string>
+    <!-- no translation found for app_permission_info_button (8973692370208562556) -->
+    <skip />
+    <!-- no translation found for app_permission_settings_button (4582916817451973752) -->
+    <skip />
     <string name="assistant_mic_label" msgid="1011432357152323896">"Erakutsi laguntzaileak mikrofonoa erabiltzeko duen baimena"</string>
     <string name="unused_apps_category_title" msgid="2988455616845243901">"Erabili gabeko aplikazioen ezarpenak"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"Kendu baimenak aplikazioa erabiltzen ez bada"</string>
@@ -279,7 +283,7 @@
     <string name="post_drive_permission_decision_reminder_summary_1_app_2_permissions" msgid="671791184670801301">"Gidatu bitartean, <xliff:g id="PERMISSION_1">%2$s</xliff:g> eta <xliff:g id="PERMISSION_2">%3$s</xliff:g> erabiltzeko baimena eman diozu <xliff:g id="APP">%1$s</xliff:g> aplikazioari"</string>
     <string name="post_drive_permission_decision_reminder_summary_1_app_multi_permission" msgid="4080701771111456927">"Gidatu bitartean, <xliff:g id="COUNT">%1$d</xliff:g> baimen eman dizkiozu <xliff:g id="APP">%2$s</xliff:g> aplikazioari"</string>
     <string name="post_drive_permission_decision_reminder_summary_multi_apps" msgid="5253882771252863902">"{count,plural, =1{Gidatu bitartean, baimenak eman dizkiezu <xliff:g id="APP_0">%1$s</xliff:g> eta beste # aplikaziori}other{Gidatu bitartean, baimenak eman dizkiezu <xliff:g id="APP_1">%1$s</xliff:g> eta beste # aplikaziori}}"</string>
-    <string name="go_to_settings" msgid="1053735612211228335">"Joan ezarpenetara"</string>
+    <string name="go_to_settings" msgid="1053735612211228335">"Joan Ezarpenak atalera"</string>
     <string name="auto_revoke_setting_subtitle" msgid="8631720570723050460">"Aplikazio batzuk ez dira erabili zenbait hilabetez"</string>
     <string name="permissions_removed_category_title" msgid="1064754271178447643">"Baimenak kendu zaizkien aplikazioak"</string>
     <string name="permission_removed_page_title" msgid="2627436155091001209">"Baimenak kendu zaizkien aplikazioak"</string>
@@ -674,8 +678,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Eman ezarpen mugatuak erabiltzeko baimena"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Murriztapenak ditu ezarpenak"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Zure segurtasuna bermatzeko, ezarpena ez dago erabilgarri une honetan."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Ekintza hori ez dago erabilgarri telefono-deietan"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"Telefono-dei batean zaudenean ezin diezu eman beste aplikazio batzuk instalatzeko baimena aplikazioei.\n\n Iruzurgileek halako ekintzak egiteko eskatu ohi dute telefono bidezko elkarrizketetan; beraz, aukera hori blokeatu dugu zu babesteko. Ezagutzen ez duzun norbaitek halako zerbait egiteko esaten badizu, baliteke azpikeria izatea."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Aplikazioari <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> erabiltzeko baimena ukatu zaio"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Kontuzko informazioa erabiltzeko baimen bat eskatu du aplikazioak, eta agian horrek arriskuan jarriko ditu zure informazio pertsonala eta finantzei buruzko informazioa.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Baliteke aplikazioak behar bezala ez funtzionatzea baimen murriztu hori gabe. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Lortu baimena emateko argibideak&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Aplikazioari <xliff:g id="ROLE_NAME">%1$s</xliff:g> lehenetsia izateko baimena ukatu zaio"</string>

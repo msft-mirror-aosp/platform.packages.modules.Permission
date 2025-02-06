@@ -202,6 +202,10 @@
     <string name="app_permission_header_with_device_name" msgid="7193042925656173271">"Достъп до <xliff:g id="PERM">%1$s</xliff:g> на <xliff:g id="DEVICE_NAME">%2$s</xliff:g> за това приложение"</string>
     <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"Преглед на всички разрешения, предоставени за: <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"Преглед на всички приложения с това разрешение"</string>
+    <!-- no translation found for app_permission_info_button (8973692370208562556) -->
+    <skip />
+    <!-- no translation found for app_permission_settings_button (4582916817451973752) -->
+    <skip />
     <string name="assistant_mic_label" msgid="1011432357152323896">"Показване на употребата на микрофона за Асистент"</string>
     <string name="unused_apps_category_title" msgid="2988455616845243901">"Настройки за неизползваните приложения"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"Премахване на разрешенията, ако приложението не се използва"</string>
@@ -674,8 +678,16 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Разрешаване на ограничените настройки"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Ограничена настройка"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"От съображения за сигурност понастоящем тази настройка не е налице."</string>
-    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Действието не е налице по време на тел. обаждане"</string>
-    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"По време на телефонно обаждане не можете да разрешавате на приложенията да инсталират други приложения.\n\nТова действие е блокирано от съображения за сигурност, защото често се използва от измамници по време на телефонни разговори. Ако човек, когото не познавате, ви напътства, за да предприемете това действие, възможно е да става дума за измама."</string>
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_title (5054064107559019689) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_desc (5049619986796367451) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_install_desc_prefix (7153600694011441796) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_a11y_desc_prefix (1086282331085551407) -->
+    <skip />
+    <!-- no translation found for enhanced_confirmation_phone_state_dialog_generic_desc_prefix (8141411486179553156) -->
+    <skip />
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"На приложението бе отказан достъп до <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>"</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Приложението поиска разрешение за достъп до поверителни данни, което може да изложи на риск личната или финансовата ви информация.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Възможно е приложението да не работи правилно без това ограничено разрешение. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Научете как да разрешите достъпа&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Приложението не получи разрешение да бъде по подразбиране: <xliff:g id="ROLE_NAME">%1$s</xliff:g>"</string>
