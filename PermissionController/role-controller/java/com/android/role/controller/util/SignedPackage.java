@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A package name with an optional signing certificate.
@@ -120,7 +121,7 @@ public class SignedPackage {
         return signedPackages;
     }
 
-    /*
+    /**
      * Checks whether this signed package is available, i.e. it is installed, and either has the
      * specified signing certificate or is a system app if no signing certificate is specified.
      *
@@ -144,6 +145,38 @@ public class SignedPackage {
                 Log.w(LOG_TAG, "Cannot get ApplicationInfo for package: " + mPackageName);
                 return false;
             }
+            if ((applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                Log.w(LOG_TAG, "Package didn't specify a signing certificate and isn't a" +
+                        " system app: " + mPackageName);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether an {@link ApplicationInfo} matches this signed package, i.e. it has the same
+     * package name, and either has the specified signing certificate or is a system app if no
+     * signing certificate is specified.
+     *
+     * @param applicationInfo the {@link ApplicationInfo} to check for
+     * @param context the {@code Context} to retrieve system services
+     *
+     * @return whether the {@link ApplicationInfo} matches this signed package
+     */
+    public boolean matches(@NonNull ApplicationInfo applicationInfo, @NonNull Context context) {
+        if (!Objects.equals(applicationInfo.packageName, mPackageName)) {
+            return false;
+        }
+        if (mCertificate != null) {
+            UserHandle user = UserHandle.getUserHandleForUid(applicationInfo.uid);
+            if (!PackageUtils.hasSigningCertificateAsUser(mPackageName, mCertificate, user,
+                    context)) {
+                Log.w(LOG_TAG, "Package doesn't have required signing certificate: "
+                        + mPackageName);
+                return false;
+            }
+        } else {
             if ((applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
                 Log.w(LOG_TAG, "Package didn't specify a signing certificate and isn't a" +
                         " system app: " + mPackageName);

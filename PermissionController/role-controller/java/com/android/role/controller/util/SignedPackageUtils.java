@@ -17,6 +17,7 @@
 package com.android.role.controller.util;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.UserHandle;
 
@@ -80,5 +81,26 @@ public final class SignedPackageUtils {
             return null;
         }
         return signedPackage.getPackageName();
+    }
+
+    /**
+     * Check whether an {@link ApplicationInfo} matches any of the {@link SignedPackage}s.
+     *
+     * @param applicationInfo the {@link ApplicationInfo} to check for
+     * @param signedPackages the list of {@link SignedPackage}s to check against
+     * @param context the {@code Context} to retrieve system services
+     *
+     * @return whether the {@link ApplicationInfo} matches any of the {@link SignedPackage}s
+     */
+    public static boolean matchesAny(@NonNull ApplicationInfo applicationInfo,
+            @NonNull List<SignedPackage> signedPackages, @NonNull Context context) {
+        int signedPackagesSize = signedPackages.size();
+        for (int i = 0; i < signedPackagesSize; i++) {
+            SignedPackage signedPackage = signedPackages.get(i);
+            if (signedPackage.matches(applicationInfo, context)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

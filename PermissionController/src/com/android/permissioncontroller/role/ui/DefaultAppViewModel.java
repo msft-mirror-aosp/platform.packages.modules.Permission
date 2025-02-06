@@ -28,10 +28,12 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.android.permissioncontroller.role.utils.RoleUiBehaviorUtils;
 import com.android.permissioncontroller.role.utils.UserUtils;
 import com.android.role.controller.model.Role;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * {@link ViewModel} for a default app.
@@ -44,6 +46,9 @@ public class DefaultAppViewModel extends AndroidViewModel {
     private final Role mRole;
     @NonNull
     private final UserHandle mUser;
+
+    @NonNull
+    private final LiveData<List<RoleApplicationItem>> mRecommendedLiveData;
 
     @NonNull
     private final LiveData<List<RoleApplicationItem>> mLiveData;
@@ -61,22 +66,34 @@ public class DefaultAppViewModel extends AndroidViewModel {
         mUser = role.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP
                 ? UserUtils.getProfileParentOrSelf(user, application)
                 : user;
-        RoleLiveData liveData = new RoleLiveData(role, mUser, application);
+        RoleLiveData userLiveData = new RoleLiveData(role, mUser, application);
         RoleSortFunction sortFunction = new RoleSortFunction(application);
+        LiveData<List<RoleApplicationItem>> liveData;
         if (role.getExclusivity() == Role.EXCLUSIVITY_PROFILE_GROUP) {
             // Context user might be work profile, ensure we get a non-null UserHandle if work
             // profile exists. getWorkProfile returns null if context user is work profile.
             UserHandle workProfile  = UserUtils.getWorkProfileOrSelf(application);
             if (workProfile != null) {
                 RoleLiveData workLiveData = new RoleLiveData(role, workProfile, application);
-                mLiveData = Transformations.map(new MergeRoleLiveData(liveData, workLiveData),
+                liveData = Transformations.map(new MergeRoleLiveData(userLiveData, workLiveData),
                         sortFunction);
             } else {
-                mLiveData = Transformations.map(liveData, sortFunction);
+                liveData = Transformations.map(userLiveData, sortFunction);
             }
         } else {
-            mLiveData = Transformations.map(liveData, sortFunction);
+            liveData = Transformations.map(userLiveData, sortFunction);
         }
+        Predicate<RoleApplicationItem> recommendedApplicationFilter =
+                RoleUiBehaviorUtils.getRecommendedApplicationFilter(role, application);
+        mRecommendedLiveData = Transformations.map(liveData,
+                new ListLiveDataFilterFunction<>(recommendedApplicationFilter));
+        mLiveData = Transformations.map(liveData,
+                new ListLiveDataFilterFunction<>(recommendedApplicationFilter.negate()));
+    }
+
+    @NonNull
+    public LiveData<List<RoleApplicationItem>> getRecommendedLiveData() {
+        return mRecommendedLiveData;
     }
 
     @NonNull

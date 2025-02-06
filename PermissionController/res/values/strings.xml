@@ -1337,6 +1337,12 @@
     <!-- Title for category of default apps for private profile [CHAR LIMIT=50] -->
     <string name="default_apps_for_private_profile">Default for private space</string>
 
+    <!-- Title for category of apps that are optimized for the device [CHAR LIMIT=50] -->
+    <string name="default_app_recommended">Optimized for device</string>
+
+    <!-- Title for category of other apps [CHAR LIMIT=50] -->
+    <string name="default_app_others">Others</string>
+
     <!-- Summary of a default app when there is no app set [CHAR LIMIT=60] -->
     <string name="default_app_none">None</string>
 
