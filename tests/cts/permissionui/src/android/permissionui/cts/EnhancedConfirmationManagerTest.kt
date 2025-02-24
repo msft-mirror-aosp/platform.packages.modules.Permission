@@ -78,20 +78,14 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     @Test
     fun installedAppStartsWithModeDefault() {
         installPackageWithInstallSourceAndMetadataFromStore(APP_APK_NAME_LATEST)
-        eventually {
-            runWithShellPermissionIdentity {
-                assertEquals(
-                    getAppEcmState(context, appOpsManager, APP_PACKAGE_NAME),
-                    AppOpsManager.MODE_DEFAULT
-                )
-            }
-        }
+        waitForModeDefault()
     }
 
     @RequiresFlagsEnabled(Flags.FLAG_ENHANCED_CONFIRMATION_MODE_APIS_ENABLED)
     @Test
     fun givenStoreAppThenIsNotRestrictedFromProtectedSetting() {
         installPackageWithInstallSourceAndMetadataFromStore(APP_APK_NAME_LATEST)
+        waitForModeDefault()
         runWithShellPermissionIdentity {
             eventually { assertFalse(ecm.isRestricted(APP_PACKAGE_NAME, PROTECTED_SETTING)) }
         }
@@ -101,6 +95,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     @Test
     fun givenLocalAppThenIsRestrictedFromProtectedSetting() {
         installPackageWithInstallSourceAndMetadataFromLocalFile(APP_APK_NAME_LATEST)
+        waitForModeDefault()
         runWithShellPermissionIdentity {
             eventually { assertTrue(ecm.isRestricted(APP_PACKAGE_NAME, PROTECTED_SETTING)) }
         }
@@ -110,6 +105,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     @Test
     fun givenDownloadedThenAppIsRestrictedFromProtectedSetting() {
         installPackageWithInstallSourceAndMetadataFromDownloadedFile(APP_APK_NAME_LATEST)
+        waitForModeDefault()
         runWithShellPermissionIdentity {
             eventually { assertTrue(ecm.isRestricted(APP_PACKAGE_NAME, PROTECTED_SETTING)) }
         }
@@ -119,6 +115,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     @Test
     fun givenExplicitlyRestrictedAppThenIsRestrictedFromProtectedSetting() {
         installPackageWithInstallSourceAndMetadataFromStore(APP_APK_NAME_LATEST)
+        waitForModeDefault()
         eventually {
             runWithShellPermissionIdentity {
                 assertEquals(
@@ -138,6 +135,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     @Test
     fun givenRestrictedAppThenIsNotRestrictedFromNonProtectedSetting() {
         installPackageWithInstallSourceAndMetadataFromDownloadedFile(APP_APK_NAME_LATEST)
+        waitForModeDefault()
         runWithShellPermissionIdentity {
             eventually { assertFalse(ecm.isRestricted(APP_PACKAGE_NAME, NON_PROTECTED_SETTING)) }
         }
@@ -147,6 +145,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     @Test
     fun givenRestrictedAppThenClearRestrictionNotAllowedByDefault() {
         installPackageWithInstallSourceAndMetadataFromDownloadedFile(APP_APK_NAME_LATEST)
+        waitForModeDefault()
         runWithShellPermissionIdentity {
             eventually { assertFalse(ecm.isClearRestrictionAllowed(APP_PACKAGE_NAME)) }
         }
@@ -156,6 +155,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     @Test
     fun givenRestrictedAppWhenClearRestrictionThenNotRestrictedFromProtectedSetting() {
         installPackageWithInstallSourceAndMetadataFromDownloadedFile(APP_APK_NAME_LATEST)
+        waitForModeDefault()
         runWithShellPermissionIdentity {
             eventually { assertTrue(ecm.isRestricted(APP_PACKAGE_NAME, PROTECTED_SETTING)) }
             ecm.setClearRestrictionAllowed(APP_PACKAGE_NAME)
@@ -169,6 +169,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
     @Test
     fun createRestrictedSettingDialogIntentReturnsIntent() {
         installPackageWithInstallSourceAndMetadataFromDownloadedFile(APP_APK_NAME_LATEST)
+        waitForModeDefault()
 
         val intent = ecm.createRestrictedSettingDialogIntent(APP_PACKAGE_NAME, PROTECTED_SETTING)
 
@@ -181,6 +182,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
         installPackageWithInstallSourceFromDownloadedFileAndAllowHardRestrictedPerms(
             APP_APK_NAME_LATEST
         )
+        waitForModeDefault()
         val permissionAndExpectedGrantResults =
             arrayOf(
                 GROUP_2_PERMISSION_1_RESTRICTED to false,
@@ -207,6 +209,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
         installPackageWithInstallSourceFromDownloadedFileAndAllowHardRestrictedPerms(
             APP_APK_NAME_LATEST
         )
+        waitForModeDefault()
 
         requestAppPermissionsAndAssertResult(
             GROUP_3_PERMISSION_1_UNRESTRICTED to false,
@@ -236,6 +239,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
         installPackageWithInstallSourceFromDownloadedFileAndAllowHardRestrictedPerms(
             APP_APK_NAME_LATEST
         )
+        waitForModeDefault()
 
         requestAppPermissionsAndAssertResult(
             GROUP_3_PERMISSION_1_UNRESTRICTED to true,
@@ -254,6 +258,7 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
         installPackageWithInstallSourceFromDownloadedFileAndAllowHardRestrictedPerms(
             APP_APK_NAME_LATEST
         )
+        waitForModeDefault()
 
         requestAppPermissionsAndAssertResult(
             GROUP_4_PERMISSION_1_UNRESTRICTED to true,
@@ -285,6 +290,18 @@ class EnhancedConfirmationManagerTest : BaseUsePermissionTest() {
                 )
             }
         )
+    }
+
+    private fun waitForModeDefault() {
+        eventually {
+            runWithShellPermissionIdentity {
+                assertEquals(
+                    "Timed out waiting for package mode to change to MODE_DEFAULT",
+                    getAppEcmState(context, appOpsManager, APP_PACKAGE_NAME),
+                    AppOpsManager.MODE_DEFAULT
+                )
+            }
+        }
     }
 
     companion object {
