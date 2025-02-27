@@ -1011,7 +1011,8 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
     protected fun clickPermissionRationaleContentInAppPermission() {
         clickAndWaitForWindowTransition(
             By.text(getPermissionControllerString(APP_PERMISSION_RATIONALE_SUBTITLE_TEXT))
-                    .displayId(displayId))
+                    .displayId(displayId)
+        )
     }
 
     protected fun clickPermissionRationaleViewInGrantDialog() {
