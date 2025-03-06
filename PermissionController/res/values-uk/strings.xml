@@ -206,7 +206,7 @@
     <string name="unused_apps_category_title" msgid="2988455616845243901">"Налаштування невикористовуваних додатків"</string>
     <string name="auto_revoke_label" msgid="5068393642936571656">"Відкликати дозволи, якщо додаток не використовується"</string>
     <string name="unused_apps_label" msgid="2595428768404901064">"Вилучати дозволи й звільняти місце"</string>
-    <string name="unused_apps_label_v2" msgid="7058776770056517980">"Призупиняти роботу в неактивний період"</string>
+    <string name="unused_apps_label_v2" msgid="7058776770056517980">"Призупиняти, коли додаток неактивний"</string>
     <string name="unused_apps_label_v3" msgid="693340578642156657">"Керувати невикористовуваним додатком"</string>
     <string name="unused_apps_summary" msgid="8839466950318403115">"Вилучити дозволи, видалити тимчасові файли й зупинити сповіщення"</string>
     <string name="unused_apps_summary_v2" msgid="5011313200815115802">"Вилучити дозволи, видалити тимчасові файли, зупинити сповіщення й архівувати додаток"</string>
@@ -456,7 +456,7 @@
     <string name="incident_report_notification_text" msgid="3376480583513587923">"Додаток <xliff:g id="APP_NAME">%1$s</xliff:g> хоче завантажити інформацію про налагодження."</string>
     <string name="incident_report_dialog_title" msgid="669104389325204095">"Поділитися даними про налагодження?"</string>
     <string name="incident_report_dialog_intro" msgid="5897733669850951832">"Система виявила проблему."</string>
-    <string name="incident_report_dialog_text" msgid="5675553296891757523">"Додаток <xliff:g id="APP_NAME_0">%1$s</xliff:g> запитує, чи можна завантажити повідомлення про помилку, створене на цьому пристрої <xliff:g id="TIME">%3$s</xliff:g> <xliff:g id="DATE">%2$s</xliff:g>. Повідомлення про помилки містять особисту інформацію про ваш пристрій або відомості, записані додатками, як-от імена користувачів, місцеположення, ідентифікатори пристроїв та інформацію про мережу. Діліться повідомленнями про помилки лише з тими людьми й додатками, яким довіряєте. Дозволити додатку <xliff:g id="APP_NAME_1">%4$s</xliff:g> завантажити повідомлення про помилку?"</string>
+    <string name="incident_report_dialog_text" msgid="5675553296891757523">"Додаток <xliff:g id="APP_NAME_0">%1$s</xliff:g> запитує, чи можна завантажити повідомлення про помилку, створене на цьому пристрої <xliff:g id="DATE">%2$s</xliff:g> о <xliff:g id="TIME">%3$s</xliff:g>. Повідомлення про помилки містять особисту інформацію про ваш пристрій або відомості, записані додатками, як-от імена користувачів, місцеположення, ідентифікатори пристроїв та інформацію про мережу. Діліться повідомленнями про помилки лише з тими людьми й додатками, яким довіряєте. Дозволити додатку <xliff:g id="APP_NAME_1">%4$s</xliff:g> завантажити повідомлення про помилку?"</string>
     <string name="incident_report_error_dialog_text" msgid="4189647113387092272">"Не вдалося обробити повідомлення про помилку в додатку <xliff:g id="APP_NAME">%1$s</xliff:g>. Дані про налагодження не надіслано. Вибачте за незручності."</string>
     <string name="incident_report_dialog_allow_label" msgid="2970242967721155239">"Дозволити"</string>
     <string name="incident_report_dialog_deny_label" msgid="3535314290677579383">"Заборонити"</string>
@@ -674,6 +674,8 @@
     <string name="allow_restricted_settings" msgid="8073000189478396881">"Дозволити налаштування з обмеженнями"</string>
     <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Налаштування з обмеженнями"</string>
     <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"З міркувань безпеки це налаштування наразі недоступне."</string>
+    <string name="enhanced_confirmation_phone_state_dialog_title" msgid="5230100829862738467">"Дія недоступна під час телефонного виклику"</string>
+    <string name="enhanced_confirmation_phone_state_dialog_desc" msgid="8782160971908273849">"Під час телефонного виклику не можна надавати додаткам дозвіл на встановлення інших додатків.\n\n Шахраї часто просять виконати такі дії під час телефонних розмов, тому цю можливість заблоковано задля вашого захисту. Якщо незнайома особа просить вас виконати таку дію, це може бути шахрайством."</string>
     <string name="enhanced_confirmation_dialog_title_permission" msgid="2149144789394238266">"Додатку не надано дозвіл \"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>\""</string>
     <string name="enhanced_confirmation_dialog_desc_permission" msgid="3150778951946468945">"Додаток запитав дозвіл на доступ до чутливих даних, що може поставити під загрозу вашу особисту й фінансову інформацію.<xliff:g id="ID_1">&lt;br&gt;&lt;br&gt;</xliff:g>Без цього обмеженого дозволу додаток може не працювати належним чином. &lt;a href=<xliff:g id="LEARN_MORE_LINK">%1$s</xliff:g>&gt;Як надати доступ&lt;/a&gt;"</string>
     <string name="enhanced_confirmation_dialog_title_role" msgid="1737023798483772780">"Додатку не надано доступ до ролі \"<xliff:g id="ROLE_NAME">%1$s</xliff:g>\" за умовчанням"</string>
