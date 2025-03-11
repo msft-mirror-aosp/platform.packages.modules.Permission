@@ -190,7 +190,7 @@ class ReviewAccessibilityServicesTest {
             !uiDevice.performActionAndWait(
                 { block() },
                 Until.newWindow(),
-                NEW_WINDOW_TIMEOUT_MILLIS
+                NEW_WINDOW_TIMEOUT_MILLIS,
             )
 
         if (timeoutOccurred) {
@@ -212,17 +212,11 @@ class ReviewAccessibilityServicesTest {
 
     private fun waitForSettingsButtonToDisappear() {
         SystemUtil.eventually {
-            findPCObjectByClassAndText(false,
-              "android.widget.Button",
-              "Settings"
-          )
+            findPCObjectByClassAndText(false, "android.widget.Button", "Settings")
         }
     }
 
-    private fun findObjectByTextWithoutRetry(
-        shouldBePresent: Boolean,
-        text: String,
-    ): UiObject2? {
+    private fun findObjectByTextWithoutRetry(shouldBePresent: Boolean, text: String): UiObject2? {
         val containsWithoutCaseSelector =
             By.text(Pattern.compile(".*$text.*", Pattern.CASE_INSENSITIVE))
         val view =
@@ -235,7 +229,7 @@ class ReviewAccessibilityServicesTest {
         assertEquals(
             "Expected to find view with text $text: $shouldBePresent",
             shouldBePresent,
-            view != null
+            view != null,
         )
         return view
     }
@@ -251,15 +245,16 @@ class ReviewAccessibilityServicesTest {
     private fun findPCObjectByClassAndText(
         shouldBePresent: Boolean,
         className: String,
-        text: String
+        text: String,
     ): UiObject2? {
-        val selector = By.pkg(packageName)
-            .clazz(className)
-            .text(text)
+        val selector = By.pkg(packageName).clazz(className).text(text)
         val view = waitFindObjectOrNull(selector)
         assertEquals(
             "Expected to find view with packageName '$packageName' className '$className' " +
-                    "text '$text' : $shouldBePresent", shouldBePresent, view != null)
+                "text '$text' : $shouldBePresent",
+            shouldBePresent,
+            view != null,
+        )
         return view
     }
 }
