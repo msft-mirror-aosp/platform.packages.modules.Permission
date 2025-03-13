@@ -856,6 +856,9 @@ public class RoleManagerTest {
         assertThat(privateProfile).isNotNull();
         installPackage(APP_APK_PATH, privateProfile);
         installPackage(APP_FOR_PROFILE_APK_PATH, privateProfile);
+
+        UiAutomatorUtils.getUiDevice().waitForIdle(30 * 1000);
+
         addRoleHolderAsUser(ROLE_NAME, APP_FOR_PROFILE_PACKAGE_NAME, privateProfile);
 
         sContext.startActivity(new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
