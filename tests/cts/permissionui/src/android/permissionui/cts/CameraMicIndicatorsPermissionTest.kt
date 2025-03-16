@@ -28,6 +28,7 @@ import android.os.Build
 import android.os.Process
 import android.os.SystemClock
 import android.os.SystemProperties
+import android.os.UserManager
 import android.permission.PermissionManager
 import android.permission.cts.MtsIgnore
 import android.platform.test.annotations.AsbSecurityTest
@@ -782,4 +783,10 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
 
     private fun byOneOfText(vararg textValues: String) =
         By.text(Pattern.compile(textValues.joinToString(separator = "|") { Pattern.quote(it) }))
+
+    fun isAutomotiveWithVisibleBackgroundUser(): Boolean {
+        val userManager = context.getSystemService(UserManager::class.java)
+        return packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE) &&
+                userManager.isVisibleBackgroundUsersSupported()
+    }
 }
