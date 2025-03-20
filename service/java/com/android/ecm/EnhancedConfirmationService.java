@@ -162,7 +162,7 @@ public class EnhancedConfirmationService extends SystemService {
             if (number != null && mTelephonyManager.isEmergencyNumber(number)) {
                 return CALL_TYPE_EMERGENCY;
             }
-        } catch (IllegalStateException | UnsupportedOperationException e) {
+        } catch (RuntimeException e) {
             // If either of these are thrown, the telephony service is not available on the current
             // device, either because the device lacks telephony calling, or the telephony service
             // is unavailable.
