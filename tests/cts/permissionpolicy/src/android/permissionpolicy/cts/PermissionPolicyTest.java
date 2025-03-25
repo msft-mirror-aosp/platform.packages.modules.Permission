@@ -76,6 +76,9 @@ public class PermissionPolicyTest {
     private static final String EXECUTE_APP_FUNCTIONS_PERMISSION =
             "android.permission.EXECUTE_APP_FUNCTIONS";
 
+    private static final String EXECUTE_APP_FUNCTIONS_TRUSTED_PERMISSION =
+            "android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED";
+
     private static final String LOG_TAG = "PermissionProtectionTest";
 
     private static final String PLATFORM_PACKAGE_NAME = "android";
@@ -535,6 +538,10 @@ public class PermissionPolicyTest {
                 return parseDate(SECURITY_PATCH).before(MANAGE_COMPANION_DEVICES_PATCH_DATE);
             case EXECUTE_APP_FUNCTIONS_PERMISSION:
                 // OEMs are allowed to backport this permission before Android 16.
+                return true;
+            case EXECUTE_APP_FUNCTIONS_TRUSTED_PERMISSION:
+                // This permission is removed in Android 16. OEMs are
+                // allowed to backport this permission before Android 16.
                 return true;
             default:
                 return false;
