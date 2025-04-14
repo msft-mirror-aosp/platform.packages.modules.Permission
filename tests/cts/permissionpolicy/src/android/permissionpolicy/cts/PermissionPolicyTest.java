@@ -19,6 +19,8 @@ package android.permissionpolicy.cts;
 import static android.content.pm.PermissionInfo.FLAG_INSTALLED;
 import static android.content.pm.PermissionInfo.PROTECTION_MASK_BASE;
 import static android.os.Build.VERSION.SECURITY_PATCH;
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -78,6 +80,9 @@ public class PermissionPolicyTest {
 
     private static final String EXECUTE_APP_FUNCTIONS_TRUSTED_PERMISSION =
             "android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED";
+
+    private static final String DYNAMIC_INSTRUMENTATION_PERMISSION =
+            "android.permission.DYNAMIC_INSTRUMENTATION";
 
     private static final String LOG_TAG = "PermissionProtectionTest";
 
@@ -543,6 +548,11 @@ public class PermissionPolicyTest {
                 // This permission is removed in Android 16. OEMs are
                 // allowed to backport this permission before Android 16.
                 return true;
+            case DYNAMIC_INSTRUMENTATION_PERMISSION:
+                // This permission was intended to be added only in Android 16.
+                // It can be skipped as it is unused by Android 15, but the signature
+                // permission declaration is benign.
+                return SDK_INT == VANILLA_ICE_CREAM;
             default:
                 return false;
         }
