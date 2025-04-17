@@ -16,12 +16,14 @@
 
 package com.android.safetycenter.testing
 
+import android.Manifest.permission.READ_DEVICE_CONFIG
 import android.Manifest.permission.READ_SAFETY_CENTER_STATUS
 import android.Manifest.permission.SEND_SAFETY_CENTER_UPDATE
 import android.content.Context
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.os.UserManager
+import android.platform.test.flag.junit.DeviceFlagsValueProvider
 import android.safetycenter.SafetyCenterManager
 import android.safetycenter.SafetyEvent
 import android.safetycenter.SafetySourceData
@@ -29,6 +31,7 @@ import android.safetycenter.config.SafetyCenterConfig
 import android.safetycenter.config.SafetySource.SAFETY_SOURCE_TYPE_STATIC
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.android.modules.utils.build.SdkLevel
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.addOnSafetyCenterDataChangedListenerWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.clearAllSafetySourceDataForTestsWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.clearSafetyCenterConfigForTestsWithPermission
@@ -42,6 +45,7 @@ import com.android.safetycenter.testing.SafetyCenterFlags.isSafetyCenterEnabled
 import com.android.safetycenter.testing.SafetySourceTestData.Companion.EVENT_SOURCE_STATE_CHANGED
 import com.android.safetycenter.testing.ShellPermissions.callWithShellPermissionIdentity
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
+import org.junit.Assume.assumeTrue
 
 /** A class that facilitates settings up Safety Center in tests. */
 @RequiresApi(TIRAMISU)
@@ -61,13 +65,17 @@ class SafetyCenterTestHelper(val context: Context) {
         SafetySourceReceiver.setup()
         TestActivity.enableHighPriorityAlias()
         SafetyCenterFlags.setup()
-        setEnabled(true)
+        if (safetyCenterCanBeToggledUsingDeviceConfig()) {
+            setEnabled(true)
+        }
     }
 
     /** Resets the state of Safety Center. To be called after each test. */
     fun reset() {
         Log.d(TAG, "reset")
-        setEnabled(true)
+        if (safetyCenterCanBeToggledUsingDeviceConfig()) {
+            setEnabled(true)
+        }
         listeners.forEach {
             safetyCenterManager.removeOnSafetyCenterDataChangedListenerWithPermission(it)
             it.cancel()
@@ -97,6 +105,10 @@ class SafetyCenterTestHelper(val context: Context) {
             Log.d(TAG, "isEnabled is already $value")
             return
         }
+        assumeTrue(
+            "Cannot toggle SafetyCenter using DeviceConfig",
+            safetyCenterCanBeToggledUsingDeviceConfig(),
+        )
         setEnabledWaitingForSafetyCenterBroadcastIdle(value, safetyCenterConfig)
     }
 
@@ -119,7 +131,7 @@ class SafetyCenterTestHelper(val context: Context) {
         val listener = SafetyCenterTestListener()
         safetyCenterManager.addOnSafetyCenterDataChangedListenerWithPermission(
             directExecutor(),
-            listener
+            listener,
         )
         if (skipInitialData) {
             listener.receiveSafetyCenterData()
@@ -132,14 +144,14 @@ class SafetyCenterTestHelper(val context: Context) {
     fun setData(
         safetySourceId: String,
         safetySourceData: SafetySourceData?,
-        safetyEvent: SafetyEvent = EVENT_SOURCE_STATE_CHANGED
+        safetyEvent: SafetyEvent = EVENT_SOURCE_STATE_CHANGED,
     ) {
         Log.d(TAG, "setData for $safetySourceId")
         require(isEnabled())
         safetyCenterManager.setSafetySourceDataWithPermission(
             safetySourceId,
             safetySourceData,
-            safetyEvent
+            safetyEvent,
         )
     }
 
@@ -152,13 +164,15 @@ class SafetyCenterTestHelper(val context: Context) {
     }
 
     private fun resetFlags() {
-        setEnabled(SafetyCenterFlags.snapshot.isSafetyCenterEnabled())
+        if (safetyCenterCanBeToggledUsingDeviceConfig()) {
+            setEnabled(SafetyCenterFlags.snapshot.isSafetyCenterEnabled())
+        }
         SafetyCenterFlags.reset()
     }
 
     private fun setEnabledWaitingForSafetyCenterBroadcastIdle(
         value: Boolean,
-        safetyCenterConfig: SafetyCenterConfig
+        safetyCenterConfig: SafetyCenterConfig,
     ) =
         callWithShellPermissionIdentity(SEND_SAFETY_CENTER_UPDATE, READ_SAFETY_CENTER_STATUS) {
             val enabledChangedReceiver = SafetyCenterEnabledChangedReceiver(context)
@@ -202,7 +216,19 @@ class SafetyCenterTestHelper(val context: Context) {
 
     private fun isEnabled() = safetyCenterManager.isSafetyCenterEnabledWithPermission()
 
-    private companion object {
-        const val TAG: String = "SafetyCenterTestHelper"
+    companion object {
+        private const val TAG: String = "SafetyCenterTestHelper"
+
+        /** Returns whether Safety Center can be enabled / disabled using a DeviceConfig flag. */
+        fun safetyCenterCanBeToggledUsingDeviceConfig(): Boolean {
+            val deviceFlagsValueProvider = DeviceFlagsValueProvider()
+            val safetyCenterEnabledNoDeviceConfig =
+                callWithShellPermissionIdentity(READ_DEVICE_CONFIG) {
+                    deviceFlagsValueProvider.getBoolean(
+                        "com.android.permission.flags.safety_center_enabled_no_device_config"
+                    )
+                }
+            return !safetyCenterEnabledNoDeviceConfig || !SdkLevel.isAtLeastU()
+        }
     }
 }
