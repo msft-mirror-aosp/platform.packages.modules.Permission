@@ -95,6 +95,7 @@ import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.TimeoutCancellationException
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -215,7 +216,7 @@ class SafetyCenterManagerTest {
             assertFailsWith(IllegalArgumentException::class) {
                 safetyCenterTestHelper.setData(
                     DYNAMIC_OTHER_PACKAGE_ID,
-                    safetySourceTestData.unspecified
+                    safetySourceTestData.unspecified,
                 )
             }
 
@@ -280,7 +281,7 @@ class SafetyCenterManagerTest {
             assertFailsWith(IllegalArgumentException::class) {
                 safetyCenterTestHelper.setData(
                     DYNAMIC_IN_STATELESS_ID,
-                    safetySourceTestData.information
+                    safetySourceTestData.information,
                 )
             }
 
@@ -341,7 +342,7 @@ class SafetyCenterManagerTest {
             assertFailsWith(IllegalArgumentException::class) {
                 safetyCenterTestHelper.setData(
                     ISSUE_ONLY_BAREBONE_ID,
-                    safetySourceTestData.unspecified
+                    safetySourceTestData.unspecified,
                 )
             }
 
@@ -358,7 +359,7 @@ class SafetyCenterManagerTest {
             assertFailsWith(IllegalArgumentException::class) {
                 safetyCenterTestHelper.setData(
                     DYNAMIC_BAREBONE_ID,
-                    SafetySourceTestData.issuesOnly(safetySourceTestData.informationIssue)
+                    SafetySourceTestData.issuesOnly(safetySourceTestData.informationIssue),
                 )
             }
 
@@ -399,7 +400,7 @@ class SafetyCenterManagerTest {
             assertFailsWith(IllegalArgumentException::class) {
                 safetyCenterTestHelper.setData(
                     SINGLE_SOURCE_ID,
-                    safetySourceTestData.informationWithIssue
+                    safetySourceTestData.informationWithIssue,
                 )
             }
 
@@ -420,7 +421,7 @@ class SafetyCenterManagerTest {
             assertFailsWith(IllegalArgumentException::class) {
                 safetyCenterTestHelper.setData(
                     SINGLE_SOURCE_ID,
-                    safetySourceTestData.criticalWithResolvingGeneralIssue
+                    safetySourceTestData.criticalWithResolvingGeneralIssue,
                 )
             }
 
@@ -453,7 +454,7 @@ class SafetyCenterManagerTest {
             assertFailsWith(IllegalArgumentException::class) {
                 safetyCenterTestHelper.setData(
                     DYNAMIC_ALL_OPTIONAL_ID,
-                    safetySourceTestData.criticalWithResolvingGeneralIssue
+                    safetySourceTestData.criticalWithResolvingGeneralIssue,
                 )
             }
 
@@ -489,7 +490,7 @@ class SafetyCenterManagerTest {
                     ISSUE_ONLY_ALL_OPTIONAL_ID,
                     SafetySourceTestData.issuesOnly(
                         safetySourceTestData.criticalResolvingGeneralIssue
-                    )
+                    ),
                 )
             }
 
@@ -520,7 +521,7 @@ class SafetyCenterManagerTest {
         SafetyCenterFlags.issueCategoryAllowlists =
             mapOf(
                 ISSUE_CATEGORY_DEVICE to setOf(SAMPLE_SOURCE_ID),
-                ISSUE_CATEGORY_GENERAL to setOf(SAMPLE_SOURCE_ID)
+                ISSUE_CATEGORY_GENERAL to setOf(SAMPLE_SOURCE_ID),
             )
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
 
@@ -538,7 +539,7 @@ class SafetyCenterManagerTest {
             mapOf(
                 ISSUE_CATEGORY_ACCOUNT to setOf(SINGLE_SOURCE_ID, SAMPLE_SOURCE_ID),
                 ISSUE_CATEGORY_DEVICE to setOf(SAMPLE_SOURCE_ID),
-                ISSUE_CATEGORY_GENERAL to setOf(SAMPLE_SOURCE_ID)
+                ISSUE_CATEGORY_GENERAL to setOf(SAMPLE_SOURCE_ID),
             )
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
 
@@ -559,7 +560,7 @@ class SafetyCenterManagerTest {
             assertFailsWith(IllegalArgumentException::class) {
                 safetyCenterTestHelper.setData(
                     SINGLE_SOURCE_ID,
-                    safetySourceTestData.recommendationWithAccountIssue
+                    safetySourceTestData.recommendationWithAccountIssue,
                 )
             }
 
@@ -576,7 +577,7 @@ class SafetyCenterManagerTest {
         SafetyCenterFlags.issueCategoryAllowlists =
             mapOf(
                 ISSUE_CATEGORY_ACCOUNT to setOf(SAMPLE_SOURCE_ID),
-                ISSUE_CATEGORY_DEVICE to setOf(SINGLE_SOURCE_ID)
+                ISSUE_CATEGORY_DEVICE to setOf(SINGLE_SOURCE_ID),
             )
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
 
@@ -584,7 +585,7 @@ class SafetyCenterManagerTest {
             assertFailsWith(IllegalArgumentException::class) {
                 safetyCenterTestHelper.setData(
                     SINGLE_SOURCE_ID,
-                    safetySourceTestData.recommendationWithAccountIssue
+                    safetySourceTestData.recommendationWithAccountIssue,
                 )
             }
 
@@ -604,7 +605,7 @@ class SafetyCenterManagerTest {
         safetyCenterManager.setSafetySourceDataWithPermission(
             SINGLE_SOURCE_ID,
             safetySourceTestData.unspecified,
-            EVENT_SOURCE_STATE_CHANGED
+            EVENT_SOURCE_STATE_CHANGED,
         )
 
         safetyCenterTestHelper.setEnabled(true)
@@ -619,7 +620,7 @@ class SafetyCenterManagerTest {
             safetyCenterManager.setSafetySourceData(
                 SINGLE_SOURCE_ID,
                 safetySourceTestData.unspecified,
-                EVENT_SOURCE_STATE_CHANGED
+                EVENT_SOURCE_STATE_CHANGED,
             )
         }
     }
@@ -701,7 +702,7 @@ class SafetyCenterManagerTest {
 
         safetyCenterManager.reportSafetySourceErrorWithPermission(
             SINGLE_SOURCE_ID,
-            SafetySourceErrorDetails(EVENT_SOURCE_STATE_CHANGED)
+            SafetySourceErrorDetails(EVENT_SOURCE_STATE_CHANGED),
         )
 
         listener.receiveSafetyCenterData()
@@ -716,7 +717,7 @@ class SafetyCenterManagerTest {
             assertFailsWith(IllegalArgumentException::class) {
                 safetyCenterManager.reportSafetySourceErrorWithPermission(
                     SINGLE_SOURCE_ID,
-                    SafetySourceErrorDetails(EVENT_SOURCE_STATE_CHANGED)
+                    SafetySourceErrorDetails(EVENT_SOURCE_STATE_CHANGED),
                 )
             }
 
@@ -731,7 +732,7 @@ class SafetyCenterManagerTest {
             assertFailsWith(IllegalArgumentException::class) {
                 safetyCenterManager.reportSafetySourceErrorWithPermission(
                     STATIC_BAREBONE_ID,
-                    SafetySourceErrorDetails(EVENT_SOURCE_STATE_CHANGED)
+                    SafetySourceErrorDetails(EVENT_SOURCE_STATE_CHANGED),
                 )
             }
 
@@ -748,7 +749,7 @@ class SafetyCenterManagerTest {
             assertFailsWith(IllegalArgumentException::class) {
                 safetyCenterManager.reportSafetySourceErrorWithPermission(
                     DYNAMIC_OTHER_PACKAGE_ID,
-                    SafetySourceErrorDetails(EVENT_SOURCE_STATE_CHANGED)
+                    SafetySourceErrorDetails(EVENT_SOURCE_STATE_CHANGED),
                 )
             }
 
@@ -768,7 +769,7 @@ class SafetyCenterManagerTest {
 
         safetyCenterManager.reportSafetySourceErrorWithPermission(
             SINGLE_SOURCE_ID,
-            SafetySourceErrorDetails(EVENT_SOURCE_STATE_CHANGED)
+            SafetySourceErrorDetails(EVENT_SOURCE_STATE_CHANGED),
         )
 
         assertFailsWith(TimeoutCancellationException::class) {
@@ -781,13 +782,17 @@ class SafetyCenterManagerTest {
         assertFailsWith(SecurityException::class) {
             safetyCenterManager.reportSafetySourceError(
                 SINGLE_SOURCE_ID,
-                SafetySourceErrorDetails(EVENT_SOURCE_STATE_CHANGED)
+                SafetySourceErrorDetails(EVENT_SOURCE_STATE_CHANGED),
             )
         }
     }
 
     @Test
     fun safetyCenterEnabledChanged_whenImplicitReceiverHasPermission_receiverCalled() {
+        assumeTrue(
+            "Cannot toggle SafetyCenter using DeviceConfig",
+            SafetyCenterTestHelper.safetyCenterCanBeToggledUsingDeviceConfig(),
+        )
         // Implicit broadcast is only sent to system user.
         assumeTrue(context.getSystemService(UserManager::class.java)!!.isSystemUser)
         val enabledChangedReceiver = SafetyCenterEnabledChangedReceiver(context)
@@ -806,6 +811,10 @@ class SafetyCenterManagerTest {
 
     @Test
     fun safetyCenterEnabledChanged_whenImplicitReceiverDoesntHavePermission_receiverNotCalled() {
+        assumeTrue(
+            "Cannot toggle SafetyCenter using DeviceConfig",
+            SafetyCenterTestHelper.safetyCenterCanBeToggledUsingDeviceConfig(),
+        )
         // Implicit broadcast is only sent to system user.
         assumeTrue(context.getSystemService(UserManager::class.java)!!.isSystemUser)
         val enabledChangedReceiver = SafetyCenterEnabledChangedReceiver(context)
@@ -818,6 +827,10 @@ class SafetyCenterManagerTest {
 
     @Test
     fun safetyCenterEnabledChanged_whenSourceReceiverHasPermission_receiverCalled() {
+        assumeTrue(
+            "Cannot toggle SafetyCenter using DeviceConfig",
+            SafetyCenterTestHelper.safetyCenterCanBeToggledUsingDeviceConfig(),
+        )
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
 
         val receiverValue =
@@ -833,18 +846,26 @@ class SafetyCenterManagerTest {
 
     @Test
     fun safetyCenterEnabledChanged_valueDoesntChange_receiverNotCalled() {
+        assumeTrue(
+            "Cannot toggle SafetyCenter using DeviceConfig",
+            SafetyCenterTestHelper.safetyCenterCanBeToggledUsingDeviceConfig(),
+        )
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
 
         assertFailsWith(TimeoutCancellationException::class) {
             SafetySourceReceiver.setSafetyCenterEnabledWithReceiverPermissionAndWait(
                 true,
-                TIMEOUT_SHORT
+                TIMEOUT_SHORT,
             )
         }
     }
 
     @Test
     fun safetyCenterEnabledChanged_whenSourceReceiverDoesntHavePermission_receiverNotCalled() {
+        assumeTrue(
+            "Cannot toggle SafetyCenter using DeviceConfig",
+            SafetyCenterTestHelper.safetyCenterCanBeToggledUsingDeviceConfig(),
+        )
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
 
         assertFailsWith(TimeoutCancellationException::class) {
@@ -854,10 +875,30 @@ class SafetyCenterManagerTest {
 
     @Test
     fun safetyCenterEnabledChanged_whenSourceReceiverNotInConfig_receiverNotCalled() {
+        assumeTrue(
+            "Cannot toggle SafetyCenter using DeviceConfig",
+            SafetyCenterTestHelper.safetyCenterCanBeToggledUsingDeviceConfig(),
+        )
         assertFailsWith(TimeoutCancellationException::class) {
             SafetySourceReceiver.setSafetyCenterEnabledWithReceiverPermissionAndWait(
                 false,
-                TIMEOUT_SHORT
+                TIMEOUT_SHORT,
+            )
+        }
+    }
+
+    @Test
+    fun safetyCenterEnabledChanged_whenNoDeviceConfigFlag_receiverNotCalled() {
+        assumeFalse(
+            "SafetyCenter DeviceConfig flag is in use",
+            SafetyCenterTestHelper.safetyCenterCanBeToggledUsingDeviceConfig(),
+        )
+        safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
+
+        assertFailsWith(TimeoutCancellationException::class) {
+            SafetySourceReceiver.setSafetyCenterEnabledWithReceiverPermissionAndWait(
+                false,
+                TIMEOUT_SHORT,
             )
         }
     }
@@ -867,7 +908,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         SafetySourceReceiver.setResponse(
             Request.Rescan(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue)
+            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue),
         )
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
             REFRESH_REASON_RESCAN_BUTTON_CLICK
@@ -884,7 +925,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
 
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
@@ -902,7 +943,7 @@ class SafetyCenterManagerTest {
         SafetySourceReceiver.runInForegroundService = true
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
 
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
@@ -920,13 +961,13 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, safetySourceTestData.information)
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.informationWithIssue)
+            Response.SetData(safetySourceTestData.informationWithIssue),
         )
 
         assertFailsWith(TimeoutCancellationException::class) {
             safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
                 REFRESH_REASON_PAGE_OPEN,
-                timeout = TIMEOUT_SHORT
+                timeout = TIMEOUT_SHORT,
             )
         }
 
@@ -941,7 +982,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setData(SINGLE_SOURCE_ID, safetySourceTestData.information)
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.informationWithIssue)
+            Response.SetData(safetySourceTestData.informationWithIssue),
         )
 
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
@@ -974,11 +1015,11 @@ class SafetyCenterManagerTest {
         SafetySourceReceiver.apply {
             setResponse(
                 Request.Rescan(SOURCE_ID_1),
-                Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue)
+                Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue),
             )
             setResponse(
                 Request.Rescan(SOURCE_ID_3),
-                Response.SetData(safetySourceTestData.information)
+                Response.SetData(safetySourceTestData.information),
             )
         }
 
@@ -1006,11 +1047,11 @@ class SafetyCenterManagerTest {
         SafetySourceReceiver.apply {
             setResponse(
                 Request.Refresh(SOURCE_ID_1),
-                Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue)
+                Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue),
             )
             setResponse(
                 Request.Refresh(SOURCE_ID_3),
-                Response.SetData(safetySourceTestData.informationWithIssue)
+                Response.SetData(safetySourceTestData.informationWithIssue),
             )
         }
 
@@ -1036,7 +1077,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         SafetySourceReceiver.setResponse(
             Request.Rescan(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue)
+            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue),
         )
 
         assertFailsWith(TimeoutCancellationException::class) {
@@ -1053,13 +1094,13 @@ class SafetyCenterManagerTest {
     fun refreshSafetySources_whenSourceNotInConfig_sourceDoesntSendData() {
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
 
         assertFailsWith(TimeoutCancellationException::class) {
             safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
                 REFRESH_REASON_PAGE_OPEN,
-                timeout = TIMEOUT_SHORT
+                timeout = TIMEOUT_SHORT,
             )
         }
     }
@@ -1081,7 +1122,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         SafetySourceReceiver.setResponse(
             Request.Rescan(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
 
         val broadcastId1 =
@@ -1102,7 +1143,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         SafetySourceReceiver.setResponse(
             Request.Rescan(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information, overrideBroadcastId = "invalid")
+            Response.SetData(safetySourceTestData.information, overrideBroadcastId = "invalid"),
         )
         val listener = safetyCenterTestHelper.addListener()
 
@@ -1116,7 +1157,7 @@ class SafetyCenterManagerTest {
 
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
             REFRESH_REASON_PAGE_OPEN
@@ -1131,14 +1172,14 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
             REFRESH_REASON_PAGE_OPEN
         )
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue)
+            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue),
         )
 
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
@@ -1160,7 +1201,7 @@ class SafetyCenterManagerTest {
         )
         SafetySourceReceiver.setResponse(
             Request.Rescan(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
 
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
@@ -1189,7 +1230,7 @@ class SafetyCenterManagerTest {
         SafetyCenterFlags.setAllRefreshTimeoutsTo(TIMEOUT_LONG)
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
 
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
@@ -1208,7 +1249,7 @@ class SafetyCenterManagerTest {
         )
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
 
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
@@ -1228,7 +1269,7 @@ class SafetyCenterManagerTest {
         for (sourceId in listOf(SOURCE_ID_2, SOURCE_ID_3)) {
             SafetySourceReceiver.setResponse(
                 Request.Rescan(sourceId),
-                Response.SetData(safetySourceTestData.information)
+                Response.SetData(safetySourceTestData.information),
             )
         }
         val listener = safetyCenterTestHelper.addListener()
@@ -1248,7 +1289,7 @@ class SafetyCenterManagerTest {
         for (sourceId in listOf(SOURCE_ID_2, SOURCE_ID_3)) {
             SafetySourceReceiver.setResponse(
                 Request.Rescan(sourceId),
-                Response.SetData(safetySourceTestData.information)
+                Response.SetData(safetySourceTestData.information),
             )
         }
         val listener = safetyCenterTestHelper.addListener()
@@ -1267,7 +1308,7 @@ class SafetyCenterManagerTest {
         // SOURCE_ID_1 and SOURCE_ID_2 will timeout
         SafetySourceReceiver.setResponse(
             Request.Rescan(SOURCE_ID_3),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
         val listener = safetyCenterTestHelper.addListener()
 
@@ -1314,7 +1355,7 @@ class SafetyCenterManagerTest {
         assertFailsWith(TimeoutCancellationException::class) {
             safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
                 REFRESH_REASON_PAGE_OPEN,
-                timeout = TIMEOUT_SHORT
+                timeout = TIMEOUT_SHORT,
             )
         }
     }
@@ -1336,15 +1377,15 @@ class SafetyCenterManagerTest {
         SafetySourceReceiver.apply {
             setResponse(
                 Request.Refresh(SOURCE_ID_1),
-                Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue)
+                Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue),
             )
             setResponse(
                 Request.Refresh(SOURCE_ID_2),
-                Response.SetData(safetySourceTestData.information)
+                Response.SetData(safetySourceTestData.information),
             )
             setResponse(
                 Request.Refresh(SOURCE_ID_3),
-                Response.SetData(safetySourceTestData.information)
+                Response.SetData(safetySourceTestData.information),
             )
         }
         // But sources 1 and 3 should not be refreshed in background
@@ -1368,7 +1409,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue)
+            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue),
         )
         SafetyCenterFlags.backgroundRefreshDeniedSources = setOf(SINGLE_SOURCE_ID)
 
@@ -1385,7 +1426,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         SafetySourceReceiver.setResponse(
             Request.Rescan(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue)
+            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue),
         )
         SafetyCenterFlags.backgroundRefreshDeniedSources = setOf(SINGLE_SOURCE_ID)
 
@@ -1403,14 +1444,14 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
         SafetyCenterFlags.backgroundRefreshDeniedSources = setOf(SINGLE_SOURCE_ID)
 
         assertFailsWith(TimeoutCancellationException::class) {
             safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
                 REFRESH_REASON_PERIODIC,
-                timeout = TIMEOUT_SHORT
+                timeout = TIMEOUT_SHORT,
             )
         }
 
@@ -1425,7 +1466,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue)
+            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue),
         )
 
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
@@ -1443,21 +1484,21 @@ class SafetyCenterManagerTest {
         SafetySourceReceiver.apply {
             setResponse(
                 Request.Refresh(SOURCE_ID_1),
-                Response.SetData(safetySourceTestData.information)
+                Response.SetData(safetySourceTestData.information),
             )
             setResponse(
                 Request.Refresh(SOURCE_ID_2),
-                Response.SetData(safetySourceTestData.information)
+                Response.SetData(safetySourceTestData.information),
             )
             setResponse(
                 Request.Refresh(SOURCE_ID_3),
-                Response.SetData(safetySourceTestData.information)
+                Response.SetData(safetySourceTestData.information),
             )
         }
 
         safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
             REFRESH_REASON_PAGE_OPEN,
-            safetySourceIds = listOf(SOURCE_ID_1, SOURCE_ID_2)
+            safetySourceIds = listOf(SOURCE_ID_1, SOURCE_ID_2),
         )
 
         val apiSafetySourceData1 =
@@ -1477,7 +1518,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         SafetySourceReceiver.setResponse(
             Request.Refresh(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue)
+            Response.SetData(safetySourceTestData.criticalWithResolvingGeneralIssue),
         )
 
         assertFailsWith(TimeoutCancellationException::class) {
@@ -1500,7 +1541,7 @@ class SafetyCenterManagerTest {
         assertFails {
             safetyCenterManager.refreshSafetySourcesWithReceiverPermissionAndWait(
                 REFRESH_REASON_PAGE_OPEN,
-                safetySourceIds = listOf(SOURCE_ID_1, SOURCE_ID_3)
+                safetySourceIds = listOf(SOURCE_ID_1, SOURCE_ID_3),
             )
         }
     }
@@ -1606,7 +1647,7 @@ class SafetyCenterManagerTest {
 
         safetyCenterTestHelper.setData(
             SINGLE_SOURCE_ID,
-            safetySourceTestData.criticalWithResolvingGeneralIssue
+            safetySourceTestData.criticalWithResolvingGeneralIssue,
         )
         val safetyCenterDataFromListener = listener.receiveSafetyCenterData()
 
@@ -1667,7 +1708,7 @@ class SafetyCenterManagerTest {
             }
         safetyCenterManager.addOnSafetyCenterDataChangedListenerWithPermission(
             directExecutor(),
-            oneShotListener
+            oneShotListener,
         )
 
         // Check that we don't deadlock when using a one-shot listener. This is because adding the
@@ -1684,7 +1725,7 @@ class SafetyCenterManagerTest {
         val listener = SafetyCenterTestListener()
         safetyCenterManager.addOnSafetyCenterDataChangedListenerWithPermission(
             directExecutor(),
-            listener
+            listener,
         )
 
         assertFailsWith(TimeoutCancellationException::class) {
@@ -1723,7 +1764,7 @@ class SafetyCenterManagerTest {
         val listener = SafetyCenterTestListener()
         safetyCenterManager.addOnSafetyCenterDataChangedListenerWithPermission(
             fakeExecutor,
-            listener
+            listener,
         )
         fakeExecutor.getNextTask().run()
         listener.receiveSafetyCenterData()
@@ -1771,7 +1812,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(
             SINGLE_SOURCE_ID,
-            safetySourceTestData.recommendationDismissPendingIntentIssue
+            safetySourceTestData.recommendationDismissPendingIntentIssue,
         )
         val apiSafetySourceDataBeforeDismissal =
             safetyCenterManager.getSafetySourceDataWithPermission(SINGLE_SOURCE_ID)
@@ -1781,7 +1822,7 @@ class SafetyCenterManagerTest {
         )
         SafetySourceReceiver.setResponse(
             Request.DismissIssue(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
 
         safetyCenterManager.dismissSafetyCenterIssueWithPermissionAndWait(
@@ -1798,7 +1839,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(
             SINGLE_SOURCE_ID,
-            safetySourceTestData.criticalWithResolvingGeneralIssue
+            safetySourceTestData.criticalWithResolvingGeneralIssue,
         )
         val listener = safetyCenterTestHelper.addListener()
 
@@ -1816,7 +1857,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(
             SINGLE_SOURCE_ID,
-            safetySourceTestData.criticalWithResolvingGeneralIssue
+            safetySourceTestData.criticalWithResolvingGeneralIssue,
         )
         safetyCenterManager.dismissSafetyCenterIssueWithPermission(
             SafetyCenterTestData.issueId(SINGLE_SOURCE_ID, CRITICAL_ISSUE_ID)
@@ -1837,7 +1878,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(
             SINGLE_SOURCE_ID,
-            safetySourceTestData.criticalWithResolvingGeneralIssue
+            safetySourceTestData.criticalWithResolvingGeneralIssue,
         )
         safetyCenterManager.dismissSafetyCenterIssueWithPermission(
             SafetyCenterTestData.issueId(SINGLE_SOURCE_ID, CRITICAL_ISSUE_ID)
@@ -1848,7 +1889,7 @@ class SafetyCenterManagerTest {
             SafetyCenterTestData.issueId(
                 SINGLE_SOURCE_ID,
                 CRITICAL_ISSUE_ID,
-                issueTypeId = "some_other_issue_type_id"
+                issueTypeId = "some_other_issue_type_id",
             )
         )
 
@@ -1862,7 +1903,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(
             SINGLE_SOURCE_ID,
-            safetySourceTestData.criticalWithResolvingGeneralIssue
+            safetySourceTestData.criticalWithResolvingGeneralIssue,
         )
         val listener = safetyCenterTestHelper.addListener()
         safetyCenterTestHelper.setEnabled(false)
@@ -1890,7 +1931,7 @@ class SafetyCenterManagerTest {
                 SafetyCenterTestData.issueId(
                     SINGLE_SOURCE_ID,
                     CRITICAL_ISSUE_ID,
-                    userId = USER_NULL
+                    userId = USER_NULL,
                 )
             )
         }
@@ -1908,7 +1949,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(
             SINGLE_SOURCE_ID,
-            safetySourceTestData.criticalWithResolvingGeneralIssue
+            safetySourceTestData.criticalWithResolvingGeneralIssue,
         )
         val apiSafetySourceDataBeforeExecution =
             safetyCenterManager.getSafetySourceDataWithPermission(SINGLE_SOURCE_ID)
@@ -1918,7 +1959,7 @@ class SafetyCenterManagerTest {
         )
         SafetySourceReceiver.setResponse(
             Request.ResolveAction(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
 
         safetyCenterManager.executeSafetyCenterIssueActionWithPermissionAndWait(
@@ -1926,8 +1967,8 @@ class SafetyCenterManagerTest {
             SafetyCenterTestData.issueActionId(
                 SINGLE_SOURCE_ID,
                 CRITICAL_ISSUE_ID,
-                CRITICAL_ISSUE_ACTION_ID
-            )
+                CRITICAL_ISSUE_ACTION_ID,
+            ),
         )
 
         val apiSafetySourceDataAfterExecution =
@@ -1948,8 +1989,8 @@ class SafetyCenterManagerTest {
             SafetyCenterTestData.issueActionId(
                 SINGLE_SOURCE_ID,
                 CRITICAL_ISSUE_ID,
-                CRITICAL_ISSUE_ACTION_ID
-            )
+                CRITICAL_ISSUE_ACTION_ID,
+            ),
         )
 
         val error = listener.receiveSafetyCenterErrorDetails()
@@ -1974,8 +2015,8 @@ class SafetyCenterManagerTest {
             SafetyCenterTestData.issueActionId(
                 SINGLE_SOURCE_ID,
                 CRITICAL_ISSUE_ID,
-                CRITICAL_ISSUE_ACTION_ID
-            )
+                CRITICAL_ISSUE_ACTION_ID,
+            ),
         )
 
         val error = listener.receiveSafetyCenterErrorDetails()
@@ -2002,7 +2043,7 @@ class SafetyCenterManagerTest {
             }
         safetyCenterManager.addOnSafetyCenterDataChangedListenerWithPermission(
             fakeExecutor,
-            listener
+            listener,
         )
         fakeExecutor.getNextTask().run()
 
@@ -2011,8 +2052,8 @@ class SafetyCenterManagerTest {
             SafetyCenterTestData.issueActionId(
                 SINGLE_SOURCE_ID,
                 CRITICAL_ISSUE_ID,
-                CRITICAL_ISSUE_ACTION_ID
-            )
+                CRITICAL_ISSUE_ACTION_ID,
+            ),
         )
         fakeExecutor.getNextTask().run()
 
@@ -2031,9 +2072,9 @@ class SafetyCenterManagerTest {
                 SafetyCenterTestData.issueActionId(
                     SINGLE_SOURCE_ID,
                     CRITICAL_ISSUE_ID,
-                    CRITICAL_ISSUE_ACTION_ID
+                    CRITICAL_ISSUE_ACTION_ID,
                 ),
-                TIMEOUT_SHORT
+                TIMEOUT_SHORT,
             )
         }
         assertFailsWith(TimeoutCancellationException::class) {
@@ -2046,7 +2087,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(
             SINGLE_SOURCE_ID,
-            safetySourceTestData.criticalWithResolvingGeneralIssue
+            safetySourceTestData.criticalWithResolvingGeneralIssue,
         )
         val listener = safetyCenterTestHelper.addListener()
         safetyCenterManager.executeSafetyCenterIssueActionWithPermissionAndWait(
@@ -2054,8 +2095,8 @@ class SafetyCenterManagerTest {
             SafetyCenterTestData.issueActionId(
                 SINGLE_SOURCE_ID,
                 CRITICAL_ISSUE_ID,
-                CRITICAL_ISSUE_ACTION_ID
-            )
+                CRITICAL_ISSUE_ACTION_ID,
+            ),
         )
         listener.receiveSafetyCenterData()
 
@@ -2065,9 +2106,9 @@ class SafetyCenterManagerTest {
                 SafetyCenterTestData.issueActionId(
                     SINGLE_SOURCE_ID,
                     CRITICAL_ISSUE_ID,
-                    CRITICAL_ISSUE_ACTION_ID
+                    CRITICAL_ISSUE_ACTION_ID,
                 ),
-                TIMEOUT_SHORT
+                TIMEOUT_SHORT,
             )
         }
         assertFailsWith(TimeoutCancellationException::class) {
@@ -2080,7 +2121,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(
             SINGLE_SOURCE_ID,
-            safetySourceTestData.criticalWithResolvingGeneralIssue
+            safetySourceTestData.criticalWithResolvingGeneralIssue,
         )
         val listener = safetyCenterTestHelper.addListener()
         safetyCenterTestHelper.setEnabled(false)
@@ -2091,9 +2132,9 @@ class SafetyCenterManagerTest {
                 SafetyCenterTestData.issueActionId(
                     SINGLE_SOURCE_ID,
                     CRITICAL_ISSUE_ID,
-                    CRITICAL_ISSUE_ACTION_ID
+                    CRITICAL_ISSUE_ACTION_ID,
                 ),
-                TIMEOUT_SHORT
+                TIMEOUT_SHORT,
             )
         }
         assertFailsWith(TimeoutCancellationException::class) {
@@ -2113,12 +2154,12 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(
             SINGLE_SOURCE_ID,
-            safetySourceTestData.criticalWithResolvingGeneralIssue
+            safetySourceTestData.criticalWithResolvingGeneralIssue,
         )
         val listener = safetyCenterTestHelper.addListener()
         SafetySourceReceiver.setResponse(
             Request.ResolveAction(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
 
         assertFailsWith(IllegalArgumentException::class) {
@@ -2127,9 +2168,9 @@ class SafetyCenterManagerTest {
                 SafetyCenterTestData.issueActionId(
                     SINGLE_SOURCE_ID,
                     CRITICAL_ISSUE_ID + "invalid",
-                    CRITICAL_ISSUE_ACTION_ID
+                    CRITICAL_ISSUE_ACTION_ID,
                 ),
-                TIMEOUT_SHORT
+                TIMEOUT_SHORT,
             )
         }
 
@@ -2143,12 +2184,12 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(
             SINGLE_SOURCE_ID,
-            safetySourceTestData.criticalWithResolvingGeneralIssue
+            safetySourceTestData.criticalWithResolvingGeneralIssue,
         )
         val listener = safetyCenterTestHelper.addListener()
         SafetySourceReceiver.setResponse(
             Request.ResolveAction(SINGLE_SOURCE_ID),
-            Response.SetData(safetySourceTestData.information)
+            Response.SetData(safetySourceTestData.information),
         )
 
         assertFailsWith(TimeoutCancellationException::class) {
@@ -2157,9 +2198,9 @@ class SafetyCenterManagerTest {
                 SafetyCenterTestData.issueActionId(
                     SINGLE_SOURCE_ID,
                     CRITICAL_ISSUE_ID,
-                    CRITICAL_ISSUE_ACTION_ID + "invalid"
+                    CRITICAL_ISSUE_ACTION_ID + "invalid",
                 ),
-                TIMEOUT_SHORT
+                TIMEOUT_SHORT,
             )
         }
 
@@ -2176,8 +2217,8 @@ class SafetyCenterManagerTest {
                 SafetyCenterTestData.issueActionId(
                     SOURCE_ID_1,
                     CRITICAL_ISSUE_ID,
-                    CRITICAL_ISSUE_ACTION_ID
-                )
+                    CRITICAL_ISSUE_ACTION_ID,
+                ),
             )
         }
     }
@@ -2189,14 +2230,14 @@ class SafetyCenterManagerTest {
                 SafetyCenterTestData.issueId(
                     SINGLE_SOURCE_ID,
                     CRITICAL_ISSUE_ID,
-                    userId = USER_NULL
+                    userId = USER_NULL,
                 ),
                 SafetyCenterTestData.issueActionId(
                     SINGLE_SOURCE_ID,
                     CRITICAL_ISSUE_ID,
                     CRITICAL_ISSUE_ACTION_ID,
-                    userId = USER_NULL
-                )
+                    userId = USER_NULL,
+                ),
             )
         }
     }
@@ -2214,7 +2255,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setData(SOURCE_ID_1, safetySourceTestData.unspecified)
         safetyCenterTestHelper.setData(
             SOURCE_ID_2,
-            safetySourceTestData.criticalWithResolvingGeneralIssue
+            safetySourceTestData.criticalWithResolvingGeneralIssue,
         )
 
         safetyCenterManager.clearAllSafetySourceDataForTestsWithPermission()
@@ -2230,7 +2271,7 @@ class SafetyCenterManagerTest {
         safetyCenterTestHelper.setConfig(safetyCenterTestConfigs.singleSourceConfig)
         safetyCenterTestHelper.setData(
             SINGLE_SOURCE_ID,
-            safetySourceTestData.criticalWithResolvingGeneralIssue
+            safetySourceTestData.criticalWithResolvingGeneralIssue,
         )
         safetyCenterTestHelper.setEnabled(false)
 
