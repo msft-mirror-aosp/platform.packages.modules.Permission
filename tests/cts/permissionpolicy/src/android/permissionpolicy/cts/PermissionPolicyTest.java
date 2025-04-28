@@ -264,6 +264,18 @@ public class PermissionPolicyTest {
         // OEMs cannot define permissions in the platform namespace
         for (String permission : declaredPermissionsMap.keySet()) {
             if (permission.startsWith(PLATFORM_ROOT_NAMESPACE)) {
+                // It's technically possible (although not advisable), with trunk stable flagging,
+                // to introduce a permission with a mainline update. E.g. if a permission
+                // defined in the platform manifest is accidentally guarded with a flag
+                // from a mainline container. This would mean that the permission didn't
+                // exist in the OS prior to mainline update. In that case, it wouldn't be
+                // in `expectedPermissions` (and thus already reomved from `declaredPermissionsMap`)
+                // in the loop above.
+                //
+                // Check again here to handle this case.
+                if (shouldSkipPermission(permission)) {
+                    continue;
+                }
                 final PermissionInfo permInfo = declaredPermissionsMap.get(permission);
                 offendingList.add(
                         "Cannot define permission " + permission
