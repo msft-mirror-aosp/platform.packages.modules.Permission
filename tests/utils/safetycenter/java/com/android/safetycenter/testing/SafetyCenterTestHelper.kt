@@ -16,14 +16,12 @@
 
 package com.android.safetycenter.testing
 
-import android.Manifest.permission.READ_DEVICE_CONFIG
 import android.Manifest.permission.READ_SAFETY_CENTER_STATUS
 import android.Manifest.permission.SEND_SAFETY_CENTER_UPDATE
 import android.content.Context
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.os.UserManager
-import android.platform.test.flag.junit.DeviceFlagsValueProvider
 import android.safetycenter.SafetyCenterManager
 import android.safetycenter.SafetyEvent
 import android.safetycenter.SafetySourceData
@@ -32,7 +30,6 @@ import android.safetycenter.config.SafetySource.SAFETY_SOURCE_TYPE_STATIC
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.android.modules.utils.build.SdkLevel
-import com.android.permission.flags.Flags
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.addOnSafetyCenterDataChangedListenerWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.clearAllSafetySourceDataForTestsWithPermission
 import com.android.safetycenter.testing.SafetyCenterApisWithShellPermissions.clearSafetyCenterConfigForTestsWithPermission
@@ -222,14 +219,7 @@ class SafetyCenterTestHelper(val context: Context) {
 
         /** Returns whether Safety Center can be enabled / disabled using a DeviceConfig flag. */
         fun safetyCenterCanBeToggledUsingDeviceConfig(): Boolean {
-            val deviceFlagsValueProvider = DeviceFlagsValueProvider()
-            val safetyCenterEnabledNoDeviceConfig =
-                callWithShellPermissionIdentity(READ_DEVICE_CONFIG) {
-                    deviceFlagsValueProvider.getBoolean(
-                        Flags.FLAG_SAFETY_CENTER_ENABLED_NO_DEVICE_CONFIG
-                    )
-                }
-            return !safetyCenterEnabledNoDeviceConfig || !SdkLevel.isAtLeastU()
+            return !SdkLevel.isAtLeastU()
         }
     }
 }
