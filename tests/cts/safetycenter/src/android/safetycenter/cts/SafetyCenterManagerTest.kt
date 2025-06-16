@@ -97,6 +97,7 @@ import kotlin.test.assertFailsWith
 import kotlinx.coroutines.TimeoutCancellationException
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -887,6 +888,9 @@ class SafetyCenterManagerTest {
         }
     }
 
+    // We can't know if DeviceConfig is in use or not, so this test is ignored.
+    // See b/423822838 for more details.
+    @Ignore
     @Test
     fun safetyCenterEnabledChanged_whenNoDeviceConfigFlag_receiverNotCalled() {
         assumeFalse(
