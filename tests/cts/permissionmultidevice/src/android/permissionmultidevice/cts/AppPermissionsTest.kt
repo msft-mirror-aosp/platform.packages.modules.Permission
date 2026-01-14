@@ -327,35 +327,29 @@ class AppPermissionsTest {
             mapOf(
                 "Allowed" to mutableListOf<String>(),
                 "Ask every time" to mutableListOf(),
-                "Not allowed" to mutableListOf()
+                "Not allowed" to mutableListOf(),
             )
         val outOfScopeTitles = setOf("Unused app settings", "Manage app if unused")
 
         val recyclerView = UiAutomatorUtils2.waitFindObject(By.res(RECYCLER_VIEW))
         val titleSelector = By.res(TITLE)
 
-        // Set gesture margin to avoid triggering system gestures
-        recyclerView.setGestureMargin(recyclerView.visibleBounds.width() / 10)
-
-        // Scroll to top
-        while (recyclerView.scroll(androidx.test.uiautomator.Direction.UP, 1.0f)) {
-            UiAutomatorUtils2.getUiDevice().waitForIdle()
-        }
+        UiAutomatorUtils2.getUiDevice().waitForIdle()
 
         val allTitles = LinkedHashSet<String>()
-        var canScrollDown = true
+        val startTime = System.currentTimeMillis()
+        val scrollTimeout = 40_000
 
-        while (true) {
+        loop@ while (System.currentTimeMillis() - startTime < scrollTimeout) {
             val visibleTitles = recyclerView.findObjects(titleSelector)
             for (titleObj in visibleTitles) {
+                if (outOfScopeTitles.contains(titleObj.text)) {
+                    break@loop
+                }
                 allTitles.add(titleObj.text)
             }
 
-            if (!canScrollDown) {
-                break
-            }
-
-            canScrollDown = recyclerView.scroll(androidx.test.uiautomator.Direction.DOWN, 0.5f)
+            recyclerView.scroll(androidx.test.uiautomator.Direction.DOWN, 0.1f)
             UiAutomatorUtils2.getUiDevice().waitForIdle()
         }
 
