@@ -349,7 +349,7 @@ class AppPermissionsTest {
                 allTitles.add(titleObj.text)
             }
 
-            recyclerView.scroll(androidx.test.uiautomator.Direction.DOWN, 0.1f)
+            recyclerView.scroll(androidx.test.uiautomator.Direction.DOWN, 0.6f)
             UiAutomatorUtils2.getUiDevice().waitForIdle()
         }
 
