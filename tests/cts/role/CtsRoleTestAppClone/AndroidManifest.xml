@@ -18,9 +18,9 @@
 
 <manifest
      xmlns:android="http://schemas.android.com/apk/res/android"
-     package="android.app.role.cts.appForProfile">
+     package="android.app.role.cts.appClone">
 
-    <application android:label="CtsRoleTestAppForProfile">
+    <application android:label="CtsRoleTestAppClone">
         <!-- Browser -->
         <activity
             android:name=".BrowserActivity"

@@ -44,7 +44,20 @@ class RoleShellCommandTest {
     private var wasBypassingRoleQualification: Boolean = false
 
     @Before
-    fun saveRoleHolder() {
+    public fun setUp() {
+        saveRoleHolder()
+        saveBypassingRoleQualification()
+        installApp()
+    }
+
+    @After
+    public fun tearDown() {
+        uninstallApp()
+        restoreBypassingRoleQualification()
+        restoreRoleHolder()
+    }
+
+    private fun saveRoleHolder() {
         roleHolder = getRoleHolders().firstOrNull()
         if (roleHolder == APP_PACKAGE_NAME) {
             removeRoleHolder()
@@ -52,31 +65,30 @@ class RoleShellCommandTest {
         }
     }
 
-    @Before
-    fun saveBypassingRoleQualification() {
+    private fun saveBypassingRoleQualification() {
         wasBypassingRoleQualification = isBypassingRoleQualification()
     }
 
-    @After
-    fun restoreRoleHolder() {
+    private fun restoreRoleHolder() {
         removeRoleHolder()
         roleHolder?.let { addRoleHolder(it) }
         assertIsRoleHolder(false)
     }
 
-    @After
-    fun restoreBypassingRoleQualification() {
+    private fun restoreBypassingRoleQualification() {
         setBypassingRoleQualification(wasBypassingRoleQualification)
     }
 
-    @Before
-    fun installApp() {
+    private fun installApp() {
         installPackage(APP_APK_PATH)
+        // Install CtsRoleTestAppClone as default role holder for browser role
+        // in case no browser is installed on system
+        installPackage(APP_CLONE_APK_PATH)
     }
 
-    @After
-    fun uninstallApp() {
+    private fun uninstallApp() {
         uninstallPackage(APP_PACKAGE_NAME)
+        uninstallPackage(APP_CLONE_PACKAGE_NAME)
     }
 
     @Test
@@ -196,5 +208,7 @@ class RoleShellCommandTest {
         private const val ROLE_NAME = RoleManager.ROLE_BROWSER
         private const val APP_APK_PATH = "/data/local/tmp/cts-role/CtsRoleTestApp.apk"
         private const val APP_PACKAGE_NAME = "android.app.role.cts.app"
+        private const val APP_CLONE_APK_PATH = "/data/local/tmp/cts-role/CtsRoleTestAppClone.apk"
+        private const val APP_CLONE_PACKAGE_NAME = "android.app.role.cts.appClone"
     }
 }
